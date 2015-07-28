@@ -1,15 +1,14 @@
 #pragma once
 #include "style.h"
-#include <vector>
-#include <list>
-#include <utility>
+#undef self
+#include <boost/graph/adjacency_list.hpp>
 
-typedef int Graph;
+typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS, boost::property<boost::vertex_index_t, int>> bgraph;
 
 struct Partition
 {
-	Graph a, b;
-	Graph c;
+	bgraph a, b;
+	bgraph c;
 };
 
-Partition lipton_tarjan(Graph g);
+Partition lipton_tarjan(bgraph g);

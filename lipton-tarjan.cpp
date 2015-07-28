@@ -13,16 +13,36 @@
 using namespace std;
 using namespace boost;
 
-// a class to hold the coordinates of the straight line embedding
 struct coord_t
 {
         size_t x, y;
-}; 
+};
 
-void step1()
-{
-        // find a planar embedding of G and construct a representation for it of the kind described above
-        // Boost Boyer-Myrvold 2004
+typedef adjacency_list<vecS, vecS, undirectedS, property<vertex_index_t, int>>                                  bgraph; 
+typedef vector<vector<graph_traits<bgraph>::edge_descriptor>>                                                   embedding_storage_t;
+typedef boost::iterator_property_map<embedding_storage_t::iterator, property_map<bgraph, vertex_index_t>::type> embedding_t; 
+
+void draw(bgraph g, embedding_t embedding)
+{ 
+        typedef vector<coord_t>                                                                                                     straight_line_drawing_storage_t;
+        typedef boost::iterator_property_map<straight_line_drawing_storage_t::iterator, property_map<bgraph, vertex_index_t>::type> straight_line_drawing_t;
+
+        vector<graph_traits<bgraph>::vertex_descriptor> ordering;
+        planar_canonical_ordering(g, embedding, back_inserter(ordering)); 
+
+        straight_line_drawing_storage_t straight_line_drawing_storage(num_vertices(g));
+        straight_line_drawing_t         straight_line_drawing(straight_line_drawing_storage.begin(), get(vertex_index,g));
+
+        chrobak_payne_straight_line_drawing(g, embedding, ordering.begin(), ordering.end(), straight_line_drawing); 
+
+        cout << "The straight line drawing is: \n";
+        graph_traits<bgraph>::vertex_iterator vi, vi_end;
+        for( tie(vi,vi_end) = vertices(g); vi != vi_end; ++vi ){
+                coord_t coord(get(straight_line_drawing,*vi));
+                cout << *vi << " -> (" << coord.x << ", " << coord.y << ")\n";
+        }
+
+        cout << (is_straight_line_drawing(g, straight_line_drawing) ? "Is a plane drawing.\n" : "Is not a plane drawing.\n");
 }
 
 bool step2()
@@ -134,59 +154,15 @@ void step10()
         // Extend this partition from the connected component chosen in Step 2 to the entire graph as desribed in the proof Theorem 4.
 }
 
-void chrobak_payne()
-{ 
-        typedef adjacency_list<vecS, vecS, undirectedS, property<vertex_index_t, uint>> graph; 
-
-        //Define the storage type for the planar embedding
-        typedef vector<vector<graph_traits<graph>::edge_descriptor>> embedding_storage_t;
-        typedef iterator_property_map<embedding_storage_t::iterator, property_map<graph, vertex_index_t>::type> embedding_t; 
-
-        // Create the graph - a maximal planar graph on 7 vertices. The functions planar_canonical_ordering and chrobak_payne_straight_line_drawing both require a maximal planar graph. If you start with a graph that
-        // isn't maximal planar (or you're not sure), you can use the functions make_connected, make_biconnected_planar, and make_maximal planar in sequence to add a set of edges to any undirected planar graph to make
-        // it maximal planar.
-
-        graph g(7);
-        add_edge(0,1,g); add_edge(1,2,g); add_edge(2,3,g); add_edge(3,0,g); add_edge(3,4,g); add_edge(4,5,g); add_edge(5,6,g); add_edge(6,3,g);
-        add_edge(0,4,g); add_edge(1,3,g); add_edge(3,5,g); add_edge(2,6,g); add_edge(1,4,g); add_edge(1,5,g); add_edge(1,6,g); 
-
-        // Create the planar embedding
-        embedding_storage_t embedding_storage(num_vertices(g));
-        embedding_t embedding(embedding_storage.begin(), get(vertex_index,g));
-
-        boyer_myrvold_planarity_test(boyer_myrvold_params::graph = g, boyer_myrvold_params::embedding = embedding); 
-
-        // Find a canonical ordering
-        vector<graph_traits<graph>::vertex_descriptor> ordering;
-        planar_canonical_ordering(g, embedding, back_inserter(ordering));
-
-        //Set up a property map to hold the mapping from vertices to coord_t's
-        typedef vector<coord_t>                                                                                             straight_line_drawing_storage_t;
-        typedef iterator_property_map<straight_line_drawing_storage_t::iterator, property_map<graph, vertex_index_t>::type> straight_line_drawing_t;
-
-        straight_line_drawing_storage_t straight_line_drawing_storage(num_vertices(g));
-        straight_line_drawing_t         straight_line_drawing(straight_line_drawing_storage.begin(), get(vertex_index,g)); 
-
-        chrobak_payne_straight_line_drawing(g, embedding, ordering.begin(), ordering.end(), straight_line_drawing); // Compute the straight line drawing
-
-        cout << "The straight line drawing is: " << endl;
-        graph_traits<graph>::vertex_iterator vi, vi_end;
-        for( tie(vi,vi_end) = vertices(g); vi != vi_end; ++vi ){
-                coord_t coord(get(straight_line_drawing,*vi));
-                cout << *vi << " -> (" << coord.x << ", " << coord.y << ")\n";
-        }
-
-        cout << is_straight_line_drawing(g, straight_line_drawing) ? "Is a plane drawing.\n" : cout << "Is not a plane drawing.\n";
-}
-
-void draw()
-{
-}
-
-Partition lipton_tarjan(Graph)
+Partition lipton_tarjan(bgraph g)
 {
         Partition p;
-        step1();
+
+        // Step 1
+        embedding_storage_t embedding_storage(num_vertices(g));
+        embedding_t         embedding(embedding_storage.begin(), get(vertex_index,g)); 
+        boyer_myrvold_planarity_test(g, embedding); 
+
         if( step2() ) return p;
         step3();
         step4();
@@ -196,7 +172,6 @@ Partition lipton_tarjan(Graph)
         step8();
         step9();
         step10();
-        chrobak_payne();
-        draw();
+        draw(g, embedding);
         return p;
 }

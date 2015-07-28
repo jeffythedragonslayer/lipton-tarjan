@@ -1,5 +1,5 @@
 #pragma once
-#include "typedefs.h"
+//#include "typedefs.h"
 
 #if 0
 #pragma warning( disable : 4351 ) // array zero initialized in initalizer list

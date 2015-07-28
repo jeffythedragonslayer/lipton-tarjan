@@ -1,6 +1,8 @@
 #include "lipton-tarjan.h"
 #include <iostream>
 #include <vector>
+#include <algorithm>
+#include <utility>
 #include <boost/graph/properties.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/property_map/property_map.hpp>
@@ -8,23 +10,68 @@
 #include <boost/graph/is_straight_line_drawing.hpp>
 #include <boost/graph/chrobak_payne_drawing.hpp>
 #include <boost/graph/boyer_myrvold_planar_test.hpp> 
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/connected_components.hpp>
+#include <boost/config.hpp>
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/breadth_first_search.hpp>
+#include <boost/pending/indirect_cmp.hpp>
+#include <boost/range/irange.hpp> 
 using namespace std;
-using namespace boost;
+using namespace boost; 
 
-bool step2()
-{
-        // Find the connected components of G and determine the cost of each one.
-        if( false /* none has cost exceeding 2/3 */ ){
-                // construct the paritition as described in the proof of Theorem 4.
-                return true;
-        }
-        return false;
+bool find_cc(Graph* g) // Step 2
+{ 
+        uint N = num_vertices(*g);
+        vector<uint> vertid_to_comp(N);
+        uint num_comps = connected_components(*g, &vertid_to_comp[0]);
+
+        vector<uint> verts_per_comp(num_comps, 0); 
+        for( uint i = 0; i < N;         ++i ) ++verts_per_comp[vertid_to_comp[i]]; 
+        for( uint i = 0; i < num_comps; ++i ) if( 3*verts_per_comp[i] > 2*N ) return false;
+
+        // construct the paritition as described in the proof of Theorem 4.
+        return true;
 }
 
-void step3()
+template<typename TimeMap>
+struct bfs_time_visitor : public default_bfs_visitor
 {
-        // Find a breadth-first spanning tree of the most costly component.
-        // Compute the level of each vertex and the # of of verts L(l) in each level l.
+        typedef typename property_traits<TimeMap>::value_type T;
+
+        TimeMap timemap;
+        T&      time;
+
+        bfs_time_visitor(TimeMap tmap, T & t) : timemap(tmap), time(t) { }
+
+        template<typename Vertex, typename Graph>
+        void discover_vertex(Vertex u, const Graph & g) const
+        {
+                put(timemap, u, time++);
+        }
+
+};
+
+// Find a breadth-first spanning tree of the most costly component.
+// Compute the level of each vertex and the # of of verts L(l) in each level l.
+void step3(Graph* gg, uint costly_comp)
+{ 
+        /*uint N = num_vertices(*gg);
+
+        typedef graph_traits<Graph>::vertices_size_type                                                        Size;
+        typedef iterator_property_map<vector<Size>::iterator, property_map<Graph, vertex_index_t>::const_type> DTimePM;
+
+        vector<Size> dtime(N);
+        DTimePM dtime_pm(dtime.begin(), get(vertex_index, *gg));
+
+        Size time = 0;
+        bfs_time_visitor<DTimePM> vis(dtime_pm, time);
+        breadth_first_search(*gg, vertex(0, *gg), visitor(vis));
+
+        vector<graph_traits<Graph>::vertices_size_type> discover_order(N);
+        integer_range<uint>range(0, N);
+        copy(range.begin(), range.end(), discover_order.begin());
+        sort(discover_order.begin(), discover_order.end(), indirect_cmp<DTimePM, less<Size>>(dtime_pm));*/
 }
 
 void step4()
@@ -120,18 +167,22 @@ void step10()
         // Extend this partition from the connected component chosen in Step 2 to the entire graph as desribed in the proof Theorem 4.
 }
 
+void planar(Graph* g, Partition* p) // Step 1
+{
+        p->embedding_storage = new EmbeddingStorage(num_vertices(*g));
+        p->embedding         = new Embedding(p->embedding_storage->begin(), get(vertex_index, *g)); 
+
+        boyer_myrvold_planarity_test(*g, *p->embedding); 
+        planar_canonical_ordering(*g, *p->embedding, back_inserter(p->ordering)); 
+}
+
 Partition lipton_tarjan(Graph g)
 {
         Partition p;
 
-        // Step 1
-        p.embedding_storage   = new embedding_storage_t(num_vertices(g));
-        Embedding embedding(p.embedding_storage->begin(), get(vertex_index,g)); 
-        boyer_myrvold_planarity_test(g, embedding); 
-	p.embedding = new Embedding(embedding);
-
-        if( step2() ) return p;
-        step3();
+        planar(&g, &p); 
+        if( find_cc(&g) ) return p;
+        step3(&g, p.costly_component);
         step4();
         step5();
         step6();

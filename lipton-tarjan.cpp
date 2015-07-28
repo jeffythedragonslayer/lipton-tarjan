@@ -1,7 +1,6 @@
 #include "lipton-tarjan.h"
 #include <iostream>
 #include <vector>
-#undef self
 #include <boost/graph/properties.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/property_map/property_map.hpp>

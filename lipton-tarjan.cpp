@@ -121,15 +121,15 @@ void step10()
         // Extend this partition from the connected component chosen in Step 2 to the entire graph as desribed in the proof Theorem 4.
 }
 
-Partition lipton_tarjan(bgraph g)
+Partition lipton_tarjan(Graph g)
 {
         Partition p;
 
         // Step 1
         p.embedding_storage   = new embedding_storage_t(num_vertices(g));
-        embedding_t embedding(p.embedding_storage->begin(), get(vertex_index,g)); 
+        Embedding embedding(p.embedding_storage->begin(), get(vertex_index,g)); 
         boyer_myrvold_planarity_test(g, embedding); 
-	p.embedding = new embedding_t(embedding);
+	p.embedding = new Embedding(embedding);
 
         if( step2() ) return p;
         step3();

@@ -2,7 +2,6 @@
 #include <iostream>
 #include <vector>
 #undef self
-#include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/property_map/property_map.hpp>
@@ -12,38 +11,6 @@
 #include <boost/graph/boyer_myrvold_planar_test.hpp> 
 using namespace std;
 using namespace boost;
-
-struct coord_t
-{
-        size_t x, y;
-};
-
-typedef adjacency_list<vecS, vecS, undirectedS, property<vertex_index_t, int>>                                  bgraph; 
-typedef vector<vector<graph_traits<bgraph>::edge_descriptor>>                                                   embedding_storage_t;
-typedef boost::iterator_property_map<embedding_storage_t::iterator, property_map<bgraph, vertex_index_t>::type> embedding_t; 
-
-void draw(bgraph g, embedding_t embedding)
-{ 
-        typedef vector<coord_t>                                                                                                     straight_line_drawing_storage_t;
-        typedef boost::iterator_property_map<straight_line_drawing_storage_t::iterator, property_map<bgraph, vertex_index_t>::type> straight_line_drawing_t;
-
-        vector<graph_traits<bgraph>::vertex_descriptor> ordering;
-        planar_canonical_ordering(g, embedding, back_inserter(ordering)); 
-
-        straight_line_drawing_storage_t straight_line_drawing_storage(num_vertices(g));
-        straight_line_drawing_t         straight_line_drawing(straight_line_drawing_storage.begin(), get(vertex_index,g));
-
-        chrobak_payne_straight_line_drawing(g, embedding, ordering.begin(), ordering.end(), straight_line_drawing); 
-
-        cout << "The straight line drawing is: \n";
-        graph_traits<bgraph>::vertex_iterator vi, vi_end;
-        for( tie(vi,vi_end) = vertices(g); vi != vi_end; ++vi ){
-                coord_t coord(get(straight_line_drawing,*vi));
-                cout << *vi << " -> (" << coord.x << ", " << coord.y << ")\n";
-        }
-
-        cout << (is_straight_line_drawing(g, straight_line_drawing) ? "Is a plane drawing.\n" : "Is not a plane drawing.\n");
-}
 
 bool step2()
 {
@@ -159,9 +126,10 @@ Partition lipton_tarjan(bgraph g)
         Partition p;
 
         // Step 1
-        embedding_storage_t embedding_storage(num_vertices(g));
-        embedding_t         embedding(embedding_storage.begin(), get(vertex_index,g)); 
+        p.embedding_storage   = new embedding_storage_t(num_vertices(g));
+        embedding_t embedding(p.embedding_storage->begin(), get(vertex_index,g)); 
         boyer_myrvold_planarity_test(g, embedding); 
+	p.embedding = new embedding_t(embedding);
 
         if( step2() ) return p;
         step3();
@@ -172,6 +140,5 @@ Partition lipton_tarjan(bgraph g)
         step8();
         step9();
         step10();
-        draw(g, embedding);
         return p;
 }

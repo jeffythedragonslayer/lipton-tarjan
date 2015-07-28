@@ -10,7 +10,7 @@ int main(int argc, char** argv)
 
 	typedef adjacency_list<vecS, vecS, undirectedS, property<vertex_index_t, int>> graph;
 
-	graph K4(4);
+	adjacency_list<> K4(4);
 	add_edge(0, 1, K4);
 	add_edge(0, 2, K4);
 	add_edge(0, 3, K4);

@@ -21,10 +21,8 @@ struct coord_t
 
 int main(int argc, char** argv)
 {
-	typedef adjacency_list<vecS, vecS, undirectedS, property<vertex_index_t, int>> graph;
-
-	//Define the storage type for the planar embedding
-	typedef vector<vector<graph_traits<graph>::edge_descriptor>> embedding_storage_t;
+	typedef adjacency_list<vecS, vecS, undirectedS, property<vertex_index_t, int>> 				  graph; 
+	typedef vector<vector<graph_traits<graph>::edge_descriptor>> 						  embedding_storage_t;
 	typedef ::iterator_property_map<embedding_storage_t::iterator, property_map<graph, vertex_index_t>::type> embedding_t; 
 
 	// Create the graph - a maximal planar graph on 7 vertices. The functions planar_canonical_ordering and chrobak_payne_straight_line_drawing both
@@ -39,7 +37,7 @@ int main(int argc, char** argv)
 
 	// Create the planar embedding
 	embedding_storage_t embedding_storage(num_vertices(g));
-	embedding_t embedding(embedding_storage.begin(), get(vertex_index,g));
+	embedding_t 	    embedding(embedding_storage.begin(), get(vertex_index,g));
 
 	boyer_myrvold_planarity_test(boyer_myrvold_params::graph = g, boyer_myrvold_params::embedding = embedding); 
 
@@ -47,14 +45,14 @@ int main(int argc, char** argv)
 	vector<graph_traits<graph>::vertex_descriptor> ordering;
 	planar_canonical_ordering(g, embedding, back_inserter(ordering)); 
 
-	//Set up a property map to hold the mapping from vertices to coord_t's
-	typedef vector<coord_t> 												straight_line_drawing_storage_t;
+	// Set up a property map to hold the mapping from vertices to coord_t's
+	typedef vector<coord_t> 											      straight_line_drawing_storage_t;
 	typedef ::iterator_property_map<straight_line_drawing_storage_t::iterator, property_map<graph, vertex_index_t>::type> straight_line_drawing_t;
 
 	straight_line_drawing_storage_t straight_line_drawing_storage(num_vertices(g));
-	straight_line_drawing_t 	  straight_line_drawing(straight_line_drawing_storage.begin(), get(vertex_index,g));
+	straight_line_drawing_t 	straight_line_drawing(straight_line_drawing_storage.begin(), get(vertex_index,g));
 
-	chrobak_payne_straight_line_drawing(g, embedding, ordering.begin(), ordering.end(), straight_line_drawing); // Compute the straight line drawing
+	chrobak_payne_straight_line_drawing(g, embedding, STLALL(ordering), straight_line_drawing);
 
 	cout << "The straight line drawing is: \n";
 	graph_traits<graph>::vertex_iterator vi, vi_end;
@@ -62,7 +60,4 @@ int main(int argc, char** argv)
 		coord_t coord(get(straight_line_drawing,*vi));
 		cout << *vi << " -> (" << coord.x << ", " << coord.y << ")\n";
 	}
-
-	if( is_straight_line_drawing(g, straight_line_drawing) ) cout << "Is a plane drawing.\n";
-	else 							   cout << "Is not a plane drawing.\n"; 
 }

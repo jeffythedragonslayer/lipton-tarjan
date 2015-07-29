@@ -23,13 +23,8 @@ Graph load_graph()
                 exit(0);
         }
 
-        string str, trash;
-        in >> str;
-
-        uint size = lexical_cast<uint>(str);
-
-        getline(in, trash);
-	Graph g(size);
+        string str;
+	Graph g;
         while( getline(in, str) ){
                 uint   colon = str.find(","); 
                 string stra  = str.substr(0, colon); trim(stra);

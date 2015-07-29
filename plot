@@ -15,9 +15,6 @@ with open('out') as f:
         plt.plot(x, y, "o")
 
 with open('in') as f:
-    num_verts = int(f.readline())
-    assert num_verts == len(nodes)
-    c = 0
     for l in f:
         comma_pos = l.find(",")
         vert_a    = int(l[0:comma_pos])

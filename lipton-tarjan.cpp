@@ -181,14 +181,14 @@ Partition lipton_tarjan(Graph g)
         Partition p;
 
         planar(&g, &p); 
-        if( find_cc(&g) ) return p;
-        step3(&g, p.costly_component);
-        step4();
-        step5();
-        step6();
-        step7();
-        step8();
-        step9();
+        if( find_cc(&g) ) return p; 
+        step3(&g, p.costly_component); 
+        step4(); 
+        step5(); 
+        step6(); 
+        step7(); 
+        step8(); 
+        step9(); 
         step10();
         return p;
 }

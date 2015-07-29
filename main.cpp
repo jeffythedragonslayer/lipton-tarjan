@@ -1,5 +1,7 @@
 #include "lipton-tarjan.h"
 #include <iostream> 
+#include <fstream>
+#include <csignal>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/graph/graph_traits.hpp>
@@ -8,17 +10,45 @@
 #include <boost/graph/is_straight_line_drawing.hpp>
 #include <boost/graph/chrobak_payne_drawing.hpp>
 #include <boost/graph/boyer_myrvold_planar_test.hpp> 
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 using namespace std;
 using namespace boost;
+
+Graph load_graph()
+{
+        ifstream in("in");
+        if( !in ){
+                cerr << "file \"in\" not found!\n";
+                exit(0);
+        }
+
+        string str, trash;
+        in >> str;
+
+        uint size = lexical_cast<uint>(str);
+
+        getline(in, trash);
+	Graph g(size);
+        while( getline(in, str) ){
+                uint   colon = str.find(","); 
+                string stra  = str.substr(0, colon); trim(stra);
+                string strb  = str.substr(colon+1 ); trim(strb); 
+                uint   a     = lexical_cast<uint>(stra);
+                uint   b     = lexical_cast<uint>(strb); 
+                add_edge(a, b, g);
+        } 
+        return g;
+}
 
 struct Coord
 {
         size_t x, y;
 };
 
-typedef vector<Coord> StraightLineDrawingStorage;
+typedef vector<Coord> StraightLineDrawingStorage; 
 
-void draw(Graph g, Embedding* embedding, vector<VertexDescriptor> ordering)
+void save_graph(Graph g, Embedding* embedding, vector<VertexDescriptor> ordering)
 { 
         typedef iterator_property_map<StraightLineDrawingStorage::iterator, property_map<Graph, vertex_index_t>::type> StraightLineDrawing;
 
@@ -27,25 +57,18 @@ void draw(Graph g, Embedding* embedding, vector<VertexDescriptor> ordering)
 
         chrobak_payne_straight_line_drawing(g, *embedding, ordering.begin(), ordering.end(), straight_line_drawing); 
 
-        cout << "The straight line drawing is: \n";
         graph_traits<Graph>::vertex_iterator vi, vi_end;
+        ofstream f("out");
         for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
                 Coord coord(get(straight_line_drawing,*vi));
-                cout << *vi << " -> (" << coord.x << ", " << coord.y << ")\n";
+                f << *vi << " -> (" << coord.x << ", " << coord.y << ")\n";
         }
-
-        cout << (is_straight_line_drawing(g, straight_line_drawing) ? "Is a plane drawing.\n" : "Is not a plane drawing.\n");
 }
 
 
 int main()
 {
-	Graph g;
-        add_edge(0,1,g); add_edge(1,2,g); add_edge(2,3,g); add_edge(3,0,g); add_edge(3,4,g); add_edge(4,5,g); add_edge(5,6,g); add_edge(6,3,g); add_edge(0,4,g); add_edge(1,3,g);
-        add_edge(3,5,g); add_edge(2,6,g); add_edge(1,4,g); add_edge(1,5,g); add_edge(1,6,g); 
-        add_edge(7,6,g);
-
-	auto p = lipton_tarjan(g);
-
-	draw(g, p.embedding, p.ordering);
+        auto g = load_graph();
+	auto p = lipton_tarjan(g); 
+	save_graph(g, p.embedding, p.ordering);
 }

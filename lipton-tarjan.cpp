@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include <utility>
+#include <csignal>
 #include <boost/graph/properties.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/property_map/property_map.hpp>
@@ -171,9 +172,13 @@ void planar(Graph* g, Partition* p) // Step 1
 {
         p->embedding_storage = new EmbeddingStorage(num_vertices(*g));
         p->embedding         = new Embedding(p->embedding_storage->begin(), get(vertex_index, *g)); 
-
+        
         boyer_myrvold_planarity_test(*g, *p->embedding); 
+
+        assert(num_vertices(*g) >= 2);
+
         planar_canonical_ordering(*g, *p->embedding, back_inserter(p->ordering)); 
+        
 }
 
 Partition lipton_tarjan(Graph g)

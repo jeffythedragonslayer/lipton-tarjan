@@ -3,18 +3,15 @@ import matplotlib.pyplot as plt
 
 nodes = []
 
-with open('out') as f:
+with open('vert_positions') as f:
     for l in f:
-        arrow_pos = l.find("->")
-        paren_pos = l.find("(")
         comma_pos = l.find(",")
-        vert_id   = int( l[0          :arrow_pos] )
-        x         = int( l[paren_pos+1:comma_pos] )
-        y         = int( l[comma_pos+1:-2]        ) 
+        x         = int(l[0:comma_pos])
+        y         = int(l[comma_pos+1:]) 
         nodes.append((x, y)) 
         plt.plot(x, y, "o")
 
-with open('in') as f:
+with open('graph_in') as f:
     for l in f:
         comma_pos = l.find(",")
         vert_a    = int(l[0:comma_pos])

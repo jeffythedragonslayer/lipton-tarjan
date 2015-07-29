@@ -20,4 +20,5 @@ struct Partition
         uint                          costly_component;
 };
 
+
 Partition lipton_tarjan(Graph g);

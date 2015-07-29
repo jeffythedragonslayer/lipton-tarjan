@@ -17,7 +17,7 @@ using namespace boost;
 
 Graph load_graph()
 {
-        ifstream in("in");
+        ifstream in("graph_in");
         if( !in ){
                 cerr << "file \"in\" not found!\n";
                 exit(0);
@@ -53,10 +53,10 @@ void save_graph(Graph g, Embedding* embedding, vector<VertexDescriptor> ordering
         chrobak_payne_straight_line_drawing(g, *embedding, ordering.begin(), ordering.end(), straight_line_drawing); 
 
         graph_traits<Graph>::vertex_iterator vi, vi_end;
-        ofstream f("out");
+        ofstream f("vert_positions");
         for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
                 Coord coord(get(straight_line_drawing,*vi));
-                f << *vi << " -> (" << coord.x << ", " << coord.y << ")\n";
+                f << coord.x << ", " << coord.y << '\n';
         }
 }
 

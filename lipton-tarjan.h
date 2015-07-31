@@ -4,7 +4,14 @@
 #include <boost/property_map/property_map.hpp>
 #include <vector>
 
-typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS, boost::property<boost::vertex_index_t, int>>  Graph;
+struct VertexInfo
+{
+        boost::vertex_index_t index;
+        int i;
+        int x, y;
+};
+
+typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS, VertexInfo>  Graph;
 typedef std::vector<std::vector<boost::graph_traits<Graph>::edge_descriptor>>                                             EmbeddingStorage;
 typedef boost::iterator_property_map<EmbeddingStorage::iterator, boost::property_map<Graph, boost::vertex_index_t>::type> Embedding; 
 typedef boost::graph_traits<Graph>::vertex_descriptor                                                                     VertexDescriptor;

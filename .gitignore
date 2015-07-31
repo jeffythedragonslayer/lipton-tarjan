@@ -1,3 +1,7 @@
+# Intermediate files
+*.dot
+*.ps
+
 # Compiled Object files
 *.slo
 *.lo

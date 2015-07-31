@@ -174,8 +174,7 @@ void planar(Graph* g, Partition* p) // Step 1
         p->embedding         = new Embedding(p->embedding_storage->begin(), get(vertex_index, *g)); 
         
         boyer_myrvold_planarity_test(*g, *p->embedding); 
-
-        assert(num_vertices(*g) >= 2);
+        assert(num_vertices(*g) >= 3);
 
         planar_canonical_ordering(*g, *p->embedding, back_inserter(p->ordering)); 
         

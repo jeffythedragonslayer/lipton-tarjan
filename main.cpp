@@ -12,6 +12,7 @@
 #include <boost/graph/boyer_myrvold_planar_test.hpp> 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/graph/graphviz.hpp>
 using namespace std;
 using namespace boost;
 
@@ -43,6 +44,21 @@ struct Coord
 
 typedef vector<Coord> StraightLineDrawingStorage; 
 
+Graph* gg;
+
+struct pos_writer
+{
+        template <class VertexOrEdge>
+        void operator() (ostream& out, const VertexOrEdge& v) const
+        {
+                Graph& g = *gg;
+                int x = g[v].x;
+                int y = g[v].y;
+                out << "[pos=\"" << lexical_cast<int>(x) << ',' << lexical_cast<int>(y) << "!\"]";
+        }
+};
+
+
 void save_graph(Graph g, Embedding* embedding, vector<VertexDescriptor> ordering)
 { 
         typedef iterator_property_map<StraightLineDrawingStorage::iterator, property_map<Graph, vertex_index_t>::type> StraightLineDrawing;
@@ -52,14 +68,23 @@ void save_graph(Graph g, Embedding* embedding, vector<VertexDescriptor> ordering
 
         chrobak_payne_straight_line_drawing(g, *embedding, ordering.begin(), ordering.end(), straight_line_drawing); 
 
+        ofstream f2("out_graph.txt");
         graph_traits<Graph>::vertex_iterator vi, vi_end;
-        ofstream f("vert_positions");
+        int i = 0;
         for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
                 Coord coord(get(straight_line_drawing,*vi));
-                f << coord.x << ", " << coord.y << '\n';
+                f2 << coord.x << ", " << coord.y << '\n'; 
+                g[i].x = coord.x;
+                g[i].y = coord.y;
+                i++;
         }
-}
 
+        gg = &g;
+
+        ofstream f("out_graph.dot");
+        write_graphviz(f, g, pos_writer());
+
+}
 
 int main()
 {

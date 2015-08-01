@@ -1,6 +1,7 @@
 # Intermediate files
 *.dot
 *.ps
+out_graph.*
 
 # Compiled Object files
 *.slo

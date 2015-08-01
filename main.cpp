@@ -44,16 +44,17 @@ struct Coord
 
 typedef vector<Coord> StraightLineDrawingStorage; 
 
-Graph* gg;
-
 struct pos_writer
 {
+        Graph* g;
+
+        pos_writer(Graph* g) : g(g) {}
+
         template <class VertexOrEdge>
         void operator() (ostream& out, const VertexOrEdge& v) const
         {
-                Graph& g = *gg;
-                int x = g[v].x;
-                int y = g[v].y;
+                int x = (*g)[v].x;
+                int y = (*g)[v].y;
                 out << "[pos=\"" << lexical_cast<int>(x) << ',' << lexical_cast<int>(y) << "!\"]";
         }
 };
@@ -79,10 +80,8 @@ void save_graph(Graph g, Embedding* embedding, vector<VertexDescriptor> ordering
                 i++;
         }
 
-        gg = &g;
-
         ofstream f("out_graph.dot");
-        write_graphviz(f, g, pos_writer());
+        write_graphviz(f, g, pos_writer(&g));
 
 }
 

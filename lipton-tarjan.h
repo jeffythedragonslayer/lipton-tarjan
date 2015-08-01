@@ -6,8 +6,6 @@
 
 struct VertexInfo
 {
-        boost::vertex_index_t index;
-        int i;
         int x, y;
 };
 

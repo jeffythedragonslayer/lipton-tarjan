@@ -9,7 +9,7 @@ struct VertexInfo
         int x, y;
 };
 
-typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS, VertexInfo>  Graph;
+typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS, VertexInfo>                                   Graph;
 typedef std::vector<std::vector<boost::graph_traits<Graph>::edge_descriptor>>                                             EmbeddingStorage;
 typedef boost::iterator_property_map<EmbeddingStorage::iterator, boost::property_map<Graph, boost::vertex_index_t>::type> Embedding; 
 typedef boost::graph_traits<Graph>::vertex_descriptor                                                                     VertexDescriptor;

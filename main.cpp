@@ -59,6 +59,16 @@ struct pos_writer
         }
 };
 
+void print_graph(Graph g)
+{
+        uint num_verts = num_vertices(g);
+        graph_traits<Graph>::edge_iterator e, e_end;
+        for( tie(e, e_end) = edges(g); e != e_end; ++e ){
+                int src = source(*e, g);
+                int tar = target(*e, g);
+                cout << src << " <--> " << tar << '\n';
+        }
+}
 
 void save_graph(Graph g, Embedding* embedding, vector<VertexDescriptor> ordering)
 { 
@@ -88,6 +98,7 @@ void save_graph(Graph g, Embedding* embedding, vector<VertexDescriptor> ordering
 int main()
 {
         auto g = load_graph();
+        print_graph(g);
 	auto p = lipton_tarjan(g); 
 	save_graph(g, p.embedding, p.ordering);
 }

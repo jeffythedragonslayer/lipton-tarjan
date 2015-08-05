@@ -108,8 +108,12 @@ int main()
         ug.add_edge(2, 3);
         ug.add_edge(3, 4);
         ug.add_edge(4, 0);
-        auto l = ug.breadth_first_spanning_tree();
-        for( uint i = 0; i < ug.num_verts(); ++i ){
-                cout << "parent of " << i << " is " << l[i] << '\n';
-        } 
+        auto bfs = ug.bfs_tree();
+        for( uint i = 0; i < ug.num_verts(); ++i ) cout << "parent of " << i << " is " << bfs[i] << '\n';
+
+        auto levels = get_vertex_levels(bfs);
+        for( uint i = 0; i < levels.size(); ++i ) cout << "level of " << i << " is " << levels[i] << '\n';
+
+        auto num_v_in_l = num_verts_in_level(levels);
+        for( uint i = 0; i < num_v_in_l.size(); ++i ) cout << "there are " << num_v_in_l[i] << " vertices in level " << i << '\n';
 }

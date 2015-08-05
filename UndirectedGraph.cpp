@@ -44,7 +44,7 @@ uint UndirectedGraph::num_edges() const
         return size / 2;
 }
 
-vector<uint> UndirectedGraph::breadth_first_spanning_tree() const
+vector<uint> UndirectedGraph::bfs_tree() const
 {
         vector<bool> seen   (false, num_verts());
         vector<uint> parents(num_verts()); // map vert id -> parent id
@@ -64,4 +64,28 @@ vector<uint> UndirectedGraph::breadth_first_spanning_tree() const
         }
 
         return parents;
+}
+
+vector<uint> get_vertex_levels(vector<uint> const& bfs_tree)
+{ 
+        vector<uint> levels(bfs_tree.size(), 1);
+        levels[0] = 0;
+        for( uint i = 0; i < bfs_tree.size(); ++i ){
+                uint v = bfs_tree[i]; 
+                while( v ){
+                        v = bfs_tree[v];
+                        levels[i]++;
+                } 
+        }
+        return levels;
+}
+
+vector<uint> num_verts_in_level(vector<uint> const& vert_levels)
+{ 
+        uint max_level = 0;
+        for( auto l : vert_levels ) max_level = max(max_level, l);
+
+        vector<uint> num_verts_in_level(max_level+1, 0);
+        for( auto l : vert_levels ) num_verts_in_level[l]++; 
+        return num_verts_in_level;
 }

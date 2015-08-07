@@ -1,4 +1,5 @@
 #include "lipton-tarjan.h"
+#include "UndirectedGraph.h"
 #include <iostream> 
 #include <fstream>
 #include <csignal>
@@ -97,8 +98,24 @@ void save_graph(Graph g, Embedding* embedding, vector<VertexDescriptor> ordering
 
 int main()
 {
-        auto g = load_graph();
-        print_graph(g);
-	auto p = lipton_tarjan(g); 
-	save_graph(g, p.embedding, p.ordering);
+        //auto g = load_graph();
+        //print_graph(g);
+	//auto p = lipton_tarjan(g); 
+	//save_graph(g, p.embedding, p.ordering);;
+
+        UndirectedGraph ug(5);
+        ug.add_edge(0, 1);
+        ug.add_edge(1, 2);
+        ug.add_edge(2, 3);
+        ug.add_edge(3, 4);
+        ug.add_edge(4, 0);
+
+        auto bfs = ug.bfs_tree();
+        for( uint i = 0; i < ug.num_verts(); ++i ) cout << "parent of " << i << " is " << bfs[i] << '\n';
+
+        auto levels = get_vertex_levels(bfs);
+        for( uint i = 0; i < levels.size(); ++i ) cout << "level of " << i << " is " << levels[i] << '\n';
+
+        auto num_v_in_l = num_verts_in_level(levels);
+        for( uint i = 0; i < num_v_in_l.size(); ++i ) cout << "there are " << num_v_in_l[i] << " vertices in level " << i << '\n';
 }

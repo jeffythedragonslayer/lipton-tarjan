@@ -99,12 +99,14 @@ Partition lipton_tarjan(Graph const& gin)
 { 
         Graph g = gin;
         uint n = num_vertices(g); 
+        cout << "# verts: " << num_vertices(g) << '\n';
+        cout << "# edges: " << num_edges(g) << '\n';
 
         //
         // Step 1 - find a planar embedding of g
         //
         EmbeddingStorage storage(n);
-        Embedding        embedding(storage.begin(), get(vertex_index, g));
+        Embedding        embedding(storage.begin());
         bool planar = boyer_myrvold_planarity_test(g, embedding);
         assert(planar); 
         vector<VertexDescriptor> ordering;
@@ -192,8 +194,22 @@ Partition lipton_tarjan(Graph const& gin)
         bfs_vertex_data2[x].parent = x;
         breadth_first_search(g, vertex(0, g), visitor(vis)); 
         for( auto& c : children2 ) sort(c.begin(), c.end()); 
-        make_biconnected_planar(g, &embedding[0]);
-        //make_maximal_planar(g, &embedding[0]);
+
+        EmbeddingStorage storage2(n);
+        Embedding        embedding2(storage2.begin());
+        boyer_myrvold_planarity_test(g, embedding2);
+        make_biconnected_planar(g, &embedding2[0]);
+
+        EmbeddingStorage storage3(n);
+        Embedding        embedding3(storage3.begin());
+        boyer_myrvold_planarity_test(g, embedding3);
+        cout << "make maximal planar\n";
+        make_maximal_planar(g, &embedding3[0]); 
+        cout << "# verts: " << num_vertices(g) << '\n';
+        cout << "# edges: " << num_edges(g) << '\n';
+        n = num_vertices(g);
+        uint e = num_edges(g);
+        assert(e == 3*n - 6);
 
 
         //

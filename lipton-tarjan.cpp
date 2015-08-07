@@ -26,7 +26,9 @@ using namespace boost;
 struct BFSVertexData  {uint parent, level;}; 
 struct BFSVertexData2 {uint parent, cost;};
 
-vector<BFSVertexData> bfs_vertex_data; // why can't this be inside bfs_visitor_buildtree
+vector<vector<uint>> children, children2;
+
+vector<BFSVertexData>  bfs_vertex_data; // why can't this be inside bfs_visitor_buildtree
 vector<BFSVertexData2> bfs_vertex_data2;
 uint num_levels = 1;
 
@@ -40,6 +42,7 @@ struct bfs_visitor_buildtree : public default_bfs_visitor
                 bfs_vertex_data[child].parent = parent;
                 bfs_vertex_data[child].level  = bfs_vertex_data[parent].level+1;
                 num_levels = max(num_levels, bfs_vertex_data[child].level+1);
+                children[parent].push_back(child);
         }
 
 };
@@ -54,11 +57,12 @@ struct bfs_visitor_shrinktree : public default_bfs_visitor
                 bfs_vertex_data2[child].parent = parent;
 
                 auto v = child; 
-                while( true ){
+                while( true ){ // TODO make this faster
                         ++bfs_vertex_data2[v].cost;
                         if( v == bfs_vertex_data2[v].parent ) break;
                         v = bfs_vertex_data2[v].parent;
-                }
+                } 
+                children2[parent].push_back(child);
         }
 
 };
@@ -128,9 +132,11 @@ Partition lipton_tarjan(Graph const& gin)
         // 
         bfs_visitor_buildtree vis;
         bfs_vertex_data.resize(n);
+        children.resize(n);
         bfs_vertex_data[0].parent = 0;
-        bfs_vertex_data[0].level = 0;
+        bfs_vertex_data[0].level  = 0;
         breadth_first_search(g, vertex(0, g), visitor(vis)); 
+        for( auto& c : children ) sort(c.begin(), c.end());
 
         vector<uint> L(num_levels); 
         for( auto& d : bfs_vertex_data ) ++L[d.level];
@@ -164,6 +170,7 @@ Partition lipton_tarjan(Graph const& gin)
 
         VertexDescriptor v, w;
         // Scan the edges incident to this tree clockwise around the tree.
+        while( false ){
                 // When scanning an edge(v,w) with v in the tree...
                 uint ww = 0;
                 if ( !table[ww] ){
@@ -171,6 +178,7 @@ Partition lipton_tarjan(Graph const& gin)
                         add_edge(x, w, g);
                 }
                 remove_edge(v, w, g);
+        }
 
         for( uint i = 0; i < n; ++i ) if( bfs_vertex_data[i].level >= l2 ) remove_vertex(ordering[i], g); 
         lemma2(); 
@@ -179,9 +187,11 @@ Partition lipton_tarjan(Graph const& gin)
         // Step 7
         // 
         bfs_visitor_buildtree vis2;
+        children2.resize(n);
         bfs_vertex_data2.resize(n+1);
         bfs_vertex_data2[x].parent = x;
         breadth_first_search(g, vertex(0, g), visitor(vis)); 
+        for( auto& c : children2 ) sort(c.begin(), c.end());
 
         //make_biconnected_planar(g, &embedding[0]);
         //make_maximal_planar(g, &embedding[0]);

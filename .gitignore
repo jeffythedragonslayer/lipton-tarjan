@@ -32,7 +32,7 @@ out_graph.*
 *.out
 *.app
 chazelle
-lipton-tarjan
+lt
 
 #auto generated
 typedefs.h

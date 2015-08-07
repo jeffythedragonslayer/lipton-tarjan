@@ -102,12 +102,14 @@ int main()
         //print_graph(g);
 	//auto p = lipton_tarjan(g); 
 	//save_graph(g, p.embedding, p.ordering);;
+
         UndirectedGraph ug(5);
         ug.add_edge(0, 1);
         ug.add_edge(1, 2);
         ug.add_edge(2, 3);
         ug.add_edge(3, 4);
         ug.add_edge(4, 0);
+
         auto bfs = ug.bfs_tree();
         for( uint i = 0; i < ug.num_verts(); ++i ) cout << "parent of " << i << " is " << bfs[i] << '\n';
 

@@ -174,9 +174,8 @@ Partition lipton_tarjan(Graph const& gin)
         // Scan the edges incident to this tree clockwise around the tree.
         while( false ){
                 // When scanning an edge(v,w) with v in the tree...
-                uint ww = 0;
-                if ( !table[ww] ){
-                        table[ww] = true;
+                if ( !table[w] ){
+                        table[w] = true;
                         add_edge(x, w, g);
                 }
                 remove_edge(v, w, g);
@@ -209,7 +208,7 @@ Partition lipton_tarjan(Graph const& gin)
         cout << "# edges: " << num_edges(g) << '\n';
         n = num_vertices(g);
         uint e = num_edges(g);
-        assert(e == 3*n - 6);
+        assert(e == 3*n - 6); // need to finish step 6 to stop this from firing
 
 
         //

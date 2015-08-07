@@ -191,9 +191,8 @@ Partition lipton_tarjan(Graph const& gin)
         bfs_vertex_data2.resize(n+1);
         bfs_vertex_data2[x].parent = x;
         breadth_first_search(g, vertex(0, g), visitor(vis)); 
-        for( auto& c : children2 ) sort(c.begin(), c.end());
-
-        //make_biconnected_planar(g, &embedding[0]);
+        for( auto& c : children2 ) sort(c.begin(), c.end()); 
+        make_biconnected_planar(g, &embedding[0]);
         //make_maximal_planar(g, &embedding[0]);
 
 

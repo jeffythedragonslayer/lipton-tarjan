@@ -119,7 +119,7 @@ void step7()
         // for each vertex v
                 // record the parent of v in the tree
                 // record the total cost of all descendants of v including v itself.
-        // Make all faces of the new graph into triangles by scanning the boundary of each face and adding (nontree) edges as necessary.
+        // make_maximal_planar(g, &embedding[0]);
 }
 
 void step8()

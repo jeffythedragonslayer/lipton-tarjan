@@ -4,26 +4,15 @@
 #include <boost/property_map/property_map.hpp>
 #include <vector>
 
-struct VertexInfo
-{
-        int x, y;
-};
-
-typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS, VertexInfo>                                   Graph;
-typedef std::vector<std::vector<boost::graph_traits<Graph>::edge_descriptor>>                                             EmbeddingStorage;
-typedef boost::iterator_property_map<EmbeddingStorage::iterator, boost::property_map<Graph, boost::vertex_index_t>::type> Embedding; 
+typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS>                                               Graph;
 typedef boost::graph_traits<Graph>::vertex_descriptor                                                                     VertexDescriptor;
+typedef boost::graph_traits<Graph>::edge_descriptor                                                                       EdgeDescriptor;
+typedef std::vector<std::vector<EdgeDescriptor>>                                                                          EmbeddingStorage;
+typedef boost::iterator_property_map<EmbeddingStorage::iterator, boost::property_map<Graph, boost::vertex_index_t>::type> Embedding; 
 
 struct Partition
 {
-        Graph a, b;
-        Graph c;
+        std::vector<VertexDescriptor> a, b, c;
+}; 
 
-        std::vector<VertexDescriptor> ordering;
-        EmbeddingStorage*             embedding_storage;
-        Embedding*                    embedding;
-        uint                          costly_component;
-};
-
-
-Partition lipton_tarjan(Graph g);
+Partition lipton_tarjan(Graph const& g);

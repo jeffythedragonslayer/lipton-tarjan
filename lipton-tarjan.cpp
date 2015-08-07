@@ -12,6 +12,8 @@
 #include <boost/graph/chrobak_payne_drawing.hpp>
 #include <boost/graph/boyer_myrvold_planar_test.hpp> 
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/make_biconnected_planar.hpp>
+#include <boost/graph/make_maximal_planar.hpp>
 #include <boost/graph/connected_components.hpp>
 #include <boost/config.hpp>
 #include <boost/graph/adjacency_list.hpp>
@@ -21,110 +23,173 @@
 using namespace std;
 using namespace boost; 
 
-bool find_cc(Graph* g) // Step 2
+struct BFSVertexData  {uint parent, level;}; 
+struct BFSVertexData2 {uint parent, cost;};
+
+vector<BFSVertexData> bfs_vertex_data; // why can't this be inside bfs_visitor_buildtree
+vector<BFSVertexData2> bfs_vertex_data2;
+uint num_levels = 1;
+
+struct bfs_visitor_buildtree : public default_bfs_visitor
 { 
-        uint N = num_vertices(*g);
-        vector<uint> vertid_to_comp(N);
-        uint num_comps = connected_components(*g, &vertid_to_comp[0]);
-
-        vector<uint> verts_per_comp(num_comps, 0); 
-        for( uint i = 0; i < N;         ++i ) ++verts_per_comp[vertid_to_comp[i]]; 
-        for( uint i = 0; i < num_comps; ++i ) if( 3*verts_per_comp[i] > 2*N ) return false;
-
-        // construct the paritition as described in the proof of Theorem 4.
-        return true;
-}
-
-template<typename TimeMap>
-struct bfs_time_visitor : public default_bfs_visitor
-{
-        typedef typename property_traits<TimeMap>::value_type T;
-
-        TimeMap timemap;
-        T&      time;
-
-        bfs_time_visitor(TimeMap tmap, T & t) : timemap(tmap), time(t) { }
-
-        template<typename Vertex, typename Graph>
-        void discover_vertex(Vertex u, const Graph & g) const
+        template<typename Edge, typename Graph> void tree_edge(Edge e, Graph const& g)
         {
-                put(timemap, u, time++);
+                uint parent = source(e, g);
+                uint child  = target(e, g);
+                cout << "tree edge " << parent << ", " << child << '\n';
+                bfs_vertex_data[child].parent = parent;
+                bfs_vertex_data[child].level  = bfs_vertex_data[parent].level+1;
+                num_levels = max(num_levels, bfs_vertex_data[child].level+1);
         }
 
 };
 
-// Find a breadth-first spanning tree of the most costly component.
-// Compute the level of each vertex and the # of of verts L(l) in each level l.
-void step3(Graph* gg, uint costly_comp)
+struct bfs_visitor_shrinktree : public default_bfs_visitor
 { 
-        /*uint N = num_vertices(*gg);
+        template<typename Edge, typename Graph> void tree_edge(Edge e, Graph const& g)
+        {
+                uint parent = source(e, g);
+                uint child  = target(e, g);
+                cout << "tree edge " << parent << ", " << child << '\n';
+                bfs_vertex_data2[child].parent = parent;
 
-        typedef graph_traits<Graph>::vertices_size_type                                                        Size;
-        typedef iterator_property_map<vector<Size>::iterator, property_map<Graph, vertex_index_t>::const_type> DTimePM;
+                auto v = child; 
+                while( true ){
+                        ++bfs_vertex_data2[v].cost;
+                        if( v == bfs_vertex_data2[v].parent ) break;
+                        v = bfs_vertex_data2[v].parent;
+                }
+        }
 
-        vector<Size> dtime(N);
-        DTimePM dtime_pm(dtime.begin(), get(vertex_index, *gg));
+};
 
-        Size time = 0;
-        bfs_time_visitor<DTimePM> vis(dtime_pm, time);
-        breadth_first_search(*gg, vertex(0, *gg), visitor(vis));
-
-        vector<graph_traits<Graph>::vertices_size_type> discover_order(N);
-        integer_range<uint>range(0, N);
-        copy(range.begin(), range.end(), discover_order.begin());
-        sort(discover_order.begin(), discover_order.end(), indirect_cmp<DTimePM, less<Size>>(dtime_pm));*/
+void theorem4()
+{
 }
 
-void step4()
+void lemma2()
 {
-        // Find level l1 such that the total cost of levels 0 through l1 - 1 does not exceed 1/2, but the total cost of levels 0 through l1 does exceed 1/2.
-        // Let k = # of vertices in levels 0 through l1.
 }
 
-void step5()
+void lemma3()
 {
-        // Find highest level l0 <= l1,     such that L(l0) + 2(l1-l0)       <= 2*sqrt(k)
-        // Find lowest  level l2 >= l1 + 1, such that L(l2) + 2(l2 - l1 - 1) <= 2*sqrt(n-k).
 }
 
-void step6shrink()
+void print_canonical_ordering(Graph const& g, vector<VertexDescriptor> const& ordering, Embedding const& embedding)
+{ 
+        for( auto& v : ordering ){
+                cout << "vertex " << v << "\n";
+                for( auto& e : embedding[v] ){
+                        cout << " has incident edge " << e << '\n';
+                }
+        } 
+}
+
+void print_bfs_tree(vector<uint> const& L)
 {
-        int table[99];
+        for( uint i = 0; i < bfs_vertex_data.size(); ++i ) cout << "The parent of " << i << " is " << bfs_vertex_data[i].parent << " level is " << bfs_vertex_data[i].level << '\n'; 
+        for( uint i = 0; i < L.size();               ++i ) cout << "there are " << L[i] << " vertices in level " << i << '\n';
+}
+
+Partition lipton_tarjan(Graph const& gin)
+{ 
+        Graph g = gin;
+        uint n = num_vertices(g); 
+
+        //
+        // Step 1 - find a planar embedding of g
+        //
+        EmbeddingStorage storage(n);
+        Embedding        embedding(storage.begin(), get(vertex_index, g));
+        bool planar = boyer_myrvold_planarity_test(g, embedding);
+        assert(planar); 
+        vector<VertexDescriptor> ordering;
+        planar_canonical_ordering(g, embedding, back_inserter(ordering)); 
+        print_canonical_ordering(g, ordering, embedding);
+
+        //
+        // Step 2 - find connected components of g
+        //
+        vector<uint> vertid_to_component(n);
+        uint components = connected_components(g, &vertid_to_component[0]);
+        assert(components == 1);
+
+        vector<uint> verts_per_comp(components, 0);
+        for( uint i = 0; i < n;          ++i ) ++verts_per_comp[vertid_to_component[i]]; 
+        bool too_big = false;
+        for( uint i = 0; i < components; ++i ) if( 3*verts_per_comp[i] > 2*n ){
+                too_big = true;
+                break;
+        }
+        if( !too_big ) theorem4();
+
+        //
+        // Step 3 - create BFS tree of most costly component. Compute the level of each vertex and the # of of verts L(l) in each level l.
+        // 
+        bfs_visitor_buildtree vis;
+        bfs_vertex_data.resize(n);
+        bfs_vertex_data[0].parent = 0;
+        bfs_vertex_data[0].level = 0;
+        breadth_first_search(g, vertex(0, g), visitor(vis)); 
+
+        vector<uint> L(num_levels); 
+        for( auto& d : bfs_vertex_data ) ++L[d.level];
+
+        print_bfs_tree(L);
+
+        //
+        // Step 4
+        //
+        uint k  = L[0];
+        uint l1 = 0;
+        while( k <= n/2 ) k += L[l1], l1++;
+        
+        cout << "l1: " << l1 << '\n';
+
+        //
+        // Step 5
+        // 
+        uint l0 = l1;    while( L[l0] + 2*(l1-l0)   <=   sqrt(k)   ) --l0; ++l0; 
+        uint l2 = l1 +1; while( L[l2] + 2*(l2-l1-1) <= 2*sqrt(n-k) ) ++l2; --l2; 
+
+        cout << "l0: " << l0 << '\n';
+        cout << "l2: " << l2 << '\n';
+
+        //
+        // Step 6
+        //
+        auto x = add_vertex(g); // represents all verts on level 0 through l0.
+        bool table[n];
+        for( uint i = 0; i < n; ++i ) table[i] = bfs_vertex_data[i].level <= l0;
+
+        VertexDescriptor v, w;
         // Scan the edges incident to this tree clockwise around the tree.
                 // When scanning an edge(v,w) with v in the tree...
-                int w = 0;
-                if ( !table[w] ){
-                        table[w] = true;
-                        // construct an edge(x, w)
+                uint ww = 0;
+                if ( !table[ww] ){
+                        table[ww] = true;
+                        add_edge(x, w, g);
                 }
-                // delete edge(v, w).
-}
+                remove_edge(v, w, g);
 
-void step6()
-{
-        // Delete all the vertices on level l2 and above.
-        // Construct a new vertex x to represent all vertices on level 0 through l0.
+        for( uint i = 0; i < n; ++i ) if( bfs_vertex_data[i].level >= l2 ) remove_vertex(ordering[i], g); 
+        lemma2(); 
 
-        // Construct a boolean table with one entry per vertex.
-        // Initialize to true  the entry for each vertex on levels 0      through l0.           (The vertices on these levels correspond to a subtree of the breadth-first spanning tree generated in step 3.)
-        // "          "  false "   "     "   "    "      "  "      l0 + 1 "       l2 - 1.  
+        //
+        // Step 7
+        // 
+        bfs_visitor_buildtree vis2;
+        bfs_vertex_data2.resize(n+1);
+        bfs_vertex_data2[x].parent = x;
+        breadth_first_search(g, vertex(0, g), visitor(vis)); 
 
-        step6shrink();
-        // The result of this step is a planar representation of the shruken graph to which Lemma 2 is applied.
-}
+        //make_biconnected_planar(g, &embedding[0]);
+        //make_maximal_planar(g, &embedding[0]);
 
-void step7()
-{
-        // Construct a breadth-first spanning tree rooted at x in the new graph.  (by modifying the breadth-first spanning tree constructed in Step 3.)
-        // for each vertex v
-                // record the parent of v in the tree
-                // record the total cost of all descendants of v including v itself.
-        // make_biconnected_planar(g, &embedding[0]);
-        // make_maximal_planar(g, &embedding[0]);
-}
 
-void step8()
-{
+        //
+        // Step 8
+        //
         // Choose any nontree edge(v1,w1).
         // Locate the corresponding cycle by following parent pointers from v1 and w1.
         // Compute the cost on each side of this cycle by scanning the tree edges incidient on either side of the cycle and summing their associated costs.
@@ -133,16 +198,14 @@ void step8()
                         //                              descendant cost of w :
                         //                              cost of all vertices minus the descendant cost of v
         // Let side of cycle with greater cost be inside
-}
 
-void step9scan()
-{
-        // Scan the tree edges inside the (y, wi) cycle, alternately scanning an edge in one cycle and an edge in the other cycle.
-        // Stop scanning when all edges inside one of the cycles have been scanned.
-}
 
-void step9()
-{
+
+
+
+        //
+        // Step 9
+        //
         // Let (vi, wi) be the nontree dege whose cycle is the current candidate to complete the separator.
         while( false /* the cost inside the cycle exceeds 2/3 */ ){ // find a better cycle
 
@@ -154,46 +217,24 @@ void step9()
                         // Determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.
                         // Let z be the vertex on the (vi, wi) cycle reached during this search.
                         // Compute the total cost of all vertices except z on this tree path.
-                        step9scan();
+                                // Scan the tree edges inside the (y, wi) cycle, alternately scanning an edge in one cycle and an edge in the other cycle.
+                                // Stop scanning when all edges inside one of the cycles have been scanned.
                         // Compute the cost inside this cycle by summing the associated costs of all scanned edges.
                         // Use this cost, the cost inside the (vi, wi) cycle, and the cost on the tree path from y to zy to compute the cost inside the other cycle.
                         // Let (vi+1, w+1) be the edge among (vi, y) and (y, wi) whose cycle has more cost inside it.
                 }
 
         }
-}
 
-void step10()
-{
+
+        //
+        // Step 10
+        //
         // Use the cycle found in step 9 and the levels found in Step 4 to construct a satisfactory vertex partition as described in the proof of Lemma 3.
+        lemma3();
         // Extend this partition from the connected component chosen in Step 2 to the entire graph as desribed in the proof Theorem 4.
-}
+        theorem4();
 
-void planar(Graph* g, Partition* p) // Step 1
-{
-        p->embedding_storage = new EmbeddingStorage(num_vertices(*g));
-        p->embedding         = new Embedding(p->embedding_storage->begin(), get(vertex_index, *g)); 
-        
-        boyer_myrvold_planarity_test(*g, *p->embedding); 
-        assert(num_vertices(*g) >= 3);
-
-        planar_canonical_ordering(*g, *p->embedding, back_inserter(p->ordering)); 
-        
-}
-
-Partition lipton_tarjan(Graph g)
-{
         Partition p;
-
-        planar(&g, &p); 
-        if( find_cc(&g) ) return p; 
-        step3(&g, p.costly_component); 
-        step4(); 
-        step5(); 
-        step6(); 
-        step7(); 
-        step8(); 
-        step9(); 
-        step10();
         return p;
 }

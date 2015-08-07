@@ -1,5 +1,4 @@
 #include "lipton-tarjan.h"
-#include "UndirectedGraph.h"
 #include <iostream> 
 #include <fstream>
 #include <csignal>
@@ -60,6 +59,7 @@ struct pos_writer
         }
 };
 
+/*
 void print_graph(Graph g)
 {
         uint num_verts = num_vertices(g);
@@ -95,15 +95,21 @@ void save_graph(Graph g, Embedding* embedding, vector<VertexDescriptor> ordering
         write_graphviz(f, g, pos_writer(&g));
 
 }
+*/
 
 int main()
 {
-        //auto g = load_graph();
+        auto g = load_graph();
+        uint n = num_vertices(g);
+        uint e = num_edges(g);
+
+        cout << "graph has " << n << " vertices and " << e << " edges\n";
+
         //print_graph(g);
-	//auto p = lipton_tarjan(g); 
+	auto p = lipton_tarjan(g); 
 	//save_graph(g, p.embedding, p.ordering);;
 
-        UndirectedGraph ug(5);
+        /*UndirectedGraph ug(5);
         ug.add_edge(0, 1);
         ug.add_edge(1, 2);
         ug.add_edge(2, 3);
@@ -117,5 +123,5 @@ int main()
         for( uint i = 0; i < levels.size(); ++i ) cout << "level of " << i << " is " << levels[i] << '\n';
 
         auto num_v_in_l = num_verts_in_level(levels);
-        for( uint i = 0; i < num_v_in_l.size(); ++i ) cout << "there are " << num_v_in_l[i] << " vertices in level " << i << '\n';
+        for( uint i = 0; i < num_v_in_l.size(); ++i ) cout << "there are " << num_v_in_l[i] << " vertices in level " << i << '\n';*/
 }

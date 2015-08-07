@@ -1,21 +1,15 @@
 CXX=clang++
 BOOST=-I/usr/local/boost_1_58_0
 CXXFLAGS=-g -std=c++14 -c
-OBJS := main.o lipton-tarjan.o UndirectedGraph.o
+OBJS := main.o lipton-tarjan.o
 .DEFAULT_GOAL = all
 
 -include $(OBJS:.o=.d)
 
-all: lipton-tarjan UndirectedGraph.o PlanarGraph.o
+all: lt
 
-lipton-tarjan: $(OBJS)
-	$(CXX) $(OBJS) -o lipton-tarjan
-
-UndirectedGraph.o: UndirectedGraph.cpp
-	$(CXX) $(CXXFLAGS) UndirectedGraph.cpp -c
-
-PlanarGraph.o: PlanarGraph.cpp
-	$(CXX) $(CXXFLAGS) PlanarGraph.cpp -c
+lt: $(OBJS)
+	$(CXX) $(OBJS) -o lt
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(BOOST) $*.cpp
@@ -26,4 +20,4 @@ PlanarGraph.o: PlanarGraph.cpp
 	@rm -f $*.d.tmp 
 
 clean:
-	rm -f *.o *.d lipton-tarjan
+	rm -f *.o *.d lt

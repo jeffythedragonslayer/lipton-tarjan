@@ -16,9 +16,9 @@
 using namespace std;
 using namespace boost;
 
-Graph load_graph()
+Graph load_graph(string fname)
 {
-        ifstream in("graph_in");
+        ifstream in(fname);
         if( !in ){
                 cerr << "file \"in\" not found!\n";
                 exit(0);
@@ -97,31 +97,24 @@ void save_graph(Graph g, Embedding* embedding, vector<VertexDescriptor> ordering
 }
 */
 
-int main()
+int main(int argc, char* argv[])
 {
-        auto g = load_graph();
-        uint n = num_vertices(g);
-        uint e = num_edges(g);
+        vector<string> fname;
+        if( argc < 2 ){
+                cout << "Usage: lt [filename]\n";
+                return 0;
+        } 
+        for( uint i = 1; i < argc; ++i ) fname.push_back(argv[i]);
 
-        cout << "graph has " << n << " vertices and " << e << " edges\n";
+        for( auto& f : fname ){
+                auto g = load_graph(f);
+                uint n = num_vertices(g);
+                uint e = num_edges(g);
 
-        //print_graph(g);
-	auto p = lipton_tarjan(g); 
-	//save_graph(g, p.embedding, p.ordering);;
+                cout << "graph has " << n << " vertices and " << e << " edges\n";
 
-        /*UndirectedGraph ug(5);
-        ug.add_edge(0, 1);
-        ug.add_edge(1, 2);
-        ug.add_edge(2, 3);
-        ug.add_edge(3, 4);
-        ug.add_edge(4, 0);
-
-        auto bfs = ug.bfs_tree();
-        for( uint i = 0; i < ug.num_verts(); ++i ) cout << "parent of " << i << " is " << bfs[i] << '\n';
-
-        auto levels = get_vertex_levels(bfs);
-        for( uint i = 0; i < levels.size(); ++i ) cout << "level of " << i << " is " << levels[i] << '\n';
-
-        auto num_v_in_l = num_verts_in_level(levels);
-        for( uint i = 0; i < num_v_in_l.size(); ++i ) cout << "there are " << num_v_in_l[i] << " vertices in level " << i << '\n';*/
+                print_graph(g);
+                auto p = lipton_tarjan(g); 
+                //save_graph(g, p.embedding, p.ordering);; 
+        }
 }

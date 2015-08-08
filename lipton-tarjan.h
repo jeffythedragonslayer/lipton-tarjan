@@ -17,3 +17,5 @@ struct Partition
 }; 
 
 Partition lipton_tarjan(Graph const& g);
+
+void print_graph(Graph const& g);

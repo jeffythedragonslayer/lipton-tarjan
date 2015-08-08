@@ -1,0 +1,7 @@
+#!/bin/sh
+lt graph_in             > /dev/null
+lt graph_kuratowski33   > /dev/null
+lt graph_kuratowski5    > /dev/null
+lt graph_notquitek      > /dev/null
+lt graph_square         > /dev/null
+lt graph_triangle       > /dev/null

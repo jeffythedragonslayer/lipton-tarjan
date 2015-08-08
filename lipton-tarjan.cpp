@@ -288,11 +288,13 @@ Partition lipton_tarjan(Graph const& gin)
         // Step 6
         //
         cout << "\n--- Step 6 ---\n\n";
-        for( uint i = 0; i < n-1; ++i ) if( bfs_vertex_data[i].level >= l2 ){
-                auto v = vertex(i, g);
-                clear_vertex(v, g);
-                cout << "deleting vertex " << v << '\n';
-                remove_vertex(v, g); --n;
+        for( auto paii = vertices(g); paii.first != paii.second; ++paii.first ){
+                auto v = *paii.first;
+                if( bfs_vertex_data[v].level >= l2 ){
+                        clear_vertex(v, g);
+                        cout << "deleting vertex " << v << '\n';
+                        remove_vertex(v, g); --n;
+                }
         }
         auto x = add_vertex(g); ++n; // represents all verts on level 0 through l0.  
         map<VertexDescriptor, bool> table;

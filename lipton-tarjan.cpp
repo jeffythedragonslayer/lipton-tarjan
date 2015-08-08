@@ -89,6 +89,8 @@ struct Lambda
                 if ( !(*table)[w] ){
                         (*table)[w] = true;
                         cout << "     !!!! adding edge to x\n";
+                        cout << "w: " << w << ", x: " << x << '\n';
+                        assert(x != w);
                         edges_to_add.push_back(make_pair(x, w));
                 }
                 cout << "   ------------ removing edge doit" << e << '\n';
@@ -100,7 +102,8 @@ struct Lambda
                 cout << "finishing lambda\n";
                 cout << "edges_to_add size: " << edges_to_add.size() << '\n';
                 for( auto& p : edges_to_add    ){
-                        cout << "adding  edge " << p.first << ", " << p.second << '\n';
+                        cout << "adding edge " << p.first << ", " << p.second << '\n';
+                        assert(p.first != p.second);
                         add_edge(p.first, p.second, *g);
                 }
                 cout << "removing_edges size: " << edges_to_delete.size() << '\n';
@@ -293,9 +296,9 @@ Partition lipton_tarjan(Graph const& gin)
         }
         auto x = add_vertex(g); ++n; // represents all verts on level 0 through l0.  
         map<VertexDescriptor, bool> table;
-        vector<VertexDescriptor> ordering_s;
-        planar_canonical_ordering(g, em, back_inserter(ordering_s));
-        for( auto& v : ordering_s ){
+        
+        for( auto pai = vertices(g); pai.first != pai.second; ++pai.first ){
+                auto v = *pai.first;
                 table[v] = bfs_vertex_data[v].level <= l0;
                 if( table[v] ) cout << "table[" << v << "] = TRUE\n";
                 else cout << "table[" << v << "] = FALSE\n";
@@ -313,6 +316,7 @@ Partition lipton_tarjan(Graph const& gin)
         // Step 7
         // 
         if( degree(x, g) == 0 ){
+                cout << "!!!! vertex x has no inbound vertices!  Deleting!!!!!\n";
                 remove_vertex(x, g);
                 x = 0;
         }
@@ -323,6 +327,7 @@ Partition lipton_tarjan(Graph const& gin)
         cout << "n = " << n << '\n';
         cout << "x = " << x << '\n';
 
+        /*
         bfs_visitor_shrinktree vis2;
         children2.resize(n);
         bfs_vertex_data2.resize(n);
@@ -331,6 +336,7 @@ Partition lipton_tarjan(Graph const& gin)
         breadth_first_search(g, x, visitor(vis2));
         cout << "sorting\n";
         for( auto& c : children2 ) sort(c.begin(), c.end()); 
+        */
 
         cout << "# verts: " << num_vertices(g) << '\n';
         cout << "# edges: " << num_edges   (g) << '\n';
@@ -358,7 +364,7 @@ Partition lipton_tarjan(Graph const& gin)
         Embedding        em3(storage3.begin());
         planar = boyer_myrvold_planarity_test(g, em3);
         assert(planar);
-        cout << "make maximal planar\n";
+        cout << "make maximal planar - should have " << 3*n - 6 << " edges\n";
         make_maximal_planar(g, &em3[0]); 
 
         cout << "# verts: " << num_vertices(g) << '\n';
@@ -367,7 +373,7 @@ Partition lipton_tarjan(Graph const& gin)
         n = num_vertices(g);
         uint e = num_edges(g);
 
-        assert(e == 3*n - 6); // need to finish step 6 to stop this from firing
+        assert(e == 3*n - 6);
 
 
         //

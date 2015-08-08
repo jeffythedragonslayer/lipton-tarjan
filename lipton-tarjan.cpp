@@ -26,7 +26,7 @@ using namespace boost;
 struct BFSVertexData
 {
         VertexDescriptor parent;
-        uint level;
+        int level;
 }; 
 
 struct BFSVertexData2
@@ -39,7 +39,7 @@ map<VertexDescriptor, vector<VertexDescriptor>> children, children2;
 
 map<VertexDescriptor, BFSVertexData>  bfs_vertex_data; // why can't this be inside bfs_visitor_buildtree
 map<VertexDescriptor, BFSVertexData2> bfs_vertex_data2;
-uint num_levels = 1;
+int num_levels = 1;
 
 struct bfs_visitor_buildtree : public default_bfs_visitor
 { 
@@ -73,10 +73,10 @@ struct Lambda
         map<VertexDescriptor, bool>*    table;
         Graph*           g;
         VertexDescriptor x;
-        uint             l0;
+        int              l0;
 
 
-        Lambda(map<VertexDescriptor, bool>* table, Graph* g, VertexDescriptor x, uint l0) : table(table), g(g), x(x), l0(l0) {}
+        Lambda(map<VertexDescriptor, bool>* table, Graph* g, VertexDescriptor x, int l0) : table(table), g(g), x(x), l0(l0) {}
 
         void doit(VertexDescriptor V, EdgeDescriptor e)
         {
@@ -256,7 +256,7 @@ Partition lipton_tarjan(Graph const& gin)
         breadth_first_search(g, vertex(0, g), visitor(vis)); 
         for( auto& c : children ) sort(c.second.begin(), c.second.end());
 
-        vector<uint> L(num_levels); 
+        vector<uint> L(num_levels+1); 
         for( auto& d : bfs_vertex_data ) ++L[d.second.level];
 
         print_bfs_tree(L);
@@ -266,7 +266,7 @@ Partition lipton_tarjan(Graph const& gin)
         //
         cout << "\n--- Step 4--\n\n";
         uint k  = L[0];
-        uint l1 = 0;
+        int l1 = 0;
         while( k <= n/2 ) k += L[++l1];
         
         cout << "l1: " << l1 << '\n';
@@ -281,16 +281,13 @@ Partition lipton_tarjan(Graph const& gin)
         float sq  = 2 * sqrt(k);
         float snk = 2 * sqrt(n - k);
 
-        cout << "sq: " << sq << '\n';
-        cout << "snk: " << snk << '\n';
-
-        uint l0 = l1;
+        int l0 = l1;
         for( ;; ){
                 if( L.at(l0) + 2*(l1-l0) <= sq ) break;
                 --l0;
         }
 
-        uint l2 = l1 + 1;
+        int l2 = l1 + 1;
         for( ;; ){
                 if( L.at(l2) + 2*(l2 - l1 - 1) <= snk ) break;
                 ++l2;

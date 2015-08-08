@@ -65,6 +65,9 @@ bool is_tree_edge(EdgeDescriptor e, Graph const& g)
                bfs_vertex_data[tar].parent == src;
 }
 
+vector<pair<VertexDescriptor, VertexDescriptor>> edges_to_delete;
+vector<pair<VertexDescriptor, VertexDescriptor>> edges_to_add;
+
 struct Lambda
 {
         map<VertexDescriptor, bool>*    table;
@@ -72,34 +75,50 @@ struct Lambda
         VertexDescriptor x;
         uint             l0;
 
+
         Lambda(map<VertexDescriptor, bool>* table, Graph* g, VertexDescriptor x, uint l0) : table(table), g(g), x(x), l0(l0) {}
 
         void doit(VertexDescriptor V, EdgeDescriptor e)
         {
-                cout << "   scanning edge " << e << '\n';
                 auto v = source(e, *g);
                 auto w = target(e, *g);
                 if( V != v ) swap(v, w);
                 assert(V == v);
-                cout << "   scanning table[" << w << "]\n";
+                cout << "   doit edge " << e << " with " << v << " as source\n";
+                cout << "   looking up table[" << w << "] = " << (*table)[w] << '\n';
                 if ( !(*table)[w] ){
                         (*table)[w] = true;
-                        cout << "!!!! adding edge to x\n";
-                        add_edge(x, w, *g);
+                        cout << "     !!!! adding edge to x\n";
+                        edges_to_add.push_back(make_pair(x, w));
                 }
-                cout << "removing edge doit" << e << '\n';
-                remove_edge(v, w, *g);
+                cout << "   ------------ removing edge doit" << e << '\n';
+                edges_to_delete.push_back(make_pair(v, w));
+        }
+
+        void finish()
+        {
+                cout << "finishing lambda\n";
+                cout << "edges_to_add size: " << edges_to_add.size() << '\n';
+                for( auto& p : edges_to_add    ){
+                        cout << "adding  edge " << p.first << ", " << p.second << '\n';
+                        add_edge(p.first, p.second, *g);
+                }
+                cout << "removing_edges size: " << edges_to_delete.size() << '\n';
+                for( auto& p : edges_to_delete ){
+                        cout << "removing edge " << p.first << ", " << p.second << '\n';
+                        remove_edge(p.first, p.second, *g);
+                }
         }
 };
 
-void scan_nontree_edges(VertexDescriptor v, Graph const& g, Embedding& em, Lambda lambda)
+void scan_nonsubtree_edges(VertexDescriptor v, Graph const& g, Embedding& em, Lambda lambda)
 {
-        if( bfs_vertex_data[v].level >= lambda.l0 ){
-                cout << "skipping " << v << '\n';
+        if( bfs_vertex_data[v].level > lambda.l0 ){
+                cout << "skipping vertex " << v << " because level " << bfs_vertex_data[v].level << " > l0\n";
                 return;
         }
 
-        cout << "scanning node " << v << '\n';
+        cout << "scanning vertex " << v << '\n';
         for( auto e : em[v]       ){
                 if( !is_tree_edge(e, g) ) lambda.doit(v, e); 
                 else {
@@ -109,21 +128,21 @@ void scan_nontree_edges(VertexDescriptor v, Graph const& g, Embedding& em, Lambd
                         if( src != v ) swap(src, tar);
                         assert(src == v);
                         cout << "   found tree edge " << e << '\n';
-                        if( bfs_vertex_data[tar].level >= lambda.l0 ){
-                                cout << "processing anyway\n";
+                        cout << "   target level: " << bfs_vertex_data[tar].level << '\n';
+                        if( bfs_vertex_data[tar].level > lambda.l0 ){
+                                cout << "    processing anyway because not part of subtree\n";
                                 lambda.doit(v, e);
                         }
                 }
         }
-        for( auto c : children[v] ) scan_nontree_edges(c, g, em, lambda);
+        for( auto c : children[v] ) scan_nonsubtree_edges(c, g, em, lambda);
 }
 
 struct bfs_visitor_shrinktree : public default_bfs_visitor
 { 
         template<typename Edge, typename Graph> void tree_edge(Edge e, Graph const& g)
         {
-                cout << "tree edge " << e << '\n';
-                /*
+                cout << "shrinktree edge " << e << '\n';
                 auto parent = source(e, g);
                 auto child  = target(e, g);
                 bfs_vertex_data2[child].parent = parent;
@@ -135,7 +154,6 @@ struct bfs_visitor_shrinktree : public default_bfs_visitor
                         v = bfs_vertex_data2[v].parent;
                 } 
                 children2[parent].push_back(child);
-                */
         }
 
 };
@@ -166,15 +184,17 @@ void print_canonical_ordering(Graph const& g, vector<VertexDescriptor> const& or
 
 void print_graph(Graph const& g)
 { 
-        uint n = num_vertices(g);
-        cout << "\n\nn = " << n << '\n';
-        EmbeddingStorage storage(n);
-        Embedding em(storage.begin());
-        bool planar = boyer_myrvold_planarity_test(g, em);
-        assert(planar);
-        vector<VertexDescriptor> ordering; 
-        planar_canonical_ordering(g, em, back_inserter(ordering));
-        print_canonical_ordering(g, ordering, em);
+        cout << '\n';
+        auto pai = vertices(g);
+        while( pai.first != pai.second ){
+                cout << "vertex " << *pai.first << '\n';
+                auto pai2 = out_edges(*pai.first, g);
+                while( pai2.first != pai2.second ){
+                        cout << " has incident edge " << *pai2.first << '\n';
+                        ++pai2.first;
+                }
+                ++pai.first;
+        } 
         cout << "\n\n";
 }
 
@@ -204,6 +224,7 @@ Partition lipton_tarjan(Graph const& gin)
         vector<VertexDescriptor> ordering;
         planar_canonical_ordering(g, em, back_inserter(ordering)); 
         print_canonical_ordering(g, ordering, em);
+        print_graph(g);
 
         //
         // Step 2 - find connected components of g
@@ -254,8 +275,8 @@ Partition lipton_tarjan(Graph const& gin)
         // Step 5
         // 
         cout << "\n--- Step 5 ---\n\n";
-        uint l0 = l1;    while( L[l0] + 2*(l1-l0)   <=   sqrt(k)   ) --l0; ++l0; 
-        uint l2 = l1 +1; while( L[l2] + 2*(l2-l1-1) <= 2*sqrt(n-k) ) ++l2; --l2; 
+        uint l0 = l1;     while( L[l0-1] + 2*(l1-l0-1) <= 2*sqrt(k)   ) --l0;
+        uint l2 = l1 + 1; while( L[l2+1] + 2*(l2-l1)   <= 2*sqrt(n-k) ) ++l2;
 
         cout << "l0: " << l0 << '\n';
         cout << "l2: " << l2 << '\n';
@@ -282,13 +303,19 @@ Partition lipton_tarjan(Graph const& gin)
 
         // Scan the edges incident to this tree clockwise around the tree.  When scanning an edge(v,w) with v in the tree...
         Lambda lambda(&table, &g, x, l0); 
-        scan_nontree_edges(0, g, em, lambda);
+        cout << "scanning nonsubtree edges...\n";
+        scan_nonsubtree_edges(0, g, em, lambda);
+        lambda.finish();
 
         lemma2(); 
 
         //
         // Step 7
         // 
+        if( degree(x, g) == 0 ){
+                remove_vertex(x, g);
+                x = 0;
+        }
         cout << "\n--- Step 7 ---\n\n";
         n = num_vertices(g);
         cout << "# verts: " << num_vertices(g) << '\n';
@@ -297,8 +324,8 @@ Partition lipton_tarjan(Graph const& gin)
         cout << "x = " << x << '\n';
 
         bfs_visitor_shrinktree vis2;
-        children2.resize(x);
-        bfs_vertex_data2.resize(x);
+        children2.resize(n);
+        bfs_vertex_data2.resize(n);
         bfs_vertex_data2[x].parent = x;
         cout << "bfs2\n";
         breadth_first_search(g, x, visitor(vis2));

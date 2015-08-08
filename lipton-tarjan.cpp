@@ -35,10 +35,10 @@ struct BFSVertexData2
         uint cost;
 };
 
-vector<vector<VertexDescriptor>> children, children2;
+map<VertexDescriptor, vector<VertexDescriptor>> children, children2;
 
-vector<BFSVertexData>  bfs_vertex_data; // why can't this be inside bfs_visitor_buildtree
-vector<BFSVertexData2> bfs_vertex_data2;
+map<VertexDescriptor, BFSVertexData>  bfs_vertex_data; // why can't this be inside bfs_visitor_buildtree
+map<VertexDescriptor, BFSVertexData2> bfs_vertex_data2;
 uint num_levels = 1;
 
 struct bfs_visitor_buildtree : public default_bfs_visitor
@@ -187,7 +187,7 @@ void print_canonical_ordering(Graph const& g, vector<VertexDescriptor> const& or
 
 void print_graph(Graph const& g)
 { 
-        cout << '\n';
+        cout << "\n*********************************************************\n";
         auto pai = vertices(g);
         while( pai.first != pai.second ){
                 cout << "vertex " << *pai.first << '\n';
@@ -198,7 +198,7 @@ void print_graph(Graph const& g)
                 }
                 ++pai.first;
         } 
-        cout << "\n\n";
+        cout << "*********************************************************\n\n";
 }
 
 void print_bfs_tree(vector<uint> const& L)
@@ -251,15 +251,13 @@ Partition lipton_tarjan(Graph const& gin)
         // 
         cout << "\n--- Step 3--\n\n";
         bfs_visitor_buildtree vis;
-        bfs_vertex_data.resize(n);
-        children.resize(n);
         bfs_vertex_data[0].parent = 0;
         bfs_vertex_data[0].level  = 0;
         breadth_first_search(g, vertex(0, g), visitor(vis)); 
-        for( auto& c : children ) sort(c.begin(), c.end());
+        for( auto& c : children ) sort(c.second.begin(), c.second.end());
 
         vector<uint> L(num_levels); 
-        for( auto& d : bfs_vertex_data ) ++L[d.level];
+        for( auto& d : bfs_vertex_data ) ++L[d.second.level];
 
         print_bfs_tree(L);
 
@@ -278,8 +276,25 @@ Partition lipton_tarjan(Graph const& gin)
         // Step 5
         // 
         cout << "\n--- Step 5 ---\n\n";
-        uint l0 = l1;     while( L[l0-1] + 2*(l1-l0-1) <= 2*sqrt(k)   ) --l0;
-        uint l2 = l1 + 1; while( L[l2+1] + 2*(l2-l1)   <= 2*sqrt(n-k) ) ++l2;
+        cout << "L.size == " << L.size() << '\n';
+
+        float sq  = 2 * sqrt(k);
+        float snk = 2 * sqrt(n - k);
+
+        cout << "sq: " << sq << '\n';
+        cout << "snk: " << snk << '\n';
+
+        uint l0 = l1;
+        for( ;; ){
+                if( L.at(l0) + 2*(l1-l0) <= sq ) break;
+                --l0;
+        }
+
+        uint l2 = l1 + 1;
+        for( ;; ){
+                if( L.at(l2) + 2*(l2 - l1 - 1) <= snk ) break;
+                ++l2;
+        }
 
         cout << "l0: " << l0 << '\n';
         cout << "l2: " << l2 << '\n';
@@ -294,19 +309,20 @@ Partition lipton_tarjan(Graph const& gin)
                 auto v = *paii.first;
                 if( bfs_vertex_data[v].level >= l2 ){
                         clear_vertex(v, g);
-                        cout << "deleting vertex " << v << '\n';
+                        cout << "going to delete vertex " << v << '\n';
                         verts_to_be_removed.push_back(v);
+                        bfs_vertex_data.erase(bfs_vertex_data.find(v)); // delay actually deleting so descriptors aren't invalidated
+                        --n;
                 }
-        }
-        for( auto& v : verts_to_be_removed ){
-                remove_vertex(v, g);
         }
         auto x = add_vertex(g); ++n; // represents all verts on level 0 through l0.  
         print_graph(g);
+        cout << "n = " << n << '\n';
         map<VertexDescriptor, bool> table;
         
         for( auto pai = vertices(g); pai.first != pai.second; ++pai.first ){
                 auto v = *pai.first;
+                cout << "level of " << v << ": " << bfs_vertex_data[v].level << ' ';
                 table[v] = bfs_vertex_data[v].level <= l0;
                 if( table[v] ) cout << "table[" << v << "] = TRUE\n";
                 else cout << "table[" << v << "] = FALSE\n";
@@ -317,6 +333,12 @@ Partition lipton_tarjan(Graph const& gin)
         cout << "scanning nonsubtree edges...\n";
         scan_nonsubtree_edges(0, g, em, lambda);
         lambda.finish();
+        for( auto& v : verts_to_be_removed ){
+                assert(degree(v, g) == 0);
+                clear_vertex(v, g);
+                remove_vertex(v, g);
+                cout << "deleting vertex " << v << '\n';
+        }
 
         lemma2(); 
 
@@ -324,7 +346,7 @@ Partition lipton_tarjan(Graph const& gin)
         // Step 7
         // 
         if( degree(x, g) == 0 ){
-                cout << "!!!! vertex x has no inbound vertices!  Deleting!!!!!\n";
+                cout << "!!!! vertex x (" << x << ") has no inbound vertices!  Deleting!!!!!\n";
                 remove_vertex(x, g);
                 x = 0;
         }

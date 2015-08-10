@@ -330,12 +330,16 @@ Partition lipton_tarjan(Graph const& gin)
         cout << "scanning nonsubtree edges...\n";
         scan_nonsubtree_edges(0, g, em, lambda);
         lambda.finish();
+
+        uint offset = 0;
         for( auto& v : verts_to_be_removed ){
-                assert(degree(v, g) == 0);
-                clear_vertex(v, g);
-                remove_vertex(v, g);
-                cout << "deleting vertex " << v << '\n';
-        }
+                auto vv = v - offset;
+                cout << "deleting vertex " << vv << '\n';
+                assert(degree(vv, g) == 0);
+                clear_vertex(vv, g);
+                remove_vertex(vv, g);
+                ++offset;
+        } 
 
         lemma2(); 
 

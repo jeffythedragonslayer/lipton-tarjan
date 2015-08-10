@@ -382,16 +382,10 @@ Partition lipton_tarjan(Graph const& gin)
         cout << "n = " << n << '\n';
         cout << "x = " << x << '\n';
 
-        /*
         bfs_visitor_shrinktree vis2;
-        children2.resize(n);
-        bfs_vertex_data2.resize(n);
         bfs_vertex_data2[x].parent = x;
-        cout << "bfs2\n";
         breadth_first_search(g, x, visitor(vis2));
-        cout << "sorting\n";
-        for( auto& c : children2 ) sort(c.begin(), c.end()); 
-        */
+        for( auto& c : children2 ) sort(c.second.begin(), c.second.end()); 
 
         makemaxplanar(g);
 

@@ -39,3 +39,6 @@ typedefs.h
 
 #header dependency information
 *.d
+
+#text file temporaries
+*.swp

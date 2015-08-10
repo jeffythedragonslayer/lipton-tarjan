@@ -207,6 +207,30 @@ void print_bfs_tree(vector<uint> const& L)
         for( uint i = 0; i < L.size();               ++i ) cout << "L[" << i << "] = " << L[i] << '\n';
 }
 
+void makemaxplanar(Graph& g)
+{ 
+        auto e_index = get(edge_index, g);
+        EdgesSizeType num_edges = 0;
+        EdgeIterator ei, ei_end;
+        for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ) put(e_index, *ei, num_edges++);
+
+        vector<vector<EdgeDescriptor>> em(num_vertices(g));
+        boyer_myrvold_planarity_test(g, &em[0]);
+
+        make_biconnected_planar(g, &em[0]);
+
+        num_edges = 0;
+        for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ) put(e_index, *ei, num_edges++); 
+        boyer_myrvold_planarity_test(g, &em[0]);
+
+        make_maximal_planar(g, &em[0]);
+
+        num_edges = 0;
+        for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ) put(e_index, *ei, num_edges++); 
+        bool planar = boyer_myrvold_planarity_test(g, &em[0]);
+        assert(planar); 
+} 
+
 Partition lipton_tarjan(Graph const& gin)
 { 
         Graph g = gin;
@@ -369,43 +393,14 @@ Partition lipton_tarjan(Graph const& gin)
         for( auto& c : children2 ) sort(c.begin(), c.end()); 
         */
 
-        cout << "# verts: " << num_vertices(g) << '\n';
-        cout << "# edges: " << num_edges   (g) << '\n';
+        makemaxplanar(g);
 
-        EmbeddingStorage storage2(n);
-        Embedding        em2(storage2.begin());
-        cout << "boyer\n";
-        planar = boyer_myrvold_planarity_test(g, em2);
-        assert(planar); 
-
-
-        vector<uint> vertid_to_component2(n);
-        uint connected = connected_components(g, &vertid_to_component2[0]); 
-        print_graph(g);
-        assert(connected == 1);
-
-
-        cout << "biconnected\n";
-        make_biconnected_planar(g, &em2[0]);
-
-        cout << "# verts: " << num_vertices(g) << '\n';
-        cout << "# edges: " << num_edges   (g) << '\n';
-
-        EmbeddingStorage storage3(n);
-        Embedding        em3(storage3.begin());
-        planar = boyer_myrvold_planarity_test(g, em3);
-        assert(planar);
         cout << "make maximal planar - should have " << 3*n - 6 << " edges\n";
-        make_maximal_planar(g, &em3[0]); 
-
         cout << "# verts: " << num_vertices(g) << '\n';
-        cout << "# edges: " << num_edges   (g) << '\n';
-
+        cout << "# edges: " << num_edges   (g) << '\n'; 
         n = num_vertices(g);
-        uint e = num_edges(g);
-
-        assert(e == 3*n - 6);
-
+        uint e = num_edges(g); 
+        assert(e == 3*n - 6); 
 
         //
         // Step 8

@@ -92,7 +92,7 @@ bool on_cycle(EdgeDescriptor e, vector<VertexDescriptor> const& cycle_verts, Gra
 
 bool edge_inside(EdgeDescriptor e, VertexDescriptor v, vector<VertexDescriptor> const& cycle_verts, Graph const& g, Embedding& em)
 {
-        cout << "testing if edge " << e << " is inside the cycle\n";
+        cout << "        testing if edge " << e << " is inside the cycle\n";
         auto it     = find(cycle_verts.begin(), cycle_verts.end(), v);
         auto before = it == cycle_verts.begin() ?
                       cycle_verts.end()-1       :
@@ -100,15 +100,15 @@ bool edge_inside(EdgeDescriptor e, VertexDescriptor v, vector<VertexDescriptor> 
         auto after  = it+1 == cycle_verts.end() ?
                       cycle_verts.begin()       :
                       it+1;
-        cout << "v: " << v << '\n';
-        cout << "before: " << *before << '\n';
-        cout << "after: " << *after << '\n';
+        cout << "               v: " << v << '\n';
+        cout << "               before: " << *before << '\n';
+        cout << "               after: " << *after << '\n';
 
         auto other = (source(e, g) == v) ?
                      target(e, g)        :
                      source(e, g);
 
-        cout << "other: " << other << '\n';
+        cout << "               other: " << other << '\n';
 
         vector<uint> perm;
         for( auto& tar_it : em[*it] ){
@@ -117,8 +117,8 @@ bool edge_inside(EdgeDescriptor e, VertexDescriptor v, vector<VertexDescriptor> 
                 if( target(tar_it, g) == *before ) perm.push_back(2);
                 if( target(tar_it, g) == *after  ) perm.push_back(3);
         }
-        //assert(perm.size() == 3);
-        cout << "levi civita symbol: " << perm[0] << ' ' << perm[1] << ' ' << perm[2] << '\n';
+        assert(perm.size() == 3);
+        cout << "               levi civita symbol: " << perm[0] << ' ' << perm[1] << ' ' << perm[2] << '\n';
         return levi_civita(perm[0], perm[1], perm[2]) == 1;
 }
 
@@ -480,28 +480,28 @@ done:
 
         uint cost_inside  = 0;
         uint cost_outside = 0;
+        bool cost_swapped = false;
 
-        // Compute the cost on each side of this cycle by scanning the tree edges incidient on either side of the cycle and summing their associated costs.
         for( auto& v : cycle_verts ){
-                cout << "   cycle vert " << v << '\n';
+                cout << "   scanning cycle vert " << v << '\n';
                 auto pai = out_edges(v, g);
                 while( pai.first != pai.second ){
                         if( is_tree_edge2(*pai.first, g) && !on_cycle(*pai.first, cycle_verts, g) ){
                                 uint cost = edge_cost(*pai.first, g);
                                 cout << "      scanning incident tree edge " << *pai.first << "   cost: " << cost << '\n';
-                                if( edge_inside(*pai.first, v, cycle_verts, g, em2) ){
-                                        cost_inside += cost;
-                                        cout << "inside\n";
-                                } else {
-                                        cost_outside += cost;
-                                        cout << "outside\n";
-                                }
+                                bool inside = edge_inside(*pai.first, v, cycle_verts, g, em2);
+                                inside ? cost_inside : cost_outside += cost;
+                                cout << (inside ? "inside\n" : "outside\n");
                         }
                         ++pai.first;
                 }
         }
 
-        if( cost_outside > cost_inside ) swap(cost_outside, cost_inside);
+        if( cost_outside > cost_inside ){
+                swap(cost_outside, cost_inside);
+                cost_swapped = true;
+                cout << "cost swapped\n";
+        }
         cout << "total inside cost: " << cost_inside << '\n';
 
 

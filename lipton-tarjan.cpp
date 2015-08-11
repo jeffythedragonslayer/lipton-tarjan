@@ -223,16 +223,101 @@ struct bfs_visitor_shrinktree : public default_bfs_visitor
 
 void theorem4()
 {
-        cout << "theorem4\n";
-        exit(0);
+        /*
+        Assume G is connected.
+        Partition the vertices into levels according to their distance from some vertex v.
+        L[l] = # of vertices on level l
+        If r is the maximum distance of any vertex from v, define additional levels -1 and r+1 containing no vertices
+        l1 = the level such that the sum of costs in levels 0 thru l1-1 < 1/2, but the sum of costs in levels 0 thru l1 is >= 1/2
+        (If no such l1 exists, the total cost of all vertices < 1/2, and B = C = {} and return true)
+        k = # of vertices on levels 0 thru l1.
+        Find a level l0 such that l0 <= l1 and |L[l0]| + 2(l1-l0) <= 2sqrt(k)
+        Find a level l2 such that l1+1 <= l2 and |L[l2] + 2(l2-l1-1) <= 2sqrt(n-k)
+        If 2 such levels exist, then by Lemma 3 the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex in A with a vertex in B,
+        neither A or C has cost > 2/3, and C contains no more than 2(sqrt(k) + sqrt(n-k)) vertices.
+        But 2(sqrt(k) + sqrt(n-k) <= 2(sqrt(n/2) + sqrt(n/2)) = 2sqrt(2)sqrt(n)
+        Thus the theorem holds if suitable levels l0 and l2 exist
+                Suppose a suitable level l0 does not exist.  Then, for i <= l1, L[i] >= 2sqrt(k) - 2(l1-i)
+                Since L[0] = 1, this means 1 >= 2sqrt(k) - 2l1 and l1 + 1/2 >= sqrt(k).  Thus l1 = floor(l1 + 1/2) > 
+                Contradiction
+
+        Now suppose G is not connected
+        Let G1, G2, ... , Gk be the connected components of G, with vertex sets V1, V2, ... , Vk respectively.
+        If no connected component has total vertex cost > 1/3, let i be the minimum index such that the total cost of V1 U V2 U ... U Vi > 1/3
+        A = V1 U V2 U ... U Vi
+        B = Vi+1 U Vi+2 U ... U Vk
+        C = {}
+        Since i is minimum and the cost of Vi <= 1/3, the cost of A <= 2/3. return true;
+        If some connected component (say Gi) has total vertex cost between 1/3 and 2/3,
+        A = Vi
+        B = V1 U ... U Vi-1 U Vi+1 U ... U Vk
+        C = {}
+        return true
+
+        Finally, if some connected component (say Gi) has total vertex cost exceeding 2/3,
+        apply the above argument to Gi
+        Let A*, B*, C* be the resulting partition.
+        A = set among A* and B* with greater cost
+        C = C*
+        B = remanining vertices of G
+        Then A and B have cost <= 2/3
+        return true;
+
+        In all cases the separator C is either empty or contained in only one connected component of G
+        */
 }
 
 void lemma2()
 {
+        /*
+        Assume no vertex has cost > 1/3, otherwise return true
+        Embed G in the plane
+        Make each face a triangle by adding a suitable # of additional edges
+        Any nontree edge (including each of the added edges) forms a simple cycle with some of the tree edges
+        This cycle is of length at most 2r + 1 if it contains the root of the tree, at most 2r-1 otherwise
+        The cycle divides the plane (and the graph) into two parts, the inside and outside
+        We claim that at least one such cycle separates the graph so that neither the inside nor the outside contains vertices whose total cost > 2/3
+                Let (x, z) be the nontree edge whose cycle minimizes the maximum cost either inside or outside the cycle.
+                Break ties by choosing the nontree edge whose cycle has the smallest # of faces on the same side as the maximum cost.
+                If ties remain, choose arbitrarily
+                Suppose wihtout loss of generality that the graph is embedded so that the cost inside the (x, z) cycle is at least as great as the cost outside the cycle.
+                If the vertices inside the cycle have total cost <= 2/3, return true
+                Suppose that the vertices inside the cycle have total cost > 2/3.  Contradiction.
+        */
 }
 
 void lemma3()
 {
+        /*
+        If l1 > l2
+                A = all verts on levels 0    thru l1-1
+                B = all verts on levels l1+1 thru r
+                C = all verts on llevel l1
+                
+        If l1 < l2
+                delete verts in levels l1 and l2
+                        this separates remaining vertices into 3 parts: (all of which may be empty)
+                                verts on levels 0 thru l1-1
+                                verts on levels l1+1
+                                verts on levels l2+1 and above
+                        the only part which can have cost > 2/3 is the middle part
+                        if middle part has cost <= 2/3
+                                A = most costly part of the 3
+                                B = remaining 2 parts
+                                C = set of verts on levels l1 and l2
+                        if the middle part has cost > 2/3
+                                delete all verts on level l2 and above
+                                shrink all verts on levels l1 and belowe to a single vertex of cost zero
+                                (These operations preserve planarity by Corollary 1.)
+                                The new graph has a spanning tree radius of l2 - l1 -1 whose root corresponds to vertices on levels l1 and below in the original graph
+                                Apply Lemma 2 to the new graph, A* B* C*
+                                A = set among A* and B* with greater cost
+                                C = verts on levels l1 and l2 in the original graph plus verts in C* minus the root
+                                B = remaining verts
+                                By Lemma 2, A has total cost <= 2/3
+                                But A U C* has total cost >= 1/3, so B also has total cost <= 2/3
+                                Futhermore, C contains no more than L[l1] + L[l2] + 2(l2 - l1 - 1)
+        */
 }
 
 void print_canonical_ordering(Graph const& g, vector<VertexDescriptor> const& ordering, Embedding const& em)
@@ -374,7 +459,7 @@ Partition lipton_tarjan(Graph const& gin)
                         --n;
                 }
         }
-        auto x = add_vertex(g); ++n; // represents all verts on level 0 through l0.  
+        auto x = add_vertex(g); ++n; // represents all verts on level 0 thru l0.  
         cout << "n = " << n << '\n';
         map<VertexDescriptor, bool> table;
         
@@ -504,15 +589,11 @@ done:
         }
         cout << "total inside cost: " << cost_inside << '\n';
 
-
-
-
-
         //
         // Step 9
         //
         // Let (vi, wi) be the nontree dege whose cycle is the current candidate to complete the separator.
-        while( false /* the cost inside the cycle exceeds 2/3 */ ){ // find a better cycle
+        while( cost_inside > num_vertices(g)*2./3 ){ // find a better cycle
 
                 // Locate the triangle (vi, y, wi) which has (vi, wi) as a boundary edge and lies inside the (vi, wi) cycle.
                 if ( true /* (vi, y) is a tree edge || (y, wi) is a tree edge */ ){

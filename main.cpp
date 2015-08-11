@@ -111,9 +111,6 @@ int main(int argc, char* argv[])
                 uint n = num_vertices(g);
                 uint e = num_edges(g);
 
-                cout << "graph has " << n << " vertices and " << e << " edges\n";
-
-                print_graph(g);
                 auto p = lipton_tarjan(g); 
                 //save_graph(g, p.embedding, p.ordering);; 
         }

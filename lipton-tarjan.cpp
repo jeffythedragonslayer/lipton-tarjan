@@ -23,16 +23,25 @@
 using namespace std;
 using namespace boost; 
 
+int levi_civita(uint i, uint j, uint k)
+{
+        if( i == j || j == k || k == i ) return 0; 
+        if( i == 1 && j == 2 && k == 3 ) return 1;
+        if( i == 2 && j == 3 && k == 1 ) return 1;
+        if( i == 3 && j == 1 && k == 2 ) return 1;
+        return -1;
+}
+
 struct BFSVertexData
 {
         VertexDescriptor parent;
-        int level;
+        int              level;
 }; 
 
 struct BFSVertexData2
 {
         VertexDescriptor parent;
-        uint cost;
+        uint             cost;
 };
 
 map<VertexDescriptor, vector<VertexDescriptor>> children, children2;
@@ -45,7 +54,6 @@ struct bfs_visitor_buildtree : public default_bfs_visitor
 { 
         template<typename Edge, typename Graph> void tree_edge(Edge e, Graph const& g)
         {
-                cout << "tree edge " << e << '\n';
                 auto parent = source(e, g);
                 auto child  = target(e, g);
                 bfs_vertex_data[child].parent = parent;
@@ -82,9 +90,36 @@ bool on_cycle(EdgeDescriptor e, vector<VertexDescriptor> const& cycle_verts, Gra
                find(cycle_verts.begin(), cycle_verts.end(), tar) != cycle_verts.end();
 }
 
-bool edge_inside(EdgeDescriptor e, VertexDescriptor v, Graph const& g)
+bool edge_inside(EdgeDescriptor e, VertexDescriptor v, vector<VertexDescriptor> const& cycle_verts, Graph const& g, Embedding& em)
 {
-        return true;
+        cout << "testing if edge " << e << " is inside the cycle\n";
+        auto it     = find(cycle_verts.begin(), cycle_verts.end(), v);
+        auto before = it == cycle_verts.begin() ?
+                      cycle_verts.end()-1       :
+                      it-1;
+        auto after  = it+1 == cycle_verts.end() ?
+                      cycle_verts.begin()       :
+                      it+1;
+        cout << "v: " << v << '\n';
+        cout << "before: " << *before << '\n';
+        cout << "after: " << *after << '\n';
+
+        auto other = (source(e, g) == v) ?
+                     target(e, g)        :
+                     source(e, g);
+
+        cout << "other: " << other << '\n';
+
+        vector<uint> perm;
+        for( auto& tar_it : em[*it] ){
+                assert(source(tar_it, g) == v);
+                if( target(tar_it, g) == other   ) perm.push_back(1);
+                if( target(tar_it, g) == *before ) perm.push_back(2);
+                if( target(tar_it, g) == *after  ) perm.push_back(3);
+        }
+        //assert(perm.size() == 3);
+        cout << "levi civita symbol: " << perm[0] << ' ' << perm[1] << ' ' << perm[2] << '\n';
+        return levi_civita(perm[0], perm[1], perm[2]) == 1;
 }
 
 vector<pair<VertexDescriptor, VertexDescriptor>> edges_to_delete;
@@ -92,10 +127,10 @@ vector<pair<VertexDescriptor, VertexDescriptor>> edges_to_add;
 
 struct Lambda
 {
-        map<VertexDescriptor, bool>*    table;
-        Graph*           g;
-        VertexDescriptor x;
-        int              l0;
+        map<VertexDescriptor, bool>* table;
+        Graph*                       g;
+        VertexDescriptor             x;
+        int                          l0;
 
 
         Lambda(map<VertexDescriptor, bool>* table, Graph* g, VertexDescriptor x, int l0) : table(table), g(g), x(x), l0(l0) {}
@@ -271,28 +306,18 @@ Partition lipton_tarjan(Graph const& gin)
 { 
         Graph g = gin;
         uint n = num_vertices(g); 
-        cout << "# verts: " << num_vertices(g) << '\n';
-        cout << "# edges: " << num_edges(g) << '\n';
-
-        print_graph(g);
 
         //
         // Step 1 - find a planar embedding of g
         //
-        cout << "\n----------- Step 1 -----------\n\n";
         EmbeddingStorage storage(n);
         Embedding        em(storage.begin());
         bool planar = boyer_myrvold_planarity_test(g, em);
         assert(planar); 
-        vector<VertexDescriptor> ordering;
-        planar_canonical_ordering(g, em, back_inserter(ordering)); 
-        print_canonical_ordering(g, ordering, em);
-        print_graph(g);
 
         //
         // Step 2 - find connected components of g
         //
-        cout << "\n---------- Step 2 ----------\n\n";
         vector<uint> vertid_to_component(n);
         uint components = connected_components(g, &vertid_to_component[0]);
         assert(components == 1);
@@ -309,7 +334,6 @@ Partition lipton_tarjan(Graph const& gin)
         //
         // Step 3 - create BFS tree of most costly component. Compute the level of each vertex and the # of of verts L(l) in each level l.
         // 
-        cout << "\n------- Step 3 -------\n\n";
         bfs_visitor_buildtree vis;
         bfs_vertex_data[0].parent = 0;
         bfs_vertex_data[0].level  = 0;
@@ -319,48 +343,26 @@ Partition lipton_tarjan(Graph const& gin)
         vector<uint> L(num_levels+1); 
         for( auto& d : bfs_vertex_data ) ++L[d.second.level];
 
-        print_bfs_tree(L);
-
         //
         // Step 4
         //
-        cout << "\n-------- Step 4 ---------\n\n";
         uint k  = L[0];
         int l1 = 0;
         while( k <= n/2 ) k += L[++l1];
         
-        cout << "l1: " << l1 << '\n';
-        cout << "k: " << k << '\n';
-
         //
         // Step 5
         // 
-        cout << "\n--------- Step 5 -----------\n\n";
-        cout << "L.size == " << L.size() << '\n';
-
         float sq  = 2 * sqrt(k);
         float snk = 2 * sqrt(n - k);
 
-        int l0 = l1;
-        for( ;; ){
-                if( L.at(l0) + 2*(l1-l0) <= sq ) break;
-                --l0;
-        }
-
-        int l2 = l1 + 1;
-        for( ;; ){
-                if( L.at(l2) + 2*(l2 - l1 - 1) <= snk ) break;
-                ++l2;
-        }
-
-        cout << "l0: " << l0 << '\n';
-        cout << "l2: " << l2 << '\n';
+        int l0 = l1;     for( ;; ){ if( L.at(l0) + 2*(l1 - l0)     <= sq  ) break; --l0; } 
+        int l2 = l1 + 1; for( ;; ){ if( L.at(l2) + 2*(l2 - l1 - 1) <= snk ) break; ++l2; }
 
         //
         // Step 6
         //
         cout << "\n------- Step 6 --------\n\n";
-        print_graph(g);
         vector<VertexDescriptor> verts_to_be_removed;
         for( auto paii = vertices(g); paii.first != paii.second; ++paii.first ){
                 auto v = *paii.first;
@@ -373,7 +375,6 @@ Partition lipton_tarjan(Graph const& gin)
                 }
         }
         auto x = add_vertex(g); ++n; // represents all verts on level 0 through l0.  
-        print_graph(g);
         cout << "n = " << n << '\n';
         map<VertexDescriptor, bool> table;
         
@@ -472,6 +473,11 @@ done:
         for( auto& v : cycle_verts ) cout << v << ' ';
         cout << '\n';
 
+        EmbeddingStorage storage2(num_vertices(g));
+        Embedding        em2(storage2.begin());
+        planar = boyer_myrvold_planarity_test(g, em2);
+        assert(planar); 
+
         uint cost_inside  = 0;
         uint cost_outside = 0;
 
@@ -483,7 +489,7 @@ done:
                         if( is_tree_edge2(*pai.first, g) && !on_cycle(*pai.first, cycle_verts, g) ){
                                 uint cost = edge_cost(*pai.first, g);
                                 cout << "      scanning incident tree edge " << *pai.first << "   cost: " << cost << '\n';
-                                if( edge_inside(*pai.first, v, g) ){
+                                if( edge_inside(*pai.first, v, cycle_verts, g, em2) ){
                                         cost_inside += cost;
                                         cout << "inside\n";
                                 } else {

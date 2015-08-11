@@ -74,6 +74,19 @@ bool is_tree_edge2(EdgeDescriptor e, Graph const& g)
                bfs_vertex_data2[tar].parent == src;
 }
 
+bool on_cycle(EdgeDescriptor e, vector<VertexDescriptor> const& cycle_verts, Graph const& g)
+{
+        auto src = source(e, g);
+        auto tar = target(e, g);
+        return find(cycle_verts.begin(), cycle_verts.end(), src) != cycle_verts.end() &&
+               find(cycle_verts.begin(), cycle_verts.end(), tar) != cycle_verts.end();
+}
+
+bool edge_inside(EdgeDescriptor e, VertexDescriptor v, Graph const& g)
+{
+        return true;
+}
+
 vector<pair<VertexDescriptor, VertexDescriptor>> edges_to_delete;
 vector<pair<VertexDescriptor, VertexDescriptor>> edges_to_add;
 
@@ -243,6 +256,17 @@ void makemaxplanar(Graph& g)
         assert(planar); 
 } 
 
+uint edge_cost(EdgeDescriptor e, Graph const& g)
+{
+        assert(is_tree_edge2(e, g));
+        auto v = source(e, g); // assert on the cycle
+        auto w = target(e, g); // assert not on the cycle
+
+        return bfs_vertex_data2[w].parent == w ?
+               bfs_vertex_data2[w].cost        :
+               num_vertices(g) - bfs_vertex_data2[v].cost;
+}
+
 Partition lipton_tarjan(Graph const& gin)
 { 
         Graph g = gin;
@@ -255,7 +279,7 @@ Partition lipton_tarjan(Graph const& gin)
         //
         // Step 1 - find a planar embedding of g
         //
-        cout << "\n--- Step 1 ---\n\n";
+        cout << "\n----------- Step 1 -----------\n\n";
         EmbeddingStorage storage(n);
         Embedding        em(storage.begin());
         bool planar = boyer_myrvold_planarity_test(g, em);
@@ -268,7 +292,7 @@ Partition lipton_tarjan(Graph const& gin)
         //
         // Step 2 - find connected components of g
         //
-        cout << "\n--- Step 2 ---\n\n";
+        cout << "\n---------- Step 2 ----------\n\n";
         vector<uint> vertid_to_component(n);
         uint components = connected_components(g, &vertid_to_component[0]);
         assert(components == 1);
@@ -285,7 +309,7 @@ Partition lipton_tarjan(Graph const& gin)
         //
         // Step 3 - create BFS tree of most costly component. Compute the level of each vertex and the # of of verts L(l) in each level l.
         // 
-        cout << "\n--- Step 3--\n\n";
+        cout << "\n------- Step 3 -------\n\n";
         bfs_visitor_buildtree vis;
         bfs_vertex_data[0].parent = 0;
         bfs_vertex_data[0].level  = 0;
@@ -300,7 +324,7 @@ Partition lipton_tarjan(Graph const& gin)
         //
         // Step 4
         //
-        cout << "\n--- Step 4--\n\n";
+        cout << "\n-------- Step 4 ---------\n\n";
         uint k  = L[0];
         int l1 = 0;
         while( k <= n/2 ) k += L[++l1];
@@ -311,7 +335,7 @@ Partition lipton_tarjan(Graph const& gin)
         //
         // Step 5
         // 
-        cout << "\n--- Step 5 ---\n\n";
+        cout << "\n--------- Step 5 -----------\n\n";
         cout << "L.size == " << L.size() << '\n';
 
         float sq  = 2 * sqrt(k);
@@ -335,7 +359,7 @@ Partition lipton_tarjan(Graph const& gin)
         //
         // Step 6
         //
-        cout << "\n--- Step 6 ---\n\n";
+        cout << "\n------- Step 6 --------\n\n";
         print_graph(g);
         vector<VertexDescriptor> verts_to_be_removed;
         for( auto paii = vertices(g); paii.first != paii.second; ++paii.first ){
@@ -387,7 +411,7 @@ Partition lipton_tarjan(Graph const& gin)
                 remove_vertex(x, g);
                 x = 0;
         }
-        cout << "\n--- Step 7 ---\n\n";
+        cout << "\n------ Step 7 ------\n\n";
         n = num_vertices(g);
         cout << "# verts: " << num_vertices(g) << '\n';
         cout << "# edges: " << num_edges   (g) << '\n';
@@ -411,7 +435,11 @@ Partition lipton_tarjan(Graph const& gin)
         //
         // Step 8
         //
-        cout << "\n--- Step 8 ---\n\n";
+        cout << "\n------ Step 8 ------\n\n";
+
+        print_graph(g);
+
+
         EdgeIterator ei, ei_end;
         for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ) if( !is_tree_edge2(*ei, g) ) break;
         assert(!is_tree_edge2(*ei, g));
@@ -432,38 +460,43 @@ done:
         auto ancestor = parents_v[i];
         cout << "common ancestor: " << ancestor << '\n';
 
-        uint total_cost = 0;
-        cout << "computing cost of v side...\n";
-        for( auto& p : parents_v ){
-                cout << "scanning edges around " << p << '\n';
-                EdgeIterator ei, ei_end;
-                auto pai = out_edges(p, g);
+        vector<VertexDescriptor> cycle_verts, tmp;
+        VertexDescriptor v;
+        v = v1; while( v != ancestor ){ cycle_verts.push_back(v); v = bfs_vertex_data2[v].parent; } 
+        cycle_verts.push_back(ancestor);
+        v = w1; while( v != ancestor ){ tmp.push_back(v); v = bfs_vertex_data2[v].parent; } 
+        reverse(tmp.begin(), tmp.end());
+        cycle_verts.insert(cycle_verts.end(), tmp.begin(), tmp.end());
+
+        cout << "cycle verts: ";
+        for( auto& v : cycle_verts ) cout << v << ' ';
+        cout << '\n';
+
+        uint cost_inside  = 0;
+        uint cost_outside = 0;
+
+        // Compute the cost on each side of this cycle by scanning the tree edges incidient on either side of the cycle and summing their associated costs.
+        for( auto& v : cycle_verts ){
+                cout << "   cycle vert " << v << '\n';
+                auto pai = out_edges(v, g);
                 while( pai.first != pai.second ){
-                        if( !is_tree_edge2(*pai.first, g) && *pai.first != chosen_edge ){
-                                cout << "   scanning edge " << *pai.first << '\n';
-                        }
-                        ++pai.first;
-                }
-        }
-        cout << "computing cost of w side...\n";
-        for( auto& p : parents_w ){
-                cout << "scanning edges around " << p << '\n';
-                EdgeIterator ei, ei_end;
-                auto pai = out_edges(p, g);
-                while( pai.first != pai.second ){
-                        if( !is_tree_edge2(*pai.first, g) && *pai.first != chosen_edge ){
-                                cout << "   scanning edge " << *pai.first << '\n';
+                        if( is_tree_edge2(*pai.first, g) && !on_cycle(*pai.first, cycle_verts, g) ){
+                                uint cost = edge_cost(*pai.first, g);
+                                cout << "      scanning incident tree edge " << *pai.first << "   cost: " << cost << '\n';
+                                if( edge_inside(*pai.first, v, g) ){
+                                        cost_inside += cost;
+                                        cout << "inside\n";
+                                } else {
+                                        cost_outside += cost;
+                                        cout << "outside\n";
+                                }
                         }
                         ++pai.first;
                 }
         }
 
-        // Compute the cost on each side of this cycle by scanning the tree edges incidient on either side of the cycle and summing their associated costs.
-                // If (v,w) is a tree edge with v on the cycle and w not on the cycle
-                        // cost associated with (v,w) = v.parent_of(w)       ?
-                        //                              descendant cost of w :
-                        //                              cost of all vertices minus the descendant cost of v
-        // Let side of cycle with greater cost be inside
+        if( cost_outside > cost_inside ) swap(cost_outside, cost_inside);
+        cout << "total inside cost: " << cost_inside << '\n';
 
 
 

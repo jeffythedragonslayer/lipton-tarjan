@@ -65,6 +65,15 @@ bool is_tree_edge(EdgeDescriptor e, Graph const& g)
                bfs_vertex_data[tar].parent == src;
 }
 
+bool is_tree_edge2(EdgeDescriptor e, Graph const& g)
+{
+        auto src = source(e, g);
+        auto tar = target(e, g);
+
+        return bfs_vertex_data2[src].parent == tar || 
+               bfs_vertex_data2[tar].parent == src;
+}
+
 vector<pair<VertexDescriptor, VertexDescriptor>> edges_to_delete;
 vector<pair<VertexDescriptor, VertexDescriptor>> edges_to_add;
 
@@ -404,25 +413,50 @@ Partition lipton_tarjan(Graph const& gin)
         //
         cout << "\n--- Step 8 ---\n\n";
         EdgeIterator ei, ei_end;
-        for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ){
-                bool is_tree_edge = tree_edges.find(*ei) != tree_edges.end();
-                if( !is_tree_edge ) break;
-        } 
-        cout << "arbitrarily choosing nontree edge: " << *ei << '\n';
+        for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ) if( !is_tree_edge2(*ei, g) ) break;
+        assert(!is_tree_edge2(*ei, g));
+        EdgeDescriptor chosen_edge = *ei;
+        cout << "arbitrarily choosing nontree edge: " << chosen_edge << '\n';
         
-        auto v1 = source(*ei, g);
-        auto w1 = target(*ei, g);
+        auto v1 = source(chosen_edge, g);
+        auto w1 = target(chosen_edge, g);
         vector<VertexDescriptor> parents_v, parents_w;
 
-        auto p_v = v1; while( p_v ){ p_v = bfs_vertex_data2[p_v].parent; parents_v.push_back(p_v); }
-        auto p_w = w1; while( p_w ){ p_w = bfs_vertex_data2[p_w].parent; parents_w.push_back(p_w); }
+        auto p_v = v1; do { p_v = bfs_vertex_data2[p_v].parent; parents_v.push_back(p_v); } while( p_v );
+        auto p_w = w1; do {p_w = bfs_vertex_data2[p_w].parent; parents_w.push_back(p_w); } while( p_w );
 
-        // find common ancestor
         uint i, j;
         for( i = 0; i < parents_v.size(); ++i ) for( j = 0; j < parents_w.size(); ++j ) if( parents_v[i] == parents_w[j] ) goto done;
 done:
+        assert(parents_v[i] == parents_w[j]);
         auto ancestor = parents_v[i];
         cout << "common ancestor: " << ancestor << '\n';
+
+        uint total_cost = 0;
+        cout << "computing cost of v side...\n";
+        for( auto& p : parents_v ){
+                cout << "scanning edges around " << p << '\n';
+                EdgeIterator ei, ei_end;
+                auto pai = out_edges(p, g);
+                while( pai.first != pai.second ){
+                        if( !is_tree_edge2(*pai.first, g) && *pai.first != chosen_edge ){
+                                cout << "   scanning edge " << *pai.first << '\n';
+                        }
+                        ++pai.first;
+                }
+        }
+        cout << "computing cost of w side...\n";
+        for( auto& p : parents_w ){
+                cout << "scanning edges around " << p << '\n';
+                EdgeIterator ei, ei_end;
+                auto pai = out_edges(p, g);
+                while( pai.first != pai.second ){
+                        if( !is_tree_edge2(*pai.first, g) && *pai.first != chosen_edge ){
+                                cout << "   scanning edge " << *pai.first << '\n';
+                        }
+                        ++pai.first;
+                }
+        }
 
         // Compute the cost on each side of this cycle by scanning the tree edges incidient on either side of the cycle and summing their associated costs.
                 // If (v,w) is a tree edge with v on the cycle and w not on the cycle

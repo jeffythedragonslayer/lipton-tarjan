@@ -141,6 +141,8 @@ void scan_nonsubtree_edges(VertexDescriptor v, Graph const& g, Embedding& em, La
         for( auto c : children[v] ) scan_nonsubtree_edges(c, g, em, lambda);
 }
 
+set<EdgeDescriptor> tree_edges;
+
 struct bfs_visitor_shrinktree : public default_bfs_visitor
 { 
         template<typename Edge, typename Graph> void tree_edge(Edge e, Graph const& g)
@@ -149,6 +151,7 @@ struct bfs_visitor_shrinktree : public default_bfs_visitor
                 auto parent = source(e, g);
                 auto child  = target(e, g);
                 bfs_vertex_data2[child].parent = parent;
+                tree_edges.insert(e);
 
                 auto v = child; 
                 while( true ){ // TODO make this faster
@@ -400,8 +403,27 @@ Partition lipton_tarjan(Graph const& gin)
         // Step 8
         //
         cout << "\n--- Step 8 ---\n\n";
-        // Choose any nontree edge(v1,w1).
-        // Locate the corresponding cycle by following parent pointers from v1 and w1.
+        EdgeIterator ei, ei_end;
+        for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ){
+                bool is_tree_edge = tree_edges.find(*ei) != tree_edges.end();
+                if( !is_tree_edge ) break;
+        } 
+        cout << "arbitrarily choosing nontree edge: " << *ei << '\n';
+        
+        auto v1 = source(*ei, g);
+        auto w1 = target(*ei, g);
+        vector<VertexDescriptor> parents_v, parents_w;
+
+        auto p_v = v1; while( p_v ){ p_v = bfs_vertex_data2[p_v].parent; parents_v.push_back(p_v); }
+        auto p_w = w1; while( p_w ){ p_w = bfs_vertex_data2[p_w].parent; parents_w.push_back(p_w); }
+
+        // find common ancestor
+        uint i, j;
+        for( i = 0; i < parents_v.size(); ++i ) for( j = 0; j < parents_w.size(); ++j ) if( parents_v[i] == parents_w[j] ) goto done;
+done:
+        auto ancestor = parents_v[i];
+        cout << "common ancestor: " << ancestor << '\n';
+
         // Compute the cost on each side of this cycle by scanning the tree edges incidient on either side of the cycle and summing their associated costs.
                 // If (v,w) is a tree edge with v on the cycle and w not on the cycle
                         // cost associated with (v,w) = v.parent_of(w)       ?

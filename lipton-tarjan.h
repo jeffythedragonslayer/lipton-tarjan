@@ -13,11 +13,11 @@ typedef boost::graph_traits<Graph>::edges_size_type                             
 typedef std::vector<std::vector<EdgeDescriptor>>                                                                                                                    EmbeddingStorage;
 typedef boost::iterator_property_map<EmbeddingStorage::iterator, boost::property_map<Graph, boost::vertex_index_t>::type>                                           Embedding; 
 
-struct Partition
+struct Partitionh
 {
         std::vector<VertexDescriptor> a, b, c;
 }; 
 
-Partition lipton_tarjan(Graph const& g);
+Partitionh lipton_tarjan(Graph const& g);
 
 void print_graph(Graph const& g);

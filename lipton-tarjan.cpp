@@ -23,6 +23,7 @@
 using namespace std;
 using namespace boost; 
 
+/*
 int levi_civita(uint i, uint j, uint k)
 {
         if( i == j || j == k || k == i ) return 0; 
@@ -146,6 +147,7 @@ struct Lambda
                 if ( !(*table)[w] ){
                         (*table)[w] = true;
                         assert(x != w);
+                        cout << "connecting " << w << " with x\n";
                         edges_to_add.push_back(make_pair(x, w));
                 }
                 edges_to_delete.push_back(make_pair(v, w));
@@ -154,11 +156,14 @@ struct Lambda
         void finish()
         {
                 for( auto& p : edges_to_add    ){
+                        cout << "adding edge " << p.first << ", " << p.second << '\n';
                         assert(p.first != p.second);
                         add_edge(p.first, p.second, *g);
                 }
+                cout << "mid finish\n";
+                print_graph(*g);
                 for( auto& p : edges_to_delete ){
-                        cout << "shrinking edge " << p.first << ", " << p.second << '\n';
+                        cout << "deleting edge " << p.first << ", " << p.second << '\n';
                         remove_edge(p.first, p.second, *g);
                 }
         }
@@ -204,6 +209,7 @@ struct bfs_visitor_shrinktree : public default_bfs_visitor
         }
 
 };
+*/
 
 uint theorem4(uint partition, Graph const& g)
 {
@@ -272,6 +278,7 @@ void lemma2()
 
 uint lemma3(vector<VertexDescriptor> const& cycle_verts, int* l, Graph const& g)
 {
+        /*
         if( l[1] > l[2] ){
                 cout << "A = all verts on levels 0    thru l1-1";
                 cout << "B = all verts on levels l1+1 thru r";
@@ -281,51 +288,54 @@ uint lemma3(vector<VertexDescriptor> const& cycle_verts, int* l, Graph const& g)
         if( l[1] < l[2] ){
                 cout << "don't know\n";
                 vector<VertexDescriptor> zero_one, middle_part, one_two;
-                for( uint i = 0; i < bfs_vertex_data.size(); ++i ){
-                        if( bfs_vertex_data[i].level <= l[1] ){ 
-                                cout << "first part: " << i << '\n';
-                                zero_one.push_back(i);
+                VertexIterator vei, vend;
+                for( tie(vei, vend) = vertices(g); vei != vend; ++vei ){ 
+                        auto v = *vei;
+                        if( bfs_vertex_data[v].level <= l[1] ){ 
+                                cout << "first part: " << v << '\n';
+                                zero_one.push_back(v);
                                 continue;
                         }
-                        if( bfs_vertex_data[i].level >= l[1]+1 && 
-                            bfs_vertex_data[i].level <= l[2]-1 ){
-                                cout << "middle part: " << i << '\n';
-                                middle_part.push_back(i);
+                        if( bfs_vertex_data[v].level >= l[1]+1 && 
+                            bfs_vertex_data[v].level <= l[2]-1 ){
+                                cout << "middle part: " << v << '\n';
+                                middle_part.push_back(v);
                                 continue;
                         }
-                        if( bfs_vertex_data[i].level >= l[2] ){
-                                cout << "last part: " << i << '\n';
-                                one_two.push_back(i);
+                        if( bfs_vertex_data[v].level >= l[2] ){
+                                cout << "last part: " << v << '\n';
+                                one_two.push_back(v);
                                 continue;
                         }
-                        cout << "level: " << bfs_vertex_data[i].level << '\n';
+                        cout << "level: " << bfs_vertex_data[v].level << '\n';
                         assert(0);
                 }
 
 
                 //delete verts in levels l1 and l2
-                        /*this separates remaining vertices into 3 parts: (all of which may be empty)
+                        this separates remaining vertices into 3 parts: (all of which may be empty)
                                 verts on levels 0 thru l1-1
                                 verts on level l1+1 thru l2-1
                                 verts on levels l2+1 and above
-                        the only part which can have cost > 2/3 is the middle part*/
+                        the only part which can have cost > 2/3 is the middle part
                         if( middle_part.size() <= 2*num_vertices(g)/3 ){
                                 cout << "A = most costly part of the 3\n";
                                 cout << "B = remaining 2 parts\n";
                                 cout << "C = "; for( auto& v : one_two ) cout << v << ' '; cout << '\n';
                         } else {
-                                /*delete all verts on level l2 and above
+                                delete all verts on level l2 and above
                                 shrink all verts on levels l1 and belowe to a single vertex of cost zero
                                 The new graph has a spanning tree radius of l2 - l1 -1 whose root corresponds to vertices on levels l1 and below in the original graph
-                                Apply Lemma 2 to the new graph, A* B* C**/
+                                Apply Lemma 2 to the new graph, A* B* C*
                                 cout << "A = set among A* and B* with greater cost\n";
                                 cout << "C = verts on levels l1 and l2 in the original graph plus verts in C* minus the root\n";
                                 cout << "B = remaining verts\n";
-                                /* By Lemma 2, A has total cost <= 2/3
+                                By Lemma 2, A has total cost <= 2/3
                                 But A U C* has total cost >= 1/3, so B also has total cost <= 2/3
-                                Futhermore, C contains no more than L[l1] + L[l2] + 2(l2 - l1 - 1)*/
+                                Futhermore, C contains no more than L[l1] + L[l2] + 2(l2 - l1 - 1)
                         }
         }
+        */
         return 0;
 }
 
@@ -356,13 +366,19 @@ void print_graph(Graph const& g)
 }
 
 void print_bfs_tree(vector<uint> const& L)
-{
-        for( uint i = 0; i < bfs_vertex_data.size(); ++i ) cout << "parent of " << i << ": " << bfs_vertex_data[i].parent << ", level: " << bfs_vertex_data[i].level << '\n'; 
+{ 
+        /*
+        for( auto it = bfs_vertex_data.begin(); it != bfs_vertex_data.end(); ++it ){
+                auto v = it->second;
+                cout << "parent of " << it->first << ": " << v.parent << ", level: " << v.level << '\n'; 
+        }
         for( uint i = 0; i < L.size();               ++i ) cout << "L[" << i << "] = " << L[i] << '\n';
+        */
 }
 
 void makemaxplanar(Graph& g)
 { 
+        /*
         auto e_index = get(edge_index, g);
         EdgesSizeType num_edges = 0;
         EdgeIterator ei, ei_end;
@@ -383,8 +399,10 @@ void makemaxplanar(Graph& g)
         for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ) put(e_index, *ei, num_edges++); 
         bool planar = boyer_myrvold_planarity_test(g, &em[0]);
         assert(planar); 
+        */
 } 
 
+/*
 uint edge_cost(EdgeDescriptor e, Graph const& g)
 {
         assert(is_tree_edge2(e, g));
@@ -395,14 +413,15 @@ uint edge_cost(EdgeDescriptor e, Graph const& g)
                bfs_vertex_data2[w].cost        :
                num_vertices(g) - bfs_vertex_data2[v].cost;
 }
+*/
 
 Partitionh lipton_tarjan(Graph const& gin)
 { 
         Graph g = gin;
-        uint n = num_vertices(g); 
+/*
 
         cout << "\n---------------------------- Step 1 --------------------------\n"; 
-        EmbeddingStorage storage(n);
+        EmbeddingStorage storage(num_vertices(g));
         Embedding        em(storage.begin());
         bool planar = boyer_myrvold_planarity_test(g, em);
         assert(planar); 
@@ -410,14 +429,14 @@ Partitionh lipton_tarjan(Graph const& gin)
         print_graph(g);
 
         cout << "\n---------------------------- Step 2 --------------------------\n"; 
-        vector<uint> vertid_to_component(n);
+        vector<uint> vertid_to_component(num_vertices(g));
         uint components = connected_components(g, &vertid_to_component[0]);
         assert(components == 1);
 
         vector<uint> verts_per_comp(components, 0);
-        for( uint i = 0; i < n;          ++i ) ++verts_per_comp[vertid_to_component[i]]; 
+        for( uint i = 0; i < num_vertices(g); ++i ) ++verts_per_comp[vertid_to_component[i]]; 
         bool too_big = false;
-        for( uint i = 0; i < components; ++i ) if( 3*verts_per_comp[i] > 2*n ){
+        for( uint i = 0; i < components; ++i ) if( 3*verts_per_comp[i] > 2*num_vertices(g) ){
                 too_big = true;
                 break;
         }
@@ -436,18 +455,17 @@ Partitionh lipton_tarjan(Graph const& gin)
 
         vector<uint> L(num_levels+1); 
         for( auto& d : bfs_vertex_data ) ++L[d.second.level];
-
         cout << "\n---------------------------- Step 4 --------------------------\n"; 
         uint k  = L[0];
         int l[3];
         l[1] = 0;
-        while( k <= n/2 ) k += L[++l[1]];
+        while( k <= num_vertices(g)/2 ) k += L[++l[1]];
         cout << "l1: " << l[1] << '\n';
         cout << "k: " << k << '\n';
         
         cout << "\n---------------------------- Step 5 --------------------------\n"; 
         float sq  = 2 * sqrt(k);
-        float snk = 2 * sqrt(n - k);
+        float snk = 2 * sqrt(num_vertices(g) - k);
 
         l[0] = l[1];     for( ;; ){ if( L.at(l[0]) + 2*(l[1] - l[0])     <= sq  ) break; --l[0]; } 
         l[2] = l[1] + 1; for( ;; ){ if( L.at(l[2]) + 2*(l[2] - l[1] - 1) <= snk ) break; ++l[2]; }
@@ -456,48 +474,59 @@ Partitionh lipton_tarjan(Graph const& gin)
 
         print_graph(g);
 
+        for( auto& it : bfs_vertex_data ) cout << "Level of " << it.first << " = " << it.second.level << '\n';
+
         cout << "\n---------------------------- Step 6 --------------------------\n"; 
         vector<VertexDescriptor> verts_to_be_removed;
-        for( auto paii = vertices(g); paii.first != paii.second; ++paii.first ){
-                auto v = *paii.first;
-                if( bfs_vertex_data[v].level <= l[0] ){
-                        cout << "going to shrink vertex " << v << '\n';
-                        cout << "   level[v]: " << bfs_vertex_data[v].level << '\n';
-                        cout << "   cutoff: " << l[0] << '\n';
-                        verts_to_be_removed.push_back(v);
-                        --n;
-                }
-                if( bfs_vertex_data[v].level >= l[2] ){
-                        clear_vertex(v, g);
-                        verts_to_be_removed.push_back(v);
-                        bfs_vertex_data.erase(bfs_vertex_data.find(v));
-                        --n;
+        VertexIterator vei, vi_end, next;
+        {
+                tie(vei, vi_end) = vertices(g);
+                for( next = vei; vei != vi_end; vei = next ){
+                        ++next;
+                        auto v = *vei;
+                        if( bfs_vertex_data[v].level <= l[0] ){
+                                cout << "going to shrink vertex " << v << '\n';
+                                cout << "   level[v]: " << bfs_vertex_data[v].level << '\n';
+                                cout << "   cutoff: " << l[0] << '\n';
+                                verts_to_be_removed.push_back(v);
+                        }
+                        if( bfs_vertex_data[v].level >= l[2] ){
+                                cout << "removing vertex " << v << "because too high\n";
+                                clear_vertex(v, g);
+                                remove_vertex(v, g);
+                                verts_to_be_removed.push_back(v);
+                                bfs_vertex_data.erase(bfs_vertex_data.find(v));
+                        }
                 }
         }
-        auto x = add_vertex(g); ++n; // represents all verts on level 0 thru l0.  
+        auto x = add_vertex(g); // represents all verts on level 0 thru l0.  
+        cout << "adding vertex x" << x << "\n";
         map<VertexDescriptor, bool> table;
         
-        for( auto pai = vertices(g); pai.first != pai.second; ++pai.first ){
-                auto v = *pai.first;
-                table[v] = bfs_vertex_data[v].level <= l[0];
+        for( auto& v : bfs_vertex_data ){
+                table[v.first] = v.second.level <= l[0];
+                if( table[v.first] ) cout << "table[" << v.first << "] = TRUE";
+                else cout << "table[" << v.first << "] = FALSE";
+                cout << "level: " << v.second.level << '\n';
         }
 
         // Scan the edges incident to this tree clockwise around the tree.  When scanning an edge(v,w) with v in the tree...
         Lambda lambda(&table, &g, x, l[0]); 
         scan_nonsubtree_edges(0, g, em, lambda);
+
+        cout << "before lambda finishes\n";
+        print_graph(g);
+
         lambda.finish();
 
         cout << "after lambda finishes\n";
         print_graph(g);
 
-        uint offset = 0;
+
         for( auto& v : verts_to_be_removed ){
-                auto vv = v - offset;
                 cout << "removing vertex " << v << '\n';
-                clear_vertex(vv, g);
-                remove_vertex(vv, g);
-                ++offset;
-                --x;
+                clear_vertex(v, g);
+                remove_vertex(v, g);
         } 
 
         lemma2(); 
@@ -510,10 +539,8 @@ Partitionh lipton_tarjan(Graph const& gin)
                 //remove_vertex(x, g);
                 //x = 0;
         //}
-        n = num_vertices(g);
         cout << "# verts: " << num_vertices(g) << '\n';
         cout << "# edges: " << num_edges   (g) << '\n';
-        cout << "n = " << n << '\n';
         cout << "x = " << x << '\n';
 
         bfs_visitor_shrinktree vis2;
@@ -523,12 +550,11 @@ Partitionh lipton_tarjan(Graph const& gin)
 
         makemaxplanar(g);
 
-        cout << "make maximal planar - should have " << 3*n - 6 << " edges\n";
+        cout << "make maximal planar - should have " << 3*num_vertices(g) - 6 << " edges\n";
         cout << "# verts: " << num_vertices(g) << '\n';
         cout << "# edges: " << num_edges   (g) << '\n'; 
-        n = num_vertices(g);
         uint e = num_edges(g); 
-        assert(e == 3*n - 6); 
+        assert(e == 3*num_vertices(g) - 6); 
 
         cout << "\n---------------------------- Step 8 --------------------------\n"; 
 
@@ -644,6 +670,7 @@ done:
         cout << "\n---------------------------- Step 10 --------------------------\n"; 
         uint partition = lemma3(cycle_verts, &l[0], g);
         partition = theorem4(partition, g); 
+        */
         Partitionh p;
         return p;
 }

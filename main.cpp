@@ -32,7 +32,6 @@ Graph load_graph(string fname)
                 string strb  = str.substr(colon+1 ); trim(strb); 
                 uint   a     = lexical_cast<uint>(stra);
                 uint   b     = lexical_cast<uint>(strb); 
-                add_edge(a, b, g);
         } 
         return g;
 }

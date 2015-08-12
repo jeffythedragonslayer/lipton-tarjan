@@ -5,8 +5,9 @@
 #include <boost/property_map/property_map.hpp>
 #include <vector>
 
-typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS, boost::property<boost::vertex_index_t, int>, boost::property<boost::edge_index_t, int>> Graph;
+typedef boost::adjacency_list<boost::listS, boost::listS, boost::undirectedS, boost::property<boost::vertex_index_t, int>, boost::property<boost::edge_index_t, int>> Graph;
 typedef boost::graph_traits<Graph>::vertex_descriptor                                                                                                               VertexDescriptor;
+typedef boost::graph_traits<Graph>::vertex_iterator                                                                                                                 VertexIterator;
 typedef boost::graph_traits<Graph>::edge_iterator                                                                                                                   EdgeIterator;
 typedef boost::graph_traits<Graph>::edge_descriptor                                                                                                                 EdgeDescriptor;
 typedef boost::graph_traits<Graph>::edges_size_type                                                                                                                 EdgesSizeType;

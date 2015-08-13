@@ -25,14 +25,18 @@ Graph load_graph(string fname)
         }
 
         string str;
-	Graph g;
+        vector<pair<uint, uint>> edges;
         while( getline(in, str) ){
                 uint   colon = str.find(","); 
                 string stra  = str.substr(0, colon); trim(stra);
                 string strb  = str.substr(colon+1 ); trim(strb); 
-                uint   a     = lexical_cast<uint>(stra);
-                uint   b     = lexical_cast<uint>(strb); 
+                edges.push_back(make_pair(lexical_cast<uint>(stra), lexical_cast<uint>(strb)));
         } 
+        Graph g(edges.size());
+        vector<VertexDescriptor> v;
+        VertexIterator vi, vi_end;
+        for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ) v.push_back(*vi);
+        for( auto& e : edges ) add_edge(v[e.first], v[e.second], g);
         return g;
 }
 
@@ -109,6 +113,8 @@ int main(int argc, char* argv[])
                 auto g = load_graph(f);
                 uint n = num_vertices(g);
                 uint e = num_edges(g);
+
+                print_graph(g);
 
                 auto p = lipton_tarjan(g); 
                 //save_graph(g, p.embedding, p.ordering);; 

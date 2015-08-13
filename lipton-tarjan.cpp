@@ -415,7 +415,7 @@ uint edge_cost(EdgeDescriptor e, Graph const& g)
 }
 */
 
-Partitionh lipton_tarjan(Graph const& gin)
+Partition lipton_tarjan(Graph const& gin)
 { 
         Graph g = gin;
 /*
@@ -442,7 +442,7 @@ Partitionh lipton_tarjan(Graph const& gin)
         }
         if( !too_big ){
                 theorem4(0, g);
-                Partitionh p;
+                Partition p;
                 return p;
         }
 
@@ -671,6 +671,6 @@ done:
         uint partition = lemma3(cycle_verts, &l[0], g);
         partition = theorem4(partition, g); 
         */
-        Partitionh p;
+        Partition p;
         return p;
 }

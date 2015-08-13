@@ -3,18 +3,14 @@
 #include <fstream>
 #include <csignal>
 #include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/properties.hpp>
 #include <boost/graph/graph_traits.hpp>
-#include <boost/property_map/property_map.hpp>
-#include <boost/graph/planar_canonical_ordering.hpp>
-#include <boost/graph/is_straight_line_drawing.hpp>
-#include <boost/graph/chrobak_payne_drawing.hpp>
-#include <boost/graph/boyer_myrvold_planar_test.hpp> 
 #include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/graph/graphviz.hpp>
+#include <boost/algorithm/string.hpp> 
 using namespace std;
 using namespace boost;
+
+map<VertexDescriptor, uint> vert_to_uint;
+map<uint, VertexDescriptor> uint_to_vert;
 
 Graph load_graph(string fname)
 {
@@ -26,79 +22,48 @@ Graph load_graph(string fname)
 
         string str;
         vector<pair<uint, uint>> edges;
+        uint max_v = 0;
         while( getline(in, str) ){
                 uint   colon = str.find(","); 
                 string stra  = str.substr(0, colon); trim(stra);
                 string strb  = str.substr(colon+1 ); trim(strb); 
-                edges.push_back(make_pair(lexical_cast<uint>(stra), lexical_cast<uint>(strb)));
+                uint   a     = lexical_cast<uint>(stra);
+                uint   b     = lexical_cast<uint>(strb);
+                max_v = max(max(max_v, a), b);
+                edges.push_back(make_pair(a, b));
         } 
-        Graph g(edges.size());
-        vector<VertexDescriptor> v;
+        Graph g(max_v+1);
         VertexIterator vi, vi_end;
-        for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ) v.push_back(*vi);
-        for( auto& e : edges ) add_edge(v[e.first], v[e.second], g);
+        uint i = 0;
+        for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
+                vert_to_uint[*vi] = i;
+                uint_to_vert[i] = *vi;
+                ++i;
+        }
+        for( auto& e : edges ){
+                auto src = uint_to_vert[e.first];
+                auto tar = uint_to_vert[e.second];
+                add_edge(src, tar, g);
+        }
         return g;
 }
 
-struct Coord
-{
-        size_t x, y;
-};
-
-typedef vector<Coord> StraightLineDrawingStorage; 
-
-struct pos_writer
-{
-        Graph* g;
-
-        pos_writer(Graph* g) : g(g) {}
-
-        template <class VertexOrEdge>
-        void operator() (ostream& out, const VertexOrEdge& v) const
-        {
-                int x = (*g)[v].x;
-                int y = (*g)[v].y;
-                out << "[pos=\"" << lexical_cast<int>(x) << ',' << lexical_cast<int>(y) << "!\"]";
-        }
-};
-
-/*
-void print_graph(Graph g)
-{
-        uint num_verts = num_vertices(g);
-        graph_traits<Graph>::edge_iterator e, e_end;
-        for( tie(e, e_end) = edges(g); e != e_end; ++e ){
-                int src = source(*e, g);
-                int tar = target(*e, g);
-                cout << src << " <--> " << tar << '\n';
-        }
-}
-
-void save_graph(Graph g, Embedding* embedding, vector<VertexDescriptor> ordering)
+void print_graph(Graph const& g)
 { 
-        typedef iterator_property_map<StraightLineDrawingStorage::iterator, property_map<Graph, vertex_index_t>::type> StraightLineDrawing;
-
-        StraightLineDrawingStorage straight_line_drawing_storage(num_vertices(g));
-        StraightLineDrawing        straight_line_drawing        (straight_line_drawing_storage.begin(), get(vertex_index,g));
-
-        chrobak_payne_straight_line_drawing(g, *embedding, ordering.begin(), ordering.end(), straight_line_drawing); 
-
-        ofstream f2("out_graph.txt");
-        graph_traits<Graph>::vertex_iterator vi, vi_end;
-        int i = 0;
+        cout << "\n*********************************************************\n"; 
+        VertexIterator vi, vi_end;
         for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
-                Coord coord(get(straight_line_drawing,*vi));
-                f2 << coord.x << ", " << coord.y << '\n'; 
-                g[i].x = coord.x;
-                g[i].y = coord.y;
-                i++;
+                cout << "vert " << vert_to_uint[*vi] << '\n';
+                OutEdgeIterator ei, e_end;
+                for( tie(ei, e_end) = out_edges(*vi, g); ei != e_end; ++ei ){
+                        auto src = source(*ei, g);
+                        auto tar = target(*ei, g);
+                        if( tar == *vi ) swap(src, tar);
+                        cout << "   edge " << vert_to_uint[tar] << '\n';
+                }
         }
-
-        ofstream f("out_graph.dot");
-        write_graphviz(f, g, pos_writer(&g));
-
+        cout << "*********************************************************\n\n";
 }
-*/
 
 int main(int argc, char* argv[])
 {
@@ -110,13 +75,24 @@ int main(int argc, char* argv[])
         for( uint i = 1; i < argc; ++i ) fname.push_back(argv[i]);
 
         for( auto& f : fname ){
+                cout << "loading graph\n";
                 auto g = load_graph(f);
                 uint n = num_vertices(g);
+
+                auto m = get(vertex_index, g);
+                VertexIterator vi, vend;
+                uint i = 0;
+                for( tie(vi, vend) = vertices(g); vi != vend; ++vi ){
+                        m[*vi] = i;
+                        ++i;
+                }
+
+
+                cout << "n: " << n << '\n';
                 uint e = num_edges(g);
 
                 print_graph(g);
 
                 auto p = lipton_tarjan(g); 
-                //save_graph(g, p.embedding, p.ordering);; 
         }
 }

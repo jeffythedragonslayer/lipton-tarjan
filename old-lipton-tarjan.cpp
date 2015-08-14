@@ -33,22 +33,22 @@ int levi_civita(uint i, uint j, uint k)
         return -1;
 }
 
-struct BFSVertexData
+struct BFSVertData
 {
-        VertexDescriptor parent;
+        VertDescriptor parent;
         int              level;
 }; 
 
-struct BFSVertexData2
+struct BFSVertData2
 {
-        VertexDescriptor parent;
+        VertDescriptor parent;
         uint             cost;
 };
 
-map<VertexDescriptor, vector<VertexDescriptor>> children, children2;
+map<VertDescriptor, vector<VertDescriptor>> children, children2;
 
-map<VertexDescriptor, BFSVertexData>  bfs_vertex_data; // why can't this be inside bfs_visitor_buildtree
-map<VertexDescriptor, BFSVertexData2> bfs_vertex_data2;
+map<VertDescriptor, BFSVertData>  bfs_vertex_data; // why can't this be inside bfs_visitor_buildtree
+map<VertDescriptor, BFSVertData2> bfs_vertex_data2;
 int num_levels = 1;
 
 struct bfs_visitor_buildtree : public default_bfs_visitor
@@ -85,7 +85,7 @@ bool is_tree_edge2(EdgeDescriptor e, Graph const& g)
                bfs_vertex_data2[tar].parent == src;
 }
 
-bool on_cycle(EdgeDescriptor e, vector<VertexDescriptor> const& cycle_verts, Graph const& g)
+bool on_cycle(EdgeDescriptor e, vector<VertDescriptor> const& cycle_verts, Graph const& g)
 {
         auto src = source(e, g);
         auto tar = target(e, g);
@@ -93,7 +93,7 @@ bool on_cycle(EdgeDescriptor e, vector<VertexDescriptor> const& cycle_verts, Gra
                find(cycle_verts.begin(), cycle_verts.end(), tar) != cycle_verts.end();
 }
 
-bool edge_inside(EdgeDescriptor e, VertexDescriptor v, vector<VertexDescriptor> const& cycle_verts, Graph const& g, Embedding& em)
+bool edge_inside(EdgeDescriptor e, VertDescriptor v, vector<VertDescriptor> const& cycle_verts, Graph const& g, Embedding& em)
 {
         cout << "        testing if edge " << e << " is inside the cycle\n";
         auto it     = find(cycle_verts.begin(), cycle_verts.end(), v);
@@ -125,20 +125,20 @@ bool edge_inside(EdgeDescriptor e, VertexDescriptor v, vector<VertexDescriptor> 
         return levi_civita(perm[0], perm[1], perm[2]) == 1;
 }
 
-vector<pair<VertexDescriptor, VertexDescriptor>> edges_to_delete;
-vector<pair<VertexDescriptor, VertexDescriptor>> edges_to_add;
+vector<pair<VertDescriptor, VertDescriptor>> edges_to_delete;
+vector<pair<VertDescriptor, VertDescriptor>> edges_to_add;
 
 struct Lambda
 {
-        map<VertexDescriptor, bool>* table;
+        map<VertDescriptor, bool>* table;
         Graph*                       g;
-        VertexDescriptor             x;
+        VertDescriptor             x;
         int                          l0;
 
 
-        Lambda(map<VertexDescriptor, bool>* table, Graph* g, VertexDescriptor x, int l0) : table(table), g(g), x(x), l0(l0) {}
+        Lambda(map<VertDescriptor, bool>* table, Graph* g, VertDescriptor x, int l0) : table(table), g(g), x(x), l0(l0) {}
 
-        void doit(VertexDescriptor V, EdgeDescriptor e)
+        void doit(VertDescriptor V, EdgeDescriptor e)
         {
                 auto v = source(e, *g);
                 auto w = target(e, *g);
@@ -169,7 +169,7 @@ struct Lambda
         }
 };
 
-void scan_nonsubtree_edges(VertexDescriptor v, Graph const& g, Embedding& em, Lambda lambda)
+void scan_nonsubtree_edges(VertDescriptor v, Graph const& g, Embedding& em, Lambda lambda)
 {
         if( bfs_vertex_data[v].level > lambda.l0 ) return;
 
@@ -276,7 +276,7 @@ void lemma2()
         */
 }
 
-uint lemma3(vector<VertexDescriptor> const& cycle_verts, int* l, Graph const& g)
+uint lemma3(vector<VertDescriptor> const& cycle_verts, int* l, Graph const& g)
 {
         /*
         if( l[1] > l[2] ){
@@ -287,8 +287,8 @@ uint lemma3(vector<VertexDescriptor> const& cycle_verts, int* l, Graph const& g)
                 
         if( l[1] < l[2] ){
                 cout << "don't know\n";
-                vector<VertexDescriptor> zero_one, middle_part, one_two;
-                VertexIterator vei, vend;
+                vector<VertDescriptor> zero_one, middle_part, one_two;
+                VertIterator vei, vend;
                 for( tie(vei, vend) = vertices(g); vei != vend; ++vei ){ 
                         auto v = *vei;
                         if( bfs_vertex_data[v].level <= l[1] ){ 
@@ -339,7 +339,7 @@ uint lemma3(vector<VertexDescriptor> const& cycle_verts, int* l, Graph const& g)
         return 0;
 }
 
-void print_canonical_ordering(Graph const& g, vector<VertexDescriptor> const& ordering, Embedding const& em)
+void print_canonical_ordering(Graph const& g, vector<VertDescriptor> const& ordering, Embedding const& em)
 { 
         for( auto& v : ordering ){
                 cout << "vertex " << v << "\n";
@@ -461,8 +461,8 @@ Partition lipton_tarjan(Graph const& gin)
         for( auto& it : bfs_vertex_data ) cout << "Level of " << it.first << " = " << it.second.level << '\n';
 
         cout << "\n---------------------------- Step 6 --------------------------\n"; 
-        vector<VertexDescriptor> verts_to_be_removed;
-        VertexIterator vei, vi_end, next;
+        vector<VertDescriptor> verts_to_be_removed;
+        VertIterator vei, vi_end, next;
         {
                 tie(vei, vi_end) = vertices(g);
                 for( next = vei; vei != vi_end; vei = next ){
@@ -485,7 +485,7 @@ Partition lipton_tarjan(Graph const& gin)
         }
         auto x = add_vertex(g); // represents all verts on level 0 thru l0.  
         cout << "adding vertex x" << x << "\n";
-        map<VertexDescriptor, bool> table;
+        map<VertDescriptor, bool> table;
         
         for( auto& v : bfs_vertex_data ){
                 table[v.first] = v.second.level <= l[0];
@@ -552,7 +552,7 @@ Partition lipton_tarjan(Graph const& gin)
         
         auto v1 = source(chosen_edge, g);
         auto w1 = target(chosen_edge, g);
-        vector<VertexDescriptor> parents_v, parents_w;
+        vector<VertDescriptor> parents_v, parents_w;
 
         auto p_v = v1; do { p_v = bfs_vertex_data2[p_v].parent; parents_v.push_back(p_v); } while( p_v );
         auto p_w = w1; do {p_w = bfs_vertex_data2[p_w].parent; parents_w.push_back(p_w); } while( p_w );
@@ -564,8 +564,8 @@ done:
         auto ancestor = parents_v[i];
         cout << "common ancestor: " << ancestor << '\n';
 
-        vector<VertexDescriptor> cycle_verts, tmp;
-        VertexDescriptor v;
+        vector<VertDescriptor> cycle_verts, tmp;
+        VertDescriptor v;
         v = v1; while( v != ancestor ){ cycle_verts.push_back(v); v = bfs_vertex_data2[v].parent; } 
         cycle_verts.push_back(ancestor);
         v = w1; while( v != ancestor ){ tmp.push_back(v); v = bfs_vertex_data2[v].parent; } 
@@ -616,7 +616,7 @@ done:
                 cout << "looking for a better cycle\n";
 
                 // Locate the triangle (vi, y, wi) which has (vi, wi) as a boundary edge and lies inside the (vi, wi) cycle.
-                set<VertexDescriptor> verts_v, verts_w;
+                set<VertDescriptor> verts_v, verts_w;
                 auto pai = out_edges(vi, g);
                 while( pai.first != pai.second ){ 
                         auto vv = target(*pai.first, g);
@@ -640,7 +640,7 @@ done:
                         // Compute the cost inside the (vi+1, wi+1) cycle from the cost inside the (vi, wi) cycle and the cost of vi, y, and wi.
                 } else {
                         // Determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.
-                        VertexDescriptor z; // the (vi, wi) cycle reached during this search.
+                        VertDescriptor z; // the (vi, wi) cycle reached during this search.
                         // Compute the total cost of all vertices except z on this tree path.
                                 // Scan the tree edges inside the (y, wi) cycle, alternately scanning an edge in one cycle and an edge in the other cycle.
                                 // Stop scanning when all edges inside one of the cycles have been scanned.

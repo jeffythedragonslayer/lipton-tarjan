@@ -132,24 +132,21 @@ struct Lambda
         void finish()
         {
                 for( auto& p : edges_to_add    ){ assert(p.first != p.second); add_edge(p.first, p.second, *g); }
-                for( auto& p : edges_to_delete ){
-                        cout << "removing edge " << p.first << ", " << p.second << '\n';
-                        remove_edge(p.first, p.second, *g);
-                }
+                for( auto& p : edges_to_delete ) remove_edge(p.first, p.second, *g);
         }
 };
 
 void scan_nonsubtree_edges(VertDesc v, Graph const& g, Embedding& em, Lambda lambda)
 {
         if( bfs_verts[v].level > lambda.l0 ) return;
-        cout << "scanning " << vert2uint[v] << '\n';
         for( auto e : em[v] ){
+                auto src = source(e, g);
+                auto tar = target(e, g);
+                if( src == tar ) continue; // ?????
                 if( !is_tree_edge(e, g) ){
                         lambda.doit(v, e);
                         continue;
                 }
-                auto src = source(e, g);
-                auto tar = target(e, g);
                 if( src != v ) swap(src, tar);
                 assert(src == v); 
                 if( bfs_verts[tar].level > lambda.l0 ) lambda.doit(v, e);
@@ -159,14 +156,7 @@ void scan_nonsubtree_edges(VertDesc v, Graph const& g, Embedding& em, Lambda lam
 
 Partition lipton_tarjan(Graph& g)
 {
-        cout << "\n-------------------------- Step 1 ------------------------------\n";
-        EmbeddingStorage storage{num_vertices(g)};
-        Embedding         em(storage.begin(), get(vertex_index, g)); 
-        bool planar = boyer_myrvold_planarity_test(boyer_myrvold_params::graph = g, boyer_myrvold_params::embedding = em);
-        assert(planar);
-
-        cout << "\n-------------------------- Step 2 ------------------------------\n";
-        VertDescMap idx;
+        VertDescMap idx; //-------------------------- Step 2 ------------------------------\n";
         associative_property_map<VertDescMap> vertid_to_component(idx);
         VertIter vi, vj;
         tie(vi, vj) = vertices(g);
@@ -179,27 +169,23 @@ Partition lipton_tarjan(Graph& g)
         for( uint i = 0; i < components; ++i ) if( 3*verts_per_comp[i] > 2*num_vertices(g) ){ too_big = true; break; }
         if( !too_big ){ theorem4(0, g); return {};}
 
-        cout << "\n-------------------------- Step 3 ------------------------------\n";
-        BFSBuildTree vis;
+        BFSBuildTree vis; //-------------------------- Step 3 ------------------------------\n";
         for( tie(vi, vj) = vertices(g); vi != vj; ++vi ) bfs_verts[*vi] = {0, 0};
         breadth_first_search(g, *vertices(g).first, visitor(vis)); 
         vector<uint> L(num_levels + 1, 0);
         for( auto& d : bfs_verts ) ++L[d.second.level];
 
-        cout << "\n---------------------------- Step 4 --------------------------\n"; 
-        uint k  = L[0];
+        uint k  = L[0]; //---------------------------- Step 4 --------------------------\n"; 
         int l[3];
         l[1] = 0;
         while( k <= num_vertices(g)/2 ) k += L[++l[1]];
         
-        cout << "\n---------------------------- Step 5 --------------------------\n"; 
-        float sq  = 2 * sqrt(k);
+        float sq  = 2 * sqrt(k); //---------------------------- Step 5 --------------------------
         float snk = 2 * sqrt(num_vertices(g) - k); 
         l[0] = l[1];     for( ;; ){ if( L.at(l[0]) + 2*(l[1] - l[0])     <= sq  ) break; --l[0]; } 
         l[2] = l[1] + 1; for( ;; ){ if( L.at(l[2]) + 2*(l[2] - l[1] - 1) <= snk ) break; ++l[2]; }
 
-        cout << "\n---------------------------- Step 6 --------------------------\n"; 
-        tie(vi, vj) = vertices(g);
+        tie(vi, vj) = vertices(g); //---------------------------- Step 6 --------------------------
         for( VertIter next = vi; vi != vj; vi = next){
                 ++next;
                 if( bfs_verts[*vi].level >= l[2] ){
@@ -215,13 +201,15 @@ Partition lipton_tarjan(Graph& g)
         map<VertDesc, bool> t;
         for( tie(vi, vj) = vertices(g); vi != vj; ++vi ) t[*vi] = (bfs_verts[*vi].level <= l[0]);
 
+
+        EmbeddingStorage storage{num_vertices(g)};
+        Embedding        em(storage.begin());
+        bool planar = boyer_myrvold_planarity_test(boyer_myrvold_params::graph = g, boyer_myrvold_params::embedding = em);
+        assert(planar);
+
         Lambda lambda(&t, &g, x, l[0]);
         scan_nonsubtree_edges(*vertices(g).first, g, em, lambda);
         lambda.finish();
-        print_graph(g);
-
-        cout << "\n---------------------------- Step 7 --------------------------\n"; 
-
 
         return {};
 }

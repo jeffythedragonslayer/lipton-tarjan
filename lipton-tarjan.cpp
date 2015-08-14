@@ -161,8 +161,8 @@ Partition lipton_tarjan(Graph& g)
 {
         cout << "\n-------------------------- Step 1 ------------------------------\n";
         EmbeddingStorage storage{num_vertices(g)};
-        Embedding        em{storage.begin()};
-        bool planar = boyer_myrvold_planarity_test(g, em);
+        Embedding         em(storage.begin(), get(vertex_index, g)); 
+        bool planar = boyer_myrvold_planarity_test(boyer_myrvold_params::graph = g, boyer_myrvold_params::embedding = em);
         assert(planar);
 
         cout << "\n-------------------------- Step 2 ------------------------------\n";

@@ -131,7 +131,10 @@ struct Lambda
 
         void finish()
         {
-                for( auto& p : edges_to_add    ){ assert(p.first != p.second); add_edge(p.first, p.second, *g); }
+                for( auto& p : edges_to_add    ){
+                        assert(p.first != p.second);
+                        add_edge(p.first, p.second, *g);
+                }
                 for( auto& p : edges_to_delete ) remove_edge(p.first, p.second, *g);
         }
 };
@@ -154,8 +157,55 @@ void scan_nonsubtree_edges(VertDesc v, Graph const& g, Embedding& em, Lambda lam
         for( auto c : children[v] ) scan_nonsubtree_edges(c, g, em, lambda);
 }
 
+void reset_vertex_indices(Graph& g)
+{
+        VertIter vi, vend;
+        uint i = 0;
+        for( tie(vi, vend) = vertices(g); vi != vend; ++vi, ++i ) put(vertex_index, g, *vi, i); 
+}
+
+bool is_planar(Graph& g)
+{
+        reset_vertex_indices(g);
+        EmbeddingStorage storage{num_vertices(g)};
+        Embedding        em(storage.begin()); 
+        return boyer_myrvold_planarity_test(boyer_myrvold_params::graph = g, boyer_myrvold_params::embedding = em);
+}
+
+typedef property_map<Graph, edge_index_t>::type EdgeIndex;
+EdgeIndex reset_edge_index(Graph& g)
+{
+        EdgeIndex edgedesc_to_uint; 
+        EdgesSizeType num_edges = 0;
+        EdgeIter ei, ei_end;
+        for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ) edgedesc_to_uint[*ei] = num_edges++;
+        return edgedesc_to_uint;
+} 
+
+void makemaxplanar(Graph& g)
+{ 
+        auto index = reset_edge_index(g);
+        EmbeddingStorage storage(num_vertices(g));
+        Embedding        em(storage.begin());
+        boyer_myrvold_planarity_test(boyer_myrvold_params::graph = g, boyer_myrvold_params::embedding = em);
+        make_biconnected_planar(g, em, index);
+
+        reset_edge_index(g);
+        boyer_myrvold_planarity_test(boyer_myrvold_params::graph = g, boyer_myrvold_params::embedding = em);
+
+        make_maximal_planar(g, em);
+
+        reset_edge_index(g);
+        bool planar = boyer_myrvold_planarity_test(boyer_myrvold_params::graph = g, boyer_myrvold_params::embedding = em);
+        assert(planar);
+} 
+
 Partition lipton_tarjan(Graph& g)
 {
+        //-------------------------- Step 1 ------------------------------\n";
+        bool planar = is_planar(g);
+        assert(planar);
+
         VertDescMap idx; //-------------------------- Step 2 ------------------------------\n";
         associative_property_map<VertDescMap> vertid_to_component(idx);
         VertIter vi, vj;
@@ -175,7 +225,7 @@ Partition lipton_tarjan(Graph& g)
         vector<uint> L(num_levels + 1, 0);
         for( auto& d : bfs_verts ) ++L[d.second.level];
 
-        uint k  = L[0]; //---------------------------- Step 4 --------------------------\n"; 
+        uint k = L[0]; //---------------------------- Step 4 --------------------------\n"; 
         int l[3];
         l[1] = 0;
         while( k <= num_vertices(g)/2 ) k += L[++l[1]];
@@ -199,17 +249,24 @@ Partition lipton_tarjan(Graph& g)
 
         auto x = add_vertex(g); uint2vert[vert2uint[x] = num_vertices(g)] = x; 
         map<VertDesc, bool> t;
-        for( tie(vi, vj) = vertices(g); vi != vj; ++vi ) t[*vi] = (bfs_verts[*vi].level <= l[0]);
+        for( tie(vi, vj) = vertices(g); vi != vj; ++vi ) t[*vi] = (bfs_verts[*vi].level <= l[0]); 
 
-
+        reset_vertex_indices(g);
         EmbeddingStorage storage{num_vertices(g)};
         Embedding        em(storage.begin());
-        bool planar = boyer_myrvold_planarity_test(boyer_myrvold_params::graph = g, boyer_myrvold_params::embedding = em);
+
+        planar = boyer_myrvold_planarity_test(boyer_myrvold_params::graph = g, boyer_myrvold_params::embedding = em);
         assert(planar);
 
         Lambda lambda(&t, &g, x, l[0]);
         scan_nonsubtree_edges(*vertices(g).first, g, em, lambda);
         lambda.finish();
+
+        //-------------------------- Step 7 ------------------------------\n";
+        print_graph(g);
+        cout << "makemaxplanar\n";
+        makemaxplanar(g);
+        print_graph(g);
 
         return {};
 }

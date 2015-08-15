@@ -6,7 +6,7 @@
 #include <boost/property_map/property_map.hpp>
 #include <vector>
 
-typedef boost::adjacency_list<boost::listS, boost::listS, boost::undirectedS, boost::property<boost::vertex_index_t, int>> Graph;
+typedef boost::adjacency_list<boost::listS, boost::listS, boost::undirectedS, boost::property<boost::vertex_index_t, int>, boost::property<boost::edge_index_t, int>> Graph;
 typedef boost::graph_traits<Graph>::vertex_descriptor                                                                      VertDesc;
 typedef boost::graph_traits<Graph>::vertex_iterator                                                                        VertIter;
 typedef std::map<VertDesc, size_t>                                                                                         VertDescMap;

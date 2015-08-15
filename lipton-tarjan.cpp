@@ -30,22 +30,38 @@ struct BFSVert
         uint     cost;
 };
 
-map<VertDesc, set<VertDesc>> children;
-map<VertDesc, BFSVert>       bfs_verts;
-
-int num_levels = 1;
-
-struct BFSBuildTree : public default_bfs_visitor
+struct BFSVisitorData
 {
+        map<VertDesc, set<VertDesc>> children;
+        map<VertDesc, BFSVert>       verts;
+        int                          num_levels;
+        Graph&                       g;
+
+        BFSVisitorData(Graph& g) : g(g), num_levels(0) {}
+
+        bool is_tree_edge(EdgeDesc e)
+        { 
+                auto src = source(e, g);
+                auto tar = target(e, g); 
+                return verts[src].parent == tar || verts[tar].parent == src;
+        }
+};
+
+struct BFSVisitor : public default_bfs_visitor
+{
+        BFSVisitorData& data;
+
+        BFSVisitor(BFSVisitorData& data) : data(data) {}
+
         template<typename Edge, typename Graph> void tree_edge(Edge e, Graph const& g)
         {
                 auto parent = source(e, g);
                 auto child  = target(e, g);
-                bfs_verts[child].parent = parent;
-                bfs_verts[child].level  = bfs_verts[parent].level + 1;
-                num_levels = max(num_levels, bfs_verts[child].level + 1);
-                if( Graph::null_vertex() != parent )children[parent].insert(child);
-        }
+                data.verts[child].parent = parent;
+                data.verts[child].level  = data.verts[parent].level + 1;
+                data.num_levels = max(data.num_levels, data.verts[child].level + 1);
+                if( Graph::null_vertex() != parent ) data.children[parent].insert(child);
+        } 
 };
 
 extern void print_graph(Graph const& g);
@@ -97,14 +113,7 @@ uint theorem4(uint partition, Graph const& g)
         return partition;
 }
 
-bool is_tree_edge(EdgeDesc e, Graph const& g)
-{
-        auto src = source(e, g);
-        auto tar = target(e, g); 
-        return bfs_verts[src].parent == tar || bfs_verts[tar].parent == src;
-}
-
-struct Lambda
+struct ScanVisitor
 {
         map<VertDesc, bool>*          t;
         Graph*                        g;
@@ -112,9 +121,9 @@ struct Lambda
         int                           l0;
         set<pair<VertDesc, VertDesc>> edges_to_add, edges_to_delete;
 
-        Lambda(map<VertDesc, bool>* t, Graph* g, VertDesc x, int l0) : t(t), g(g), x(x), l0(l0) {}
+        ScanVisitor(map<VertDesc, bool>* t, Graph* g, VertDesc x, int l0) : t(t), g(g), x(x), l0(l0) {}
 
-        void doit(VertDesc V, EdgeDesc e)
+        void foundedge(VertDesc V, EdgeDesc e)
         {
                 auto v = source(e, *g);
                 auto w = target(e, *g);
@@ -139,22 +148,22 @@ struct Lambda
         }
 };
 
-void scan_nonsubtree_edges(VertDesc v, Graph const& g, Embedding& em, Lambda lambda)
+void scan_nonsubtree_edges(VertDesc v, Graph const& g, Embedding& em, BFSVisitorData& bfs, ScanVisitor vis)
 {
-        if( bfs_verts[v].level > lambda.l0 ) return;
+        if( bfs.verts[v].level > vis.l0 ) return;
         for( auto e : em[v] ){
                 auto src = source(e, g);
                 auto tar = target(e, g);
                 if( src == tar ) continue; // ?????
-                if( !is_tree_edge(e, g) ){
-                        lambda.doit(v, e);
+                if( !bfs.is_tree_edge(e) ){
+                        vis.foundedge(v, e);
                         continue;
                 }
                 if( src != v ) swap(src, tar);
                 assert(src == v); 
-                if( bfs_verts[tar].level > lambda.l0 ) lambda.doit(v, e);
+                if( bfs.verts[tar].level > vis.l0 ) vis.foundedge(v, e);
         }
-        for( auto c : children[v] ) scan_nonsubtree_edges(c, g, em, lambda);
+        for( auto c : bfs.children[v] ) scan_nonsubtree_edges(c, g, em, bfs, vis);
 }
 
 void reset_vertex_indices(Graph& g)
@@ -202,14 +211,14 @@ void makemaxplanar(Graph& g)
 
 Partition lipton_tarjan(Graph& g)
 {
-        //-------------------------- Step 1 ------------------------------\n";
+        cout << "---------------------------- Step 1 --------------------------\n";
         bool planar = is_planar(g);
         assert(planar);
+        cout << "planar ok\n";
 
-        VertDescMap idx; //-------------------------- Step 2 ------------------------------\n";
-        associative_property_map<VertDescMap> vertid_to_component(idx);
-        VertIter vi, vj;
-        tie(vi, vj) = vertices(g);
+        cout << "---------------------------- Step 2 --------------------------\n";
+        VertDescMap idx; 
+        associative_property_map<VertDescMap> vertid_to_component(idx); VertIter vi, vj; tie(vi, vj) = vertices(g);
         for( uint i = 0; vi != vj; ++vi, ++i ) put(vertid_to_component, *vi, i);
         uint components = connected_components(g, vertid_to_component);
         assert(components == 1); 
@@ -219,26 +228,41 @@ Partition lipton_tarjan(Graph& g)
         for( uint i = 0; i < components; ++i ) if( 3*verts_per_comp[i] > 2*num_vertices(g) ){ too_big = true; break; }
         if( !too_big ){ theorem4(0, g); return {};}
 
-        BFSBuildTree vis; //-------------------------- Step 3 ------------------------------\n";
-        for( tie(vi, vj) = vertices(g); vi != vj; ++vi ) bfs_verts[*vi] = {0, 0};
-        breadth_first_search(g, *vertices(g).first, visitor(vis)); 
-        vector<uint> L(num_levels + 1, 0);
-        for( auto& d : bfs_verts ) ++L[d.second.level];
+        cout << "---------------------------- Step 3 --------------------------\n";
+        BFSVisitorData vis_data(g);
+        for( tie(vi, vj) = vertices(g); vi != vj; ++vi ) vis_data.verts[*vi] = {0, 0};
+        breadth_first_search(g, *vertices(g).first, visitor(BFSVisitor(vis_data)));
 
-        uint k = L[0]; //---------------------------- Step 4 --------------------------\n"; 
+        vector<uint> L(vis_data.num_levels + 1, 0);
+        for( auto& d : vis_data.verts ) ++L[d.second.level];
+
+        for( tie(vi, vj) = vertices(g); vi != vj; ++vi ) cout << "level of vert " << vert2uint[*vi] << ": " << vis_data.verts[*vi].level << '\n';
+        for( uint i = 0; i < L.size(); ++i ) cout << "L[" << i << "]: " << L[i] << '\n';
+
+        cout << "---------------------------- Step 4 --------------------------\n";
+        uint k = L[0]; 
         int l[3];
         l[1] = 0;
         while( k <= num_vertices(g)/2 ) k += L[++l[1]];
-        
-        float sq  = 2 * sqrt(k); //---------------------------- Step 5 --------------------------
-        float snk = 2 * sqrt(num_vertices(g) - k); 
-        l[0] = l[1];     for( ;; ){ if( L.at(l[0]) + 2*(l[1] - l[0])     <= sq  ) break; --l[0]; } 
-        l[2] = l[1] + 1; for( ;; ){ if( L.at(l[2]) + 2*(l[2] - l[1] - 1) <= snk ) break; ++l[2]; }
+        cout << "k: " << k << '\n';
+        cout << "l1:" << l[1] << '\n';
 
-        tie(vi, vj) = vertices(g); //---------------------------- Step 6 --------------------------
+        cout << "---------------------------- Step 5 --------------------------\n";
+        float sq  = 2 * sqrt(k); 
+        float snk = 2 * sqrt(num_vertices(g) - k); 
+        cout << "sq: " << sq << '\n';
+        cout << "snk: " << snk << '\n';
+
+        l[0] = l[1]; for( ;; ){ float val = L.at(l[0]) + 2*(l[1] - l[0]); if( val <= sq  ) break; --l[0]; } 
+        cout << "l0: " << l[0] << '\n'; 
+        l[2] = l[1] + 1; for( ;; ){ float val = L.at(l[2]) + 2*(l[2] - l[1] - 1); cout << val << '\n'; if( val <= snk ) break; ++l[2]; } 
+        cout << "l2: " << l[2] << '\n';
+
+        cout << "---------------------------- Step 6 --------------------------\n";
+        tie(vi, vj) = vertices(g); 
         for( VertIter next = vi; vi != vj; vi = next){
                 ++next;
-                if( bfs_verts[*vi].level >= l[2] ){
+                if( vis_data.verts[*vi].level >= l[2] ){
                         auto i = vert2uint[*vi];
                         uint2vert[i] = Graph::null_vertex();
                         vert2uint[*vi] = -1;
@@ -249,7 +273,7 @@ Partition lipton_tarjan(Graph& g)
 
         auto x = add_vertex(g); uint2vert[vert2uint[x] = num_vertices(g)] = x; 
         map<VertDesc, bool> t;
-        for( tie(vi, vj) = vertices(g); vi != vj; ++vi ) t[*vi] = (bfs_verts[*vi].level <= l[0]); 
+        for( tie(vi, vj) = vertices(g); vi != vj; ++vi ) t[*vi] = (vis_data.verts[*vi].level <= l[0]);
 
         reset_vertex_indices(g);
         EmbeddingStorage storage{num_vertices(g)};
@@ -258,15 +282,15 @@ Partition lipton_tarjan(Graph& g)
         planar = boyer_myrvold_planarity_test(boyer_myrvold_params::graph = g, boyer_myrvold_params::embedding = em);
         assert(planar);
 
-        Lambda lambda(&t, &g, x, l[0]);
-        scan_nonsubtree_edges(*vertices(g).first, g, em, lambda);
-        lambda.finish();
+        ScanVisitor svis(&t, &g, x, l[0]);
+        scan_nonsubtree_edges(*vertices(g).first, g, em, vis_data, svis);
+        svis.finish();
 
-        //-------------------------- Step 7 ------------------------------\n";
-        print_graph(g);
-        cout << "makemaxplanar\n";
+        cout << "---------------------------- Step 7 --------------------------\n";
+        BFSVisitorData vis_data2(g);
+        for( tie(vi, vj) = vertices(g); vi != vj; ++vi ) vis_data.verts[*vi] = {0, 0};
+        breadth_first_search(g, x, visitor(BFSVisitor(vis_data2)));
         makemaxplanar(g);
-        print_graph(g);
 
         return {};
 }

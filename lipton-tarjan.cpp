@@ -145,12 +145,12 @@ struct BFSVisitorData
                 int cost;
                 if( verts[w].parent == v ){
                         cost = verts[w].cost;
-                        cout << "v is parent\n";
+                        //cout << "v is parent\n";
                 } else {
                         assert(verts[v].parent == w);
                         cost = total - verts[v].cost;
-                        cout << "v is NOT parent\n";
-                        cout << "v cost: " << verts[v].cost << '\n';
+                        //cout << "v is NOT parent\n";
+                        //cout << "v cost: " << verts[v].cost << '\n';
                 }
                 //cout << "cost: " << cost << '\n';
                 //cout << "-------------------------------------\n";
@@ -470,6 +470,7 @@ Partition lipton_tarjan(Graph& g)
         reset_edge_index(g);
 
         cout << "----------------------- 8 - Locate Cycle -----------------\n";
+        print_graph(g);
         EdgeIter ei, ei_end;
         for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ){
                 auto src = source(*ei, g);
@@ -524,7 +525,7 @@ done:
                                 uint cost = vis_data.edge_cost(*pai.first, cycle, g);
                                 cout << "      scanning incident tree edge " << to_string(*pai.first, g) << "   cost: " << cost << '\n';
                                 bool inside = edge_inside(*pai.first, v, cycle, g, em2);
-                                inside ? cost_inside : cost_outside += cost;
+                                (inside ? cost_inside : cost_outside) += cost;
                         }
                         ++pai.first;
                 }
@@ -535,7 +536,8 @@ done:
                 cost_swapped = true;
                 cout << "cost swapped\n";
         }
-        cout << "total inside cost: " << cost_inside << '\n'; 
+        cout << "total inside cost:  " << cost_inside << '\n'; 
+        cout << "total outside cost: " << cost_outside << '\n'; 
 
         return {};
 }

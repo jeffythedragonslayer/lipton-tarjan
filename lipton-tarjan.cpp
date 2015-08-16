@@ -356,6 +356,70 @@ void print_cycle(vector<VertDesc> const& cycle)
         cout << '\n';
 }
 
+uint lemma3(vector<VertDesc> const& cycle_verts, int* l, Graph const& g)
+{
+        /*
+        if( l[1] > l[2] ){
+                cout << "A = all verts on levels 0    thru l1-1";
+                cout << "B = all verts on levels l1+1 thru r";
+                cout << "C = all verts on llevel l1";
+        }
+                
+        if( l[1] < l[2] ){
+                cout << "don't know\n";
+                vector<VertDescriptor> zero_one, middle_part, one_two;
+                VertIterator vei, vend;
+                for( tie(vei, vend) = vertices(g); vei != vend; ++vei ){ 
+                        auto v = *vei;
+                        if( bfs_vertex_data[v].level <= l[1] ){ 
+                                cout << "first part: " << v << '\n';
+                                zero_one.push_back(v);
+                                continue;
+                        }
+                        if( bfs_vertex_data[v].level >= l[1]+1 && 
+                            bfs_vertex_data[v].level <= l[2]-1 ){
+                                cout << "middle part: " << v << '\n';
+                                middle_part.push_back(v);
+                                continue;
+                        }
+                        if( bfs_vertex_data[v].level >= l[2] ){
+                                cout << "last part: " << v << '\n';
+                                one_two.push_back(v);
+                                continue;
+                        }
+                        cout << "level: " << bfs_vertex_data[v].level << '\n';
+                        assert(0);
+                }
+
+
+                //delete verts in levels l1 and l2
+                        this separates remaining vertices into 3 parts: (all of which may be empty)
+                                verts on levels 0 thru l1-1
+                                verts on level l1+1 thru l2-1
+                                verts on levels l2+1 and above
+                        the only part which can have cost > 2/3 is the middle part
+                        if( middle_part.size() <= 2*num_vertices(g)/3 ){
+                                cout << "A = most costly part of the 3\n";
+                                cout << "B = remaining 2 parts\n";
+                                cout << "C = "; for( auto& v : one_two ) cout << v << ' '; cout << '\n';
+                        } else {
+                                delete all verts on level l2 and above
+                                shrink all verts on levels l1 and belowe to a single vertex of cost zero
+                                The new graph has a spanning tree radius of l2 - l1 -1 whose root corresponds to vertices on levels l1 and below in the original graph
+                                Apply Lemma 2 to the new graph, A* B* C*
+                                cout << "A = set among A* and B* with greater cost\n";
+                                cout << "C = verts on levels l1 and l2 in the original graph plus verts in C* minus the root\n";
+                                cout << "B = remaining verts\n";
+                                By Lemma 2, A has total cost <= 2/3
+                                But A U C* has total cost >= 1/3, so B also has total cost <= 2/3
+                                Futhermore, C contains no more than L[l1] + L[l2] + 2(l2 - l1 - 1)
+                        }
+        }
+        */
+        return 0;
+}
+
+
 Partition lipton_tarjan(Graph& g)
 {
         cout << "---------------------------- 1 - Check Planarity  ------------\n";
@@ -534,10 +598,59 @@ done:
         if( cost_outside > cost_inside ){
                 swap(cost_outside, cost_inside);
                 cost_swapped = true;
-                cout << "cost swapped\n";
+                cout << "!!!!!! cost swapped !!!!!!!!\n";
         }
         cout << "total inside cost:  " << cost_inside << '\n'; 
         cout << "total outside cost: " << cost_outside << '\n'; 
+
+
+        cout << "---------------------------- 9 - Improve Separator -----------\n";
+        auto vvi = source(chosen_edge, g);
+        auto wwi = target(chosen_edge, g);
+        assert(!vis_data.is_tree_edge(chosen_edge));
+        EdgeDesc next_edge;
+        while( cost_inside > num_vertices(g)*2./3 ){
+                cout << "looking for a better cycle\n";
+
+                // Locate the triangle (vi, y, wi) which has (vi, wi) as a boundary edge and lies inside the (vi, wi) cycle.
+                set<VertDesc> verts_v, verts_w;
+                auto pai = out_edges(vvi, g);
+                while( pai.first != pai.second ){ 
+                        auto vv = target(*pai.first, g);
+                        verts_v.insert(vv);
+                        cout << "vertex " << vvi << "has neighbor " << vv << '\n';
+                        ++pai.first;
+                }
+                pai = out_edges(wwi, g);
+                while( pai.first != pai.second ){ 
+                        auto vv = target(*pai.first, g);
+                        verts_w.insert(vv);
+                        cout << "vertex " << wwi << "has neighbor " << vv << '\n';
+                        ++pai.first;
+                } 
+
+                // there are 2 triangles with edge (vi, wi), one inside and one outside
+                EdgeDesc viy, ywi;
+                if ( vis_data.is_tree_edge(viy) || vis_data.is_tree_edge(ywi) ){
+                        next_edge = vis_data.is_tree_edge(viy) ? ywi : viy;
+                        assert(!vis_data.is_tree_edge(next_edge));
+                        // Compute the cost inside the (vi+1, wi+1) cycle from the cost inside the (vi, wi) cycle and the cost of vi, y, and wi.
+                } else {
+                        // Determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.
+                        VertDesc z; // the (vi, wi) cycle reached during this search.
+                        // Compute the total cost of all vertices except z on this tree path.
+                                // Scan the tree edges inside the (y, wi) cycle, alternately scanning an edge in one cycle and an edge in the other cycle.
+                                // Stop scanning when all edges inside one of the cycles have been scanned.
+                        // Compute the cost inside this cycle by summing the associated costs of all scanned edges.
+                        // Use this cost, the cost inside the (vi, wi) cycle, and the cost on the tree path from y to zy to compute the cost inside the other cycle.
+                        // Let (vi+1, w+1) be the edge among (vi, y) and (y, wi) whose cycle has more cost inside it.
+                }
+
+        }
+
+        cout << "\n------------ 10  - Construct Vertex Partition --------------\n";
+        uint partition = lemma3(cycle, &l[0], g);
+        partition = theorem4(partition, g); 
 
         return {};
 }

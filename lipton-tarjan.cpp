@@ -46,13 +46,16 @@ string to_string(EdgeDesc e, Graph const& g)
         return src + ", " + tar;
 }
 
+bool on_cycle(VertDesc v, vector<VertDesc> const& cycle, Graph const& g)
+{
+        return find(cycle.begin(), cycle.end(), v) != cycle.end();
+}
 
 bool on_cycle(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g)
 {
         auto src = source(e, g);
         auto tar = target(e, g);
-        return find(cycle.begin(), cycle.end(), src) != cycle.end() &&
-               find(cycle.begin(), cycle.end(), tar) != cycle.end();
+        return on_cycle(src, cycle, g) && on_cycle(tar, cycle, g);
 }
 
 bool edge_inside(EdgeDesc e, VertDesc v, vector<VertDesc> const& cycle, Graph const& g, Embedding& em)
@@ -114,15 +117,27 @@ struct BFSVisitorData
                 return verts[src].parent == tar || verts[tar].parent == src;
         }
 
-        uint edge_cost(EdgeDesc e, Graph const& g)
+        uint edge_cost(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g)
         {
                 assert(is_tree_edge(e));
-                auto v = source(e, g); // assert on the cycle
-                auto w = target(e, g); // assert not on the cycle
 
-                return verts[w].parent == w ?
-                       verts[w].cost        :
-                       num_vertices(g) - verts[v].cost;
+                auto v = source(e, g); 
+                auto w = target(e, g); 
+
+                if( !on_cycle(v, cycle, g) ) swap(v, w);
+
+                assert( on_cycle(v, cycle, g));
+                assert(!on_cycle(w, cycle, g));
+
+                uint total = num_vertices(g);
+
+                uint cost;
+                if( verts[w].parent == v ){
+                        cost = verts[w].cost;
+                } else {
+                        cost = total - verts[v].cost;
+                }
+                return cost;
         } 
 
         void print_costs()
@@ -147,13 +162,15 @@ struct BFSVisitor : public default_bfs_visitor
                 data.num_levels = max(data.num_levels, data.verts[child].level + 1);
                 if( Graph::null_vertex() != parent ) data.children[parent].insert(child);
 
-                cout << "     vertex/cost: ";
                 VertDesc v = child;
-                do {
-                        ++data.verts[v].cost;
-                        cout << v << '/'  << ++data.verts[v].cost << "   ";
+                data.verts[v].cost = 1;
+                cout << "     vertex/cost: ";
+                cout << v << '/'  << data.verts[v].cost << "   ";
+                while( data.verts[v].level ){
                         v =  data.verts[v].parent;
-                } while( data.verts[v].level );
+                        ++data.verts[v].cost;
+                        cout << v << '/'  << data.verts[v].cost << "   ";
+                } 
                 cout << '\n';
         } 
 };
@@ -429,6 +446,7 @@ Partition lipton_tarjan(Graph& g)
         BFSVisitorData vis_data2(g);
         vis_data2.print_costs();
         vis_data2.root = (x_gone != Graph::null_vertex()) ? x_gone : x;
+        vis_data2.verts[vis_data2.root].cost++;
 
         cout << "root: " << vis_data2.root << '\n'; 
 
@@ -439,6 +457,7 @@ Partition lipton_tarjan(Graph& g)
 
         cout << "----------------------- 8 - Locate Cycle -----------------\n";
         print_graph(g);
+        vis_data2.print_costs();
         EdgeIter ei, ei_end;
         for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ){
                 auto src = source(*ei, g);
@@ -494,7 +513,7 @@ done:
                 auto pai = out_edges(v, g);
                 while( pai.first != pai.second ){
                         if( vis_data2.is_tree_edge(*pai.first) && !on_cycle(*pai.first, cycle, g) ){
-                                uint cost = vis_data.edge_cost(*pai.first, g);
+                                uint cost = vis_data.edge_cost(*pai.first, cycle, g);
                                 cout << "      scanning incident tree edge " << to_string(*pai.first, g) << "   cost: " << cost << '\n';
                                 bool inside = edge_inside(*pai.first, v, cycle, g, em2);
                                 inside ? cost_inside : cost_outside += cost;

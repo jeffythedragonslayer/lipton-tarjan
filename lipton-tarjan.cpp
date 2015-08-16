@@ -60,23 +60,11 @@ bool on_cycle(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g)
 
 bool edge_inside(EdgeDesc e, VertDesc v, vector<VertDesc> const& cycle, Graph const& g, Embedding& em)
 {
-        cout << "        testing if edge " << to_string(e, g) << " is inside the cycle\n";
+        cout << "        testing if edge " << to_string(e, g) << " is inside the cycle: ";
         auto it     = find(cycle.begin(), cycle.end(), v);
-        auto before = it == cycle.begin() ?
-                      cycle.end()-1       :
-                      it-1;
-        auto after  = it+1 == cycle.end() ?
-                      cycle.begin()       :
-                      it+1;
-        cout << "               v: " << v << '\n';
-        cout << "               before: " << *before << '\n';
-        cout << "               after: " << *after << '\n';
-
-        auto other = (source(e, g) == v) ?
-                     target(e, g)        :
-                     source(e, g);
-
-        cout << "               other: " << other << '\n';
+        auto before = it   == cycle.begin() ?  cycle.end  ()-1   : it-1;
+        auto after  = it+1 == cycle.end  () ?  cycle.begin()     : it+1; 
+        auto other  = (source(e, g) == v) ?  target(e, g)        : source(e, g); 
 
         vector<uint> perm;
         for( auto& tar_it : em[*it] ){
@@ -90,8 +78,13 @@ bool edge_inside(EdgeDesc e, VertDesc v, vector<VertDesc> const& cycle, Graph co
                 if( tar == *after  ) perm.push_back(3);
         }
         assert(perm.size() == 3);
-        cout << "               levi civita symbol: " << perm[0] << ' ' << perm[1] << ' ' << perm[2] << '\n';
-        return levi_civita(perm[0], perm[1], perm[2]) == 1;
+        if( levi_civita(perm[0], perm[1], perm[2]) == 1 ){
+                cout << "YES\n";
+                return true;
+        } else {
+                cout << "NO\n";
+                return false;
+        }
 }
 
 
@@ -109,20 +102,31 @@ struct BFSVisitorData
         map<VertDesc, set<VertDesc>> children;
         map<VertDesc, BFSVert>       verts;
         int                          num_levels;
-        Graph&                       g;
+        Graph*                       g;
         VertDesc                     root;
 
-        BFSVisitorData(Graph& g) : g(g), num_levels(0), root(Graph::null_vertex()) {}
+        BFSVisitorData(Graph* g) : g(g), num_levels(0), root(Graph::null_vertex()) {}
+
+        void reset(Graph* g)
+        {
+                children.clear();
+                verts   .clear();
+                num_levels = 0;
+                this->g = g;
+                root = Graph::null_vertex();
+        }
+        
 
         bool is_tree_edge(EdgeDesc e)
         { 
-                auto src = source(e, g);
-                auto tar = target(e, g); 
+                auto src = source(e, *g);
+                auto tar = target(e, *g); 
                 return verts[src].parent == tar || verts[tar].parent == src;
         }
 
         uint edge_cost(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g)
         {
+                //cout << "++++++++ computing edge cost ++++++++\n";
                 assert(is_tree_edge(e));
 
                 auto v = source(e, g); 
@@ -132,15 +136,24 @@ struct BFSVisitorData
 
                 assert( on_cycle(v, cycle, g));
                 assert(!on_cycle(w, cycle, g));
+                //cout << "on cycle:  " << v << '\n';
+                //cout << "off cycle: " << w << '\n';
 
                 uint total = num_vertices(g);
+                //cout << "total: " << total << '\n';
 
-                uint cost;
+                int cost;
                 if( verts[w].parent == v ){
                         cost = verts[w].cost;
+                        cout << "v is parent\n";
                 } else {
+                        assert(verts[v].parent == w);
                         cost = total - verts[v].cost;
+                        cout << "v is NOT parent\n";
+                        cout << "v cost: " << verts[v].cost << '\n';
                 }
+                //cout << "cost: " << cost << '\n';
+                //cout << "-------------------------------------\n";
                 return cost;
         } 
 
@@ -367,7 +380,7 @@ Partition lipton_tarjan(Graph& g)
         if( !too_big ){ theorem4(0, g); return {};}
 
         cout << "---------------------------- 3 - BFS and Levels ------------\n";
-        BFSVisitorData vis_data(g);
+        BFSVisitorData vis_data(&g);
         auto root = *vertices(g).first;
         vis_data.root = root;
         breadth_first_search(g, root, visitor(BFSVisitor(vis_data)));
@@ -406,8 +419,8 @@ Partition lipton_tarjan(Graph& g)
                 if( vis_data.verts[*vi].level >= l[2] ){
                         auto i = vert2uint[*vi];
                         cout << "deleting vertex " << *vi << " of level l2 " << vis_data.verts[*vi].level << " >= " << l[2] << '\n';
-                        uint2vert[i] = Graph::null_vertex();
-                        vert2uint[*vi] = -1;
+                        uint2vert.erase(i);
+                        vert2uint.erase(*vi);
                         clear_vertex(*vi, g);
                         remove_vertex(*vi, g);
                 }
@@ -436,8 +449,8 @@ Partition lipton_tarjan(Graph& g)
         if( !degree(x, g) ){
                 cout << "no edges to x found, deleting\n";
                 auto i = vert2uint[x];
-                uint2vert[i] = Graph::null_vertex();
-                vert2uint[x] = -1;
+                uint2vert.erase(i);
+                vert2uint.erase(*vi);
                 remove_vertex(x, g);
                 x_gone = *vertices(g).first;
                 cout << "x_gone: " << x_gone << '\n';
@@ -446,34 +459,25 @@ Partition lipton_tarjan(Graph& g)
         cout << "-------------------- 7 - New BFS and Make Max Planar -----\n"; 
         reset_vertex_indices(g);
         reset_edge_index(g);
-        print_graph(g);
-        BFSVisitorData vis_data2(g);
-        vis_data2.print_costs();
-        vis_data2.root = (x_gone != Graph::null_vertex()) ? x_gone : x;
-        vis_data2.verts[vis_data2.root].cost++;
+        vis_data.reset(&g);
+        vis_data.root = (x_gone != Graph::null_vertex()) ? x_gone : x;
+        vis_data.verts[vis_data.root].cost++;
 
-        cout << "root: " << vis_data2.root << '\n'; 
+        cout << "root: " << vis_data.root << '\n'; 
 
-        breadth_first_search(g, x_gone != Graph::null_vertex() ? x_gone: x, visitor(BFSVisitor(vis_data2))); 
-        vis_data2.print_costs(); 
+        breadth_first_search(g, x_gone != Graph::null_vertex() ? x_gone: x, visitor(BFSVisitor(vis_data))); 
         makemaxplanar(g);
         reset_edge_index(g);
 
         cout << "----------------------- 8 - Locate Cycle -----------------\n";
-        print_graph(g);
-        vis_data2.print_costs();
         EdgeIter ei, ei_end;
         for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ){
                 auto src = source(*ei, g);
                 auto tar = target(*ei, g);
                 bool exists = edge(src, tar, g).second;
-                assert(exists);
-
-                assert(src != tar);
-
-                cout << "trying " << to_string(*ei, g) << '\n';
+                assert(exists); 
+                assert(src != tar); 
                 if( !vis_data.is_tree_edge(*ei) ) break;
-                else cout << "nope - is tree edge\n";
         }
         assert(ei != ei_end);
         assert(!vis_data.is_tree_edge(*ei));
@@ -484,8 +488,8 @@ Partition lipton_tarjan(Graph& g)
         auto w1 = target(chosen_edge, g);
         vector<VertDesc> parents_v = {v1}, parents_w = {w1};
 
-        auto p_v = v1; while( p_v != vis_data2.root ){ p_v = vis_data2.verts[p_v].parent; parents_v.push_back(p_v); } 
-        auto p_w = w1; while( p_w != vis_data2.root ){ p_w = vis_data2.verts[p_w].parent; parents_w.push_back(p_w); }
+        auto p_v = v1; while( p_v != vis_data.root ){ p_v = vis_data.verts[p_v].parent; parents_v.push_back(p_v); } 
+        auto p_w = w1; while( p_w != vis_data.root ){ p_w = vis_data.verts[p_w].parent; parents_w.push_back(p_w); }
 
         uint i, j;
         for( i = 0; i < parents_v.size(); ++i ) for( j = 0; j < parents_w.size(); ++j ) if( parents_v[i] == parents_w[j] ) goto done;
@@ -496,8 +500,8 @@ done:
 
         vector<VertDesc> cycle, tmp;
         VertDesc v;
-        v = v1; while( v != ancestor ){ cycle.push_back(v); v = vis_data2.verts[v].parent; } cycle.push_back(ancestor);
-        v = w1; while( v != ancestor ){ tmp  .push_back(v); v = vis_data2.verts[v].parent; } 
+        v = v1; while( v != ancestor ){ cycle.push_back(v); v = vis_data.verts[v].parent; } cycle.push_back(ancestor);
+        v = w1; while( v != ancestor ){ tmp  .push_back(v); v = vis_data.verts[v].parent; } 
         reverse(tmp.begin(), tmp.end());
         cycle.insert(cycle.end(), tmp.begin(), tmp.end());
 
@@ -516,12 +520,11 @@ done:
                 cout << "   scanning cycle vert " << v << '\n';
                 auto pai = out_edges(v, g);
                 while( pai.first != pai.second ){
-                        if( vis_data2.is_tree_edge(*pai.first) && !on_cycle(*pai.first, cycle, g) ){
+                        if( vis_data.is_tree_edge(*pai.first) && !on_cycle(*pai.first, cycle, g) ){
                                 uint cost = vis_data.edge_cost(*pai.first, cycle, g);
                                 cout << "      scanning incident tree edge " << to_string(*pai.first, g) << "   cost: " << cost << '\n';
                                 bool inside = edge_inside(*pai.first, v, cycle, g, em2);
                                 inside ? cost_inside : cost_outside += cost;
-                                cout << (inside ? "inside\n" : "outside\n");
                         }
                         ++pai.first;
                 }

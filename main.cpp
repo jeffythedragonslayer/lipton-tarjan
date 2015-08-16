@@ -94,8 +94,6 @@ int main(int argc, char* argv[])
                 cout << "n: " << n << '\n';
                 uint e = num_edges(g);
 
-                print_graph(g);
-
                 cout << "starting lipton tarjan...\n";
                 auto p = lipton_tarjan(g); 
         }

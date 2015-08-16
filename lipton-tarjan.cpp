@@ -80,10 +80,14 @@ bool edge_inside(EdgeDesc e, VertDesc v, vector<VertDesc> const& cycle, Graph co
 
         vector<uint> perm;
         for( auto& tar_it : em[*it] ){
-                assert(source(tar_it, g) == v);
-                if( target(tar_it, g) == other   ) perm.push_back(1);
-                if( target(tar_it, g) == *before ) perm.push_back(2);
-                if( target(tar_it, g) == *after  ) perm.push_back(3);
+                auto src = source(tar_it, g);
+                auto tar = target(tar_it, g);
+                if(src != v ) swap(src, tar);
+                assert(src == v);
+
+                if( tar == other   ) perm.push_back(1);
+                if( tar == *before ) perm.push_back(2);
+                if( tar == *after  ) perm.push_back(3);
         }
         assert(perm.size() == 3);
         cout << "               levi civita symbol: " << perm[0] << ' ' << perm[1] << ' ' << perm[2] << '\n';

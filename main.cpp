@@ -52,17 +52,19 @@ Graph load_graph(string fname)
 
 void print_graph(Graph const& g)
 { 
-        cout << "\n*********************************************************\n"; 
+        cout << "\n**********************  Graph  **************************\n"; 
         VertIter vi, vi_end;
         for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
-                cout << "vert " << vert2uint[*vi] << '\n';
+                cout << "vert " << vert2uint[*vi];
                 OutEdgeIter ei, e_end;
+                cout << "   hos edges ";
                 for( tie(ei, e_end) = out_edges(*vi, g); ei != e_end; ++ei ){
                         auto src = source(*ei, g);
                         auto tar = target(*ei, g);
                         if( tar == *vi ) swap(src, tar);
-                        cout << "   edge " << vert2uint[tar] << '\n';
+                        cout << vert2uint[tar] << ' ';
                 }
+                cout << '\n';
         }
         cout << "*********************************************************\n\n";
 }

@@ -9,8 +9,8 @@ lt g_kuratowski5    > /dev/null
 lt g_in             > /dev/null
 lt g_in2            > /dev/null
 lt g_in3            > /dev/null
-lt g_notquitek      > /dev/null
+lt g_notk           > /dev/null
 lt g_square         > /dev/null
-lt g_triangle       > /dev/null
+lt g_tri            > /dev/null
 lt g_tie            > /dev/null 
-lt g_two            > /dev/null
+#lt g_two            > /dev/null

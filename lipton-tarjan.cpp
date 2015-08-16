@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <utility>
 #include <csignal>
+#include <boost/lexical_cast.hpp>
 #include <boost/graph/graph_concepts.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/graph/graph_traits.hpp>
@@ -23,15 +24,73 @@
 using namespace std;
 using namespace boost; 
 
+int levi_civita(uint i, uint j, uint k)
+{
+        if( i == j || j == k || k == i ) return 0; 
+        if( i == 1 && j == 2 && k == 3 ) return 1;
+        if( i == 2 && j == 3 && k == 1 ) return 1;
+        if( i == 3 && j == 1 && k == 2 ) return 1;
+        return -1;
+} 
+
 ostream& operator<<(ostream& o, VertDesc v)
 {
         o << vert2uint[v];
         return o;
 }
 
+string to_string(EdgeDesc e, Graph const& g)
+{
+        auto src = lexical_cast<string>(vert2uint[source(e, g)]);
+        auto tar = lexical_cast<string>(vert2uint[target(e ,g)]);
+        return src + ", " + tar;
+}
+
+
+bool on_cycle(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g)
+{
+        auto src = source(e, g);
+        auto tar = target(e, g);
+        return find(cycle.begin(), cycle.end(), src) != cycle.end() &&
+               find(cycle.begin(), cycle.end(), tar) != cycle.end();
+}
+
+bool edge_inside(EdgeDesc e, VertDesc v, vector<VertDesc> const& cycle, Graph const& g, Embedding& em)
+{
+        cout << "        testing if edge " << to_string(e, g) << " is inside the cycle\n";
+        auto it     = find(cycle.begin(), cycle.end(), v);
+        auto before = it == cycle.begin() ?
+                      cycle.end()-1       :
+                      it-1;
+        auto after  = it+1 == cycle.end() ?
+                      cycle.begin()       :
+                      it+1;
+        cout << "               v: " << v << '\n';
+        cout << "               before: " << *before << '\n';
+        cout << "               after: " << *after << '\n';
+
+        auto other = (source(e, g) == v) ?
+                     target(e, g)        :
+                     source(e, g);
+
+        cout << "               other: " << other << '\n';
+
+        vector<uint> perm;
+        for( auto& tar_it : em[*it] ){
+                assert(source(tar_it, g) == v);
+                if( target(tar_it, g) == other   ) perm.push_back(1);
+                if( target(tar_it, g) == *before ) perm.push_back(2);
+                if( target(tar_it, g) == *after  ) perm.push_back(3);
+        }
+        assert(perm.size() == 3);
+        cout << "               levi civita symbol: " << perm[0] << ' ' << perm[1] << ' ' << perm[2] << '\n';
+        return levi_civita(perm[0], perm[1], perm[2]) == 1;
+}
+
+
 struct BFSVert
 {
-        BFSVert() : parent(nullptr), level(0), cost(0) {}
+        BFSVert() : parent(Graph::null_vertex()), level(0), cost(0) {}
 
         VertDesc parent;
         int      level;
@@ -44,8 +103,9 @@ struct BFSVisitorData
         map<VertDesc, BFSVert>       verts;
         int                          num_levels;
         Graph&                       g;
+        VertDesc                     root;
 
-        BFSVisitorData(Graph& g) : g(g), num_levels(0) {}
+        BFSVisitorData(Graph& g) : g(g), num_levels(0), root(Graph::null_vertex()) {}
 
         bool is_tree_edge(EdgeDesc e)
         { 
@@ -53,6 +113,17 @@ struct BFSVisitorData
                 auto tar = target(e, g); 
                 return verts[src].parent == tar || verts[tar].parent == src;
         }
+
+        uint edge_cost(EdgeDesc e, Graph const& g)
+        {
+                assert(is_tree_edge(e));
+                auto v = source(e, g); // assert on the cycle
+                auto w = target(e, g); // assert not on the cycle
+
+                return verts[w].parent == w ?
+                       verts[w].cost        :
+                       num_vertices(g) - verts[v].cost;
+        } 
 
         void print_costs()
         {
@@ -70,18 +141,20 @@ struct BFSVisitor : public default_bfs_visitor
         {
                 auto parent = source(e, g);
                 auto child  = target(e, g);
-                cout << "  tree edge " << parent << ", " << child << '\n';
+                cout << "  tree edge " << parent << ", " << child;
                 data.verts[child].parent = parent;
                 data.verts[child].level  = data.verts[parent].level + 1;
                 data.num_levels = max(data.num_levels, data.verts[child].level + 1);
                 if( Graph::null_vertex() != parent ) data.children[parent].insert(child);
 
+                cout << "     vertex/cost: ";
                 VertDesc v = child;
                 do {
                         ++data.verts[v].cost;
-                        cout << "   cost of " << v << " is " << ++data.verts[v].cost << '\n';
+                        cout << v << '/'  << ++data.verts[v].cost << "   ";
                         v =  data.verts[v].parent;
                 } while( data.verts[v].level );
+                cout << '\n';
         } 
 };
 
@@ -136,13 +209,13 @@ uint theorem4(uint partition, Graph const& g)
 
 struct ScanVisitor
 {
-        map<VertDesc, bool>*          t;
+        map<VertDesc, bool>*          table;
         Graph*                        g;
         VertDesc                      x;
         int                           l0;
         set<pair<VertDesc, VertDesc>> edges_to_add, edges_to_delete;
 
-        ScanVisitor(map<VertDesc, bool>* t, Graph* g, VertDesc x, int l0) : t(t), g(g), x(x), l0(l0) {}
+        ScanVisitor(map<VertDesc, bool>* table, Graph* g, VertDesc x, int l0) : table(table), g(g), x(x), l0(l0) {}
 
         void foundedge(VertDesc V, EdgeDesc e)
         {
@@ -151,13 +224,13 @@ struct ScanVisitor
                 if( V != v ) swap(v, w);
                 assert(V == v);
                 cout << "foundedge " << v << ", " << w << '\n';
-                if ( !(*t)[w] ){
-                        (*t)[w] = true;
+                if ( !(*table)[w] ){
+                        (*table)[w] = true;
                         assert(x != w); 
-                        cout << "going to add " << x << ", " << w << '\n';
+                        cout << "   !!!!!!!going to add " << x << ", " << w << '\n';
                         edges_to_add.insert(make_pair(x, w));
                 }
-                cout << "going to delete " << v << ", " << w << '\n';
+                cout << "     going to delete " << v << ", " << w << '\n';
                 edges_to_delete.insert(make_pair(v, w)); 
         }
 
@@ -165,20 +238,24 @@ struct ScanVisitor
         {
                 cout << "finishing\n";
                 cout << "edges to add size: " << edges_to_add.size() << '\n';
+                cout << "adding: ";
                 for( auto& p : edges_to_add    ){
                         assert(p.first != p.second);
-                        cout << "adding " << p.first << ", " << p.second << '\n';
+                        cout << '(' << p.first << ", " << p.second << ")   ";
                         add_edge(p.first, p.second, *g);
                 }
+                cout << '\n';
                 cout << "edges to remove size: " << edges_to_delete.size() << '\n';
+                cout << "removing: ";
                 for( auto& p : edges_to_delete ){ 
-                        cout << "removing " << p.first << ", " << p.second << '\n';
+                        cout << '(' << p.first << ", " << p.second << ")   ";
                         remove_edge(p.first, p.second, *g);
                 }
+                cout << '\n';
         }
 };
 
-void scan_nonsubtree_edges(VertDesc v, Graph const& g, Embedding& em, BFSVisitorData& bfs, ScanVisitor vis)
+void scan_nonsubtree_edges(VertDesc v, Graph const& g, Embedding& em, BFSVisitorData& bfs, ScanVisitor& vis)
 {
         if( bfs.verts[v].level > vis.l0 ) return;
         for( auto e : em[v] ){
@@ -211,8 +288,7 @@ bool is_planar(Graph& g)
         return boyer_myrvold_planarity_test(boyer_myrvold_params::graph = g, boyer_myrvold_params::embedding = em);
 }
 
-typedef property_map<Graph, edge_index_t>::type EdgeIndex;
-EdgeIndex reset_edge_index(Graph& g)
+EdgeIndex reset_edge_index(Graph const& g)
 {
         EdgeIndex edgedesc_to_uint; 
         EdgesSizeType num_edges = 0;
@@ -239,14 +315,21 @@ void makemaxplanar(Graph& g)
         assert(planar);
 } 
 
+void print_cycle(vector<VertDesc> const& cycle)
+{
+        cout << "cycle verts: ";
+        for( auto& v : cycle ) cout << v << ' ';
+        cout << '\n';
+}
+
 Partition lipton_tarjan(Graph& g)
 {
-        cout << "---------------------------- Step 1 --------------------------\n";
+        cout << "---------------------------- 1 - Check Planarity  ------------\n";
         bool planar = is_planar(g);
         assert(planar);
         cout << "planar ok\n";
 
-        cout << "---------------------------- Step 2 --------------------------\n";
+        cout << "---------------------------- 2 - Connected Components -------- \n";
         VertDescMap idx; 
         associative_property_map<VertDescMap> vertid_to_component(idx);
         VertIter vi, vj;
@@ -254,63 +337,70 @@ Partition lipton_tarjan(Graph& g)
         for( uint i = 0; vi != vj; ++vi, ++i ) put(vertid_to_component, *vi, i);
         uint components = connected_components(g, vertid_to_component);
         assert(components == 1); 
+
+        cout << "# of components: " << components << '\n';
         vector<uint> verts_per_comp(components, 0);
         for( tie(vi, vj) = vertices(g); vi != vj; ++vi ) ++verts_per_comp[vertid_to_component[*vi]]; 
         bool too_big = false;
         for( uint i = 0; i < components; ++i ) if( 3*verts_per_comp[i] > 2*num_vertices(g) ){ too_big = true; break; }
         if( !too_big ){ theorem4(0, g); return {};}
 
-        cout << "---------------------------- Step 3 --------------------------\n";
+        cout << "---------------------------- 3 - BFS and Levels ------------\n";
         BFSVisitorData vis_data(g);
-        breadth_first_search(g, *vertices(g).first, visitor(BFSVisitor(vis_data)));
+        auto root = *vertices(g).first;
+        vis_data.root = root;
+        breadth_first_search(g, root, visitor(BFSVisitor(vis_data)));
 
         vector<uint> L(vis_data.num_levels + 1, 0);
         for( auto& d : vis_data.verts ) ++L[d.second.level];
 
-        for( tie(vi, vj) = vertices(g); vi != vj; ++vi ) cout << "level of vert " << *vi << ": " << vis_data.verts[*vi].level << '\n';
+        for( tie(vi, vj) = vertices(g); vi != vj; ++vi ) cout << "level/cost of vert " << *vi << ": " << vis_data.verts[*vi].level << '\n';
         for( uint i = 0; i < L.size(); ++i ) cout << "L[" << i << "]: " << L[i] << '\n';
 
-        cout << "---------------------------- Step 4 --------------------------\n";
+        cout << "---------------------------- 4 - l1 and k  ------------\n";
         uint k = L[0]; 
         int l[3];
         l[1] = 0;
         while( k <= num_vertices(g)/2 ) k += L[++l[1]];
-        cout << "k: " << k << '\n';
-        cout << "l1:" << l[1] << '\n';
+        cout << "k:  " << k << "      # of verts in levels 0 thru l1\n";
+        cout << "l1: " << l[1] << "      total cost of levels 0 thru l1 barely exceeds 1/2\n";
 
-        cout << "---------------------------- Step 5 --------------------------\n";
+        cout << "---------------------------- 5 - Find More Levels -------\n";
         float sq  = 2 * sqrt(k); 
         float snk = 2 * sqrt(num_vertices(g) - k); 
-        cout << "sq: " << sq << '\n';
-        cout << "snk: " << snk << '\n';
+        cout << "sq:    " << sq << '\n';
+        cout << "snk:   " << snk << '\n';
 
         l[0] = l[1]; for( ;; ){ float val = L.at(l[0]) + 2*(l[1] - l[0]); if( val <= sq  ) break; --l[0]; } 
-        cout << "l0: " << l[0] << '\n'; 
+        cout << "l0: " << l[0] << "     highest level <= l1\n"; 
         l[2] = l[1] + 1; for( ;; ){ float val = L.at(l[2]) + 2*(l[2] - l[1] - 1); if( val <= snk ) break; ++l[2]; } 
-        cout << "l2: " << l[2] << '\n';
+        cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
 
-        cout << "---------------------------- Step 6 --------------------------\n";
+        cout << "---------------------------- 6 - Shrinktree -------------\n";
+        cout << "n: " << num_vertices(g) << '\n'; 
+
         tie(vi, vj) = vertices(g); 
         for( VertIter next = vi; vi != vj; vi = next){
                 ++next;
                 if( vis_data.verts[*vi].level >= l[2] ){
                         auto i = vert2uint[*vi];
+                        cout << "deleting vertex " << *vi << " of level l2 " << vis_data.verts[*vi].level << " >= " << l[2] << '\n';
                         uint2vert[i] = Graph::null_vertex();
                         vert2uint[*vi] = -1;
                         clear_vertex(*vi, g);
-                        cout << "deleting vertex " << *vi << " of level " << vis_data.verts[*vi].level << '\n';
                         remove_vertex(*vi, g);
                 }
         }
 
-        auto x = add_vertex(g); uint2vert[vert2uint[x] = num_vertices(g)] = x; 
+        auto x = add_vertex(g); uint2vert[vert2uint[x] = 999999] = x; 
         map<VertDesc, bool> t;
         for( tie(vi, vj) = vertices(g); vi != vj; ++vi ){
                 t[*vi] = (vis_data.verts[*vi].level <= l[0]);
-                cout << "vertex " << *vi << " is " << t[*vi] << " in table\n";
+                cout << "vertex " << *vi << " at level " << vis_data.verts[*vi].level << " is " << (t[*vi] ? "TRUE" : "FALSE") << '\n';
         }
 
         reset_vertex_indices(g);
+        reset_edge_index(g);
         EmbeddingStorage storage{num_vertices(g)};
         Embedding        em(storage.begin());
 
@@ -321,15 +411,105 @@ Partition lipton_tarjan(Graph& g)
         scan_nonsubtree_edges(*vertices(g).first, g, em, vis_data, svis);
         svis.finish();
 
-        cout << "---------------------------- Step 7 --------------------------\n";
+        VertDesc x_gone = Graph::null_vertex();
+        if( !degree(x, g) ){
+                cout << "no edges to x found, deleting\n";
+                auto i = vert2uint[x];
+                uint2vert[i] = Graph::null_vertex();
+                vert2uint[x] = -1;
+                remove_vertex(x, g);
+                x_gone = *vertices(g).first;
+                cout << "x_gone: " << x_gone << '\n';
+        }
+
+        cout << "-------------------- 7 - New BFS and Make Max Planar -----\n"; 
+        reset_vertex_indices(g);
+        reset_edge_index(g);
         print_graph(g);
         BFSVisitorData vis_data2(g);
         vis_data2.print_costs();
-        breadth_first_search(g, x, visitor(BFSVisitor(vis_data2)));
+        vis_data2.root = (x_gone != Graph::null_vertex()) ? x_gone : x;
 
-        vis_data2.print_costs();
+        cout << "root: " << vis_data2.root << '\n'; 
 
+        breadth_first_search(g, x_gone != Graph::null_vertex() ? x_gone: x, visitor(BFSVisitor(vis_data2))); 
+        vis_data2.print_costs(); 
         makemaxplanar(g);
+        reset_edge_index(g);
+
+        cout << "----------------------- 8 - Locate Cycle -----------------\n";
+        print_graph(g);
+        EdgeIter ei, ei_end;
+        for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ){
+                auto src = source(*ei, g);
+                auto tar = target(*ei, g);
+                bool exists = edge(src, tar, g).second;
+                assert(exists);
+
+                assert(src != tar);
+
+                cout << "trying " << to_string(*ei, g) << '\n';
+                if( !vis_data.is_tree_edge(*ei) ) break;
+                else cout << "nope - is tree edge\n";
+        }
+        assert(ei != ei_end);
+        assert(!vis_data.is_tree_edge(*ei));
+        EdgeDesc chosen_edge = *ei;
+        cout << "arbitrarily choosing nontree edge: " << to_string(chosen_edge, g) << '\n';
+
+        auto v1 = source(chosen_edge, g);
+        auto w1 = target(chosen_edge, g);
+        vector<VertDesc> parents_v = {v1}, parents_w = {w1};
+
+        auto p_v = v1; while( p_v != vis_data2.root ){ p_v = vis_data2.verts[p_v].parent; parents_v.push_back(p_v); } 
+        auto p_w = w1; while( p_w != vis_data2.root ){ p_w = vis_data2.verts[p_w].parent; parents_w.push_back(p_w); }
+
+        uint i, j;
+        for( i = 0; i < parents_v.size(); ++i ) for( j = 0; j < parents_w.size(); ++j ) if( parents_v[i] == parents_w[j] ) goto done;
+done:
+        assert(parents_v[i] == parents_w[j]);
+        auto ancestor = parents_v[i];
+        cout << "common ancestor: " << ancestor << '\n';
+
+        vector<VertDesc> cycle, tmp;
+        VertDesc v;
+        v = v1; while( v != ancestor ){ cycle.push_back(v); v = vis_data2.verts[v].parent; } cycle.push_back(ancestor);
+        v = w1; while( v != ancestor ){ tmp  .push_back(v); v = vis_data2.verts[v].parent; } 
+        reverse(tmp.begin(), tmp.end());
+        cycle.insert(cycle.end(), tmp.begin(), tmp.end());
+
+        print_cycle(cycle);
+
+        EmbeddingStorage storage2(num_vertices(g));
+        Embedding        em2(storage2.begin());
+        planar = boyer_myrvold_planarity_test(boyer_myrvold_params::graph = g, boyer_myrvold_params::embedding = em2);
+        assert(planar); 
+
+        uint cost_inside  = 0;
+        uint cost_outside = 0;
+        bool cost_swapped = false;
+
+        for( auto& v : cycle ){
+                cout << "   scanning cycle vert " << v << '\n';
+                auto pai = out_edges(v, g);
+                while( pai.first != pai.second ){
+                        if( vis_data2.is_tree_edge(*pai.first) && !on_cycle(*pai.first, cycle, g) ){
+                                uint cost = vis_data.edge_cost(*pai.first, g);
+                                cout << "      scanning incident tree edge " << to_string(*pai.first, g) << "   cost: " << cost << '\n';
+                                bool inside = edge_inside(*pai.first, v, cycle, g, em2);
+                                inside ? cost_inside : cost_outside += cost;
+                                cout << (inside ? "inside\n" : "outside\n");
+                        }
+                        ++pai.first;
+                }
+        }
+
+        if( cost_outside > cost_inside ){
+                swap(cost_outside, cost_inside);
+                cost_swapped = true;
+                cout << "cost swapped\n";
+        }
+        cout << "total inside cost: " << cost_inside << '\n'; 
 
         return {};
 }

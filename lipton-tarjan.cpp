@@ -499,6 +499,33 @@ set<VertDesc> get_intersection(set<VertDesc> a, set<VertDesc> b)
         return c;
 } 
 
+struct CycleCost
+{
+        uint inside {}, outside {};
+        bool swapped = false;
+
+};
+
+CycleCost compute_cycle_cost(vector<VertDesc> const& cycle, Graph const& g, BFSVisitorData& vis_data, Em& em2)
+{
+        CycleCost cc;
+        for( auto& v : cycle ){
+                cout << "   scanning cycle vert " << v << '\n';
+                for( auto e = out_edges(v, g); e.first != e.second; ++e.first ) if( vis_data.is_tree_edge(*e.first) && !on_cycle(*e.first, cycle, g) ){
+                        uint cost = vis_data.edge_cost(*e.first, cycle, g);
+                        cout << "      scanning incident tree edge " << to_string(*e.first, g) << "   cost: " << cost << '\n';
+                        bool is_inside = edge_inside(*e.first, v, cycle, g, *em2.em);
+                        (is_inside ? cc.inside : cc.outside) += cost;
+                }
+        }
+        if( cc.outside > cc.inside ){
+                swap(cc.outside, cc.inside);
+                cc.swapped = true;
+                cout << "!!!!!! cost swapped !!!!!!!!\n";
+        }
+        return cc;
+}
+
 Partition lipton_tarjan(Graph& g)
 {
         cout << "---------------------------- 1 - Check Planarity  ------------\n";
@@ -613,34 +640,16 @@ Partition lipton_tarjan(Graph& g)
         print_cycle(cycle);
 
         Em   em2(&g);
-        uint cost_inside  = 0;
-        uint cost_outside = 0;
-        bool cost_swapped = false;
-
-        for( auto& v : cycle ){
-                cout << "   scanning cycle vert " << v << '\n';
-                for( auto e = out_edges(v, g); e.first != e.second; ++e.first ) if( vis_data.is_tree_edge(*e.first) && !on_cycle(*e.first, cycle, g) ){
-                        uint cost = vis_data.edge_cost(*e.first, cycle, g);
-                        cout << "      scanning incident tree edge " << to_string(*e.first, g) << "   cost: " << cost << '\n';
-                        bool inside = edge_inside(*e.first, v, cycle, g, *em2.em);
-                        (inside ? cost_inside : cost_outside) += cost;
-                }
-        }
-
-        if( cost_outside > cost_inside ){
-                swap(cost_outside, cost_inside);
-                cost_swapped = true;
-                cout << "!!!!!! cost swapped !!!!!!!!\n";
-        }
-        cout << "total inside cost:  " << cost_inside << '\n'; 
-        cout << "total outside cost: " << cost_outside << '\n'; 
+        auto cc = compute_cycle_cost(cycle, g, vis_data, em2);
+        cout << "total inside cost:  " << cc.inside << '\n'; 
+        cout << "total outside cost: " << cc.outside << '\n'; 
 
         cout << "---------------------------- 9 - Improve Separator -----------\n";
         auto chosen_vi = source(chosen_edge, g);
         auto chosen_wi = target(chosen_edge, g);
         assert(!vis_data.is_tree_edge(chosen_edge));
         EdgeDesc next_edge;
-        while( cost_inside > num_vertices(g)*2./3 ){
+        while( cc.inside > num_vertices(g)*2./3 ){
                 cout << "looking for a better cycle\n";
 
                 // Locate the triangle (chosen_vi, y, chosen_wi) which has (chosen_vi, chosen_wi) as a boundary edge and lies inside the (chosen_vi, chosen_wi) cycle.
@@ -674,7 +683,7 @@ Partition lipton_tarjan(Graph& g)
                 }
 
         }
-        cout << "found cycle with inside cost < 2/3: " << cost_inside << '\n';
+        cout << "found cycle with inside cost < 2/3: " << cc.inside << '\n';
 
         cout << "\n------------ 10  - Construct Vertex Partition --------------\n";
         uint partition = lemma3(cycle, &l[0], g);

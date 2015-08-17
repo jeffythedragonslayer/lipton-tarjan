@@ -117,7 +117,6 @@ struct BFSVisitorData
                 root = Graph::null_vertex();
         }
         
-
         bool is_tree_edge(EdgeDesc e)
         { 
                 auto src = source(e, *g);
@@ -459,6 +458,15 @@ vector<VertDesc> get_cycle(VertDesc v, VertDesc w, VertDesc ancestor, BFSVisitor
         return cycle;
 }
 
+void kill_vertex(VertDesc v, Graph& g)
+{
+        auto i = vert2uint[v];
+        uint2vert.erase(i);
+        vert2uint.erase(v);
+        clear_vertex(v, g);
+        remove_vertex(v, g);
+}
+
 Partition lipton_tarjan(Graph& g)
 {
         cout << "---------------------------- 1 - Check Planarity  ------------\n";
@@ -520,12 +528,8 @@ Partition lipton_tarjan(Graph& g)
         for( VertIter next = vi; vi != vj; vi = next){
                 ++next;
                 if( vis_data.verts[*vi].level >= l[2] ){
-                        auto i = vert2uint[*vi];
                         cout << "deleting vertex " << *vi << " of level l2 " << vis_data.verts[*vi].level << " >= " << l[2] << '\n';
-                        uint2vert.erase(i);
-                        vert2uint.erase(*vi);
-                        clear_vertex(*vi, g);
-                        remove_vertex(*vi, g);
+                        kill_vertex(*vi, g);
                 }
         }
 
@@ -551,10 +555,7 @@ Partition lipton_tarjan(Graph& g)
         VertDesc x_gone = Graph::null_vertex();
         if( !degree(x, g) ){
                 cout << "no edges to x found, deleting\n";
-                auto i = vert2uint[x];
-                uint2vert.erase(i);
-                vert2uint.erase(*vi);
-                remove_vertex(x, g);
+                kill_vertex(x, g);
                 x_gone = *vertices(g).first;
                 cout << "x_gone: " << x_gone << '\n';
         }

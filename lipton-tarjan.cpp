@@ -314,13 +314,25 @@ void reset_vertex_indices(Graph& g)
         for( tie(vi, vend) = vertices(g); vi != vend; ++vi, ++i ) put(vertex_index, g, *vi, i); 
 }
 
-bool is_planar(Graph& g)
+struct Em
 {
-        reset_vertex_indices(g);
-        EmbeddingStorage storage{num_vertices(g)};
-        Embedding        em(storage.begin()); 
-        return boyer_myrvold_planarity_test(boyer_myrvold_params::graph = g, boyer_myrvold_params::embedding = em);
-}
+        EmbeddingStorage* storage;
+        Embedding*        em;
+        Graph*            g;
+
+        Em(Graph* g) : g(g), storage(new EmbeddingStorage(num_vertices(*g))), em(new Embedding(storage->begin())) 
+        {
+                testplanar();
+        } 
+
+        bool testplanar() {return boyer_myrvold_planarity_test(boyer_myrvold_params::graph = *g, boyer_myrvold_params::embedding = *em);}
+
+        ~Em()
+        {
+                delete storage;
+                delete em;
+        }
+};
 
 EdgeIndex reset_edge_index(Graph const& g)
 {
@@ -334,19 +346,17 @@ EdgeIndex reset_edge_index(Graph const& g)
 void makemaxplanar(Graph& g)
 { 
         auto index = reset_edge_index(g);
-        EmbeddingStorage storage(num_vertices(g));
-        Embedding        em(storage.begin());
-        boyer_myrvold_planarity_test(boyer_myrvold_params::graph = g, boyer_myrvold_params::embedding = em);
-        make_biconnected_planar(g, em, index);
+        Em em(&g);
+        em.testplanar();
+        make_biconnected_planar(g, *em.em, index);
 
         reset_edge_index(g);
-        boyer_myrvold_planarity_test(boyer_myrvold_params::graph = g, boyer_myrvold_params::embedding = em);
+        em.testplanar();
 
-        make_maximal_planar(g, em);
+        make_maximal_planar(g, *em.em);
 
         reset_edge_index(g);
-        bool planar = boyer_myrvold_planarity_test(boyer_myrvold_params::graph = g, boyer_myrvold_params::embedding = em);
-        assert(planar);
+        assert(em.testplanar());
 } 
 
 void print_cycle(vector<VertDesc> const& cycle)
@@ -454,14 +464,49 @@ void kill_vertex(VertDesc v, Graph& g)
         remove_vertex(v, g);
 }
 
+EdgeDesc arbitrary_nontree_edge(Graph const& g, BFSVisitorData& vis_data)
+{ 
+        print_graph(g);
+        EdgeIter ei, ei_end;
+        for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ){
+                auto src = source(*ei, g);
+                auto tar = target(*ei, g);
+                assert(edge(src, tar, g).second); // exists
+                assert(src != tar); 
+                if( !vis_data.is_tree_edge(*ei) ) break;
+        }
+        assert(ei != ei_end);
+        assert(!vis_data.is_tree_edge(*ei));
+        EdgeDesc chosen_edge = *ei;
+        cout << "arbitrarily choosing nontree edge: " << to_string(chosen_edge, g) << '\n';
+        return chosen_edge;
+}
+
+set<VertDesc> get_neighbors(VertDesc v, Graph const& g)
+{ 
+        set<VertDesc> neighbors;
+        OutEdgeIter e_cur, e_end;
+        for( tie(e_cur, e_end) = out_edges(v, g); e_cur != e_end; ++e_cur ){ auto ne = target(*e_cur, g); neighbors.insert(ne); cout << "vertex " << v << "has neighbor " << ne << '\n'; }
+        return neighbors;
+}
+
+set<VertDesc> get_intersection(set<VertDesc> a, set<VertDesc> b)
+{
+        set<VertDesc> c;
+        set_intersection(STLALL(a), STLALL(b), inserter(c, c.begin())); 
+        for( auto& i : c ) cout << "set intersection: " << i << '\n'; 
+        assert(c.size() == 2);
+        return c;
+} 
+
 Partition lipton_tarjan(Graph& g)
 {
         cout << "---------------------------- 1 - Check Planarity  ------------\n";
-        bool planar = is_planar(g);
-        assert(planar);
+        Em em1(&g);
+        assert(em1.testplanar());
         cout << "planar ok\n";
 
-        cout << "---------------------------- 2 - Connected Components -------- \n";
+        cout << "---------------------------- 2 - Connected Components --------\n";
         VertDescMap idx; 
         associative_property_map<VertDescMap> vertid_to_component(idx);
         VertIter vi, vj;
@@ -510,7 +555,7 @@ Partition lipton_tarjan(Graph& g)
         cout << "n: " << num_vertices(g) << '\n'; 
 
         tie(vi, vj) = vertices(g); 
-        for( VertIter next = vi; vi != vj; vi = next){
+        for( VertIter next = vi; vi != vj; vi = next ){
                 ++next;
                 if( vis_data.verts[*vi].level >= l[2] ){
                         cout << "deleting vertex " << *vi << " of level l2 " << vis_data.verts[*vi].level << " >= " << l[2] << '\n';
@@ -527,14 +572,11 @@ Partition lipton_tarjan(Graph& g)
 
         reset_vertex_indices(g);
         reset_edge_index(g);
-        EmbeddingStorage storage{num_vertices(g)};
-        Embedding        em(storage.begin());
-
-        planar = boyer_myrvold_planarity_test(boyer_myrvold_params::graph = g, boyer_myrvold_params::embedding = em);
-        assert(planar);
+        Em em(&g);
+        assert(em.testplanar());
 
         ScanVisitor svis(&t, &g, x, l[0]);
-        scan_nonsubtree_edges(*vertices(g).first, g, em, vis_data, svis);
+        scan_nonsubtree_edges(*vertices(g).first, g, *em.em, vis_data, svis);
         svis.finish();
 
         VertDesc x_gone = Graph::null_vertex();
@@ -558,56 +600,30 @@ Partition lipton_tarjan(Graph& g)
         makemaxplanar(g);
         reset_edge_index(g);
 
-        cout << "----------------------- 8 - Locate Cycle -----------------\n";
-        print_graph(g);
-        EdgeIter ei, ei_end;
-        for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ){
-                auto src = source(*ei, g);
-                auto tar = target(*ei, g);
-                assert(edge(src, tar, g).second); // exists
-                assert(src != tar); 
-                if( !vis_data.is_tree_edge(*ei) ) break;
-        }
-        assert(ei != ei_end);
-        assert(!vis_data.is_tree_edge(*ei));
-        EdgeDesc chosen_edge = *ei;
-        cout << "arbitrarily choosing nontree edge: " << to_string(chosen_edge, g) << '\n';
-
-        auto v1        = source(chosen_edge, g);
-        auto w1        = target(chosen_edge, g); 
-        auto parents_v = ancestors(v1, vis_data);
-        auto parents_w = ancestors(w1, vis_data);
-
-        uint i, j;
-        for( i = 0; i < parents_v.size(); ++i ) for( j = 0; j < parents_w.size(); ++j ) if( parents_v[i] == parents_w[j] ) goto done;
-done:
-        assert(parents_v[i] == parents_w[j]);
-        auto ancestor = parents_v[i];
+        cout << "----------------------- 8 - Locate Cycle -----------------\n"; 
+        auto chosen_edge = arbitrary_nontree_edge(g, vis_data);
+        auto v1          = source(chosen_edge, g);
+        auto w1          = target(chosen_edge, g); 
+        auto parents_v   = ancestors(v1, vis_data);
+        auto parents_w   = ancestors(w1, vis_data); 
+        auto ancestor    = common_ancestor(parents_v, parents_w, vis_data);
         cout << "common ancestor: " << ancestor << '\n'; 
         auto cycle = get_cycle(v1, w1, ancestor, vis_data);
 
         print_cycle(cycle);
 
-        EmbeddingStorage storage2(num_vertices(g));
-        Embedding        em2(storage2.begin());
-        planar = boyer_myrvold_planarity_test(boyer_myrvold_params::graph = g, boyer_myrvold_params::embedding = em2);
-        assert(planar); 
-
+        Em   em2(&g);
         uint cost_inside  = 0;
         uint cost_outside = 0;
         bool cost_swapped = false;
 
         for( auto& v : cycle ){
                 cout << "   scanning cycle vert " << v << '\n';
-                auto e = out_edges(v, g);
-                while( e.first != e.second ){
-                        if( vis_data.is_tree_edge(*e.first) && !on_cycle(*e.first, cycle, g) ){
-                                uint cost = vis_data.edge_cost(*e.first, cycle, g);
-                                cout << "      scanning incident tree edge " << to_string(*e.first, g) << "   cost: " << cost << '\n';
-                                bool inside = edge_inside(*e.first, v, cycle, g, em2);
-                                (inside ? cost_inside : cost_outside) += cost;
-                        }
-                        ++e.first;
+                for( auto e = out_edges(v, g); e.first != e.second; ++e.first ) if( vis_data.is_tree_edge(*e.first) && !on_cycle(*e.first, cycle, g) ){
+                        uint cost = vis_data.edge_cost(*e.first, cycle, g);
+                        cout << "      scanning incident tree edge " << to_string(*e.first, g) << "   cost: " << cost << '\n';
+                        bool inside = edge_inside(*e.first, v, cycle, g, *em2.em);
+                        (inside ? cost_inside : cost_outside) += cost;
                 }
         }
 
@@ -619,7 +635,6 @@ done:
         cout << "total inside cost:  " << cost_inside << '\n'; 
         cout << "total outside cost: " << cost_outside << '\n'; 
 
-
         cout << "---------------------------- 9 - Improve Separator -----------\n";
         auto chosen_vi = source(chosen_edge, g);
         auto chosen_wi = target(chosen_edge, g);
@@ -629,21 +644,13 @@ done:
                 cout << "looking for a better cycle\n";
 
                 // Locate the triangle (chosen_vi, y, chosen_wi) which has (chosen_vi, chosen_wi) as a boundary edge and lies inside the (chosen_vi, chosen_wi) cycle.
-                set<VertDesc> neighbors_v, neighbors_w, intersect;
-
-                OutEdgeIter e_cur, e_end;
-                for( tie(e_cur, e_end) = out_edges(chosen_vi, g); e_cur != e_end; ++e_cur ){ auto vv = target(*e_cur, g); neighbors_v.insert(vv); cout << "vertex " << chosen_vi << "has neighbor " << vv << '\n'; }
-                for( tie(e_cur, e_end) = out_edges(chosen_wi, g); e_cur != e_end; ++e_cur ){ auto vv = target(*e_cur, g); neighbors_w.insert(vv); cout << "vertex " << chosen_wi << "has neighbor " << vv << '\n'; } 
-                set_intersection(STLALL(neighbors_v), STLALL(neighbors_w), inserter(intersect, intersect.begin()));
-                for( auto& a : intersect ) cout << "set intersection: " << a << '\n'; 
-                assert(intersect.size() == 2);
-
+                auto neighbors_v = get_neighbors(chosen_vi, g);
+                auto neighbors_w = get_neighbors(chosen_wi, g); 
+                auto intersect   = get_intersection(neighbors_v, neighbors_w); 
                 VertDesc y;
 
                 // there are 2 triangles with edge (chosen_vi, chosen_wi), one inside and one outside
-                y = edge_inside(chosen_edge, *intersect.begin(), cycle, g, em2) ?
-                    *intersect.begin()                                          :
-                    *(++intersect.begin());
+                y = edge_inside(chosen_edge, *intersect.begin(), cycle, g, *em2.em) ? *intersect.begin() : *(++intersect.begin());
 
                 EdgeDesc viy, ywi;
                 if ( vis_data.is_tree_edge(viy) || vis_data.is_tree_edge(ywi) ){
@@ -654,7 +661,7 @@ done:
                         // Determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.
                         auto ancestors_v = ancestors(chosen_vi, vis_data);
                         auto ancestors_w = ancestors(chosen_wi, vis_data);
-                        VertDesc z = common_ancestor(ancestors_v, ancestors_w, vis_data); // the (vi, wi) cycle reached during this search.
+                        auto z           = common_ancestor(ancestors_v, ancestors_w, vis_data); // the (vi, wi) cycle reached during this search.
                         
                         auto new_cycle = get_cycle(chosen_vi, chosen_wi, z, vis_data);
 

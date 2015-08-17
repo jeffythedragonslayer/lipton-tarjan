@@ -3,7 +3,7 @@ n: 8
 starting lipton tarjan...
 ---------------------------- 1 - Check Planarity  ------------
 planar ok
----------------------------- 2 - Connected Components -------- 
+---------------------------- 2 - Connected Components --------
 # of components: 1
 ---------------------------- 3 - BFS and Levels ------------
   tree edge 0, 3     vertex/cost: 3/1   0/1   

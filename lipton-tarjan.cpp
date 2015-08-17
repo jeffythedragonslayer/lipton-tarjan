@@ -422,10 +422,7 @@ uint lemma3(vector<VertDesc> const& cycle_verts, int* l, Graph const& g)
 vector<VertDesc> ancestors(VertDesc v, BFSVisitorData& vis)
 {
         vector<VertDesc> ans = {v};
-        while( v != vis.root ){
-                v = vis.verts[v].parent;
-                ans.push_back(v);
-        }
+        while( v != vis.root ){ v = vis.verts[v].parent; ans.push_back(v); }
         return ans;
 }
 
@@ -441,18 +438,8 @@ vector<VertDesc> get_cycle(VertDesc v, VertDesc w, VertDesc ancestor, BFSVisitor
 {
         vector<VertDesc> cycle, tmp;
         VertDesc cur;
-        cur = v;
-        while( cur != ancestor ){
-                cycle.push_back(cur);
-                cur = vis_data.verts[cur].parent;
-        }
-        cycle.push_back(ancestor);
-
-        cur = w;
-        while( cur != ancestor ){
-                tmp  .push_back(cur);
-                cur = vis_data.verts[cur].parent;
-        }
+        cur = v; while( cur != ancestor ){ cycle.push_back(cur); cur = vis_data.verts[cur].parent; } cycle.push_back(ancestor); 
+        cur = w; while( cur != ancestor ){ tmp  .push_back(cur); cur = vis_data.verts[cur].parent; }
         reverse(STLALL(tmp));
         cycle.insert(cycle.end(), STLALL(tmp));
         return cycle;
@@ -507,7 +494,7 @@ Partition lipton_tarjan(Graph& g)
         int l[3];
         l[1] = 0;
         while( k <= num_vertices(g)/2 ) k += L[++l[1]];
-        cout << "k:  " << k << "      # of verts in levels 0 thru l1\n";
+        cout << "k:  " << k    << "      # of verts in levels 0 thru l1\n";
         cout << "l1: " << l[1] << "      total cost of levels 0 thru l1 barely exceeds 1/2\n";
 
         cout << "---------------------------- 5 - Find More Levels -------\n";
@@ -516,10 +503,8 @@ Partition lipton_tarjan(Graph& g)
         cout << "sq:    " << sq << '\n';
         cout << "snk:   " << snk << '\n';
 
-        l[0] = l[1]; for( ;; ){ float val = L.at(l[0]) + 2*(l[1] - l[0]); if( val <= sq  ) break; --l[0]; } 
-        cout << "l0: " << l[0] << "     highest level <= l1\n"; 
-        l[2] = l[1] + 1; for( ;; ){ float val = L.at(l[2]) + 2*(l[2] - l[1] - 1); if( val <= snk ) break; ++l[2]; } 
-        cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
+        l[0] = l[1];     for( ;; ){ float val = L.at(l[0]) + 2*(l[1] - l[0]);     if( val <= sq  ) break; --l[0]; } cout << "l0: " << l[0] << "     highest level <= l1\n"; 
+        l[2] = l[1] + 1; for( ;; ){ float val = L.at(l[2]) + 2*(l[2] - l[1] - 1); if( val <= snk ) break; ++l[2]; } cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
 
         cout << "---------------------------- 6 - Shrinktree -------------\n";
         cout << "n: " << num_vertices(g) << '\n'; 
@@ -579,8 +564,7 @@ Partition lipton_tarjan(Graph& g)
         for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ){
                 auto src = source(*ei, g);
                 auto tar = target(*ei, g);
-                bool exists = edge(src, tar, g).second;
-                assert(exists); 
+                assert(edge(src, tar, g).second); // exists
                 assert(src != tar); 
                 if( !vis_data.is_tree_edge(*ei) ) break;
         }
@@ -589,12 +573,10 @@ Partition lipton_tarjan(Graph& g)
         EdgeDesc chosen_edge = *ei;
         cout << "arbitrarily choosing nontree edge: " << to_string(chosen_edge, g) << '\n';
 
-        auto v1 = source(chosen_edge, g);
-        auto w1 = target(chosen_edge, g);
-        vector<VertDesc> parents_v = {v1}, parents_w = {w1};
-
-        auto p_v = v1; while( p_v != vis_data.root ){ p_v = vis_data.verts[p_v].parent; parents_v.push_back(p_v); } 
-        auto p_w = w1; while( p_w != vis_data.root ){ p_w = vis_data.verts[p_w].parent; parents_w.push_back(p_w); }
+        auto v1        = source(chosen_edge, g);
+        auto w1        = target(chosen_edge, g); 
+        auto parents_v = ancestors(v1, vis_data);
+        auto parents_w = ancestors(w1, vis_data);
 
         uint i, j;
         for( i = 0; i < parents_v.size(); ++i ) for( j = 0; j < parents_w.size(); ++j ) if( parents_v[i] == parents_w[j] ) goto done;

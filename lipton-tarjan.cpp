@@ -437,6 +437,27 @@ VertDesc common_ancestor(vector<VertDesc> const& ancestors_v, vector<VertDesc> c
         return ancestors_v[i];
 }
 
+vector<VertDesc> get_cycle(VertDesc v, VertDesc w, VertDesc ancestor, BFSVisitorData& vis_data)
+{
+        vector<VertDesc> cycle, tmp;
+        VertDesc cur;
+        cur = v;
+        while( cur != ancestor ){
+                cycle.push_back(cur);
+                cur = vis_data.verts[cur].parent;
+        }
+        cycle.push_back(ancestor);
+
+        cur = w;
+        while( cur != ancestor ){
+                tmp  .push_back(cur);
+                cur = vis_data.verts[cur].parent;
+        }
+        reverse(tmp.begin(), tmp.end());
+        cycle.insert(cycle.end(), tmp.begin(), tmp.end());
+        return cycle;
+}
+
 Partition lipton_tarjan(Graph& g)
 {
         cout << "---------------------------- 1 - Check Planarity  ------------\n";
@@ -578,14 +599,8 @@ Partition lipton_tarjan(Graph& g)
 done:
         assert(parents_v[i] == parents_w[j]);
         auto ancestor = parents_v[i];
-        cout << "common ancestor: " << ancestor << '\n';
-
-        vector<VertDesc> cycle, tmp;
-        VertDesc v;
-        v = v1; while( v != ancestor ){ cycle.push_back(v); v = vis_data.verts[v].parent; } cycle.push_back(ancestor);
-        v = w1; while( v != ancestor ){ tmp  .push_back(v); v = vis_data.verts[v].parent; } 
-        reverse(tmp.begin(), tmp.end());
-        cycle.insert(cycle.end(), tmp.begin(), tmp.end());
+        cout << "common ancestor: " << ancestor << '\n'; 
+        auto cycle = get_cycle(v1, w1, ancestor, vis_data);
 
         print_cycle(cycle);
 
@@ -656,15 +671,8 @@ done:
                         auto ancestors_v = ancestors(chosen_vi, vis_data);
                         auto ancestors_w = ancestors(chosen_wi, vis_data);
                         VertDesc z = common_ancestor(ancestors_v, ancestors_w, vis_data); // the (vi, wi) cycle reached during this search.
-
-                        vector<VertDesc> new_cycle, tmp;
-                        VertDesc vv;
-                        vv = v1; while( vv != z ){ new_cycle.push_back(v); v = vis_data.verts[v].parent; } new_cycle.push_back(z);
-                        vv = w1; while( vv != z ){ tmp      .push_back(v); v = vis_data.verts[v].parent; } 
-                        reverse(tmp.begin(), tmp.end());
-                        new_cycle.insert(new_cycle.end(), tmp.begin(), tmp.end());
-
-
+                        
+                        auto new_cycle = get_cycle(chosen_vi, chosen_wi, z, vis_data);
 
                         // Compute the total cost of all vertices except z on this tree path.
                                 // Scan the tree edges inside the (y, wi) cycle, alternately scanning an edge in one cycle and an edge in the other cycle.

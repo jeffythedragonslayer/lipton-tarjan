@@ -1,0 +1,85 @@
+loading graph
+n: 8
+starting lipton tarjan...
+---------------------------- 1 - Check Planarity  ------------
+planar ok
+---------------------------- 2 - Connected Components -------- 
+# of components: 1
+---------------------------- 3 - BFS and Levels ------------
+  tree edge 0, 1     vertex/cost: 1/1   0/1   
+  tree edge 0, 3     vertex/cost: 3/1   0/2   
+  tree edge 1, 2     vertex/cost: 2/1   1/2   0/3   
+  tree edge 3, 6     vertex/cost: 6/1   3/2   0/4   
+  tree edge 6, 5     vertex/cost: 5/1   6/2   3/3   0/5   
+  tree edge 6, 7     vertex/cost: 7/1   6/3   3/4   0/6   
+  tree edge 5, 4     vertex/cost: 4/1   5/2   6/4   3/5   0/7   
+level/cost of vert 0: 0
+level/cost of vert 1: 1
+level/cost of vert 2: 2
+level/cost of vert 3: 1
+level/cost of vert 4: 4
+level/cost of vert 5: 3
+level/cost of vert 6: 2
+level/cost of vert 7: 3
+L[0]: 1
+L[1]: 2
+L[2]: 2
+L[3]: 2
+L[4]: 1
+L[5]: 0
+---------------------------- 4 - l1 and k  ------------
+k:  5      # of verts in levels 0 thru l1
+l1: 2      total cost of levels 0 thru l1 barely exceeds 1/2
+---------------------------- 5 - Find More Levels -------
+sq:    4.47214
+snk:   3.4641
+l0: 2     highest level <= l1
+l2: 3     lowest  level >= l1 + 1
+---------------------------- 6 - Shrinktree -------------
+n: 8
+deleting vertex 4 of level l2 4 >= 3
+deleting vertex 5 of level l2 3 >= 3
+deleting vertex 7 of level l2 3 >= 3
+vertex 0 at level 0 is TRUE
+vertex 1 at level 1 is TRUE
+vertex 2 at level 2 is TRUE
+vertex 3 at level 1 is TRUE
+vertex 6 at level 2 is TRUE
+vertex 999999 at level 3 is FALSE
+finishing
+edges to add size: 0
+adding: 
+edges to remove size: 0
+removing: 
+no edges to x found, deleting
+x_gone: 0
+-------------------- 7 - New BFS and Make Max Planar -----
+root: 0
+  tree edge 0, 1     vertex/cost: 1/1   0/2   
+  tree edge 0, 3     vertex/cost: 3/1   0/3   
+  tree edge 1, 2     vertex/cost: 2/1   1/2   0/4   
+  tree edge 3, 6     vertex/cost: 6/1   3/2   0/5   
+----------------------- 8 - Locate Cycle -----------------
+
+**********************  Graph  **************************
+vert 0   hos edges 1 3 2 6 
+vert 1   hos edges 0 2 3 6 
+vert 2   hos edges 1 0 3 
+vert 3   hos edges 0 6 1 2 
+vert 6   hos edges 3 0 1 
+*********************************************************
+
+arbitrarily choosing nontree edge: 0, 2
+common ancestor: 0
+cycle verts: 0 1 2 
+   scanning cycle vert 0
+      scanning incident tree edge 0, 3   cost: 2
+        testing if edge 0, 3 is inside the cycle: YES
+   scanning cycle vert 1
+   scanning cycle vert 2
+total inside cost:  2
+total outside cost: 0
+---------------------------- 9 - Improve Separator -----------
+found cycle with inside cost < 2/3: 2
+
+------------ 10  - Construct Vertex Partition --------------

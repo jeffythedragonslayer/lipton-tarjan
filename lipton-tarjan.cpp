@@ -42,7 +42,7 @@ ostream& operator<<(ostream& o, VertDesc v)
 string to_string(EdgeDesc e, Graph const& g)
 {
         auto src = lexical_cast<string>(vert2uint[source(e, g)]);
-        auto tar = lexical_cast<string>(vert2uint[target(e ,g)]);
+        auto tar = lexical_cast<string>(vert2uint[target(e, g)]);
         return src + ", " + tar;
 }
 
@@ -367,7 +367,7 @@ uint lemma3(vector<VertDesc> const& cycle_verts, int* l, Graph const& g)
                 
         if( l[1] < l[2] ){
                 cout << "don't know\n";
-                vector<VertDescriptor> zero_one, middle_part, one_two;
+                vector<VertDesc> zero_one, middle_part, one_two;
                 VertIterator vei, vend;
                 for( tie(vei, vend) = vertices(g); vei != vend; ++vei ){ 
                         auto v = *vei;
@@ -419,6 +419,23 @@ uint lemma3(vector<VertDesc> const& cycle_verts, int* l, Graph const& g)
         return 0;
 }
 
+vector<VertDesc> ancestors(VertDesc v, BFSVisitorData& vis)
+{
+        vector<VertDesc> ans = {v};
+        while( v != vis.root ){
+                v = vis.verts[v].parent;
+                ans.push_back(v);
+        }
+        return ans;
+}
+
+VertDesc common_ancestor(vector<VertDesc> const& ancestors_v, vector<VertDesc> const& ancestors_w, BFSVisitorData& vis)
+{
+        uint i, j;
+        for( i = 0; i < ancestors_v.size(); ++i ) for( j = 0; j < ancestors_w.size(); ++j ) if( ancestors_v[i] == ancestors_w[j] ) return ancestors_v[i];
+        assert(0);
+        return ancestors_v[i];
+}
 
 Partition lipton_tarjan(Graph& g)
 {
@@ -583,15 +600,15 @@ done:
 
         for( auto& v : cycle ){
                 cout << "   scanning cycle vert " << v << '\n';
-                auto pai = out_edges(v, g);
-                while( pai.first != pai.second ){
-                        if( vis_data.is_tree_edge(*pai.first) && !on_cycle(*pai.first, cycle, g) ){
-                                uint cost = vis_data.edge_cost(*pai.first, cycle, g);
-                                cout << "      scanning incident tree edge " << to_string(*pai.first, g) << "   cost: " << cost << '\n';
-                                bool inside = edge_inside(*pai.first, v, cycle, g, em2);
+                auto e = out_edges(v, g);
+                while( e.first != e.second ){
+                        if( vis_data.is_tree_edge(*e.first) && !on_cycle(*e.first, cycle, g) ){
+                                uint cost = vis_data.edge_cost(*e.first, cycle, g);
+                                cout << "      scanning incident tree edge " << to_string(*e.first, g) << "   cost: " << cost << '\n';
+                                bool inside = edge_inside(*e.first, v, cycle, g, em2);
                                 (inside ? cost_inside : cost_outside) += cost;
                         }
-                        ++pai.first;
+                        ++e.first;
                 }
         }
 
@@ -605,31 +622,30 @@ done:
 
 
         cout << "---------------------------- 9 - Improve Separator -----------\n";
-        auto vvi = source(chosen_edge, g);
-        auto wwi = target(chosen_edge, g);
+        auto chosen_vi = source(chosen_edge, g);
+        auto chosen_wi = target(chosen_edge, g);
         assert(!vis_data.is_tree_edge(chosen_edge));
         EdgeDesc next_edge;
         while( cost_inside > num_vertices(g)*2./3 ){
                 cout << "looking for a better cycle\n";
 
-                // Locate the triangle (vi, y, wi) which has (vi, wi) as a boundary edge and lies inside the (vi, wi) cycle.
-                set<VertDesc> verts_v, verts_w;
-                auto pai = out_edges(vvi, g);
-                while( pai.first != pai.second ){ 
-                        auto vv = target(*pai.first, g);
-                        verts_v.insert(vv);
-                        cout << "vertex " << vvi << "has neighbor " << vv << '\n';
-                        ++pai.first;
-                }
-                pai = out_edges(wwi, g);
-                while( pai.first != pai.second ){ 
-                        auto vv = target(*pai.first, g);
-                        verts_w.insert(vv);
-                        cout << "vertex " << wwi << "has neighbor " << vv << '\n';
-                        ++pai.first;
-                } 
+                // Locate the triangle (chosen_vi, y, chosen_wi) which has (chosen_vi, chosen_wi) as a boundary edge and lies inside the (chosen_vi, chosen_wi) cycle.
+                set<VertDesc> neighbors_v, neighbors_w, intersect;
 
-                // there are 2 triangles with edge (vi, wi), one inside and one outside
+                OutEdgeIter e_cur, e_end;
+                for( tie(e_cur, e_end) = out_edges(chosen_vi, g); e_cur != e_end; ++e_cur ){ auto vv = target(*e_cur, g); neighbors_v.insert(vv); cout << "vertex " << chosen_vi << "has neighbor " << vv << '\n'; }
+                for( tie(e_cur, e_end) = out_edges(chosen_wi, g); e_cur != e_end; ++e_cur ){ auto vv = target(*e_cur, g); neighbors_w.insert(vv); cout << "vertex " << chosen_wi << "has neighbor " << vv << '\n'; } 
+                set_intersection(neighbors_v.begin(), neighbors_v.end(), neighbors_w.begin(), neighbors_w.end(), inserter(intersect, intersect.begin()));
+                for( auto& a : intersect ) cout << "set intersection: " << a << '\n'; 
+                assert(intersect.size() == 2);
+
+                VertDesc y;
+
+                // there are 2 triangles with edge (chosen_vi, chosen_wi), one inside and one outside
+                y = edge_inside(chosen_edge, *intersect.begin(), cycle, g, em2) ?
+                    *intersect.begin()                                          :
+                    *(++intersect.begin());
+
                 EdgeDesc viy, ywi;
                 if ( vis_data.is_tree_edge(viy) || vis_data.is_tree_edge(ywi) ){
                         next_edge = vis_data.is_tree_edge(viy) ? ywi : viy;
@@ -637,7 +653,19 @@ done:
                         // Compute the cost inside the (vi+1, wi+1) cycle from the cost inside the (vi, wi) cycle and the cost of vi, y, and wi.
                 } else {
                         // Determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.
-                        VertDesc z; // the (vi, wi) cycle reached during this search.
+                        auto ancestors_v = ancestors(chosen_vi, vis_data);
+                        auto ancestors_w = ancestors(chosen_wi, vis_data);
+                        VertDesc z = common_ancestor(ancestors_v, ancestors_w, vis_data); // the (vi, wi) cycle reached during this search.
+
+                        vector<VertDesc> new_cycle, tmp;
+                        VertDesc vv;
+                        vv = v1; while( vv != z ){ new_cycle.push_back(v); v = vis_data.verts[v].parent; } new_cycle.push_back(z);
+                        vv = w1; while( vv != z ){ tmp      .push_back(v); v = vis_data.verts[v].parent; } 
+                        reverse(tmp.begin(), tmp.end());
+                        new_cycle.insert(new_cycle.end(), tmp.begin(), tmp.end());
+
+
+
                         // Compute the total cost of all vertices except z on this tree path.
                                 // Scan the tree edges inside the (y, wi) cycle, alternately scanning an edge in one cycle and an edge in the other cycle.
                                 // Stop scanning when all edges inside one of the cycles have been scanned.
@@ -647,6 +675,7 @@ done:
                 }
 
         }
+        cout << "found cycle with inside cost < 2/3: " << cost_inside << '\n';
 
         cout << "\n------------ 10  - Construct Vertex Partition --------------\n";
         uint partition = lemma3(cycle, &l[0], g);

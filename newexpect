@@ -1,0 +1,2 @@
+#!/bin/sh
+cp reg_out/. reg_expected/ -R

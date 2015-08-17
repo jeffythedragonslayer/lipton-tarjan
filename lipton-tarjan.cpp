@@ -23,6 +23,7 @@
 #include <boost/range/irange.hpp> 
 using namespace std;
 using namespace boost; 
+#define STLALL(x) (x).begin(), (x).end()
 
 int levi_civita(uint i, uint j, uint k)
 {
@@ -48,7 +49,7 @@ string to_string(EdgeDesc e, Graph const& g)
 
 bool on_cycle(VertDesc v, vector<VertDesc> const& cycle, Graph const& g)
 {
-        return find(cycle.begin(), cycle.end(), v) != cycle.end();
+        return find(STLALL(cycle), v) != cycle.end();
 }
 
 bool on_cycle(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g)
@@ -61,7 +62,7 @@ bool on_cycle(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g)
 bool edge_inside(EdgeDesc e, VertDesc v, vector<VertDesc> const& cycle, Graph const& g, Embedding& em)
 {
         cout << "        testing if edge " << to_string(e, g) << " is inside the cycle: ";
-        auto it     = find(cycle.begin(), cycle.end(), v);
+        auto it     = find(STLALL(cycle), v);
         auto before = it   == cycle.begin() ?  cycle.end  ()-1   : it-1;
         auto after  = it+1 == cycle.end  () ?  cycle.begin()     : it+1; 
         auto other  = (source(e, g) == v) ?  target(e, g)        : source(e, g); 
@@ -453,8 +454,8 @@ vector<VertDesc> get_cycle(VertDesc v, VertDesc w, VertDesc ancestor, BFSVisitor
                 tmp  .push_back(cur);
                 cur = vis_data.verts[cur].parent;
         }
-        reverse(tmp.begin(), tmp.end());
-        cycle.insert(cycle.end(), tmp.begin(), tmp.end());
+        reverse(STLALL(tmp));
+        cycle.insert(cycle.end(), STLALL(tmp));
         return cycle;
 }
 
@@ -650,7 +651,7 @@ done:
                 OutEdgeIter e_cur, e_end;
                 for( tie(e_cur, e_end) = out_edges(chosen_vi, g); e_cur != e_end; ++e_cur ){ auto vv = target(*e_cur, g); neighbors_v.insert(vv); cout << "vertex " << chosen_vi << "has neighbor " << vv << '\n'; }
                 for( tie(e_cur, e_end) = out_edges(chosen_wi, g); e_cur != e_end; ++e_cur ){ auto vv = target(*e_cur, g); neighbors_w.insert(vv); cout << "vertex " << chosen_wi << "has neighbor " << vv << '\n'; } 
-                set_intersection(neighbors_v.begin(), neighbors_v.end(), neighbors_w.begin(), neighbors_w.end(), inserter(intersect, intersect.begin()));
+                set_intersection(STLALL(neighbors_v), STLALL(neighbors_w), inserter(intersect, intersect.begin()));
                 for( auto& a : intersect ) cout << "set intersection: " << a << '\n'; 
                 assert(intersect.size() == 2);
 

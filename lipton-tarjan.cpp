@@ -126,7 +126,6 @@ struct BFSVisitorData
 
         uint edge_cost(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g)
         {
-                //cout << "++++++++ computing edge cost ++++++++\n";
                 assert(is_tree_edge(e));
 
                 auto v = source(e, g); 
@@ -136,25 +135,11 @@ struct BFSVisitorData
 
                 assert( on_cycle(v, cycle, g));
                 assert(!on_cycle(w, cycle, g));
-                //cout << "on cycle:  " << v << '\n';
-                //cout << "off cycle: " << w << '\n';
 
                 uint total = num_vertices(g);
-                //cout << "total: " << total << '\n';
 
-                int cost;
-                if( verts[w].parent == v ){
-                        cost = verts[w].descendant_cost;
-                        //cout << "v is parent\n";
-                } else {
-                        assert(verts[v].parent == w);
-                        cost = total - verts[v].descendant_cost;
-                        //cout << "v is NOT parent\n";
-                        //cout << "v cost: " << verts[v].cost << '\n';
-                }
-                //cout << "cost: " << cost << '\n';
-                //cout << "-------------------------------------\n";
-                return cost;
+                assert(verts[w].parent == v || verts[v].parent == w);
+                return verts[w].parent == v ? verts[w].descendant_cost : total - verts[v].descendant_cost;
         } 
 
         void print_costs()
@@ -455,6 +440,15 @@ vector<VertDesc> get_cycle(VertDesc v, VertDesc w, VertDesc ancestor, BFSVisitor
         return cycle;
 }
 
+vector<VertDesc> get_cycle(VertDesc v, VertDesc w, BFSVisitorData& vis_data)
+{ 
+        auto parents_v   = ancestors(v, vis_data);
+        auto parents_w   = ancestors(w, vis_data); 
+        auto ancestor    = common_ancestor(parents_v, parents_w, vis_data);
+        cout << "common ancestor: " << ancestor << '\n'; 
+        return get_cycle(v, w, ancestor, vis_data);
+}
+
 void kill_vertex(VertDesc v, Graph& g)
 {
         auto i = vert2uint[v];
@@ -667,34 +661,34 @@ Partition lipton_tarjan(Graph& g)
                         uint cost2 = vis_data.verts[y        ].descendant_cost;
                         uint cost3 = vis_data.verts[chosen_wi].descendant_cost;
                         uint cost4 = cc.inside;
-                        // Compute the cost inside the (vi+1, wi+1) cycle from the cost inside the (vi, wi) cycle and the cost of vi, y, and wi.
+                        auto new_cycle = get_cycle(source(next_edge, g), target(next_edge, g), vis_data);
+                        cc = compute_cycle_cost(new_cycle, g, vis_data, em2);
                 } else {
-                        auto anc = ancestors(y, vis_data);
-                        VertDesc z;
+                        auto path = ancestors(y, vis_data);
                         uint i;
-                        for( i = 0; i < anc.size(); ++i ){
-                                if( on_cycle(anc[i], cycle, g) ){
-                                        z = anc[i];
-                                        ++i; 
-                                        anc.erase(anc.begin()+i, anc.end());
-                                        break;
-                                }
-                        }
-                        assert(anc.size() == 2);
+                        for( i = 0; !on_cycle(path[i], cycle, g); ++i );
 
-                        // Compute the total cost of all vertices except z on this tree path.
-                                // Scan the tree edges inside the (y, wi) cycle, alternately scanning an edge in one cycle and an edge in the other cycle.
-                                // Stop scanning when all edges inside one of the cycles have been scanned.
-                        // Compute the cost inside this cycle by summing the associated costs of all scanned edges.
-                        // Use this cost, the cost inside the (vi, wi) cycle, and the cost on the tree path from y to zy to compute the cost inside the other cycle.
-                        uint cost1, cost2; // Let (vi+1, w+1) be the edge among (vi, y) and (y, wi) whose cycle has more cost inside it.
-                        if( cost1 > cost2 ){
-                                chosen_edge = edge(chosen_vi, y, g).first;
+                        auto z = path[i++];
+                        path.erase(path.begin()+i, path.end());
+                        assert(path.size() == i);
+
+                        uint path_cost = path.size() - 1;
+                        auto cycle1 = get_cycle(chosen_vi, y, vis_data);
+                        auto cycle2 = get_cycle(y, chosen_wi, vis_data);
+
+                        auto cost1  = compute_cycle_cost(cycle1, g, vis_data, em2);
+                        auto cost2  = compute_cycle_cost(cycle2, g, vis_data, em2);
+
+
+                        if( cost1.inside > cost2.inside ){
+                                next_edge = edge(chosen_vi, y, g).first;
+                                cc = cost1;
                         } else {
-                                chosen_edge = edge(y, chosen_wi, g).first;
+                                next_edge = edge(y, chosen_wi, g).first;
+                                cc = cost2;
                         }
-                }
-
+                } 
+                chosen_edge = next_edge;
         }
         cout << "found cycle with inside cost < 2/3: " << cc.inside << '\n';
 

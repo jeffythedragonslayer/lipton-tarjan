@@ -679,7 +679,6 @@ Partition lipton_tarjan(Graph& g)
                         auto cost1  = compute_cycle_cost(cycle1, g, vis_data, em2);
                         auto cost2  = compute_cycle_cost(cycle2, g, vis_data, em2);
 
-
                         if( cost1.inside > cost2.inside ){
                                 next_edge = edge(chosen_vi, y, g).first;
                                 cc = cost1;

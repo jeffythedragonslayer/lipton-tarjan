@@ -6,10 +6,13 @@ OBJS := main.o lipton-tarjan.o
 
 -include $(OBJS:.o=.d)
 
-all: lt
+all: lt erdos-renyi
 
 lt: $(OBJS)
 	$(CXX) $(OBJS) -o lt
+
+erdos-renyi: erdos-renyi.o
+	$(CXX) erdos-renyi.o -o erdos-renyi
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(BOOST) $*.cpp

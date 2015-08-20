@@ -3,8 +3,17 @@ n: 3
 starting lipton tarjan...
 ---------------------------- 1 - Check Planarity  ------------
 planar ok
+
+**********************  Graph  **************************
+vert 0   hos edges 1 2 
+vert 1   hos edges 0 
+vert 2   hos edges 0 
+*********************************************************
+
 ---------------------------- 2 - Connected Components --------
 # of components: 1
+too big
+biggest component: 0
 ---------------------------- 3 - BFS and Levels ------------
   tree edge 0, 1     vertex/descendant cost: 1/1   0/1   
   tree edge 0, 2     vertex/descendant cost: 2/1   0/2   
@@ -23,39 +32,45 @@ snk:   0
 l0: 1     highest level <= l1
 l2: 2     lowest  level >= l1 + 1
 ---------------------------- 6 - Shrinktree -------------
+
+**********************  Graph  **************************
+vert 0   hos edges 1 2 
+vert 1   hos edges 0 
+vert 2   hos edges 0 
+*********************************************************
+
 n: 3
 vertex 0 at level 0 is TRUE
 vertex 1 at level 1 is TRUE
 vertex 2 at level 1 is TRUE
 vertex 999999 at level 0 is TRUE
+foundedge 0, 2     going to delete 0, 2
+foundedge 0, 1     going to delete 0, 1
+foundedge 1, 0     going to delete 1, 0
+foundedge 2, 0     going to delete 2, 0
 finishing
 edges to add size: 0
 adding: 
-edges to remove size: 0
-removing: 
+edges to remove size: 4
+removing: (0, 1)   (0, 2)   (1, 0)   (2, 0)   
 no edges to x found, deleting
+killing vertex 999999
 x_gone: 0
--------------------- 7 - New BFS and Make Max Planar -----
-root: 0
-  tree edge 0, 1     vertex/descendant cost: 1/1   0/2   
-  tree edge 0, 2     vertex/descendant cost: 2/1   0/3   
------------------------ 8 - Locate Cycle -----------------
 
 **********************  Graph  **************************
-vert 0   hos edges 1 2 
-vert 1   hos edges 0 2 
-vert 2   hos edges 0 1 
+vert 0   hos edges 
+vert 1   hos edges 
+vert 2   hos edges 
 *********************************************************
 
-arbitrarily choosing nontree edge: 1, 2
-common ancestor: 0
-cycle verts: 1 0 2 
-   scanning cycle vert 1
-   scanning cycle vert 0
-   scanning cycle vert 2
-total inside cost:  0
-total outside cost: 0
----------------------------- 9 - Improve Separator -----------
-found cycle with inside cost < 2/3: 0
+-------------------- 7 - New BFS and Make Max Planar -----
+root: 0
+----------------------- 8 - Locate Cycle -----------------
+parent of 0 is 4294967295
 
------------- 10  - Construct Vertex Partition --------------
+**********************  Graph  **************************
+vert 0   hos edges 
+vert 1   hos edges 
+vert 2   hos edges 
+*********************************************************
+

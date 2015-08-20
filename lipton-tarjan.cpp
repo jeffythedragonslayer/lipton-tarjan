@@ -59,11 +59,9 @@ bool on_cycle(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g)
         return on_cycle(src, cycle, g) && on_cycle(tar, cycle, g);
 }
 
-bool edge_inside(EdgeDesc e, VertDesc v, vector<VertDesc> const& cycle, Graph const& g, Embedding& em)
+bool edge_inside(EdgeDesc e, VertDesc v, vector<VertDesc> const& cycle, Graph const& g, Embedding const& em)
 {
-        for( uint i = 0; i < cycle.size(); ++i ){
-                cout << "cycle: " << cycle[i] << '\n';
-        }
+        for( uint i = 0; i < cycle.size(); ++i ) cout << "cycle: " << cycle[i] << '\n';
         cout << "here i am\n"; 
         auto src = source(e, g);
         auto tar = target(e, g);
@@ -152,12 +150,16 @@ struct BFSVisitorData
                 return src_it->second.parent == tar || tar_it->second.parent == src;
         }
 
-        uint edge_cost(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g)
+        uint edge_cost(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g) const
         {
                 assert(is_tree_edge(e));
 
                 auto v = source(e, g); 
                 auto w = target(e, g); 
+                auto v_it = verts.find(v);
+                auto w_it = verts.find(w);
+                assert(v_it != verts.end());
+                assert(w_it != verts.end());
 
                 if( !on_cycle(v, cycle, g) ) swap(v, w);
 
@@ -166,12 +168,12 @@ struct BFSVisitorData
 
                 uint total = num_vertices(g);
 
-                assert(verts[w].parent == v || verts[v].parent == w);
-                return verts[w].parent == v ? verts[w].descendant_cost : total - verts[v].descendant_cost;
+                assert(w_it->second.parent == v || v_it->second.parent == w);
+                return w_it->second.parent == v ? w_it->second.descendant_cost : total - v_it->second.descendant_cost;
         } 
 
-        void print_costs  () {for( auto& v : verts ) cout << "descendant cost of vertex " << v.first << " is " << v.second.descendant_cost << '\n';}
-        void print_parents() {for( auto& v : verts ) cout << "parent of " << v.first << " is " << v.second.parent << '\n';}
+        void print_costs  () const {for( auto& v : verts ) cout << "descendant cost of vertex " << v.first << " is " << v.second.descendant_cost << '\n';}
+        void print_parents() const {for( auto& v : verts ) cout << "parent of " << v.first << " is " << v.second.parent << '\n';}
 };
 
 struct BFSVisitor : public default_bfs_visitor
@@ -299,25 +301,30 @@ struct ScanVisitor
                 }
                 cout << '\n';
         }
-};
 
-void scan_nonsubtree_edges(VertDesc v, Graph const& g, Embedding& em, BFSVisitorData& bfs, ScanVisitor& vis)
-{
-        if( bfs.verts[v].level > vis.l0 ) return;
-        for( auto e : em[v] ){
-                auto src = source(e, g);
-                auto tar = target(e, g);
-                if( src == tar ) continue; // ?????
-                if( !bfs.is_tree_edge(e) ){
-                        vis.foundedge(v, e);
-                        continue;
+        void scan_nonsubtree_edges(VertDesc v, Graph const& g, Embedding const& em, BFSVisitorData const& bfs)
+        {
+                auto v_it = bfs.verts.find(v);
+                assert(v_it != bfs.verts.end());
+                if( v_it->second.level > l0 ) return;
+                for( auto e : em[v] ){
+                        auto src = source(e, g);
+                        auto tar = target(e, g);
+                        if( src == tar ) continue; // ?????
+                        if( !bfs.is_tree_edge(e) ){
+                                foundedge(v, e);
+                                continue;
+                        }
+                        if( src != v ) swap(src, tar);
+                        assert(src == v); 
+                        auto tar_it = bfs.verts.find(tar);
+                        if( tar_it->second.level > l0 ) foundedge(v, e);
                 }
-                if( src != v ) swap(src, tar);
-                assert(src == v); 
-                if( bfs.verts[tar].level > vis.l0 ) vis.foundedge(v, e);
+                auto vvv   = bfs.children.find(v);
+                for( auto& c : vvv->second ) scan_nonsubtree_edges(c, g, em, bfs);
         }
-        for( auto c : bfs.children[v] ) scan_nonsubtree_edges(c, g, em, bfs, vis);
-}
+
+};
 
 void reset_vertex_indices(Graph& g)
 {
@@ -441,21 +448,23 @@ uint lemma3(vector<VertDesc> const& cycle_verts, int* l, Graph const& g)
         return 0;
 }
 
-vector<VertDesc> ancestors(VertDesc v, BFSVisitorData& vis)
+vector<VertDesc> ancestors(VertDesc v, BFSVisitorData const& vis)
 {
         vis.print_parents();
         cout << "first v: " << v << '\n';
         cout << "root: " << vis.root << '\n';
         vector<VertDesc> ans = {v};
         while( v != vis.root ){
-                v = vis.verts[v].parent;
+                auto v_it = vis.verts.find(v);
+                assert(v_it != vis.verts.end());
+                v = v_it->second.parent;
                 ans.push_back(v);
                 cout << "pushing back v: " << v << '\n';
         }
         return ans;
 }
 
-VertDesc common_ancestor(vector<VertDesc> const& ancestors_v, vector<VertDesc> const& ancestors_w, BFSVisitorData& vis)
+VertDesc common_ancestor(vector<VertDesc> const& ancestors_v, vector<VertDesc> const& ancestors_w, BFSVisitorData const& vis)
 {
         uint i, j;
         for( i = 0; i < ancestors_v.size(); ++i ) for( j = 0; j < ancestors_w.size(); ++j ) if( ancestors_v[i] == ancestors_w[j] ) return ancestors_v[i];
@@ -463,18 +472,18 @@ VertDesc common_ancestor(vector<VertDesc> const& ancestors_v, vector<VertDesc> c
         return ancestors_v[i];
 }
 
-vector<VertDesc> get_cycle(VertDesc v, VertDesc w, VertDesc ancestor, BFSVisitorData& vis_data)
+vector<VertDesc> get_cycle(VertDesc v, VertDesc w, VertDesc ancestor, BFSVisitorData const& vis_data)
 {
         vector<VertDesc> cycle, tmp;
         VertDesc cur;
-        cur = v; while( cur != ancestor ){ cycle.push_back(cur); cur = vis_data.verts[cur].parent; } cycle.push_back(ancestor); 
-        cur = w; while( cur != ancestor ){ tmp  .push_back(cur); cur = vis_data.verts[cur].parent; }
+        cur = v; while( cur != ancestor ){ cycle.push_back(cur); auto cur_it = vis_data.verts.find(cur); cur = cur_it->second.parent; } cycle.push_back(ancestor); 
+        cur = w; while( cur != ancestor ){ tmp  .push_back(cur); auto cur_it = vis_data.verts.find(cur); cur = cur_it->second.parent; }
         reverse(STLALL(tmp));
         cycle.insert(cycle.end(), STLALL(tmp));
         return cycle;
 }
 
-vector<VertDesc> get_cycle(VertDesc v, VertDesc w, BFSVisitorData& vis_data)
+vector<VertDesc> get_cycle(VertDesc v, VertDesc w, BFSVisitorData const& vis_data)
 { 
         auto parents_v   = ancestors(v, vis_data);
         auto parents_w   = ancestors(w, vis_data); 
@@ -519,7 +528,7 @@ set<VertDesc> get_neighbors(VertDesc v, Graph const& g)
         return neighbors;
 }
 
-set<VertDesc> get_intersection(set<VertDesc> a, set<VertDesc> b)
+set<VertDesc> get_intersection(set<VertDesc> const& a, set<VertDesc> const& b)
 {
         set<VertDesc> c;
         set_intersection(STLALL(a), STLALL(b), inserter(c, c.begin())); 
@@ -535,7 +544,7 @@ struct CycleCost
 
 };
 
-CycleCost compute_cycle_cost(vector<VertDesc> const& cycle, Graph const& g, BFSVisitorData& vis_data, Em& em)
+CycleCost compute_cycle_cost(vector<VertDesc> const& cycle, Graph const& g, BFSVisitorData const& vis_data, Em const& em)
 {
         CycleCost cc;
         for( auto& v : cycle ){
@@ -649,7 +658,7 @@ Partition lipton_tarjan(Graph& g)
         assert(em.testplanar());
 
         ScanVisitor svis(&t, &g, x, l[0]);
-        scan_nonsubtree_edges(*vertices(g).first, g, *em.em, vis_data, svis);
+        svis.scan_nonsubtree_edges(*vertices(g).first, g, *em.em, vis_data);
         svis.finish();
 
         VertDesc x_gone = Graph::null_vertex();

@@ -3,8 +3,25 @@ n: 11
 starting lipton tarjan...
 ---------------------------- 1 - Check Planarity  ------------
 planar ok
+
+**********************  Graph  **************************
+vert 0   hos edges 1 3 4 
+vert 1   hos edges 0 2 
+vert 2   hos edges 1 3 
+vert 3   hos edges 2 0 6 
+vert 4   hos edges 5 0 7 
+vert 5   hos edges 4 6 
+vert 6   hos edges 5 3 7 
+vert 7   hos edges 6 4 8 
+vert 8   hos edges 7 9 10 
+vert 9   hos edges 8 10 
+vert 10   hos edges 9 8 
+*********************************************************
+
 ---------------------------- 2 - Connected Components --------
 # of components: 1
+too big
+biggest component: 0
 ---------------------------- 3 - BFS and Levels ------------
   tree edge 0, 1     vertex/descendant cost: 1/1   0/1   
   tree edge 0, 3     vertex/descendant cost: 3/1   0/2   
@@ -42,10 +59,28 @@ snk:   3.4641
 l0: 2     highest level <= l1
 l2: 3     lowest  level >= l1 + 1
 ---------------------------- 6 - Shrinktree -------------
+
+**********************  Graph  **************************
+vert 0   hos edges 1 3 4 
+vert 1   hos edges 0 2 
+vert 2   hos edges 1 3 
+vert 3   hos edges 2 0 6 
+vert 4   hos edges 5 0 7 
+vert 5   hos edges 4 6 
+vert 6   hos edges 5 3 7 
+vert 7   hos edges 6 4 8 
+vert 8   hos edges 7 9 10 
+vert 9   hos edges 8 10 
+vert 10   hos edges 9 8 
+*********************************************************
+
 n: 11
 deleting vertex 8 of level l2 3 >= 3
+killing vertex 8
 deleting vertex 9 of level l2 4 >= 3
+killing vertex 9
 deleting vertex 10 of level l2 4 >= 3
+killing vertex 10
 vertex 0 at level 0 is TRUE
 vertex 1 at level 1 is TRUE
 vertex 2 at level 2 is TRUE
@@ -55,60 +90,57 @@ vertex 5 at level 2 is TRUE
 vertex 6 at level 2 is TRUE
 vertex 7 at level 2 is TRUE
 vertex 999999 at level 4 is FALSE
-foundedge 2, 3
-     going to delete 2, 3
-foundedge 3, 2
-     going to delete 3, 2
-foundedge 6, 5
-     going to delete 6, 5
-foundedge 6, 7
-     going to delete 6, 7
-foundedge 5, 6
-     going to delete 5, 6
-foundedge 7, 6
-     going to delete 7, 6
+foundedge 0, 1     going to delete 0, 1
+foundedge 0, 3     going to delete 0, 3
+foundedge 0, 4     going to delete 0, 4
+foundedge 1, 2     going to delete 1, 2
+foundedge 1, 0     going to delete 1, 0
+foundedge 2, 3     going to delete 2, 3
+foundedge 2, 1     going to delete 2, 1
+foundedge 3, 6     going to delete 3, 6
+foundedge 3, 0     going to delete 3, 0
+foundedge 3, 2     going to delete 3, 2
+foundedge 6, 5     going to delete 6, 5
+foundedge 6, 7     going to delete 6, 7
+foundedge 6, 3     going to delete 6, 3
+foundedge 4, 0     going to delete 4, 0
+foundedge 4, 7     going to delete 4, 7
+foundedge 5, 6     going to delete 5, 6
+foundedge 7, 6     going to delete 7, 6
+foundedge 7, 4     going to delete 7, 4
 finishing
 edges to add size: 0
 adding: 
-edges to remove size: 6
-removing: (2, 3)   (3, 2)   (5, 6)   (6, 5)   (6, 7)   (7, 6)   
+edges to remove size: 18
+removing: (0, 1)   (0, 3)   (0, 4)   (1, 0)   (1, 2)   (2, 1)   (2, 3)   (3, 0)   (3, 2)   (3, 6)   (4, 0)   (4, 7)   (5, 6)   (6, 3)   (6, 5)   (6, 7)   (7, 4)   (7, 6)   
 no edges to x found, deleting
+killing vertex 999999
 x_gone: 0
--------------------- 7 - New BFS and Make Max Planar -----
-root: 0
-  tree edge 0, 1     vertex/descendant cost: 1/1   0/2   
-  tree edge 0, 3     vertex/descendant cost: 3/1   0/3   
-  tree edge 0, 4     vertex/descendant cost: 4/1   0/4   
-  tree edge 1, 2     vertex/descendant cost: 2/1   1/2   0/5   
-  tree edge 3, 6     vertex/descendant cost: 6/1   3/2   0/6   
-  tree edge 4, 5     vertex/descendant cost: 5/1   4/2   0/7   
-  tree edge 4, 7     vertex/descendant cost: 7/1   4/3   0/8   
------------------------ 8 - Locate Cycle -----------------
 
 **********************  Graph  **************************
-vert 0   hos edges 1 3 4 2 6 5 7 
-vert 1   hos edges 0 2 3 4 5 
-vert 2   hos edges 1 0 3 
-vert 3   hos edges 0 6 4 1 2 
-vert 4   hos edges 5 0 7 3 1 6 
-vert 5   hos edges 4 7 0 1 
-vert 6   hos edges 3 0 4 
-vert 7   hos edges 4 5 0 
+vert 0   hos edges 
+vert 1   hos edges 
+vert 2   hos edges 
+vert 3   hos edges 
+vert 4   hos edges 5 
+vert 5   hos edges 4 
+vert 6   hos edges 
+vert 7   hos edges 
 *********************************************************
 
-arbitrarily choosing nontree edge: 0, 2
-common ancestor: 0
-cycle verts: 0 1 2 
-   scanning cycle vert 0
-      scanning incident tree edge 0, 3   cost: 2
-        testing if edge 0, 3 is inside the cycle: YES
-      scanning incident tree edge 0, 4   cost: 3
-        testing if edge 0, 4 is inside the cycle: YES
-   scanning cycle vert 1
-   scanning cycle vert 2
-total inside cost:  5
-total outside cost: 0
----------------------------- 9 - Improve Separator -----------
-found cycle with inside cost < 2/3: 5
+-------------------- 7 - New BFS and Make Max Planar -----
+root: 0
+----------------------- 8 - Locate Cycle -----------------
+parent of 0 is 4294967295
 
------------- 10  - Construct Vertex Partition --------------
+**********************  Graph  **************************
+vert 0   hos edges 
+vert 1   hos edges 
+vert 2   hos edges 
+vert 3   hos edges 
+vert 4   hos edges 5 
+vert 5   hos edges 4 
+vert 6   hos edges 
+vert 7   hos edges 
+*********************************************************
+

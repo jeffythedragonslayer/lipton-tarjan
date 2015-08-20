@@ -141,11 +141,15 @@ struct BFSVisitorData
                 root = Graph::null_vertex();
         }
         
-        bool is_tree_edge(EdgeDesc e)
+        bool is_tree_edge(EdgeDesc e) const
         { 
                 auto src = source(e, *g);
                 auto tar = target(e, *g); 
-                return verts[src].parent == tar || verts[tar].parent == src;
+                auto src_it = verts.find(src);
+                auto tar_it = verts.find(src);
+                assert(src_it != verts.end());
+                assert(tar_it != verts.end());
+                return src_it->second.parent == tar || tar_it->second.parent == src;
         }
 
         uint edge_cost(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g)
@@ -166,10 +170,8 @@ struct BFSVisitorData
                 return verts[w].parent == v ? verts[w].descendant_cost : total - verts[v].descendant_cost;
         } 
 
-        void print_costs()
-        {
-                for( auto& v : verts ) cout << "descendant cost of vertex " << v.first << " is " << v.second.descendant_cost << '\n';
-        }
+        void print_costs  () {for( auto& v : verts ) cout << "descendant cost of vertex " << v.first << " is " << v.second.descendant_cost << '\n';}
+        void print_parents() {for( auto& v : verts ) cout << "parent of " << v.first << " is " << v.second.parent << '\n';}
 };
 
 struct BFSVisitor : public default_bfs_visitor
@@ -266,15 +268,16 @@ struct ScanVisitor
                 auto w = target(e, *g);
                 if( V != v ) swap(v, w);
                 assert(V == v);
-                cout << "foundedge " << v << ", " << w << '\n';
+                cout << "foundedge " << v << ", " << w;
                 if ( !(*table)[w] ){
                         (*table)[w] = true;
                         assert(x != w); 
-                        cout << "   !!!!!!!going to add " << x << ", " << w << '\n';
+                        cout << "   !!!!!!!going to add " << x << ", " << w;
                         edges_to_add.insert(make_pair(x, w));
                 }
-                cout << "     going to delete " << v << ", " << w << '\n';
+                cout << "     going to delete " << v << ", " << w;
                 edges_to_delete.insert(make_pair(v, w)); 
+                cout << '\n';
         }
 
         void finish()
@@ -440,8 +443,15 @@ uint lemma3(vector<VertDesc> const& cycle_verts, int* l, Graph const& g)
 
 vector<VertDesc> ancestors(VertDesc v, BFSVisitorData& vis)
 {
+        vis.print_parents();
+        cout << "first v: " << v << '\n';
+        cout << "root: " << vis.root << '\n';
         vector<VertDesc> ans = {v};
-        while( v != vis.root ){ v = vis.verts[v].parent; ans.push_back(v); }
+        while( v != vis.root ){
+                v = vis.verts[v].parent;
+                ans.push_back(v);
+                cout << "pushing back v: " << v << '\n';
+        }
         return ans;
 }
 
@@ -475,6 +485,7 @@ vector<VertDesc> get_cycle(VertDesc v, VertDesc w, BFSVisitorData& vis_data)
 
 void kill_vertex(VertDesc v, Graph& g)
 {
+        cout << "killing vertex " << v << '\n';
         auto i = vert2uint[v];
         uint2vert.erase(i);
         vert2uint.erase(v);
@@ -482,7 +493,7 @@ void kill_vertex(VertDesc v, Graph& g)
         remove_vertex(v, g);
 }
 
-EdgeDesc arbitrary_nontree_edge(Graph const& g, BFSVisitorData& vis_data)
+EdgeDesc arbitrary_nontree_edge(Graph const& g, BFSVisitorData const& vis_data)
 { 
         print_graph(g);
         EdgeIter ei, ei_end;
@@ -613,6 +624,7 @@ Partition lipton_tarjan(Graph& g)
         l[2] = l[1] + 1; for( ;; ){ float val = L.at(l[2]) + 2*(l[2] - l[1] - 1); if( val <= snk ) break; ++l[2]; } cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
 
         cout << "---------------------------- 6 - Shrinktree -------------\n";
+        print_graph(g);
         cout << "n: " << num_vertices(g) << '\n'; 
 
         tie(vi, vj) = vertices(g); 
@@ -648,6 +660,7 @@ Partition lipton_tarjan(Graph& g)
                 cout << "x_gone: " << x_gone << '\n';
         }
 
+        print_graph(g);
         cout << "-------------------- 7 - New BFS and Make Max Planar -----\n"; 
         reset_vertex_indices(g);
         reset_edge_index(g);
@@ -662,10 +675,13 @@ Partition lipton_tarjan(Graph& g)
         reset_edge_index(g);
 
         cout << "----------------------- 8 - Locate Cycle -----------------\n"; 
+        vis_data.print_parents();
         auto chosen_edge = arbitrary_nontree_edge(g, vis_data);
         auto v1          = source(chosen_edge, g);
         auto w1          = target(chosen_edge, g); 
+        cout << "ancestors v1...\n";
         auto parents_v   = ancestors(v1, vis_data);
+        cout << "ancestors v2...\n";
         auto parents_w   = ancestors(w1, vis_data); 
         auto ancestor    = common_ancestor(parents_v, parents_w, vis_data);
         cout << "common ancestor: " << ancestor << '\n'; 

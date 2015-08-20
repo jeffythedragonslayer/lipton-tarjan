@@ -6,13 +6,16 @@ OBJS := main.o lipton-tarjan.o
 
 -include $(OBJS:.o=.d)
 
-all: lt graphgen
+all: lt graphgen edges2dot
 
 lt: $(OBJS)
 	$(CXX) $(OBJS) -o lt
 
 graphgen: graphgen.o
 	$(CXX) graphgen.o -o graphgen
+
+edges2dot: edges2dot.o
+	$(CXX) edges2dot.o -o edges2dot
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(BOOST) $*.cpp

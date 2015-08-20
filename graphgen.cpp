@@ -11,7 +11,7 @@
 using namespace std;
 using namespace boost;
 
-typedef adjacency_list<>                       Graph;
+typedef adjacency_list<vecS, vecS, undirectedS> Graph;
 typedef graph_traits<Graph>::vertex_descriptor VertDesc;
 typedef graph_traits<Graph>::edge_iterator     EdgeIter;
 
@@ -33,10 +33,15 @@ int main(int argc, char** argv)
         Graph g(n); 
         uint v1, v2;
         for( uint i = 0; i < e; ++i ){ 
-                v1 = rand() % n;
+
+                if( i < n ) v1 = i; // force all verts to be used at least once
+                else v1 = rand() % n;
+
                 do { v2 = rand() % n; } while( v1 == v2 );
 
-                auto g_tmp = g;
+                if( edge(v1, v2, g).second ) continue;
+
+                auto g_tmp = g; 
                 add_edge(v1, v2, g_tmp);
 
                 if( boyer_myrvold_planarity_test(g_tmp) ){
@@ -49,5 +54,5 @@ int main(int argc, char** argv)
         int num = connected_components(g, &component[0]);
 
         vector<int>::size_type i;
-        cout << "Total number of components: " << num << endl;
+        cerr << "Total number of components: " << num << endl;
 }

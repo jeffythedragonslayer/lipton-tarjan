@@ -504,7 +504,7 @@ set<VertDesc> get_neighbors(VertDesc v, Graph const& g)
 { 
         set<VertDesc> neighbors;
         OutEdgeIter e_cur, e_end;
-        for( tie(e_cur, e_end) = out_edges(v, g); e_cur != e_end; ++e_cur ){ auto ne = target(*e_cur, g); neighbors.insert(ne); cout << "vertex " << v << "has neighbor " << ne << '\n'; }
+        for( tie(e_cur, e_end) = out_edges(v, g); e_cur != e_end; ++e_cur ){ auto ne = target(*e_cur, g); neighbors.insert(ne); cout << "vertex " << v << " has neighbor " << ne << '\n'; }
         return neighbors;
 }
 
@@ -550,6 +550,7 @@ Partition lipton_tarjan(Graph& g)
         Em em1(&g);
         assert(em1.testplanar());
         cout << "planar ok\n";
+        print_graph(g);
 
         cout << "---------------------------- 2 - Connected Components --------\n";
         VertDescMap idx; 
@@ -678,6 +679,9 @@ Partition lipton_tarjan(Graph& g)
         cout << "total outside cost: " << cc.outside << '\n'; 
 
         cout << "---------------------------- 9 - Improve Separator -----------\n";
+        print_graph(g);
+        cout << "chosen_edge: " << to_string(chosen_edge, g) << '\n';
+
         while( cc.inside > num_vertices(g)*2./3 ){
                 cout << "looking for a better cycle\n";
 
@@ -685,13 +689,13 @@ Partition lipton_tarjan(Graph& g)
                 auto chosen_wi = target(chosen_edge, g);
                 assert(!vis_data.is_tree_edge(chosen_edge));
                 EdgeDesc next_edge;
+                cout << "vi: " << chosen_vi << '\n';
+                cout << "wi: " << chosen_wi << '\n';
 
                 auto neighbors_v = get_neighbors(chosen_vi, g);
                 auto neighbors_w = get_neighbors(chosen_wi, g); 
                 auto intersect   = get_intersection(neighbors_v, neighbors_w); 
-                for( auto& i : intersect ){
-                        cout << "intersecti: " << i << '\n';
-                }
+                for( auto& i : intersect ) cout << "intersecti: " << i << '\n';
                 assert(intersect.size() == 2);
                 cout << "edge_inside y\n";
                 cout << "intersectbegin: " << *intersect.begin() << '\n';
@@ -737,6 +741,7 @@ Partition lipton_tarjan(Graph& g)
                 chosen_edge = next_edge;
         }
         cout << "found cycle with inside cost < 2/3: " << cc.inside << '\n';
+        print_cycle(cycle);
 
         cout << "\n------------ 10  - Construct Vertex Partition --------------\n";
         uint partition = lemma3(cycle, &l[0], g);

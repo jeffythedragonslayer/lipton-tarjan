@@ -6,13 +6,13 @@ OBJS := main.o lipton-tarjan.o
 
 -include $(OBJS:.o=.d)
 
-all: lt erdos-renyi
+all: lt graphgen
 
 lt: $(OBJS)
 	$(CXX) $(OBJS) -o lt
 
-erdos-renyi: erdos-renyi.o
-	$(CXX) erdos-renyi.o -o erdos-renyi
+graphgen: graphgen.o
+	$(CXX) graphgen.o -o graphgen
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(BOOST) $*.cpp

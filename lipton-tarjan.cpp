@@ -61,23 +61,47 @@ bool on_cycle(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g)
 
 bool edge_inside(EdgeDesc e, VertDesc v, vector<VertDesc> const& cycle, Graph const& g, Embedding& em)
 {
-        cout << "        testing if edge " << to_string(e, g) << " is inside the cycle: ";
+        for( uint i = 0; i < cycle.size(); ++i ){
+                cout << "cycle: " << cycle[i] << '\n';
+        }
+        cout << "here i am\n"; 
+        auto src = source(e, g);
+        auto tar = target(e, g);
+        cout << "src: " << src << '\n';
+        cout << "tar: " << tar << '\n';
+        cout << "v:   " << v   << '\n';
+        cout << "        testing if edge " << src << ", " << tar << " is inside the cycle: ";
         auto it     = find(STLALL(cycle), v);
+        if( it == cycle.end() ){
+                cout << "not here at all!\n";
+                assert(0);
+        }
+        assert(*it == v);
         auto before = it   == cycle.begin() ?  cycle.end  ()-1   : it-1;
         auto after  = it+1 == cycle.end  () ?  cycle.begin()     : it+1; 
         auto other  = (source(e, g) == v) ?  target(e, g)        : source(e, g); 
+        
+        cout << '\n';
+        cout << "it:     " << *it << '\n';
+        cout << "v:      " << v << '\n';
+        cout << "before: " << *before << '\n';
+        cout << "after:  " << *after << '\n';
+        cout << "other:  " << other << '\n';
 
         vector<uint> perm;
-        for( auto& tar_it : em[*it] ){
+        set<VertDesc> seenbefore;
+        for( auto& tar_it : em[*it] ){ // why does this contain duplicates?
                 auto src = source(tar_it, g);
                 auto tar = target(tar_it, g);
-                if(src != v ) swap(src, tar);
+                if( src != v ) swap(src, tar);
                 assert(src == v);
+                if( seenbefore.find(tar) != seenbefore.end() ) continue;
+                seenbefore.insert(tar);
 
-                if( tar == other   ) perm.push_back(1);
-                if( tar == *before ) perm.push_back(2);
-                if( tar == *after  ) perm.push_back(3);
-        }
+                if(      tar == other   ) perm.push_back(1);
+                else if( tar == *before ) perm.push_back(2);
+                else if( tar == *after  ) perm.push_back(3);
+        } 
         assert(perm.size() == 3);
         if( levi_civita(perm[0], perm[1], perm[2]) == 1 ){
                 cout << "YES\n";
@@ -500,7 +524,7 @@ struct CycleCost
 
 };
 
-CycleCost compute_cycle_cost(vector<VertDesc> const& cycle, Graph const& g, BFSVisitorData& vis_data, Em& em2)
+CycleCost compute_cycle_cost(vector<VertDesc> const& cycle, Graph const& g, BFSVisitorData& vis_data, Em& em)
 {
         CycleCost cc;
         for( auto& v : cycle ){
@@ -508,7 +532,7 @@ CycleCost compute_cycle_cost(vector<VertDesc> const& cycle, Graph const& g, BFSV
                 for( auto e = out_edges(v, g); e.first != e.second; ++e.first ) if( vis_data.is_tree_edge(*e.first) && !on_cycle(*e.first, cycle, g) ){
                         uint cost = vis_data.edge_cost(*e.first, cycle, g);
                         cout << "      scanning incident tree edge " << to_string(*e.first, g) << "   cost: " << cost << '\n';
-                        bool is_inside = edge_inside(*e.first, v, cycle, g, *em2.em);
+                        bool is_inside = edge_inside(*e.first, v, cycle, g, *em.em);
                         (is_inside ? cc.inside : cc.outside) += cost;
                 }
         }
@@ -534,14 +558,29 @@ Partition lipton_tarjan(Graph& g)
         tie(vi, vj) = vertices(g);
         for( uint i = 0; vi != vj; ++vi, ++i ) put(vertid_to_component, *vi, i);
         uint components = connected_components(g, vertid_to_component);
-        assert(components == 1); 
 
         cout << "# of components: " << components << '\n';
         vector<uint> verts_per_comp(components, 0);
         for( tie(vi, vj) = vertices(g); vi != vj; ++vi ) ++verts_per_comp[vertid_to_component[*vi]]; 
-        bool too_big = false;
-        for( uint i = 0; i < components; ++i ) if( 3*verts_per_comp[i] > 2*num_vertices(g) ){ too_big = true; break; }
-        if( !too_big ){ theorem4(0, g); return {};}
+        uint biggest_component = 0;
+        uint biggest_size      = 0;
+        bool too_big           = false;
+        for( uint i = 0; i < components; ++i ){
+                if( 3*verts_per_comp[i] > 2*num_vertices(g) ){
+                        cout << "too big\n";
+                        too_big = true;
+                }
+                if( verts_per_comp[i] > biggest_size ){
+                        biggest_size = verts_per_comp[i];
+                        biggest_component = i;
+                }
+        }
+
+        if( !too_big ){
+                theorem4(0, g);
+                return {};
+        }
+        cout << "biggest component: " << biggest_component << '\n';
 
         cout << "---------------------------- 3 - BFS and Levels ------------\n";
         BFSVisitorData vis_data(&g);
@@ -650,11 +689,18 @@ Partition lipton_tarjan(Graph& g)
                 auto neighbors_v = get_neighbors(chosen_vi, g);
                 auto neighbors_w = get_neighbors(chosen_wi, g); 
                 auto intersect   = get_intersection(neighbors_v, neighbors_w); 
+                for( auto& i : intersect ){
+                        cout << "intersecti: " << i << '\n';
+                }
                 assert(intersect.size() == 2);
+                cout << "edge_inside y\n";
+                cout << "intersectbegin: " << *intersect.begin() << '\n';
                 auto y = edge_inside(chosen_edge, *intersect.begin(), cycle, g, *em2.em) ? *intersect.begin() : *(++intersect.begin());
 
+                cout << "y: " << y << '\n';
                 EdgeDesc viy, ywi;
                 if ( vis_data.is_tree_edge(viy) || vis_data.is_tree_edge(ywi) ){
+                        cout << "at least one tree edge\n";
                         next_edge = vis_data.is_tree_edge(viy) ? ywi : viy;
                         assert(!vis_data.is_tree_edge(next_edge));
                         uint cost1 = vis_data.verts[chosen_vi].descendant_cost;
@@ -664,6 +710,7 @@ Partition lipton_tarjan(Graph& g)
                         auto new_cycle = get_cycle(source(next_edge, g), target(next_edge, g), vis_data);
                         cc = compute_cycle_cost(new_cycle, g, vis_data, em2);
                 } else {
+                        cout << "neither are tree edges\n";
                         auto path = ancestors(y, vis_data);
                         uint i;
                         for( i = 0; !on_cycle(path[i], cycle, g); ++i );

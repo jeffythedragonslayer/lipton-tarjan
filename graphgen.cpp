@@ -47,6 +47,7 @@ int main(int argc, char** argv)
                 if( boyer_myrvold_planarity_test(g_tmp) ){
                         g = g_tmp;
                         cout << v1 << ", " << v2 << '\n';
+                        cerr << (i*100.0/e) << "%\n";
                 } else --i; 
         }
 

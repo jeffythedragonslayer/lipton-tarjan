@@ -6,7 +6,7 @@ OBJS := main.o lipton-tarjan.o
 
 -include $(OBJS:.o=.d)
 
-all: lt graphgen edges2dot
+all: lt graphgen chrobak
 
 lt: $(OBJS)
 	$(CXX) $(OBJS) -o lt
@@ -14,8 +14,8 @@ lt: $(OBJS)
 graphgen: graphgen.o
 	$(CXX) graphgen.o -o graphgen
 
-edges2dot: edges2dot.o
-	$(CXX) edges2dot.o -o edges2dot
+chrobak: chrobak.o
+	$(CXX) chrobak.o -o chrobak
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(BOOST) $*.cpp

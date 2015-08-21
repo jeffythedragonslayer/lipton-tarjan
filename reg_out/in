@@ -24,32 +24,9 @@ l0: 1     highest level <= l1
 l2: 2     lowest  level >= l1 + 1
 [32m---------------------------- 6 - Shrinktree -------------
 [0mn: 7
-[31m
-**********************  Graph  **************************
-vert 0   hos edges 1 3 4 
-vert 1   hos edges 0 2 3 4 5 6 
-vert 2   hos edges 1 3 6 
-vert 3   hos edges 2 0 4 6 1 5 
-vert 4   hos edges 3 5 0 1 
-vert 5   hos edges 4 6 3 1 
-vert 6   hos edges 5 3 2 1 
-*********************************************************
-
-[0mgoing to replace vertex 0 of level l0 0 <= 1
-going to replace vertex 1 of level l0 1 <= 1
-deleting vertex 2 of level l2 2 >= 2
 killing vertex 2
-going to replace vertex 3 of level l0 1 <= 1
-going to replace vertex 4 of level l0 1 <= 1
-deleting vertex 5 of level l2 2 >= 2
 killing vertex 5
-deleting vertex 6 of level l2 2 >= 2
 killing vertex 6
-vertex 0 at level 0 is TRUE
-vertex 1 at level 1 is TRUE
-vertex 3 at level 1 is TRUE
-vertex 4 at level 1 is TRUE
-vertex 999999 at level 2 is FALSE
 foundedge 1, 3     going to delete 1, 3
 foundedge 1, 4     going to delete 1, 4
 foundedge 3, 4     going to delete 3, 4
@@ -64,47 +41,48 @@ removing: (1, 3)   (1, 4)   (3, 1)   (3, 4)   (4, 1)   (4, 3)
 no edges to x found, deleting
 killing vertex 999999
 x_gone: 0
-[31m
-**********************  Graph  **************************
-vert 0   hos edges 1 3 4 
-vert 1   hos edges 0 
-vert 3   hos edges 0 
-vert 4   hos edges 0 
-*********************************************************
-
-[0m[32m-------------------- 7 - New BFS and Make Max Planar -----
+[32m-------------------- 7 - New BFS and Make Max Planar -----
 [0mroot: 0
 n:    4
   tree edge 0, 1
   tree edge 0, 3
   tree edge 0, 4
-[32m----------------------- 8 - Locate Cycle -----------------
+[31m
+**********************  Graph  **************************
+vert 0   hos edges 1 3 4 
+vert 1   hos edges 0 3 4 
+vert 3   hos edges 0 4 1 
+vert 4   hos edges 0 3 1 
+*********************************************************
+
+[0m[32m----------------------- 8 - Locate Cycle -----------------
 [0marbitrarily choosing nontree edge: 3, 4
 ancestors v1...
-parent of 0 is 4294967295
-parent of 1 is 0
-parent of 3 is 0
-parent of 4 is 0
 first v: 3
 root: 0
 pushing back v: 0
 ancestors v2...
-parent of 0 is 4294967295
-parent of 1 is 0
-parent of 3 is 0
-parent of 4 is 0
 first v: 4
 root: 0
 pushing back v: 0
 common ancestor: 0
-cycle verts: 3 0 4 
-parent of 0 is 4294967295
-parent of 1 is 0
-parent of 3 is 0
-parent of 4 is 0
    scanning cycle vert 3
    scanning cycle vert 0
       scanning incident tree edge 0, 1   cost: 1
+cycle: 3
+cycle: 0
+cycle: 4
+      here i am
+      src: 0
+      tar: 1
+      v:   0
+      testing if edge 0, 1 is inside the cycle: 
+      it:     0
+      v:      0
+      before: 3
+      after:  4
+      other:  1
+      NO
    scanning cycle vert 4
 !!!!!! cost swapped !!!!!!!!
 total inside cost:  1

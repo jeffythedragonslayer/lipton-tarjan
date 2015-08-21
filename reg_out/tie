@@ -20,20 +20,6 @@ l0: 1     highest level <= l1
 l2: 2     lowest  level >= l1 + 1
 [32m---------------------------- 6 - Shrinktree -------------
 [0mn: 3
-[31m
-**********************  Graph  **************************
-vert 0   hos edges 1 2 
-vert 1   hos edges 0 
-vert 2   hos edges 0 
-*********************************************************
-
-[0mgoing to replace vertex 0 of level l0 0 <= 1
-going to replace vertex 1 of level l0 1 <= 1
-going to replace vertex 2 of level l0 1 <= 1
-vertex 0 at level 0 is TRUE
-vertex 1 at level 1 is TRUE
-vertex 2 at level 1 is TRUE
-vertex 999999 at level 0 is TRUE
 finishing
 edges to add size: 0
 adding: 
@@ -42,39 +28,29 @@ removing:
 no edges to x found, deleting
 killing vertex 999999
 x_gone: 0
-[31m
-**********************  Graph  **************************
-vert 0   hos edges 1 2 
-vert 1   hos edges 0 
-vert 2   hos edges 0 
-*********************************************************
-
-[0m[32m-------------------- 7 - New BFS and Make Max Planar -----
+[32m-------------------- 7 - New BFS and Make Max Planar -----
 [0mroot: 0
 n:    3
   tree edge 0, 1
   tree edge 0, 2
-[32m----------------------- 8 - Locate Cycle -----------------
+[31m
+**********************  Graph  **************************
+vert 0   hos edges 1 2 
+vert 1   hos edges 0 2 
+vert 2   hos edges 0 1 
+*********************************************************
+
+[0m[32m----------------------- 8 - Locate Cycle -----------------
 [0marbitrarily choosing nontree edge: 1, 2
 ancestors v1...
-parent of 0 is 4294967295
-parent of 1 is 0
-parent of 2 is 0
 first v: 1
 root: 0
 pushing back v: 0
 ancestors v2...
-parent of 0 is 4294967295
-parent of 1 is 0
-parent of 2 is 0
 first v: 2
 root: 0
 pushing back v: 0
 common ancestor: 0
-cycle verts: 1 0 2 
-parent of 0 is 4294967295
-parent of 1 is 0
-parent of 2 is 0
    scanning cycle vert 1
    scanning cycle vert 0
    scanning cycle vert 2

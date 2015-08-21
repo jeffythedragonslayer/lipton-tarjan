@@ -18,7 +18,7 @@ Graph load_graph(string fname)
         ifstream in(fname);
         if( !in ){
                 cerr << "file \"in\" not found!\n";
-                exit(0);
+                exit(1);
         }
 
         string str;

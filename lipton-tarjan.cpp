@@ -64,17 +64,17 @@ bool on_cycle(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g)
 
 bool edge_inside(EdgeDesc e, VertDesc v, vector<VertDesc> const& cycle, Graph const& g, Embedding const& em)
 {
-        //for( uint i = 0; i < cycle.size(); ++i ) cout << "cycle: " << cycle[i] << '\n';
-        //cout << "here i am\n"; 
+        for( uint i = 0; i < cycle.size(); ++i ) cout << "cycle: " << cycle[i] << '\n';
+        cout << "      here i am\n"; 
         auto src = source(e, g);
         auto tar = target(e, g);
-        //cout << "src: " << src << '\n';
-        //cout << "tar: " << tar << '\n';
-        //cout << "v:   " << v   << '\n';
-        //cout << "        testing if edge " << src << ", " << tar << " is inside the cycle: ";
+        cout << "      src: " << src << '\n';
+        cout << "      tar: " << tar << '\n';
+        cout << "      v:   " << v   << '\n';
+        cout << "      testing if edge " << src << ", " << tar << " is inside the cycle: ";
         auto it     = find(STLALL(cycle), v);
         if( it == cycle.end() ){
-                //cout << "not here at all!\n";
+                cout << "      not here at all!\n";
                 assert(0);
         }
         assert(*it == v);
@@ -82,12 +82,12 @@ bool edge_inside(EdgeDesc e, VertDesc v, vector<VertDesc> const& cycle, Graph co
         auto after  = it+1 == cycle.end  () ?  cycle.begin()     : it+1; 
         auto other  = (source(e, g) == v) ?  target(e, g)        : source(e, g); 
         
-        /*cout << '\n';
-        cout << "it:     " << *it << '\n';
-        cout << "v:      " << v << '\n';
-        cout << "before: " << *before << '\n';
-        cout << "after:  " << *after << '\n';
-        cout << "other:  " << other << '\n';*/
+        cout << '\n';
+        cout << "      it:     " << *it << '\n';
+        cout << "      v:      " << v << '\n';
+        cout << "      before: " << *before << '\n';
+        cout << "      after:  " << *after << '\n';
+        cout << "      other:  " << other << '\n';
 
         vector<uint> perm;
         set<VertDesc> seenbefore;
@@ -105,10 +105,10 @@ bool edge_inside(EdgeDesc e, VertDesc v, vector<VertDesc> const& cycle, Graph co
         } 
         assert(perm.size() == 3);
         if( levi_civita(perm[0], perm[1], perm[2]) == 1 ){
-                //cout << "YES\n";
+                cout << "      YES\n";
                 return true;
         } else {
-                //cout << "NO\n";
+                cout << "      NO\n";
                 return false;
         }
 }
@@ -463,7 +463,6 @@ uint lemma3(vector<VertDesc> const& cycle_verts, int* l, Graph const& g)
 
 vector<VertDesc> ancestors(VertDesc v, BFSVisitorData const& vis)
 {
-        vis.print_parents();
         cout << "first v: " << v << '\n';
         cout << "root: " << vis.root << '\n';
         vector<VertDesc> ans = {v};
@@ -536,7 +535,7 @@ set<VertDesc> get_neighbors(VertDesc v, Graph const& g)
 { 
         set<VertDesc> neighbors;
         OutEdgeIter e_cur, e_end;
-        for( tie(e_cur, e_end) = out_edges(v, g); e_cur != e_end; ++e_cur ){ auto ne = target(*e_cur, g); neighbors.insert(ne); cout << "vertex " << v << " has neighbor " << ne << '\n'; }
+        for( tie(e_cur, e_end) = out_edges(v, g); e_cur != e_end; ++e_cur ){ auto ne = target(*e_cur, g); neighbors.insert(ne); cout << "      vertex " << v << " has neighbor " << ne << '\n'; }
         return neighbors;
 }
 
@@ -544,7 +543,7 @@ set<VertDesc> get_intersection(set<VertDesc> const& a, set<VertDesc> const& b)
 {
         set<VertDesc> c;
         set_intersection(STLALL(a), STLALL(b), inserter(c, c.begin())); 
-        for( auto& i : c ) cout << "set intersection: " << i << '\n'; 
+        for( auto& i : c ) cout << "      set intersection: " << i << '\n'; 
         assert(c.size() == 2);
         return c;
 } 
@@ -649,18 +648,17 @@ Partition lipton_tarjan(Graph& g)
 
         cout << HEADER_COL << "---------------------------- 6 - Shrinktree -------------\n" << RESET;
         cout << "n: " << num_vertices(g) << '\n'; 
-        print_graph(g);
 
         vector<VertDesc> replaceverts;
         tie(vi, vj) = vertices(g); 
         for( auto next = vi; vi != vj; vi = next ){
                 ++next;
                 if( vis_data.verts[*vi].level >= l[2] ){
-                        cout << "deleting vertex " << *vi << " of level l2 " << vis_data.verts[*vi].level << " >= " << l[2] << '\n';
+                        //cout << "deleting vertex " << *vi << " of level l2 " << vis_data.verts[*vi].level << " >= " << l[2] << '\n';
                         kill_vertex(*vi, g);
                 }
                 if( vis_data.verts[*vi].level <= l[0] ){
-                        cout << "going to replace vertex " << *vi << " of level l0 " << vis_data.verts[*vi].level << " <= " << l[0] << '\n';
+                        //cout << "going to replace vertex " << *vi << " of level l0 " << vis_data.verts[*vi].level << " <= " << l[0] << '\n';
                         replaceverts.push_back(*vi);
                 }
         }
@@ -669,7 +667,7 @@ Partition lipton_tarjan(Graph& g)
         map<VertDesc, bool> t;
         for( tie(vi, vj) = vertices(g); vi != vj; ++vi ){
                 t[*vi] = (vis_data.verts[*vi].level <= l[0]);
-                cout << "vertex " << *vi << " at level " << vis_data.verts[*vi].level << " is " << (t[*vi] ? "TRUE" : "FALSE") << '\n';
+                //cout << "vertex " << *vi << " at level " << vis_data.verts[*vi].level << " is " << (t[*vi] ? "TRUE" : "FALSE") << '\n';
         }
 
         reset_vertex_indices(g);
@@ -694,7 +692,6 @@ Partition lipton_tarjan(Graph& g)
                 }
         }
 
-        print_graph(g);
         cout << HEADER_COL << "-------------------- 7 - New BFS and Make Max Planar -----\n" << RESET;
         reset_vertex_indices(g);
         reset_edge_index(g);
@@ -710,6 +707,8 @@ Partition lipton_tarjan(Graph& g)
         reset_vertex_indices(g);
         reset_edge_index(g);
 
+        print_graph(g);
+
         cout << HEADER_COL << "----------------------- 8 - Locate Cycle -----------------\n" << RESET; 
         auto chosen_edge = arbitrary_nontree_edge(g, vis_data);
         auto v1          = source(chosen_edge, g);
@@ -721,9 +720,6 @@ Partition lipton_tarjan(Graph& g)
         auto ancestor    = common_ancestor(parents_v, parents_w, vis_data);
         cout << "common ancestor: " << ancestor << '\n'; 
         auto cycle = get_cycle(v1, w1, ancestor, vis_data);
-
-        print_cycle(cycle);
-        vis_data.print_parents();
 
         Em   em2(&g);
         auto cc = compute_cycle_cost(cycle, g, vis_data, em2);
@@ -740,22 +736,22 @@ Partition lipton_tarjan(Graph& g)
                 auto chosen_wi = target(chosen_edge, g);
                 assert(!vis_data.is_tree_edge(chosen_edge));
                 EdgeDesc next_edge;
-                cout << "vi: " << chosen_vi << '\n';
-                cout << "wi: " << chosen_wi << '\n';
+                cout << "   vi: " << chosen_vi << '\n';
+                cout << "   wi: " << chosen_wi << '\n';
 
                 auto neighbors_v = get_neighbors(chosen_vi, g);
                 auto neighbors_w = get_neighbors(chosen_wi, g); 
                 auto intersect   = get_intersection(neighbors_v, neighbors_w); 
-                for( auto& i : intersect ) cout << "intersecti: " << i << '\n';
+                for( auto& i : intersect ) cout << "   intersecti: " << i << '\n';
                 assert(intersect.size() == 2);
-                cout << "edge_inside y\n";
-                cout << "intersectbegin: " << *intersect.begin() << '\n';
+                cout << "   edge_inside y\n";
+                cout << "   intersectbegin: " << *intersect.begin() << '\n';
                 auto y = edge_inside(chosen_edge, *intersect.begin(), cycle, g, *em2.em) ? *intersect.begin() : *(++intersect.begin());
 
-                cout << "y: " << y << '\n';
+                cout << "   y: " << y << '\n';
                 EdgeDesc viy, ywi;
                 if ( vis_data.is_tree_edge(viy) || vis_data.is_tree_edge(ywi) ){
-                        cout << "at least one tree edge\n";
+                        cout << "   at least one tree edge\n";
                         next_edge = vis_data.is_tree_edge(viy) ? ywi : viy;
                         assert(!vis_data.is_tree_edge(next_edge));
                         uint cost1 = vis_data.verts[chosen_vi].descendant_cost;
@@ -765,7 +761,7 @@ Partition lipton_tarjan(Graph& g)
                         auto new_cycle = get_cycle(source(next_edge, g), target(next_edge, g), vis_data);
                         cc = compute_cycle_cost(new_cycle, g, vis_data, em2);
                 } else {
-                        cout << "neither are tree edges\n";
+                        cout << "   neither are tree edges\n";
                         auto path = ancestors(y, vis_data);
                         uint i;
                         for( i = 0; !on_cycle(path[i], cycle, g); ++i );

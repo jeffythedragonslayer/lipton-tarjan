@@ -57,33 +57,78 @@ vertex 0 at level 0 is TRUE
 vertex 3 at level 1 is TRUE
 vertex 4 at level 1 is TRUE
 vertex 999999 at level 2 is FALSE
-foundedge 0, 4     going to delete 0, 4
-foundedge 0, 3     going to delete 0, 3
-foundedge 3, 0     going to delete 3, 0
-foundedge 4, 0     going to delete 4, 0
+looking for children of 0
+from 0 looking for children
+child: 3
+looking for children of 3
+from 3 looking for children
+child: 0
+child: 4
+looking for children of 4
+from 4 looking for children
+child: 999999
 finishing
 edges to add size: 0
 adding: 
-edges to remove size: 4
-removing: (0, 3)   (0, 4)   (3, 0)   (4, 0)   
+edges to remove size: 0
+removing: 
 no edges to x found, deleting
 killing vertex 999999
 x_gone: 0
 
 **********************  Graph  **************************
-vert 0   hos edges 
-vert 3   hos edges 
-vert 4   hos edges 
+vert 0   hos edges 3 4 
+vert 3   hos edges 0 
+vert 4   hos edges 0 
 *********************************************************
 
 -------------------- 7 - New BFS and Make Max Planar -----
 root: 0
+  tree edge 0, 3     vertex/descendant cost: 3/1   0/2   
+  tree edge 0, 4     vertex/descendant cost: 4/1   0/3   
 ----------------------- 8 - Locate Cycle -----------------
 parent of 0 is 4294967295
+parent of 3 is 0
+parent of 4 is 0
 
 **********************  Graph  **************************
-vert 0   hos edges 
-vert 3   hos edges 
-vert 4   hos edges 
+vert 0   hos edges 3 4 
+vert 3   hos edges 0 4 
+vert 4   hos edges 0 3 
 *********************************************************
 
+arbitrarily choosing nontree edge: 3, 4
+ancestors v1...
+parent of 0 is 4294967295
+parent of 3 is 0
+parent of 4 is 0
+first v: 3
+root: 0
+pushing back v: 0
+ancestors v2...
+parent of 0 is 4294967295
+parent of 3 is 0
+parent of 4 is 0
+first v: 4
+root: 0
+pushing back v: 0
+common ancestor: 0
+cycle verts: 3 0 4 
+   scanning cycle vert 3
+   scanning cycle vert 0
+   scanning cycle vert 4
+total inside cost:  0
+total outside cost: 0
+---------------------------- 9 - Improve Separator -----------
+
+**********************  Graph  **************************
+vert 0   hos edges 3 4 
+vert 3   hos edges 0 4 
+vert 4   hos edges 0 3 
+*********************************************************
+
+chosen_edge: 3, 4
+found cycle with inside cost < 2/3: 0
+cycle verts: 3 0 4 
+
+------------ 10  - Construct Vertex Partition --------------

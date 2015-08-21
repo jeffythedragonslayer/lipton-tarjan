@@ -1,45 +1,28 @@
 loading graph
 n: 5
 starting lipton tarjan...
----------------------------- 1 - Check Planarity  ------------
-planar ok
-
-**********************  Graph  **************************
-vert 0   hos edges 3 4 
-vert 1   hos edges 3 2 
-vert 2   hos edges 4 1 
-vert 3   hos edges 0 1 
-vert 4   hos edges 0 2 
-*********************************************************
-
----------------------------- 2 - Connected Components --------
-# of components: 1
+[32m---------------------------- 1 - Check Planarity  ------------
+[0mplanar ok
+[32m---------------------------- 2 - Connected Components --------
+[0m# of components: 1
 too big
 biggest component: 0
----------------------------- 3 - BFS and Levels ------------
-  tree edge 0, 3     vertex/descendant cost: 3/1   0/1   
-  tree edge 0, 4     vertex/descendant cost: 4/1   0/2   
-  tree edge 3, 1     vertex/descendant cost: 1/1   3/2   0/3   
-  tree edge 4, 2     vertex/descendant cost: 2/1   4/2   0/4   
-level/cost of vert 0: 0
-level/cost of vert 1: 2
-level/cost of vert 2: 2
-level/cost of vert 3: 1
-level/cost of vert 4: 1
-L[0]: 1
-L[1]: 2
-L[2]: 2
-L[3]: 0
----------------------------- 4 - l1 and k  ------------
-k:  3      # of verts in levels 0 thru l1
+[32m---------------------------- 3 - BFS and Levels ------------
+[0m  tree edge 0, 3
+  tree edge 0, 4
+  tree edge 3, 1
+  tree edge 4, 2
+[32m---------------------------- 4 - l1 and k  ------------
+[0mk:  3      # of verts in levels 0 thru l1
 l1: 1      total cost of levels 0 thru l1 barely exceeds 1/2
----------------------------- 5 - Find More Levels -------
-sq:    3.4641
+[32m---------------------------- 5 - Find More Levels -------
+[0msq:    3.4641
 snk:   2.82843
 l0: 1     highest level <= l1
 l2: 2     lowest  level >= l1 + 1
----------------------------- 6 - Shrinktree -------------
-
+[32m---------------------------- 6 - Shrinktree -------------
+[0mn: 5
+[31m
 **********************  Graph  **************************
 vert 0   hos edges 3 4 
 vert 1   hos edges 3 2 
@@ -48,25 +31,17 @@ vert 3   hos edges 0 1
 vert 4   hos edges 0 2 
 *********************************************************
 
-n: 5
+[0mgoing to replace vertex 0 of level l0 0 <= 1
 deleting vertex 1 of level l2 2 >= 2
 killing vertex 1
 deleting vertex 2 of level l2 2 >= 2
 killing vertex 2
+going to replace vertex 3 of level l0 1 <= 1
+going to replace vertex 4 of level l0 1 <= 1
 vertex 0 at level 0 is TRUE
 vertex 3 at level 1 is TRUE
 vertex 4 at level 1 is TRUE
-vertex 999999 at level 2 is FALSE
-looking for children of 0
-from 0 looking for children
-child: 3
-looking for children of 3
-from 3 looking for children
-child: 0
-child: 4
-looking for children of 4
-from 4 looking for children
-child: 999999
+vertex 999999 at level 0 is TRUE
 finishing
 edges to add size: 0
 adding: 
@@ -75,29 +50,20 @@ removing:
 no edges to x found, deleting
 killing vertex 999999
 x_gone: 0
-
+[31m
 **********************  Graph  **************************
 vert 0   hos edges 3 4 
 vert 3   hos edges 0 
 vert 4   hos edges 0 
 *********************************************************
 
--------------------- 7 - New BFS and Make Max Planar -----
-root: 0
-  tree edge 0, 3     vertex/descendant cost: 3/1   0/2   
-  tree edge 0, 4     vertex/descendant cost: 4/1   0/3   
------------------------ 8 - Locate Cycle -----------------
-parent of 0 is 4294967295
-parent of 3 is 0
-parent of 4 is 0
-
-**********************  Graph  **************************
-vert 0   hos edges 3 4 
-vert 3   hos edges 0 4 
-vert 4   hos edges 0 3 
-*********************************************************
-
-arbitrarily choosing nontree edge: 3, 4
+[0m[32m-------------------- 7 - New BFS and Make Max Planar -----
+[0mroot: 0
+n:    3
+  tree edge 0, 3
+  tree edge 0, 4
+[32m----------------------- 8 - Locate Cycle -----------------
+[0marbitrarily choosing nontree edge: 3, 4
 ancestors v1...
 parent of 0 is 4294967295
 parent of 3 is 0
@@ -114,21 +80,18 @@ root: 0
 pushing back v: 0
 common ancestor: 0
 cycle verts: 3 0 4 
+parent of 0 is 4294967295
+parent of 3 is 0
+parent of 4 is 0
    scanning cycle vert 3
    scanning cycle vert 0
    scanning cycle vert 4
 total inside cost:  0
 total outside cost: 0
----------------------------- 9 - Improve Separator -----------
-
-**********************  Graph  **************************
-vert 0   hos edges 3 4 
-vert 3   hos edges 0 4 
-vert 4   hos edges 0 3 
-*********************************************************
-
-chosen_edge: 3, 4
+[32m---------------------------- 9 - Improve Separator -----------
+[0mchosen_edge: 3, 4
 found cycle with inside cost < 2/3: 0
 cycle verts: 3 0 4 
-
+[32m
 ------------ 10  - Construct Vertex Partition --------------
+[0m

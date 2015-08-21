@@ -1,56 +1,31 @@
 loading graph
 n: 8
 starting lipton tarjan...
----------------------------- 1 - Check Planarity  ------------
-planar ok
-
-**********************  Graph  **************************
-vert 0   hos edges 1 3 
-vert 1   hos edges 0 2 
-vert 2   hos edges 1 
-vert 3   hos edges 0 6 
-vert 4   hos edges 5 
-vert 5   hos edges 4 6 
-vert 6   hos edges 5 3 7 
-vert 7   hos edges 6 
-*********************************************************
-
----------------------------- 2 - Connected Components --------
-# of components: 1
+[32m---------------------------- 1 - Check Planarity  ------------
+[0mplanar ok
+[32m---------------------------- 2 - Connected Components --------
+[0m# of components: 1
 too big
 biggest component: 0
----------------------------- 3 - BFS and Levels ------------
-  tree edge 0, 1     vertex/descendant cost: 1/1   0/1   
-  tree edge 0, 3     vertex/descendant cost: 3/1   0/2   
-  tree edge 1, 2     vertex/descendant cost: 2/1   1/2   0/3   
-  tree edge 3, 6     vertex/descendant cost: 6/1   3/2   0/4   
-  tree edge 6, 5     vertex/descendant cost: 5/1   6/2   3/3   0/5   
-  tree edge 6, 7     vertex/descendant cost: 7/1   6/3   3/4   0/6   
-  tree edge 5, 4     vertex/descendant cost: 4/1   5/2   6/4   3/5   0/7   
-level/cost of vert 0: 0
-level/cost of vert 1: 1
-level/cost of vert 2: 2
-level/cost of vert 3: 1
-level/cost of vert 4: 4
-level/cost of vert 5: 3
-level/cost of vert 6: 2
-level/cost of vert 7: 3
-L[0]: 1
-L[1]: 2
-L[2]: 2
-L[3]: 2
-L[4]: 1
-L[5]: 0
----------------------------- 4 - l1 and k  ------------
-k:  5      # of verts in levels 0 thru l1
+[32m---------------------------- 3 - BFS and Levels ------------
+[0m  tree edge 0, 1
+  tree edge 0, 3
+  tree edge 1, 2
+  tree edge 3, 6
+  tree edge 6, 5
+  tree edge 6, 7
+  tree edge 5, 4
+[32m---------------------------- 4 - l1 and k  ------------
+[0mk:  5      # of verts in levels 0 thru l1
 l1: 2      total cost of levels 0 thru l1 barely exceeds 1/2
----------------------------- 5 - Find More Levels -------
-sq:    4.47214
+[32m---------------------------- 5 - Find More Levels -------
+[0msq:    4.47214
 snk:   3.4641
 l0: 2     highest level <= l1
 l2: 3     lowest  level >= l1 + 1
----------------------------- 6 - Shrinktree -------------
-
+[32m---------------------------- 6 - Shrinktree -------------
+[0mn: 8
+[31m
 **********************  Graph  **************************
 vert 0   hos edges 1 3 
 vert 1   hos edges 0 2 
@@ -62,11 +37,15 @@ vert 6   hos edges 5 3 7
 vert 7   hos edges 6 
 *********************************************************
 
-n: 8
+[0mgoing to replace vertex 0 of level l0 0 <= 2
+going to replace vertex 1 of level l0 1 <= 2
+going to replace vertex 2 of level l0 2 <= 2
+going to replace vertex 3 of level l0 1 <= 2
 deleting vertex 4 of level l2 4 >= 3
 killing vertex 4
 deleting vertex 5 of level l2 3 >= 3
 killing vertex 5
+going to replace vertex 6 of level l0 2 <= 2
 deleting vertex 7 of level l2 3 >= 3
 killing vertex 7
 vertex 0 at level 0 is TRUE
@@ -75,41 +54,67 @@ vertex 2 at level 2 is TRUE
 vertex 3 at level 1 is TRUE
 vertex 6 at level 2 is TRUE
 vertex 999999 at level 3 is FALSE
-foundedge 0, 3     going to delete 0, 3
-foundedge 0, 1     going to delete 0, 1
-foundedge 1, 2     going to delete 1, 2
-foundedge 1, 0     going to delete 1, 0
-foundedge 2, 1     going to delete 2, 1
-foundedge 3, 6     going to delete 3, 6
-foundedge 3, 0     going to delete 3, 0
-foundedge 6, 3     going to delete 6, 3
 finishing
 edges to add size: 0
 adding: 
-edges to remove size: 8
-removing: (0, 1)   (0, 3)   (1, 0)   (1, 2)   (2, 1)   (3, 0)   (3, 6)   (6, 3)   
+edges to remove size: 0
+removing: 
 no edges to x found, deleting
 killing vertex 999999
 x_gone: 0
-
+[31m
 **********************  Graph  **************************
-vert 0   hos edges 
-vert 1   hos edges 
-vert 2   hos edges 
-vert 3   hos edges 
-vert 6   hos edges 
+vert 0   hos edges 1 3 
+vert 1   hos edges 0 2 
+vert 2   hos edges 1 
+vert 3   hos edges 0 6 
+vert 6   hos edges 3 
 *********************************************************
 
--------------------- 7 - New BFS and Make Max Planar -----
-root: 0
------------------------ 8 - Locate Cycle -----------------
+[0m[32m-------------------- 7 - New BFS and Make Max Planar -----
+[0mroot: 0
+n:    5
+  tree edge 0, 1
+  tree edge 0, 3
+  tree edge 1, 2
+  tree edge 3, 6
+[32m----------------------- 8 - Locate Cycle -----------------
+[0marbitrarily choosing nontree edge: 0, 2
+ancestors v1...
 parent of 0 is 4294967295
-
-**********************  Graph  **************************
-vert 0   hos edges 
-vert 1   hos edges 
-vert 2   hos edges 
-vert 3   hos edges 
-vert 6   hos edges 
-*********************************************************
-
+parent of 1 is 0
+parent of 2 is 1
+parent of 3 is 0
+parent of 6 is 3
+first v: 0
+root: 0
+ancestors v2...
+parent of 0 is 4294967295
+parent of 1 is 0
+parent of 2 is 1
+parent of 3 is 0
+parent of 6 is 3
+first v: 2
+root: 0
+pushing back v: 1
+pushing back v: 0
+common ancestor: 0
+cycle verts: 0 1 2 
+parent of 0 is 4294967295
+parent of 1 is 0
+parent of 2 is 1
+parent of 3 is 0
+parent of 6 is 3
+   scanning cycle vert 0
+      scanning incident tree edge 0, 3   cost: 2
+   scanning cycle vert 1
+   scanning cycle vert 2
+total inside cost:  2
+total outside cost: 0
+[32m---------------------------- 9 - Improve Separator -----------
+[0mchosen_edge: 0, 2
+found cycle with inside cost < 2/3: 2
+cycle verts: 0 1 2 
+[32m
+------------ 10  - Construct Vertex Partition --------------
+[0m

@@ -6,6 +6,7 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp> 
+#include "colors.h"
 using namespace std;
 using namespace boost;
 
@@ -52,7 +53,7 @@ Graph load_graph(string fname)
 
 void print_graph(Graph const& g)
 { 
-        cout << "\n**********************  Graph  **************************\n"; 
+        cout << RED << "\n**********************  Graph  **************************\n"; 
         VertIter vi, vi_end;
         for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
                 cout << "vert " << vert2uint[*vi];
@@ -66,7 +67,7 @@ void print_graph(Graph const& g)
                 }
                 cout << '\n';
         }
-        cout << "*********************************************************\n\n";
+        cout << "*********************************************************\n\n" << RESET;
 }
 
 int main(int argc, char* argv[])

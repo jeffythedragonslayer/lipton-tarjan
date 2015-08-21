@@ -1,4 +1,5 @@
 #include "lipton-tarjan.h"
+#include "colors.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -24,6 +25,8 @@
 using namespace std;
 using namespace boost; 
 #define STLALL(x) (x).begin(), (x).end()
+
+#define HEADER_COL GREEN
 
 int levi_civita(uint i, uint j, uint k)
 {
@@ -61,17 +64,17 @@ bool on_cycle(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g)
 
 bool edge_inside(EdgeDesc e, VertDesc v, vector<VertDesc> const& cycle, Graph const& g, Embedding const& em)
 {
-        for( uint i = 0; i < cycle.size(); ++i ) cout << "cycle: " << cycle[i] << '\n';
-        cout << "here i am\n"; 
+        //for( uint i = 0; i < cycle.size(); ++i ) cout << "cycle: " << cycle[i] << '\n';
+        //cout << "here i am\n"; 
         auto src = source(e, g);
         auto tar = target(e, g);
-        cout << "src: " << src << '\n';
-        cout << "tar: " << tar << '\n';
-        cout << "v:   " << v   << '\n';
-        cout << "        testing if edge " << src << ", " << tar << " is inside the cycle: ";
+        //cout << "src: " << src << '\n';
+        //cout << "tar: " << tar << '\n';
+        //cout << "v:   " << v   << '\n';
+        //cout << "        testing if edge " << src << ", " << tar << " is inside the cycle: ";
         auto it     = find(STLALL(cycle), v);
         if( it == cycle.end() ){
-                cout << "not here at all!\n";
+                //cout << "not here at all!\n";
                 assert(0);
         }
         assert(*it == v);
@@ -79,12 +82,12 @@ bool edge_inside(EdgeDesc e, VertDesc v, vector<VertDesc> const& cycle, Graph co
         auto after  = it+1 == cycle.end  () ?  cycle.begin()     : it+1; 
         auto other  = (source(e, g) == v) ?  target(e, g)        : source(e, g); 
         
-        cout << '\n';
+        /*cout << '\n';
         cout << "it:     " << *it << '\n';
         cout << "v:      " << v << '\n';
         cout << "before: " << *before << '\n';
         cout << "after:  " << *after << '\n';
-        cout << "other:  " << other << '\n';
+        cout << "other:  " << other << '\n';*/
 
         vector<uint> perm;
         set<VertDesc> seenbefore;
@@ -102,10 +105,10 @@ bool edge_inside(EdgeDesc e, VertDesc v, vector<VertDesc> const& cycle, Graph co
         } 
         assert(perm.size() == 3);
         if( levi_civita(perm[0], perm[1], perm[2]) == 1 ){
-                cout << "YES\n";
+                //cout << "YES\n";
                 return true;
         } else {
-                cout << "NO\n";
+                //cout << "NO\n";
                 return false;
         }
 }
@@ -141,10 +144,13 @@ struct BFSVisitorData
         
         bool is_tree_edge(EdgeDesc e) const
         { 
+                //cout << "testing is tree edge " << to_string(e, *g) << '\n';
                 auto src = source(e, *g);
                 auto tar = target(e, *g); 
                 auto src_it = verts.find(src);
                 auto tar_it = verts.find(tar);
+                //cout << "src: " << src << '\n';
+                //cout << "tar: " << tar << '\n';
                 assert(src_it != verts.end());
                 assert(tar_it != verts.end());
                 return src_it->second.parent == tar || tar_it->second.parent == src;
@@ -186,7 +192,7 @@ struct BFSVisitor : public default_bfs_visitor
         {
                 auto parent = source(e, g);
                 auto child  = target(e, g);
-                cout << "  tree edge " << parent << ", " << child;
+                cout << "  tree edge " << parent << ", " << child << '\n';
                 data.verts[child].parent = parent;
                 data.verts[child].level  = data.verts[parent].level + 1;
                 data.num_levels = max(data.num_levels, data.verts[child].level + 1);
@@ -194,14 +200,14 @@ struct BFSVisitor : public default_bfs_visitor
 
                 VertDesc v = child;
                 data.verts[v].descendant_cost = 1;
-                cout << "     vertex/descendant cost: ";
-                cout << v << '/'  << data.verts[v].descendant_cost << "   ";
+                //cout << "     vertex/descendant cost: ";
+                //cout << v << '/'  << data.verts[v].descendant_cost << "   ";
                 while( data.verts[v].level ){
                         v =  data.verts[v].parent;
                         ++data.verts[v].descendant_cost;
-                        cout << v << '/'  << data.verts[v].descendant_cost << "   ";
+                        //cout << v << '/'  << data.verts[v].descendant_cost << "   ";
                 } 
-                cout << '\n';
+                //cout << '\n';
         } 
 };
 
@@ -321,13 +327,12 @@ struct ScanVisitor
                         auto tar_it = bfs.verts.find(tar);
                         if( tar_it->second.level > l0 ) foundedge(v, e);
                 }
-                cout << "looking for children of " << v << '\n';
+                //cout << "looking for children of " << v << '\n';
                 auto vvv   = bfs.children.find(v);
                 if( vvv == bfs.children.end() ) return; // no children
-                cout << "from " << v << " looking for children\n";
+                //cout << "from " << v << " looking for children\n";
                 for( auto& c : vvv->second ){
-                        cout << "child: " << c << '\n';
-
+                        //cout << "child: " << c << '\n'; 
                         scan_nonsubtree_edges(c, g, em, bfs);
                 }
         }
@@ -512,7 +517,6 @@ void kill_vertex(VertDesc v, Graph& g)
 
 EdgeDesc arbitrary_nontree_edge(Graph const& g, BFSVisitorData const& vis_data)
 { 
-        print_graph(g);
         EdgeIter ei, ei_end;
         for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ){
                 auto src = source(*ei, g);
@@ -572,15 +576,18 @@ CycleCost compute_cycle_cost(vector<VertDesc> const& cycle, Graph const& g, BFSV
         return cc;
 }
 
+struct NotPlanar
+{
+};
+
 Partition lipton_tarjan(Graph& g)
 {
-        cout << "---------------------------- 1 - Check Planarity  ------------\n";
+        cout << HEADER_COL << "---------------------------- 1 - Check Planarity  ------------\n" << RESET;
         Em em1(&g);
-        assert(em1.testplanar());
+        if( !em1.testplanar() ) throw NotPlanar();
         cout << "planar ok\n";
-        print_graph(g);
 
-        cout << "---------------------------- 2 - Connected Components --------\n";
+        cout << HEADER_COL << "---------------------------- 2 - Connected Components --------\n" << RESET;
         VertDescMap idx; 
         associative_property_map<VertDescMap> vertid_to_component(idx);
         VertIter vi, vj;
@@ -611,7 +618,7 @@ Partition lipton_tarjan(Graph& g)
         }
         cout << "biggest component: " << biggest_component << '\n';
 
-        cout << "---------------------------- 3 - BFS and Levels ------------\n";
+        cout << HEADER_COL << "---------------------------- 3 - BFS and Levels ------------\n" << RESET;
         BFSVisitorData vis_data(&g);
         auto root = *vertices(g).first;
         vis_data.root = root;
@@ -620,10 +627,10 @@ Partition lipton_tarjan(Graph& g)
         vector<uint> L(vis_data.num_levels + 1, 0);
         for( auto& d : vis_data.verts ) ++L[d.second.level];
 
-        for( tie(vi, vj) = vertices(g); vi != vj; ++vi ) cout << "level/cost of vert " << *vi << ": " << vis_data.verts[*vi].level << '\n';
-        for( uint i = 0; i < L.size(); ++i ) cout << "L[" << i << "]: " << L[i] << '\n';
+        //for( tie(vi, vj) = vertices(g); vi != vj; ++vi ) cout << "level/cost of vert " << *vi << ": " << vis_data.verts[*vi].level << '\n';
+        //for( uint i = 0; i < L.size(); ++i ) cout << "L[" << i << "]: " << L[i] << '\n';
 
-        cout << "---------------------------- 4 - l1 and k  ------------\n";
+        cout << HEADER_COL << "---------------------------- 4 - l1 and k  ------------\n" << RESET;
         uint k = L[0]; 
         int l[3];
         l[1] = 0;
@@ -631,7 +638,7 @@ Partition lipton_tarjan(Graph& g)
         cout << "k:  " << k    << "      # of verts in levels 0 thru l1\n";
         cout << "l1: " << l[1] << "      total cost of levels 0 thru l1 barely exceeds 1/2\n";
 
-        cout << "---------------------------- 5 - Find More Levels -------\n";
+        cout << HEADER_COL << "---------------------------- 5 - Find More Levels -------\n" << RESET;
         float sq  = 2 * sqrt(k); 
         float snk = 2 * sqrt(num_vertices(g) - k); 
         cout << "sq:    " << sq << '\n';
@@ -640,16 +647,21 @@ Partition lipton_tarjan(Graph& g)
         l[0] = l[1];     for( ;; ){ float val = L.at(l[0]) + 2*(l[1] - l[0]);     if( val <= sq  ) break; --l[0]; } cout << "l0: " << l[0] << "     highest level <= l1\n"; 
         l[2] = l[1] + 1; for( ;; ){ float val = L.at(l[2]) + 2*(l[2] - l[1] - 1); if( val <= snk ) break; ++l[2]; } cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
 
-        cout << "---------------------------- 6 - Shrinktree -------------\n";
-        print_graph(g);
+        cout << HEADER_COL << "---------------------------- 6 - Shrinktree -------------\n" << RESET;
         cout << "n: " << num_vertices(g) << '\n'; 
+        print_graph(g);
 
+        vector<VertDesc> replaceverts;
         tie(vi, vj) = vertices(g); 
-        for( VertIter next = vi; vi != vj; vi = next ){
+        for( auto next = vi; vi != vj; vi = next ){
                 ++next;
                 if( vis_data.verts[*vi].level >= l[2] ){
                         cout << "deleting vertex " << *vi << " of level l2 " << vis_data.verts[*vi].level << " >= " << l[2] << '\n';
                         kill_vertex(*vi, g);
+                }
+                if( vis_data.verts[*vi].level <= l[0] ){
+                        cout << "going to replace vertex " << *vi << " of level l0 " << vis_data.verts[*vi].level << " <= " << l[0] << '\n';
+                        replaceverts.push_back(*vi);
                 }
         }
 
@@ -669,16 +681,21 @@ Partition lipton_tarjan(Graph& g)
         svis.scan_nonsubtree_edges(*vertices(g).first, g, *em.em, vis_data);
         svis.finish();
 
-        VertDesc x_gone = Graph::null_vertex();
+        auto x_gone = Graph::null_vertex();
         if( !degree(x, g) ){
                 cout << "no edges to x found, deleting\n";
                 kill_vertex(x, g);
                 x_gone = *vertices(g).first;
                 cout << "x_gone: " << x_gone << '\n';
+        } else {
+                // delete all vertices x has replaced
+                for( auto& v : replaceverts ){
+                        kill_vertex(v, g);
+                }
         }
 
         print_graph(g);
-        cout << "-------------------- 7 - New BFS and Make Max Planar -----\n"; 
+        cout << HEADER_COL << "-------------------- 7 - New BFS and Make Max Planar -----\n" << RESET;
         reset_vertex_indices(g);
         reset_edge_index(g);
         vis_data.reset(&g);
@@ -686,13 +703,14 @@ Partition lipton_tarjan(Graph& g)
         ++vis_data.verts[vis_data.root].descendant_cost;
 
         cout << "root: " << vis_data.root << '\n'; 
+        cout << "n:    " << num_vertices(g) << '\n';
 
         breadth_first_search(g, x_gone != Graph::null_vertex() ? x_gone: x, visitor(BFSVisitor(vis_data))); 
         makemaxplanar(g);
+        reset_vertex_indices(g);
         reset_edge_index(g);
 
-        cout << "----------------------- 8 - Locate Cycle -----------------\n"; 
-        vis_data.print_parents();
+        cout << HEADER_COL << "----------------------- 8 - Locate Cycle -----------------\n" << RESET; 
         auto chosen_edge = arbitrary_nontree_edge(g, vis_data);
         auto v1          = source(chosen_edge, g);
         auto w1          = target(chosen_edge, g); 
@@ -705,14 +723,14 @@ Partition lipton_tarjan(Graph& g)
         auto cycle = get_cycle(v1, w1, ancestor, vis_data);
 
         print_cycle(cycle);
+        vis_data.print_parents();
 
         Em   em2(&g);
         auto cc = compute_cycle_cost(cycle, g, vis_data, em2);
         cout << "total inside cost:  " << cc.inside  << '\n'; 
         cout << "total outside cost: " << cc.outside << '\n'; 
 
-        cout << "---------------------------- 9 - Improve Separator -----------\n";
-        print_graph(g);
+        cout << HEADER_COL << "---------------------------- 9 - Improve Separator -----------\n" << RESET;
         cout << "chosen_edge: " << to_string(chosen_edge, g) << '\n';
 
         while( cc.inside > num_vertices(g)*2./3 ){
@@ -776,7 +794,7 @@ Partition lipton_tarjan(Graph& g)
         cout << "found cycle with inside cost < 2/3: " << cc.inside << '\n';
         print_cycle(cycle);
 
-        cout << "\n------------ 10  - Construct Vertex Partition --------------\n";
+        cout << HEADER_COL << "\n------------ 10  - Construct Vertex Partition --------------\n" << RESET;
         uint partition = lemma3(cycle, &l[0], g);
         partition = theorem4(partition, g); 
 

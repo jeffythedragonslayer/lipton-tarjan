@@ -4,11 +4,16 @@ if [ ! -f lt ]; then
         make
 fi
 
+lt g/box            > reg_out/box
+lt g/box2           > reg_out/box2
 lt g/in             > reg_out/in
 lt g/in2            > reg_out/in2
 lt g/in3            > reg_out/in3
 lt g/in4            > reg_out/in4
 lt g/notk           > reg_out/notk
+lt g/rand           > reg_out/rand
+lt g/rand2          > reg_out/rand2
+lt g/rand3          > reg_out/rand3
 lt g/square         > reg_out/square
 lt g/tri            > reg_out/ttri
 lt g/tie            > reg_out/tie

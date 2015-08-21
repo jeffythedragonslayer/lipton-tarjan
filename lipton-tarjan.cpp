@@ -144,7 +144,7 @@ struct BFSVisitorData
                 auto src = source(e, *g);
                 auto tar = target(e, *g); 
                 auto src_it = verts.find(src);
-                auto tar_it = verts.find(src);
+                auto tar_it = verts.find(tar);
                 assert(src_it != verts.end());
                 assert(tar_it != verts.end());
                 return src_it->second.parent == tar || tar_it->second.parent == src;
@@ -311,6 +311,7 @@ struct ScanVisitor
                         auto src = source(e, g);
                         auto tar = target(e, g);
                         if( src == tar ) continue; // ?????
+
                         if( !bfs.is_tree_edge(e) ){
                                 foundedge(v, e);
                                 continue;
@@ -320,8 +321,15 @@ struct ScanVisitor
                         auto tar_it = bfs.verts.find(tar);
                         if( tar_it->second.level > l0 ) foundedge(v, e);
                 }
+                cout << "looking for children of " << v << '\n';
                 auto vvv   = bfs.children.find(v);
-                for( auto& c : vvv->second ) scan_nonsubtree_edges(c, g, em, bfs);
+                if( vvv == bfs.children.end() ) return; // no children
+                cout << "from " << v << " looking for children\n";
+                for( auto& c : vvv->second ){
+                        cout << "child: " << c << '\n';
+
+                        scan_nonsubtree_edges(c, g, em, bfs);
+                }
         }
 
 };

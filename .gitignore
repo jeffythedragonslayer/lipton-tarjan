@@ -3,6 +3,9 @@
 *.ps
 out_graph.*
 
+# Core Dump
+core
+
 # Compiled Object files
 *.slo
 *.lo
@@ -17,9 +20,6 @@ out_graph.*
 *.so
 *.dylib
 *.dll
-
-# Fortran module files
-*.mod
 
 # Compiled Static libraries
 *.lai

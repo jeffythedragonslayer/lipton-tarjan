@@ -27,34 +27,6 @@ l0: 1     highest level <= l1
 l2: 3     lowest  level >= l1 + 1
 [32m---------------------------- 6 - Shrinktree -------------
 [0mn: 10
-[31m
-**********************  Graph  **************************
-vert 0   hos edges 1 2 
-vert 1   hos edges 0 4 5 6 7 
-vert 2   hos edges 0 3 8 9 
-vert 3   hos edges 2 4 
-vert 4   hos edges 3 1 
-vert 5   hos edges 1 
-vert 6   hos edges 1 
-vert 7   hos edges 1 
-vert 8   hos edges 2 
-vert 9   hos edges 2 
-*********************************************************
-
-[0mgoing to replace vertex 0 of level l0 0 <= 1
-going to replace vertex 1 of level l0 1 <= 1
-going to replace vertex 2 of level l0 1 <= 1
-vertex 0 at level 0 is TRUE
-vertex 1 at level 1 is TRUE
-vertex 2 at level 1 is TRUE
-vertex 3 at level 2 is FALSE
-vertex 4 at level 2 is FALSE
-vertex 5 at level 2 is FALSE
-vertex 6 at level 2 is FALSE
-vertex 7 at level 2 is FALSE
-vertex 8 at level 2 is FALSE
-vertex 9 at level 2 is FALSE
-vertex 999999 at level 0 is TRUE
 foundedge 1, 7   !!!!!!!going to add 999999, 7     going to delete 1, 7
 foundedge 1, 6   !!!!!!!going to add 999999, 6     going to delete 1, 6
 foundedge 1, 5   !!!!!!!going to add 999999, 5     going to delete 1, 5
@@ -70,19 +42,7 @@ removing: (1, 4)   (1, 5)   (1, 6)   (1, 7)   (2, 3)   (2, 8)   (2, 9)
 killing vertex 0
 killing vertex 1
 killing vertex 2
-[31m
-**********************  Graph  **************************
-vert 3   hos edges 4 999999 
-vert 4   hos edges 3 999999 
-vert 5   hos edges 999999 
-vert 6   hos edges 999999 
-vert 7   hos edges 999999 
-vert 8   hos edges 999999 
-vert 9   hos edges 999999 
-vert 999999   hos edges 3 4 5 6 7 8 9 
-*********************************************************
-
-[0m[32m-------------------- 7 - New BFS and Make Max Planar -----
+[32m-------------------- 7 - New BFS and Make Max Planar -----
 [0mroot: 999999
 n:    8
   tree edge 999999, 3
@@ -92,49 +52,106 @@ n:    8
   tree edge 999999, 7
   tree edge 999999, 8
   tree edge 999999, 9
-[32m----------------------- 8 - Locate Cycle -----------------
+[31m
+**********************  Graph  **************************
+vert 3   hos edges 4 999999 5 9 
+vert 4   hos edges 3 999999 5 
+vert 5   hos edges 999999 6 3 4 9 
+vert 6   hos edges 999999 7 5 9 
+vert 7   hos edges 999999 8 6 9 
+vert 8   hos edges 999999 9 7 
+vert 9   hos edges 999999 8 3 5 6 7 
+vert 999999   hos edges 3 4 5 6 7 8 9 
+*********************************************************
+
+[0m[32m----------------------- 8 - Locate Cycle -----------------
 [0marbitrarily choosing nontree edge: 3, 4
 ancestors v1...
-parent of 999999 is 4294967295
-parent of 3 is 999999
-parent of 4 is 999999
-parent of 5 is 999999
-parent of 6 is 999999
-parent of 7 is 999999
-parent of 8 is 999999
-parent of 9 is 999999
 first v: 3
 root: 999999
 pushing back v: 999999
 ancestors v2...
-parent of 999999 is 4294967295
-parent of 3 is 999999
-parent of 4 is 999999
-parent of 5 is 999999
-parent of 6 is 999999
-parent of 7 is 999999
-parent of 8 is 999999
-parent of 9 is 999999
 first v: 4
 root: 999999
 pushing back v: 999999
 common ancestor: 999999
-cycle verts: 3 999999 4 
-parent of 999999 is 4294967295
-parent of 3 is 999999
-parent of 4 is 999999
-parent of 5 is 999999
-parent of 6 is 999999
-parent of 7 is 999999
-parent of 8 is 999999
-parent of 9 is 999999
    scanning cycle vert 3
    scanning cycle vert 999999
       scanning incident tree edge 999999, 5   cost: 1
+cycle: 3
+cycle: 999999
+cycle: 4
+      here i am
+      src: 999999
+      tar: 5
+      v:   999999
+      testing if edge 999999, 5 is inside the cycle: 
+      it:     999999
+      v:      999999
+      before: 3
+      after:  4
+      other:  5
+      NO
       scanning incident tree edge 999999, 6   cost: 1
+cycle: 3
+cycle: 999999
+cycle: 4
+      here i am
+      src: 999999
+      tar: 6
+      v:   999999
+      testing if edge 999999, 6 is inside the cycle: 
+      it:     999999
+      v:      999999
+      before: 3
+      after:  4
+      other:  6
+      NO
       scanning incident tree edge 999999, 7   cost: 1
+cycle: 3
+cycle: 999999
+cycle: 4
+      here i am
+      src: 999999
+      tar: 7
+      v:   999999
+      testing if edge 999999, 7 is inside the cycle: 
+      it:     999999
+      v:      999999
+      before: 3
+      after:  4
+      other:  7
+      NO
       scanning incident tree edge 999999, 8   cost: 1
+cycle: 3
+cycle: 999999
+cycle: 4
+      here i am
+      src: 999999
+      tar: 8
+      v:   999999
+      testing if edge 999999, 8 is inside the cycle: 
+      it:     999999
+      v:      999999
+      before: 3
+      after:  4
+      other:  8
+      NO
       scanning incident tree edge 999999, 9   cost: 1
+cycle: 3
+cycle: 999999
+cycle: 4
+      here i am
+      src: 999999
+      tar: 9
+      v:   999999
+      testing if edge 999999, 9 is inside the cycle: 
+      it:     999999
+      v:      999999
+      before: 3
+      after:  4
+      other:  9
+      NO
    scanning cycle vert 4
 !!!!!! cost swapped !!!!!!!!
 total inside cost:  5

@@ -22,12 +22,11 @@ typedef adjacency_list<vecS, vecS, undirectedS, property<vertex_index_t, int>, p
 typedef vector<vector<graph_traits<Graph>::edge_descriptor>>                                                embedding_storage_t;
 typedef iterator_property_map<embedding_storage_t::iterator, property_map<Graph, vertex_index_t>::type>     embedding_t; 
 
-// This visitor is passed to planar_face_traversal to count the number of faces.
 struct face_counter : public planar_face_traversal_visitor
 {
-  face_counter() : count(0) {}
-  void begin_face() { ++count; }
-  int count;
+        face_counter() : count(0) {}
+        void begin_face() { ++count; }
+        int count;
 };
 
 struct coord_t

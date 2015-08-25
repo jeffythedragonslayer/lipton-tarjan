@@ -15,7 +15,7 @@ lt g/rand           > reg_out/rand
 lt g/rand2          > reg_out/rand2
 lt g/rand3          > reg_out/rand3
 lt g/square         > reg_out/square
-lt g/tri            > reg_out/ttri
+lt g/tri            > reg_out/tri
 lt g/tie            > reg_out/tie
 
 for file in reg_expected/*

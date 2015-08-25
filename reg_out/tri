@@ -1,0 +1,67 @@
+loading graph
+n: 3
+starting lipton tarjan...
+[32m---------------------------- 1 - Check Planarity  ------------
+[0mplanar ok
+[32m---------------------------- 2 - Connected Components --------
+[0m# of components: 1
+too big
+biggest component: 0
+[32m---------------------------- 3 - BFS and Levels ------------
+[0m  tree edge 0, 1
+  tree edge 0, 2
+[32m---------------------------- 4 - l1 and k  ------------
+[0mk:  3      # of verts in levels 0 thru l1
+l1: 1      total cost of levels 0 thru l1 barely exceeds 1/2
+[32m---------------------------- 5 - Find More Levels -------
+[0msq:    3.4641
+snk:   0
+l0: 1     highest level <= l1
+l2: 2     lowest  level >= l1 + 1
+[32m---------------------------- 6 - Shrinktree -------------
+[0mn: 3
+foundedge 1, 2     going to delete 1, 2
+foundedge 2, 1     going to delete 2, 1
+finishing
+edges to add size: 0
+adding: 
+edges to remove size: 2
+removing: (1, 2)   (2, 1)   
+no edges to x found, deleting
+killing vertex 999999
+x_gone: 0
+[32m-------------------- 7 - New BFS and Make Max Planar -----
+[0mroot: 0
+n:    3
+  tree edge 0, 1
+  tree edge 0, 2
+[31m
+**********************  Graph  **************************
+vert 0   hos edges 1 2 
+vert 1   hos edges 0 2 
+vert 2   hos edges 0 1 
+*********************************************************
+
+[0m[32m----------------------- 8 - Locate Cycle -----------------
+[0marbitrarily choosing nontree edge: 1, 2
+ancestors v1...
+first v: 1
+root: 0
+pushing back v: 0
+ancestors v2...
+first v: 2
+root: 0
+pushing back v: 0
+common ancestor: 0
+   scanning cycle vert 1
+   scanning cycle vert 0
+   scanning cycle vert 2
+total inside cost:  0
+total outside cost: 0
+[32m---------------------------- 9 - Improve Separator -----------
+[0mchosen_edge: 1, 2
+found cycle with inside cost < 2/3: 0
+cycle verts: 1 0 2 
+[32m
+------------ 10  - Construct Vertex Partition --------------
+[0m

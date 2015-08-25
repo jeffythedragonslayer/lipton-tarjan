@@ -70,6 +70,18 @@ void print_graph(Graph const& g)
         cout << "*********************************************************\n\n" << RESET;
 }
 
+void print_edges(Graph const& g)
+{
+        cout << RED << "\n**********************  Edges  **************************\n"; 
+        EdgeIter ei, ei_end;
+        for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ){ 
+                auto src = source(*ei, g);
+                auto tar = target(*ei, g);
+                cout << vert2uint[src] << ", " << vert2uint[tar] << '\n';
+        } 
+        cout << "*********************************************************\n\n" << RESET;
+}
+
 int main(int argc, char* argv[])
 {
         vector<string> fname;

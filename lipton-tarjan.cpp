@@ -62,54 +62,53 @@ bool on_cycle(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g)
         return on_cycle(src, cycle, g) && on_cycle(tar, cycle, g);
 }
 
-bool edge_inside(EdgeDesc e, VertDesc v, vector<VertDesc> const& cycle, Graph const& g, Embedding const& em)
+enum InsideOut {INSIDE, OUTSIDE, ON};
+
+InsideOut edge_inside_cycle(EdgeDesc e, VertDesc common_vert, vector<VertDesc> const& cycle, Graph const& g, Embedding const& em)
 {
-        for( uint i = 0; i < cycle.size(); ++i ) cout << "cycle: " << cycle[i] << '\n';
-        cout << "      here i am\n"; 
+        cout << "cycle: ";
+        for( uint i = 0; i < cycle.size(); ++i ) cout << cycle[i] << ' ';
+        cout << '\n';
         auto src = source(e, g);
         auto tar = target(e, g);
-        cout << "      src: " << src << '\n';
-        cout << "      tar: " << tar << '\n';
-        cout << "      v:   " << v   << '\n';
+        if( on_cycle(e, cycle, g) ) return ON;
         cout << "      testing if edge " << src << ", " << tar << " is inside the cycle: ";
-        auto it     = find(STLALL(cycle), v);
-        if( it == cycle.end() ){
-                cout << "      not here at all!\n";
-                assert(0);
-        }
-        assert(*it == v);
+        cout << "      common_vert:    " << common_vert   << '\n';
+        auto it     = find(STLALL(cycle), common_vert);
+        if( it == cycle.end() ){ cout << "      not here at all!\n"; assert(0); }
+        assert(*it == common_vert);
         auto before = it   == cycle.begin() ?  cycle.end  ()-1   : it-1;
         auto after  = it+1 == cycle.end  () ?  cycle.begin()     : it+1; 
-        auto other  = (source(e, g) == v) ?  target(e, g)        : source(e, g); 
+        auto other  = (source(e, g) == common_vert) ?  target(e, g)        : source(e, g); 
         
         cout << '\n';
-        cout << "      it:     " << *it << '\n';
-        cout << "      v:      " << v << '\n';
-        cout << "      before: " << *before << '\n';
-        cout << "      after:  " << *after << '\n';
-        cout << "      other:  " << other << '\n';
+        cout << "      it:     " << *it         << '\n';
+        cout << "      v:      " << common_vert << '\n';
+        cout << "      before: " << *before     << '\n';
+        cout << "      after:  " << *after      << '\n';
+        cout << "      other:  " << other       << '\n';
 
         vector<uint> perm;
         set<VertDesc> seenbefore;
         for( auto& tar_it : em[*it] ){ // why does this contain duplicates?
                 auto src = source(tar_it, g);
                 auto tar = target(tar_it, g);
-                if( src != v ) swap(src, tar);
-                assert(src == v);
+                if( src != common_vert ) swap(src, tar);
+                assert(src == common_vert);
                 if( seenbefore.find(tar) != seenbefore.end() ) continue;
                 seenbefore.insert(tar);
 
-                if(      tar == other   ) perm.push_back(1);
-                else if( tar == *before ) perm.push_back(2);
-                else if( tar == *after  ) perm.push_back(3);
+                if(      tar == other   ) perm.push_back(1), cout << "pushback1\n";
+                else if( tar == *before ) perm.push_back(2), cout << "pushback2\n";
+                else if( tar == *after  ) perm.push_back(3), cout << "pushback3\n";
         } 
         assert(perm.size() == 3);
         if( levi_civita(perm[0], perm[1], perm[2]) == 1 ){
                 cout << "      YES\n";
-                return true;
+                return INSIDE;
         } else {
                 cout << "      NO\n";
-                return false;
+                return OUTSIDE;
         }
 }
 
@@ -212,6 +211,7 @@ struct BFSVisitor : public default_bfs_visitor
 };
 
 extern void print_graph(Graph const& g);
+extern void print_edges(Graph const& g);
 
 uint theorem4(uint partition, Graph const& g)
 {
@@ -358,6 +358,24 @@ struct Em
         } 
 
         bool testplanar() {return boyer_myrvold_planarity_test(boyer_myrvold_params::graph = *g, boyer_myrvold_params::embedding = *em);}
+
+        void print()
+        {
+                cout << CYAN << "\n************** Embedding ************\n" << RESET;
+                VertIter vi, vend;
+                for( tie(vi, vend) = vertices(*g); vi != vend; ++vi ){
+                        cout << "vert " << *vi << ": ";
+                        Embedding& embedding = *em;
+                        for( auto ei = embedding[*vi].begin(); ei != embedding[*vi].end(); ++ei ){
+                                auto src = source(*ei, *g);
+                                auto tar = target(*ei, *g);
+                                if( tar == *vi ) swap(src, tar);
+                                cout << tar << ' ';
+                        }
+                        cout << "\n"; 
+                }
+                cout << CYAN << "*************************************\n" << RESET;
+        }
 
         ~Em()
         {
@@ -563,7 +581,9 @@ CycleCost compute_cycle_cost(vector<VertDesc> const& cycle, Graph const& g, BFSV
                 for( auto e = out_edges(v, g); e.first != e.second; ++e.first ) if( vis_data.is_tree_edge(*e.first) && !on_cycle(*e.first, cycle, g) ){
                         uint cost = vis_data.edge_cost(*e.first, cycle, g);
                         cout << "      scanning incident tree edge " << to_string(*e.first, g) << "   cost: " << cost << '\n';
-                        bool is_inside = edge_inside(*e.first, v, cycle, g, *em.em);
+                        auto insideout = edge_inside_cycle(*e.first, v, cycle, g, *em.em);
+                        assert(insideout != ON);
+                        bool is_inside = (insideout == INSIDE);
                         (is_inside ? cc.inside : cc.outside) += cost;
                 }
         }
@@ -687,9 +707,7 @@ Partition lipton_tarjan(Graph& g)
                 cout << "x_gone: " << x_gone << '\n';
         } else {
                 // delete all vertices x has replaced
-                for( auto& v : replaceverts ){
-                        kill_vertex(v, g);
-                }
+                for( auto& v : replaceverts ) kill_vertex(v, g);
         }
 
         cout << HEADER_COL << "-------------------- 7 - New BFS and Make Max Planar -----\n" << RESET;
@@ -727,6 +745,7 @@ Partition lipton_tarjan(Graph& g)
         cout << "total outside cost: " << cc.outside << '\n'; 
 
         cout << HEADER_COL << "---------------------------- 9 - Improve Separator -----------\n" << RESET;
+        print_edges(g);
         cout << "chosen_edge: " << to_string(chosen_edge, g) << '\n';
 
         while( cc.inside > num_vertices(g)*2./3 ){
@@ -742,11 +761,12 @@ Partition lipton_tarjan(Graph& g)
                 auto neighbors_v = get_neighbors(chosen_vi, g);
                 auto neighbors_w = get_neighbors(chosen_wi, g); 
                 auto intersect   = get_intersection(neighbors_v, neighbors_w); 
-                for( auto& i : intersect ) cout << "   intersecti: " << i << '\n';
                 assert(intersect.size() == 2);
-                cout << "   edge_inside y\n";
                 cout << "   intersectbegin: " << *intersect.begin() << '\n';
-                auto y = edge_inside(chosen_edge, *intersect.begin(), cycle, g, *em2.em) ? *intersect.begin() : *(++intersect.begin());
+
+                InsideOut insideout = edge_inside_cycle(chosen_edge, *intersect.begin(), cycle, g, *em2.em);
+                assert(insideout != ON); 
+                auto y =  (insideout == INSIDE) ? *intersect.begin() : *(++intersect.begin());
 
                 cout << "   y: " << y << '\n';
                 EdgeDesc viy, ywi;

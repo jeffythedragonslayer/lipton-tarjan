@@ -66,14 +66,14 @@ enum InsideOut {INSIDE, OUTSIDE, ON};
 
 InsideOut edge_inside_cycle(EdgeDesc e, VertDesc common_vert, vector<VertDesc> const& cycle, Graph const& g, Embedding const& em)
 {
-        cout << "cycle: ";
+        //cout << "cycle: ";
         for( uint i = 0; i < cycle.size(); ++i ) cout << cycle[i] << ' ';
-        cout << '\n';
+        //cout << '\n';
         auto src = source(e, g);
         auto tar = target(e, g);
         if( on_cycle(e, cycle, g) ) return ON;
-        cout << "      testing if edge " << src << ", " << tar << " is inside the cycle: ";
-        cout << "      common_vert:    " << common_vert   << '\n';
+        //cout << "      testing if edge " << src << ", " << tar << " is inside the cycle: ";
+        //cout << "      common_vert:    " << common_vert   << '\n';
         auto it     = find(STLALL(cycle), common_vert);
         if( it == cycle.end() ){ cout << "      not here at all!\n"; assert(0); }
         assert(*it == common_vert);
@@ -81,12 +81,12 @@ InsideOut edge_inside_cycle(EdgeDesc e, VertDesc common_vert, vector<VertDesc> c
         auto after  = it+1 == cycle.end  () ?  cycle.begin()     : it+1; 
         auto other  = (source(e, g) == common_vert) ?  target(e, g)        : source(e, g); 
         
-        cout << '\n';
-        cout << "      it:     " << *it         << '\n';
-        cout << "      v:      " << common_vert << '\n';
-        cout << "      before: " << *before     << '\n';
-        cout << "      after:  " << *after      << '\n';
-        cout << "      other:  " << other       << '\n';
+        //cout << '\n';
+        //cout << "      it:     " << *it         << '\n';
+        //cout << "      v:      " << common_vert << '\n';
+        //cout << "      before: " << *before     << '\n';
+        //cout << "      after:  " << *after      << '\n';
+        //cout << "      other:  " << other       << '\n';
 
         vector<uint> perm;
         set<VertDesc> seenbefore;
@@ -98,18 +98,13 @@ InsideOut edge_inside_cycle(EdgeDesc e, VertDesc common_vert, vector<VertDesc> c
                 if( seenbefore.find(tar) != seenbefore.end() ) continue;
                 seenbefore.insert(tar);
 
-                if(      tar == other   ) perm.push_back(1), cout << "pushback1\n";
-                else if( tar == *before ) perm.push_back(2), cout << "pushback2\n";
-                else if( tar == *after  ) perm.push_back(3), cout << "pushback3\n";
+                if(      tar == other   ) perm.push_back(1);
+                else if( tar == *before ) perm.push_back(2);
+                else if( tar == *after  ) perm.push_back(3);
         } 
         assert(perm.size() == 3);
-        if( levi_civita(perm[0], perm[1], perm[2]) == 1 ){
-                cout << "      YES\n";
-                return INSIDE;
-        } else {
-                cout << "      NO\n";
-                return OUTSIDE;
-        }
+        if( levi_civita(perm[0], perm[1], perm[2]) == 1 ){ return INSIDE;
+        } else { return OUTSIDE; }
 }
 
 
@@ -161,11 +156,8 @@ struct BFSVisitorData
 
                 auto v = source(e, g); 
                 auto w = target(e, g); 
-                auto v_it = verts.find(v);
-                auto w_it = verts.find(w);
-                assert(v_it != verts.end());
-                assert(w_it != verts.end());
-
+                auto v_it = verts.find(v); assert(v_it != verts.end());
+                auto w_it = verts.find(w); assert(w_it != verts.end());
                 if( !on_cycle(v, cycle, g) ) swap(v, w);
 
                 assert( on_cycle(v, cycle, g));
@@ -481,15 +473,15 @@ uint lemma3(vector<VertDesc> const& cycle_verts, int* l, Graph const& g)
 
 vector<VertDesc> ancestors(VertDesc v, BFSVisitorData const& vis)
 {
-        cout << "first v: " << v << '\n';
-        cout << "root: " << vis.root << '\n';
+        //cout << "first v: " << v << '\n';
+        //cout << "root: " << vis.root << '\n';
         vector<VertDesc> ans = {v};
         while( v != vis.root ){
                 auto v_it = vis.verts.find(v);
                 assert(v_it != vis.verts.end());
                 v = v_it->second.parent;
                 ans.push_back(v);
-                cout << "pushing back v: " << v << '\n';
+                //cout << "pushing back v: " << v << '\n';
         }
         return ans;
 }
@@ -577,10 +569,10 @@ CycleCost compute_cycle_cost(vector<VertDesc> const& cycle, Graph const& g, BFSV
 {
         CycleCost cc;
         for( auto& v : cycle ){
-                cout << "   scanning cycle vert " << v << '\n';
+                //cout << "   scanning cycle vert " << v << '\n';
                 for( auto e = out_edges(v, g); e.first != e.second; ++e.first ) if( vis_data.is_tree_edge(*e.first) && !on_cycle(*e.first, cycle, g) ){
                         uint cost = vis_data.edge_cost(*e.first, cycle, g);
-                        cout << "      scanning incident tree edge " << to_string(*e.first, g) << "   cost: " << cost << '\n';
+                        //cout << "      scanning incident tree edge " << to_string(*e.first, g) << "   cost: " << cost << '\n';
                         auto insideout = edge_inside_cycle(*e.first, v, cycle, g, *em.em);
                         assert(insideout != ON);
                         bool is_inside = (insideout == INSIDE);
@@ -590,7 +582,7 @@ CycleCost compute_cycle_cost(vector<VertDesc> const& cycle, Graph const& g, BFSV
         if( cc.outside > cc.inside ){
                 swap(cc.outside, cc.inside);
                 cc.swapped = true;
-                cout << "!!!!!! cost swapped !!!!!!!!\n";
+                //cout << "!!!!!! cost swapped !!!!!!!!\n";
         }
         return cc;
 }
@@ -748,28 +740,36 @@ Partition lipton_tarjan(Graph& g)
         print_edges(g);
         cout << "chosen_edge: " << to_string(chosen_edge, g) << '\n';
 
+        cout << "const inside:  " << cc.inside  << '\n';
+        cout << "const outside: " << cc.outside << '\n';
         while( cc.inside > num_vertices(g)*2./3 ){
-                cout << "looking for a better cycle\n";
+                cout << "const inside: " << cc.inside  << '\n';
+                cout << "const outide: " << cc.outside << '\n';
+                //cout << "looking for a better cycle\n";
 
                 auto chosen_vi = source(chosen_edge, g);
                 auto chosen_wi = target(chosen_edge, g);
                 assert(!vis_data.is_tree_edge(chosen_edge));
                 EdgeDesc next_edge;
-                cout << "   vi: " << chosen_vi << '\n';
-                cout << "   wi: " << chosen_wi << '\n';
+                //cout << "   vi: " << chosen_vi << '\n';
+                //cout << "   wi: " << chosen_wi << '\n';
 
                 auto neighbors_v = get_neighbors(chosen_vi, g);
                 auto neighbors_w = get_neighbors(chosen_wi, g); 
                 auto intersect   = get_intersection(neighbors_v, neighbors_w); 
                 assert(intersect.size() == 2);
-                cout << "   intersectbegin: " << *intersect.begin() << '\n';
+                //cout << "   intersectbegin: " << *intersect.begin() << '\n';
 
-                InsideOut insideout = edge_inside_cycle(chosen_edge, *intersect.begin(), cycle, g, *em2.em);
-                assert(insideout != ON); 
+                auto eee = edge(chosen_vi, *intersect.begin(), g);
+                //cout << "eee: " << to_string(eee.first, g) << '\n';
+                assert(eee.second);
+
+                InsideOut insideout = edge_inside_cycle(eee.first, *intersect.begin(), cycle, g, *em2.em);
                 auto y =  (insideout == INSIDE) ? *intersect.begin() : *(++intersect.begin());
 
-                cout << "   y: " << y << '\n';
-                EdgeDesc viy, ywi;
+                //cout << "   y: " << y << '\n';
+                auto viy_e = edge(chosen_vi, y, g); assert(viy_e.second); auto viy = viy_e.first;
+                auto ywi_e = edge(y, chosen_wi, g); assert(ywi_e.second); auto ywi = ywi_e.first; 
                 if ( vis_data.is_tree_edge(viy) || vis_data.is_tree_edge(ywi) ){
                         cout << "   at least one tree edge\n";
                         next_edge = vis_data.is_tree_edge(viy) ? ywi : viy;
@@ -797,13 +797,8 @@ Partition lipton_tarjan(Graph& g)
                         auto cost1  = compute_cycle_cost(cycle1, g, vis_data, em2);
                         auto cost2  = compute_cycle_cost(cycle2, g, vis_data, em2);
 
-                        if( cost1.inside > cost2.inside ){
-                                next_edge = edge(chosen_vi, y, g).first;
-                                cc = cost1;
-                        } else {
-                                next_edge = edge(y, chosen_wi, g).first;
-                                cc = cost2;
-                        }
+                        if( cost1.inside > cost2.inside ){ next_edge = edge(chosen_vi, y, g).first; cc = cost1; }
+                        else                             { next_edge = edge(y, chosen_wi, g).first; cc = cost2; }
                 } 
                 chosen_edge = next_edge;
         }

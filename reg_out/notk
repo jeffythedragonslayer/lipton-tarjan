@@ -24,6 +24,18 @@ l2: 2     lowest  level >= l1 + 1
 [0mn: 5
 killing vertex 1
 killing vertex 2
+testing is tree edge 0, 4
+src: 0
+tar: 4
+testing is tree edge 0, 3
+src: 0
+tar: 3
+testing is tree edge 0, 3
+src: 0
+tar: 3
+testing is tree edge 0, 4
+src: 0
+tar: 4
 finishing
 edges to add size: 0
 adding: 
@@ -45,7 +57,19 @@ vert 4   hos edges 0 3
 *********************************************************
 
 [0m[32m----------------------- 8 - Locate Cycle -----------------
-[0marbitrarily choosing nontree edge: 3, 4
+[0mtesting is tree edge 0, 3
+src: 0
+tar: 3
+testing is tree edge 0, 4
+src: 0
+tar: 4
+testing is tree edge 3, 4
+src: 3
+tar: 4
+testing is tree edge 3, 4
+src: 3
+tar: 4
+arbitrarily choosing nontree edge: 3, 4
 ancestors v1...
 first v: 3
 root: 0
@@ -56,12 +80,38 @@ root: 0
 pushing back v: 0
 common ancestor: 0
    scanning cycle vert 3
+testing is tree edge 3, 0
+src: 3
+tar: 0
+testing is tree edge 3, 4
+src: 3
+tar: 4
    scanning cycle vert 0
+testing is tree edge 0, 3
+src: 0
+tar: 3
+testing is tree edge 0, 4
+src: 0
+tar: 4
    scanning cycle vert 4
+testing is tree edge 4, 0
+src: 4
+tar: 0
+testing is tree edge 4, 3
+src: 4
+tar: 3
 total inside cost:  0
 total outside cost: 0
 [32m---------------------------- 9 - Improve Separator -----------
+[0m[31m
+**********************  Edges  **************************
+0, 3
+0, 4
+3, 4
+*********************************************************
+
 [0mchosen_edge: 3, 4
+const inside: 0
 found cycle with inside cost < 2/3: 0
 cycle verts: 3 0 4 
 [32m

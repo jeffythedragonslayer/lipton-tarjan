@@ -1,3 +1,3 @@
 #!/bin/sh
-fdp -Tpng out_graph.dot -o out_graph.png
+fdp -Tpng $1 -o out_graph.png
 Thunar out_graph.png

@@ -31,12 +31,72 @@ l2: 3     lowest  level >= l1 + 1
 killing vertex 8
 killing vertex 9
 killing vertex 10
+testing is tree edge 0, 1
+src: 0
+tar: 1
+testing is tree edge 0, 3
+src: 0
+tar: 3
+testing is tree edge 0, 4
+src: 0
+tar: 4
+testing is tree edge 1, 2
+src: 1
+tar: 2
+testing is tree edge 0, 1
+src: 0
+tar: 1
+testing is tree edge 2, 3
+src: 2
+tar: 3
 foundedge 2, 3     going to delete 2, 3
+testing is tree edge 1, 2
+src: 1
+tar: 2
+testing is tree edge 3, 6
+src: 3
+tar: 6
+testing is tree edge 0, 3
+src: 0
+tar: 3
+testing is tree edge 2, 3
+src: 2
+tar: 3
 foundedge 3, 2     going to delete 3, 2
+testing is tree edge 6, 5
+src: 6
+tar: 5
 foundedge 6, 5     going to delete 6, 5
+testing is tree edge 6, 7
+src: 6
+tar: 7
 foundedge 6, 7     going to delete 6, 7
+testing is tree edge 3, 6
+src: 3
+tar: 6
+testing is tree edge 0, 4
+src: 0
+tar: 4
+testing is tree edge 4, 7
+src: 4
+tar: 7
+testing is tree edge 5, 4
+src: 5
+tar: 4
+testing is tree edge 5, 4
+src: 5
+tar: 4
+testing is tree edge 6, 5
+src: 6
+tar: 5
 foundedge 5, 6     going to delete 5, 6
+testing is tree edge 6, 7
+src: 6
+tar: 7
 foundedge 7, 6     going to delete 7, 6
+testing is tree edge 4, 7
+src: 4
+tar: 7
 finishing
 edges to add size: 0
 adding: 
@@ -68,7 +128,34 @@ vert 7   hos edges 4 5 0
 *********************************************************
 
 [0m[32m----------------------- 8 - Locate Cycle -----------------
-[0marbitrarily choosing nontree edge: 0, 2
+[0mtesting is tree edge 0, 1
+src: 0
+tar: 1
+testing is tree edge 1, 2
+src: 1
+tar: 2
+testing is tree edge 3, 0
+src: 3
+tar: 0
+testing is tree edge 4, 5
+src: 4
+tar: 5
+testing is tree edge 6, 3
+src: 6
+tar: 3
+testing is tree edge 0, 4
+src: 0
+tar: 4
+testing is tree edge 4, 7
+src: 4
+tar: 7
+testing is tree edge 0, 2
+src: 0
+tar: 2
+testing is tree edge 0, 2
+src: 0
+tar: 2
+arbitrarily choosing nontree edge: 0, 2
 ancestors v1...
 first v: 0
 root: 0
@@ -79,42 +166,112 @@ pushing back v: 1
 pushing back v: 0
 common ancestor: 0
    scanning cycle vert 0
+testing is tree edge 0, 1
+src: 0
+tar: 1
+testing is tree edge 0, 3
+src: 0
+tar: 3
+testing is tree edge 0, 3
+src: 0
+tar: 3
       scanning incident tree edge 0, 3   cost: 2
-cycle: 0
-cycle: 1
-cycle: 2
-      here i am
-      src: 0
-      tar: 3
-      v:   0
-      testing if edge 0, 3 is inside the cycle: 
+cycle: 0 1 2 
+      testing if edge 0, 3 is inside the cycle:       common_vert:    0
+
       it:     0
       v:      0
       before: 2
       after:  1
       other:  3
+pushback3
+pushback1
+pushback2
       YES
+testing is tree edge 0, 4
+src: 0
+tar: 4
+testing is tree edge 0, 4
+src: 0
+tar: 4
       scanning incident tree edge 0, 4   cost: 3
-cycle: 0
-cycle: 1
-cycle: 2
-      here i am
-      src: 0
-      tar: 4
-      v:   0
-      testing if edge 0, 4 is inside the cycle: 
+cycle: 0 1 2 
+      testing if edge 0, 4 is inside the cycle:       common_vert:    0
+
       it:     0
       v:      0
       before: 2
       after:  1
       other:  4
+pushback3
+pushback1
+pushback2
       YES
+testing is tree edge 0, 2
+src: 0
+tar: 2
+testing is tree edge 0, 6
+src: 0
+tar: 6
+testing is tree edge 0, 5
+src: 0
+tar: 5
+testing is tree edge 0, 7
+src: 0
+tar: 7
    scanning cycle vert 1
+testing is tree edge 1, 0
+src: 1
+tar: 0
+testing is tree edge 1, 2
+src: 1
+tar: 2
+testing is tree edge 1, 3
+src: 1
+tar: 3
+testing is tree edge 1, 4
+src: 1
+tar: 4
+testing is tree edge 1, 5
+src: 1
+tar: 5
    scanning cycle vert 2
+testing is tree edge 2, 1
+src: 2
+tar: 1
+testing is tree edge 2, 0
+src: 2
+tar: 0
+testing is tree edge 2, 3
+src: 2
+tar: 3
 total inside cost:  5
 total outside cost: 0
 [32m---------------------------- 9 - Improve Separator -----------
+[0m[31m
+**********************  Edges  **************************
+0, 1
+1, 2
+3, 0
+4, 5
+6, 3
+0, 4
+4, 7
+0, 2
+0, 6
+5, 7
+0, 5
+3, 4
+1, 3
+1, 4
+1, 5
+2, 3
+6, 4
+7, 0
+*********************************************************
+
 [0mchosen_edge: 0, 2
+const inside: 5
 found cycle with inside cost < 2/3: 5
 cycle verts: 0 1 2 
 [32m

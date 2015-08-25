@@ -27,12 +27,45 @@ l0: 1     highest level <= l1
 l2: 3     lowest  level >= l1 + 1
 [32m---------------------------- 6 - Shrinktree -------------
 [0mn: 10
+testing is tree edge 0, 1
+src: 0
+tar: 1
+testing is tree edge 0, 2
+src: 0
+tar: 2
+testing is tree edge 1, 7
+src: 1
+tar: 7
 foundedge 1, 7   !!!!!!!going to add 999999, 7     going to delete 1, 7
+testing is tree edge 1, 6
+src: 1
+tar: 6
 foundedge 1, 6   !!!!!!!going to add 999999, 6     going to delete 1, 6
+testing is tree edge 1, 5
+src: 1
+tar: 5
 foundedge 1, 5   !!!!!!!going to add 999999, 5     going to delete 1, 5
+testing is tree edge 1, 4
+src: 1
+tar: 4
 foundedge 1, 4   !!!!!!!going to add 999999, 4     going to delete 1, 4
+testing is tree edge 0, 1
+src: 0
+tar: 1
+testing is tree edge 2, 9
+src: 2
+tar: 9
 foundedge 2, 9   !!!!!!!going to add 999999, 9     going to delete 2, 9
+testing is tree edge 2, 8
+src: 2
+tar: 8
 foundedge 2, 8   !!!!!!!going to add 999999, 8     going to delete 2, 8
+testing is tree edge 0, 2
+src: 0
+tar: 2
+testing is tree edge 3, 2
+src: 3
+tar: 2
 foundedge 2, 3   !!!!!!!going to add 999999, 3     going to delete 2, 3
 finishing
 edges to add size: 7
@@ -65,7 +98,13 @@ vert 999999   hos edges 3 4 5 6 7 8 9
 *********************************************************
 
 [0m[32m----------------------- 8 - Locate Cycle -----------------
-[0marbitrarily choosing nontree edge: 3, 4
+[0mtesting is tree edge 3, 4
+src: 3
+tar: 4
+testing is tree edge 3, 4
+src: 3
+tar: 4
+arbitrarily choosing nontree edge: 3, 4
 ancestors v1...
 first v: 3
 root: 999999
@@ -76,88 +115,158 @@ root: 999999
 pushing back v: 999999
 common ancestor: 999999
    scanning cycle vert 3
+testing is tree edge 3, 4
+src: 3
+tar: 4
+testing is tree edge 3, 999999
+src: 3
+tar: 999999
+testing is tree edge 3, 5
+src: 3
+tar: 5
+testing is tree edge 3, 9
+src: 3
+tar: 9
    scanning cycle vert 999999
+testing is tree edge 999999, 3
+src: 999999
+tar: 3
+testing is tree edge 999999, 4
+src: 999999
+tar: 4
+testing is tree edge 999999, 5
+src: 999999
+tar: 5
+testing is tree edge 999999, 5
+src: 999999
+tar: 5
       scanning incident tree edge 999999, 5   cost: 1
-cycle: 3
-cycle: 999999
-cycle: 4
-      here i am
-      src: 999999
-      tar: 5
-      v:   999999
-      testing if edge 999999, 5 is inside the cycle: 
+cycle: 3 999999 4 
+      testing if edge 999999, 5 is inside the cycle:       common_vert:    999999
+
       it:     999999
       v:      999999
       before: 3
       after:  4
       other:  5
+pushback2
+pushback1
+pushback3
       NO
+testing is tree edge 999999, 6
+src: 999999
+tar: 6
+testing is tree edge 999999, 6
+src: 999999
+tar: 6
       scanning incident tree edge 999999, 6   cost: 1
-cycle: 3
-cycle: 999999
-cycle: 4
-      here i am
-      src: 999999
-      tar: 6
-      v:   999999
-      testing if edge 999999, 6 is inside the cycle: 
+cycle: 3 999999 4 
+      testing if edge 999999, 6 is inside the cycle:       common_vert:    999999
+
       it:     999999
       v:      999999
       before: 3
       after:  4
       other:  6
+pushback2
+pushback1
+pushback3
       NO
+testing is tree edge 999999, 7
+src: 999999
+tar: 7
+testing is tree edge 999999, 7
+src: 999999
+tar: 7
       scanning incident tree edge 999999, 7   cost: 1
-cycle: 3
-cycle: 999999
-cycle: 4
-      here i am
-      src: 999999
-      tar: 7
-      v:   999999
-      testing if edge 999999, 7 is inside the cycle: 
+cycle: 3 999999 4 
+      testing if edge 999999, 7 is inside the cycle:       common_vert:    999999
+
       it:     999999
       v:      999999
       before: 3
       after:  4
       other:  7
+pushback2
+pushback1
+pushback3
       NO
+testing is tree edge 999999, 8
+src: 999999
+tar: 8
+testing is tree edge 999999, 8
+src: 999999
+tar: 8
       scanning incident tree edge 999999, 8   cost: 1
-cycle: 3
-cycle: 999999
-cycle: 4
-      here i am
-      src: 999999
-      tar: 8
-      v:   999999
-      testing if edge 999999, 8 is inside the cycle: 
+cycle: 3 999999 4 
+      testing if edge 999999, 8 is inside the cycle:       common_vert:    999999
+
       it:     999999
       v:      999999
       before: 3
       after:  4
       other:  8
+pushback2
+pushback1
+pushback3
       NO
+testing is tree edge 999999, 9
+src: 999999
+tar: 9
+testing is tree edge 999999, 9
+src: 999999
+tar: 9
       scanning incident tree edge 999999, 9   cost: 1
-cycle: 3
-cycle: 999999
-cycle: 4
-      here i am
-      src: 999999
-      tar: 9
-      v:   999999
-      testing if edge 999999, 9 is inside the cycle: 
+cycle: 3 999999 4 
+      testing if edge 999999, 9 is inside the cycle:       common_vert:    999999
+
       it:     999999
       v:      999999
       before: 3
       after:  4
       other:  9
+pushback2
+pushback1
+pushback3
       NO
    scanning cycle vert 4
+testing is tree edge 4, 3
+src: 4
+tar: 3
+testing is tree edge 4, 999999
+src: 4
+tar: 999999
+testing is tree edge 4, 5
+src: 4
+tar: 5
 !!!!!! cost swapped !!!!!!!!
 total inside cost:  5
 total outside cost: 0
 [32m---------------------------- 9 - Improve Separator -----------
+[0m[31m
+**********************  Edges  **************************
+3, 4
+999999, 3
+999999, 4
+999999, 5
+999999, 6
+999999, 7
+999999, 8
+999999, 9
+8, 9
+7, 8
+6, 7
+5, 6
+3, 5
+4, 5
+9, 3
+9, 5
+9, 6
+9, 7
+*********************************************************
+
 [0mchosen_edge: 3, 4
+const inside: 5
 found cycle with inside cost < 2/3: 5
 cycle verts: 3 999999 4 
 [32m

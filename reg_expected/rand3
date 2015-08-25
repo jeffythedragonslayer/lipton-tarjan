@@ -27,6 +27,24 @@ l2: 2     lowest  level >= l1 + 1
 killing vertex 2
 killing vertex 3
 killing vertex 4
+testing is tree edge 0, 5
+src: 0
+tar: 5
+testing is tree edge 0, 6
+src: 0
+tar: 6
+testing is tree edge 0, 1
+src: 0
+tar: 1
+testing is tree edge 0, 1
+src: 0
+tar: 1
+testing is tree edge 0, 5
+src: 0
+tar: 5
+testing is tree edge 0, 6
+src: 0
+tar: 6
 finishing
 edges to add size: 0
 adding: 
@@ -50,7 +68,22 @@ vert 6   hos edges 0 5 1
 *********************************************************
 
 [0m[32m----------------------- 8 - Locate Cycle -----------------
-[0marbitrarily choosing nontree edge: 6, 5
+[0mtesting is tree edge 0, 1
+src: 0
+tar: 1
+testing is tree edge 6, 0
+src: 6
+tar: 0
+testing is tree edge 0, 5
+src: 0
+tar: 5
+testing is tree edge 6, 5
+src: 6
+tar: 5
+testing is tree edge 6, 5
+src: 6
+tar: 5
+arbitrarily choosing nontree edge: 6, 5
 ancestors v1...
 first v: 6
 root: 0
@@ -61,28 +94,67 @@ root: 0
 pushing back v: 0
 common ancestor: 0
    scanning cycle vert 6
+testing is tree edge 6, 0
+src: 6
+tar: 0
+testing is tree edge 6, 5
+src: 6
+tar: 5
+testing is tree edge 6, 1
+src: 6
+tar: 1
    scanning cycle vert 0
+testing is tree edge 0, 1
+src: 0
+tar: 1
+testing is tree edge 0, 1
+src: 0
+tar: 1
       scanning incident tree edge 0, 1   cost: 1
-cycle: 6
-cycle: 0
-cycle: 5
-      here i am
-      src: 0
-      tar: 1
-      v:   0
-      testing if edge 0, 1 is inside the cycle: 
+cycle: 6 0 5 
+      testing if edge 0, 1 is inside the cycle:       common_vert:    0
+
       it:     0
       v:      0
       before: 6
       after:  5
       other:  1
+pushback1
+pushback3
+pushback2
       NO
+testing is tree edge 0, 6
+src: 0
+tar: 6
+testing is tree edge 0, 5
+src: 0
+tar: 5
    scanning cycle vert 5
+testing is tree edge 5, 0
+src: 5
+tar: 0
+testing is tree edge 5, 6
+src: 5
+tar: 6
+testing is tree edge 5, 1
+src: 5
+tar: 1
 !!!!!! cost swapped !!!!!!!!
 total inside cost:  1
 total outside cost: 0
 [32m---------------------------- 9 - Improve Separator -----------
+[0m[31m
+**********************  Edges  **************************
+0, 1
+6, 0
+0, 5
+6, 5
+1, 6
+1, 5
+*********************************************************
+
 [0mchosen_edge: 6, 5
+const inside: 1
 found cycle with inside cost < 2/3: 1
 cycle verts: 6 0 5 
 [32m

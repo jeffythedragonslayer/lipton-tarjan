@@ -579,14 +579,14 @@ Partition lipton_tarjan(Graph& g)
         cout << HEADER_COL << "---------------------------- 2 - Connected Components --------\n" << RESET;
         VertDescMap idx; 
         associative_property_map<VertDescMap> vertid_to_component(idx);
-        VertIter vi, vj;
-        tie(vi, vj) = vertices(g);
-        for( uint i = 0; vi != vj; ++vi, ++i ) put(vertid_to_component, *vi, i);
+        VertIter vit, vjt;
+        tie(vit, vjt) = vertices(g);
+        for( uint i = 0; vit != vjt; ++vit, ++i ) put(vertid_to_component, *vit, i);
         uint components = connected_components(g, vertid_to_component);
 
         cout << "# of components: " << components << '\n';
         vector<uint> verts_per_comp(components, 0);
-        for( tie(vi, vj) = vertices(g); vi != vj; ++vi ) ++verts_per_comp[vertid_to_component[*vi]]; 
+        for( tie(vit, vjt) = vertices(g); vit != vjt; ++vit ) ++verts_per_comp[vertid_to_component[*vit]];
         uint biggest_component = 0;
         uint biggest_size      = 0;
         bool too_big           = false;
@@ -640,24 +640,24 @@ Partition lipton_tarjan(Graph& g)
         cout << "n: " << num_vertices(g) << '\n'; 
 
         vector<VertDesc> replaceverts;
-        tie(vi, vj) = vertices(g); 
-        for( auto next = vi; vi != vj; vi = next ){
+        tie(vit, vjt) = vertices(g); 
+        for( auto next = vit; vit != vjt; vit = next ){
                 ++next;
-                if( vis_data.verts[*vi].level >= l[2] ){
-                        //cout << "deleting vertex " << *vi << " of level l2 " << vis_data.verts[*vi].level << " >= " << l[2] << '\n';
-                        kill_vertex(*vi, g);
+                if( vis_data.verts[*vit].level >= l[2] ){
+                        //cout << "deleting vertex " << *vit << " of level l2 " << vis_data.verts[*vit].level << " >= " << l[2] << '\n';
+                        kill_vertex(*vit, g);
                 }
-                if( vis_data.verts[*vi].level <= l[0] ){
-                        //cout << "going to replace vertex " << *vi << " of level l0 " << vis_data.verts[*vi].level << " <= " << l[0] << '\n';
-                        replaceverts.push_back(*vi);
+                if( vis_data.verts[*vit].level <= l[0] ){
+                        //cout << "going to replace vertex " << *vit << " of level l0 " << vis_data.verts[*vit].level << " <= " << l[0] << '\n';
+                        replaceverts.push_back(*vit);
                 }
         }
 
         auto x = add_vertex(g); uint2vert[vert2uint[x] = 999999] = x; 
         map<VertDesc, bool> t;
-        for( tie(vi, vj) = vertices(g); vi != vj; ++vi ){
-                t[*vi] = (vis_data.verts[*vi].level <= l[0]);
-                //cout << "vertex " << *vi << " at level " << vis_data.verts[*vi].level << " is " << (t[*vi] ? "TRUE" : "FALSE") << '\n';
+        for( tie(vit, vjt) = vertices(g); vit != vjt; ++vit ){
+                t[*vit] = (vis_data.verts[*vit].level <= l[0]);
+                //cout << "vertex " << *vit << " at level " << vis_data.verts[*vit].level << " is " << (t[*vit] ? "TRUE" : "FALSE") << '\n';
         }
 
         reset_vertex_indices(g);
@@ -725,20 +725,20 @@ Partition lipton_tarjan(Graph& g)
                 //cout << "const outide: " << cc.outside << '\n';
                 //cout << "looking for a better cycle\n";
 
-                auto chosen_vi = source(chosen_edge, g);
-                auto chosen_wi = target(chosen_edge, g);
+                auto vi = source(chosen_edge, g);
+                auto wi = target(chosen_edge, g);
                 assert(!vis_data.is_tree_edge(chosen_edge));
                 EdgeDesc next_edge;
-                //cout << "   vi: " << chosen_vi << '\n';
-                //cout << "   wi: " << chosen_wi << '\n';
+                //cout << "   vi: " << vi << '\n';
+                //cout << "   wi: " << wi << '\n';
 
-                auto neighbors_v = get_neighbors(chosen_vi, g);
-                auto neighbors_w = get_neighbors(chosen_wi, g); 
+                auto neighbors_v = get_neighbors(vi, g);
+                auto neighbors_w = get_neighbors(wi, g); 
                 auto intersect   = get_intersection(neighbors_v, neighbors_w); 
                 assert(intersect.size() == 2);
                 //cout << "   intersectbegin: " << *intersect.begin() << '\n';
 
-                auto eee = edge(chosen_vi, *intersect.begin(), g);
+                auto eee = edge(vi, *intersect.begin(), g);
                 //cout << "eee: " << to_string(eee.first, g) << '\n';
                 assert(eee.second);
 
@@ -746,15 +746,15 @@ Partition lipton_tarjan(Graph& g)
                 auto y =  (insideout == INSIDE) ? *intersect.begin() : *(++intersect.begin());
 
                 //cout << "   y: " << y << '\n';
-                auto viy_e = edge(chosen_vi, y, g); assert(viy_e.second); auto viy = viy_e.first;
-                auto ywi_e = edge(y, chosen_wi, g); assert(ywi_e.second); auto ywi = ywi_e.first; 
+                auto viy_e = edge(vi, y, g); assert(viy_e.second); auto viy = viy_e.first;
+                auto ywi_e = edge(y, wi, g); assert(ywi_e.second); auto ywi = ywi_e.first; 
                 if ( vis_data.is_tree_edge(viy) || vis_data.is_tree_edge(ywi) ){
                         //cout << "   at least one tree edge\n";
                         next_edge = vis_data.is_tree_edge(viy) ? ywi : viy;
                         assert(!vis_data.is_tree_edge(next_edge));
-                        uint cost1 = vis_data.verts[chosen_vi].descendant_cost;
-                        uint cost2 = vis_data.verts[y        ].descendant_cost;
-                        uint cost3 = vis_data.verts[chosen_wi].descendant_cost;
+                        uint cost1 = vis_data.verts[vi].descendant_cost;
+                        uint cost2 = vis_data.verts[y  ].descendant_cost;
+                        uint cost3 = vis_data.verts[wi].descendant_cost;
                         uint cost4 = cc.inside;
                         auto new_cycle = get_cycle(source(next_edge, g), target(next_edge, g), vis_data);
                         cc = compute_cycle_cost(new_cycle, g, vis_data, em2);
@@ -769,14 +769,14 @@ Partition lipton_tarjan(Graph& g)
                         assert(path.size() == i);
 
                         uint path_cost = path.size() - 1;
-                        auto cycle1 = get_cycle(chosen_vi, y, vis_data);
-                        auto cycle2 = get_cycle(y, chosen_wi, vis_data);
+                        auto cycle1 = get_cycle(vi, y, vis_data);
+                        auto cycle2 = get_cycle(y, wi, vis_data);
 
                         auto cost1  = compute_cycle_cost(cycle1, g, vis_data, em2);
                         auto cost2  = compute_cycle_cost(cycle2, g, vis_data, em2);
 
-                        if( cost1.inside > cost2.inside ){ next_edge = edge(chosen_vi, y, g).first; cc = cost1; }
-                        else                             { next_edge = edge(y, chosen_wi, g).first; cc = cost2; }
+                        if( cost1.inside > cost2.inside ){ next_edge = edge(vi, y, g).first; cc = cost1; }
+                        else                             { next_edge = edge(y, wi, g).first; cc = cost2; }
                 } 
                 chosen_edge = next_edge;
         }

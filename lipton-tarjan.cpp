@@ -1,5 +1,6 @@
 #include "lipton-tarjan.h"
 #include "colors.h"
+#include "strutil.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -36,19 +37,6 @@ int levi_civita(uint i, uint j, uint k)
         if( i == 3 && j == 1 && k == 2 ) return 1;
         return -1;
 } 
-
-ostream& operator<<(ostream& o, VertDesc v)
-{
-        o << vert2uint[v];
-        return o;
-}
-
-string to_string(EdgeDesc e, Graph const& g)
-{
-        auto src = lexical_cast<string>(vert2uint[source(e, g)]);
-        auto tar = lexical_cast<string>(vert2uint[target(e, g)]);
-        return src + ", " + tar;
-}
 
 bool on_cycle(VertDesc v, vector<VertDesc> const& cycle, Graph const& g)
 {
@@ -201,9 +189,6 @@ struct BFSVisitor : public default_bfs_visitor
                 //cout << '\n';
         } 
 };
-
-extern void print_graph(Graph const& g);
-extern void print_edges(Graph const& g);
 
 uint theorem4(uint partition, Graph const& g)
 {
@@ -400,13 +385,6 @@ void makemaxplanar(Graph& g)
         reset_edge_index(g);
         assert(em.testplanar());
 } 
-
-void print_cycle(vector<VertDesc> const& cycle)
-{
-        cout << "cycle verts: ";
-        for( auto& v : cycle ) cout << v << ' ';
-        cout << '\n';
-}
 
 uint lemma3(vector<VertDesc> const& cycle_verts, int* l, Graph const& g)
 {
@@ -733,18 +711,18 @@ Partition lipton_tarjan(Graph& g)
 
         Em   em2(&g);
         auto cc = compute_cycle_cost(cycle, g, vis_data, em2);
-        cout << "total inside cost:  " << cc.inside  << '\n'; 
-        cout << "total outside cost: " << cc.outside << '\n'; 
+        //cout << "total inside cost:  " << cc.inside  << '\n'; 
+        //cout << "total outside cost: " << cc.outside << '\n'; 
 
-        cout << HEADER_COL << "---------------------------- 9 - Improve Separator -----------\n" << RESET;
+        //cout << HEADER_COL << "---------------------------- 9 - Improve Separator -----------\n" << RESET;
         print_edges(g);
-        cout << "chosen_edge: " << to_string(chosen_edge, g) << '\n';
+        //cout << "chosen_edge: " << to_string(chosen_edge, g) << '\n';
 
-        cout << "const inside:  " << cc.inside  << '\n';
-        cout << "const outside: " << cc.outside << '\n';
+        //cout << "const inside:  " << cc.inside  << '\n';
+        //cout << "const outside: " << cc.outside << '\n';
         while( cc.inside > num_vertices(g)*2./3 ){
-                cout << "const inside: " << cc.inside  << '\n';
-                cout << "const outide: " << cc.outside << '\n';
+                //cout << "const inside: " << cc.inside  << '\n';
+                //cout << "const outide: " << cc.outside << '\n';
                 //cout << "looking for a better cycle\n";
 
                 auto chosen_vi = source(chosen_edge, g);
@@ -771,7 +749,7 @@ Partition lipton_tarjan(Graph& g)
                 auto viy_e = edge(chosen_vi, y, g); assert(viy_e.second); auto viy = viy_e.first;
                 auto ywi_e = edge(y, chosen_wi, g); assert(ywi_e.second); auto ywi = ywi_e.first; 
                 if ( vis_data.is_tree_edge(viy) || vis_data.is_tree_edge(ywi) ){
-                        cout << "   at least one tree edge\n";
+                        //cout << "   at least one tree edge\n";
                         next_edge = vis_data.is_tree_edge(viy) ? ywi : viy;
                         assert(!vis_data.is_tree_edge(next_edge));
                         uint cost1 = vis_data.verts[chosen_vi].descendant_cost;
@@ -781,7 +759,7 @@ Partition lipton_tarjan(Graph& g)
                         auto new_cycle = get_cycle(source(next_edge, g), target(next_edge, g), vis_data);
                         cc = compute_cycle_cost(new_cycle, g, vis_data, em2);
                 } else {
-                        cout << "   neither are tree edges\n";
+                        //cout << "   neither are tree edges\n";
                         auto path = ancestors(y, vis_data);
                         uint i;
                         for( i = 0; !on_cycle(path[i], cycle, g); ++i );
@@ -802,7 +780,7 @@ Partition lipton_tarjan(Graph& g)
                 } 
                 chosen_edge = next_edge;
         }
-        cout << "found cycle with inside cost < 2/3: " << cc.inside << '\n';
+        //cout << "found cycle with inside cost < 2/3: " << cc.inside << '\n';
         print_cycle(cycle);
 
         cout << HEADER_COL << "\n------------ 10  - Construct Vertex Partition --------------\n" << RESET;

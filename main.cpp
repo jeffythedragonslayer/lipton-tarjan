@@ -7,6 +7,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp> 
 #include "colors.h"
+#include "strutil.h"
 using namespace std;
 using namespace boost;
 
@@ -49,37 +50,6 @@ Graph load_graph(string fname)
 
         vert2uint[Graph::null_vertex()] = -1;
         return g;
-}
-
-void print_graph(Graph const& g)
-{ 
-        cout << RED << "\n**********************  Graph  **************************\n"; 
-        VertIter vi, vi_end;
-        for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
-                cout << "vert " << vert2uint[*vi];
-                OutEdgeIter ei, e_end;
-                cout << "   hos edges ";
-                for( tie(ei, e_end) = out_edges(*vi, g); ei != e_end; ++ei ){
-                        auto src = source(*ei, g);
-                        auto tar = target(*ei, g);
-                        if( tar == *vi ) swap(src, tar);
-                        cout << vert2uint[tar] << ' ';
-                }
-                cout << '\n';
-        }
-        cout << "*********************************************************\n\n" << RESET;
-}
-
-void print_edges(Graph const& g)
-{
-        cout << RED << "\n**********************  Edges  **************************\n"; 
-        EdgeIter ei, ei_end;
-        for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ){ 
-                auto src = source(*ei, g);
-                auto tar = target(*ei, g);
-                cout << vert2uint[src] << ", " << vert2uint[tar] << '\n';
-        } 
-        cout << "*********************************************************\n\n" << RESET;
 }
 
 int main(int argc, char* argv[])

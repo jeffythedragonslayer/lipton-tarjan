@@ -1,7 +1,7 @@
 CXX=clang++
-BOOST=-I/usr/local/boost_1_58_0
+BOOST=-I/usr/local/boost_1_59_0
 CXXFLAGS=-g -O0 -std=c++1z -c
-OBJS := main.o lipton-tarjan.o
+OBJS := main.o lipton-tarjan.o strutil.o
 .DEFAULT_GOAL = all
 
 -include $(OBJS:.o=.d)

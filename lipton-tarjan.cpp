@@ -386,69 +386,6 @@ void makemaxplanar(Graph& g)
         assert(em.testplanar());
 } 
 
-uint lemma3(vector<VertDesc> const& cycle_verts, int* l, Graph const& g)
-{
-        /*
-        if( l[1] > l[2] ){
-                cout << "A = all verts on levels 0    thru l1-1";
-                cout << "B = all verts on levels l1+1 thru r";
-                cout << "C = all verts on llevel l1";
-        }
-                
-        if( l[1] < l[2] ){
-                cout << "don't know\n";
-                vector<VertDesc> zero_one, middle_part, one_two;
-                VertIterator vei, vend;
-                for( tie(vei, vend) = vertices(g); vei != vend; ++vei ){ 
-                        auto v = *vei;
-                        if( bfs_vertex_data[v].level <= l[1] ){ 
-                                cout << "first part: " << v << '\n';
-                                zero_one.push_back(v);
-                                continue;
-                        }
-                        if( bfs_vertex_data[v].level >= l[1]+1 && 
-                            bfs_vertex_data[v].level <= l[2]-1 ){
-                                cout << "middle part: " << v << '\n';
-                                middle_part.push_back(v);
-                                continue;
-                        }
-                        if( bfs_vertex_data[v].level >= l[2] ){
-                                cout << "last part: " << v << '\n';
-                                one_two.push_back(v);
-                                continue;
-                        }
-                        cout << "level: " << bfs_vertex_data[v].level << '\n';
-                        assert(0);
-                }
-
-
-                //delete verts in levels l1 and l2
-                        this separates remaining vertices into 3 parts: (all of which may be empty)
-                                verts on levels 0 thru l1-1
-                                verts on level l1+1 thru l2-1
-                                verts on levels l2+1 and above
-                        the only part which can have cost > 2/3 is the middle part
-                        if( middle_part.size() <= 2*num_vertices(g)/3 ){
-                                cout << "A = most costly part of the 3\n";
-                                cout << "B = remaining 2 parts\n";
-                                cout << "C = "; for( auto& v : one_two ) cout << v << ' '; cout << '\n';
-                        } else {
-                                delete all verts on level l2 and above
-                                shrink all verts on levels l1 and belowe to a single vertex of cost zero
-                                The new graph has a spanning tree radius of l2 - l1 -1 whose root corresponds to vertices on levels l1 and below in the original graph
-                                Apply Lemma 2 to the new graph, A* B* C*
-                                cout << "A = set among A* and B* with greater cost\n";
-                                cout << "C = verts on levels l1 and l2 in the original graph plus verts in C* minus the root\n";
-                                cout << "B = remaining verts\n";
-                                By Lemma 2, A has total cost <= 2/3
-                                But A U C* has total cost >= 1/3, so B also has total cost <= 2/3
-                                Futhermore, C contains no more than L[l1] + L[l2] + 2(l2 - l1 - 1)
-                        }
-        }
-        */
-        return 0;
-}
-
 vector<VertDesc> ancestors(VertDesc v, BFSVisitorData const& vis)
 {
         //cout << "first v: " << v << '\n';
@@ -715,40 +652,40 @@ Partition lipton_tarjan(Graph& g)
         //cout << "total inside cost:  " << cc.inside  << '\n'; 
         //cout << "total outside cost: " << cc.outside << '\n'; 
 
-        //cout << HEADER_COL << "---------------------------- 9 - Improve Separator -----------\n" << RESET;
+        cout << HEADER_COL << "---------------------------- 9 - Improve Separator -----------\n" << RESET;
         print_edges(g);
 
         while( cc.inside > num_vertices(g)*2./3 ){ 
-                cout << RED << "chosen_edge: " << to_string(chosen_edge, g) << '\n';
-                cout << "const inside: " << cc.inside  << '\n';
-                cout << "const outide: " << cc.outside << '\n';
-                cout << "looking for a better cycle\n" << RESET;
+                //cout << RED << "chosen_edge: " << to_string(chosen_edge, g) << '\n';
+                //cout << "const inside: " << cc.inside  << '\n';
+                //cout << "const outide: " << cc.outside << '\n';
+                //cout << "looking for a better cycle\n" << RESET;
 
                 auto vi = source(chosen_edge, g);
                 auto wi = target(chosen_edge, g);
                 assert(!vis_data.is_tree_edge(chosen_edge));
                 EdgeDesc next_edge;
-                cout << "   vi: " << vi << '\n';
-                cout << "   wi: " << wi << '\n';
+                //cout << "   vi: " << vi << '\n';
+                //cout << "   wi: " << wi << '\n';
 
                 auto neighbors_v = get_neighbors(vi, g);
                 auto neighbors_w = get_neighbors(wi, g); 
                 auto intersect   = get_intersection(neighbors_v, neighbors_w); 
                 assert(intersect.size() == 2);
-                cout << "   intersectbegin: " << *intersect.begin() << '\n';
+                //cout << "   intersectbegin: " << *intersect.begin() << '\n';
 
                 auto eee = edge(vi, *intersect.begin(), g);
-                cout << "eee: " << to_string(eee.first, g) << '\n';
+                //cout << "eee: " << to_string(eee.first, g) << '\n';
                 assert(eee.second);
 
                 InsideOut insideout = edge_inside_cycle(eee.first, *intersect.begin(), cycle, g, *em2.em);
                 auto y = (insideout == INSIDE) ? *intersect.begin() : *(++intersect.begin());
 
-                cout << "   y: " << y << '\n';
+                //cout << "   y: " << y << '\n';
                 auto viy_e = edge(vi, y, g); assert(viy_e.second); auto viy = viy_e.first;
                 auto ywi_e = edge(y, wi, g); assert(ywi_e.second); auto ywi = ywi_e.first; 
                 if ( vis_data.is_tree_edge(viy) || vis_data.is_tree_edge(ywi) ){
-                        cout << MAGENTA << "   at least one tree edge\n" << RESET;
+                        //cout << MAGENTA << "   at least one tree edge\n" << RESET;
                         next_edge = vis_data.is_tree_edge(viy) ? ywi : viy;
                         assert(!vis_data.is_tree_edge(next_edge));
 
@@ -762,20 +699,20 @@ Partition lipton_tarjan(Graph& g)
                         if( cost_swapped ) swap(cc.outside, cc.inside);
                 } else {
                         // Determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.
-                        cout << MAGENTA << "   neither are tree edges\n" << RESET;
+                        //cout << MAGENTA << "   neither are tree edges\n" << RESET;
                         auto path = ancestors(y, vis_data);
                         uint i;
                         for( i = 0; !on_cycle(path[i], cycle, g); ++i );
 
                         // Let z be the vertex on the (vi, wi) cycle reached during the search.
                         auto z = path[i++];
-                        cout << "    z: " << z << '\n';
+                        //cout << "    z: " << z << '\n';
                         path.erase(path.begin()+i, path.end());
                         assert(path.size() == i);
 
                         // Compute the total cost af all vertices except z on this tree path.
                         uint path_cost = path.size() - 1;
-                        cout << "    y-to-z-minus-z cost: " << path_cost << '\n';
+                        //cout << "    y-to-z-minus-z cost: " << path_cost << '\n';
 
                         // Scan the tree edges inside the (y, wi) cycle, alternately scanning an edge in one cycle and an edge in the other cycle.
                         // Stop scanning when all edges inside one of the cycles have been scanned.  Compute the cost inside this cycle by summing the associated costs of all scanned edges.
@@ -796,12 +733,68 @@ Partition lipton_tarjan(Graph& g)
                 } 
                 chosen_edge = next_edge;
         }
-        cout << "found cycle with inside cost < 2/3: " << cc.inside << '\n';
+        //cout << "found cycle with inside cost < 2/3: " << cc.inside << '\n';
         print_cycle(cycle);
 
         cout << HEADER_COL << "\n------------ 10  - Construct Vertex Partition --------------\n" << RESET;
-        uint partition = lemma3(cycle, &l[0], g);
-        partition = theorem4(partition, g); 
+        cout << "l0: " << l[0] << '\n';
+        cout << "l1: " << l[1] << '\n';
+        cout << "l2: " << l[2] << '\n';
 
+        if( l[1] >= l[2] ){
+                cout << GREEN;
+                cout << "A = all verts on levels 0    thru l1-1\n";
+                cout << "B = all verts on levels l1+1 thru r\n";
+                cout << "C = all verts on llevel l1\n" << RESET;
+                return {};
+        }
+                
+        vector<VertDesc> zero_one, middle_part, one_two;
+        VertIter vei, vend;
+        for( tie(vei, vend) = vertices(g); vei != vend; ++vei ){ 
+                auto v = *vei;
+                cout << "level of " << v << ": " << vis_data.verts[v].level << "  ";
+                if( vis_data.verts[v].level <= l[1] ){ 
+                        cout << v << " belongs to first part\n";
+                        zero_one.push_back(v);
+                        continue;
+                }
+                if( vis_data.verts[v].level >= l[1]+1 && 
+                    vis_data.verts[v].level <= l[2]-1 ){
+                        cout << v << " belongs to middle part\n";
+                        middle_part.push_back(v);
+                        continue;
+                }
+                if( vis_data.verts[v].level >= l[2] ){
+                        cout << v << " belongs to last part\n";
+                        one_two.push_back(v);
+                        continue;
+                }
+                assert(0);
+        }
+
+        //delete verts in levels l1 and l2
+        ///*
+        //this separates remaining vertices into 3 parts: (all of which may be empty)
+         //       verts on levels 0 thru l1-1
+          //      verts on level l1+1 thru l2-1
+         //       verts on levels l2+1 and above
+        //the only part which can have cost > 2/3 is the middle part
+        if( middle_part.size() <= 2*num_vertices(g)/3 ){
+                cout << "A = most costly part of the 3\n";
+                cout << "B = remaining 2 parts\n";
+                cout << "C = "; for( auto& v : one_two ) cout << v << ' '; cout << '\n';
+        } else {
+                //delete all verts on level l2 and above
+                //shrink all verts on levels l1 and belowe to a single vertex of cost zero
+                //The new graph has a spanning tree radius of l2 - l1 -1 whose root corresponds to vertices on levels l1 and below in the original graph
+                //Apply Lemma 2 to the new graph, A* B* C*
+                cout << "A = set among A* and B* with greater cost\n";
+                cout << "C = verts on levels l1 and l2 in the original graph plus verts in C* minus the root\n";
+                cout << "B = remaining verts\n";
+                //By Lemma 2, A has total cost <= 2/3
+                //But A U C* has total cost >= 1/3, so B also has total cost <= 2/3
+                //Futhermore, C contains no more than L[l1] + L[l2] + 2(l2 - l1 - 1)
+        }
         return {};
 }

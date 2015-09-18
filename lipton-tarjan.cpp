@@ -574,7 +574,7 @@ Partition lipton_tarjan(Graph& g)
         cout << HEADER_COL << "---------------------------- 1 - Check Planarity  ------------\n" << RESET;
         Em em1(&g);
         if( !em1.testplanar() ) throw NotPlanar();
-        cout << "planar ok\n";
+        //cout << "planar ok\n";
 
         cout << HEADER_COL << "---------------------------- 2 - Connected Components --------\n" << RESET;
         VertDescMap idx; 
@@ -584,7 +584,7 @@ Partition lipton_tarjan(Graph& g)
         for( uint i = 0; vit != vjt; ++vit, ++i ) put(vertid_to_component, *vit, i);
         uint components = connected_components(g, vertid_to_component);
 
-        cout << "# of components: " << components << '\n';
+        //cout << "# of components: " << components << '\n';
         vector<uint> verts_per_comp(components, 0);
         for( tie(vit, vjt) = vertices(g); vit != vjt; ++vit ) ++verts_per_comp[vertid_to_component[*vit]];
         uint biggest_component = 0;
@@ -592,7 +592,7 @@ Partition lipton_tarjan(Graph& g)
         bool too_big           = false;
         for( uint i = 0; i < components; ++i ){
                 if( 3*verts_per_comp[i] > 2*num_vertices(g) ){
-                        cout << "too big\n";
+                        //cout << "too big\n";
                         too_big = true;
                 }
                 if( verts_per_comp[i] > biggest_size ){
@@ -605,7 +605,7 @@ Partition lipton_tarjan(Graph& g)
                 theorem4(0, g);
                 return {};
         }
-        cout << "biggest component: " << biggest_component << '\n';
+        //cout << "biggest component: " << biggest_component << '\n';
 
         cout << HEADER_COL << "---------------------------- 3 - BFS and Levels ------------\n" << RESET;
         BFSVisitorData vis_data(&g);
@@ -624,20 +624,20 @@ Partition lipton_tarjan(Graph& g)
         int l[3];
         l[1] = 0;
         while( k <= num_vertices(g)/2 ) k += L[++l[1]];
-        cout << "k:  " << k    << "      # of verts in levels 0 thru l1\n";
-        cout << "l1: " << l[1] << "      total cost of levels 0 thru l1 barely exceeds 1/2\n";
+        //cout << "k:  " << k    << "      # of verts in levels 0 thru l1\n";
+        //cout << "l1: " << l[1] << "      total cost of levels 0 thru l1 barely exceeds 1/2\n";
 
         cout << HEADER_COL << "---------------------------- 5 - Find More Levels -------\n" << RESET;
         float sq  = 2 * sqrt(k); 
         float snk = 2 * sqrt(num_vertices(g) - k); 
-        cout << "sq:    " << sq << '\n';
-        cout << "snk:   " << snk << '\n';
+        //cout << "sq:    " << sq << '\n';
+        //cout << "snk:   " << snk << '\n';
 
-        l[0] = l[1];     for( ;; ){ float val = L.at(l[0]) + 2*(l[1] - l[0]);     if( val <= sq  ) break; --l[0]; } cout << "l0: " << l[0] << "     highest level <= l1\n"; 
-        l[2] = l[1] + 1; for( ;; ){ float val = L.at(l[2]) + 2*(l[2] - l[1] - 1); if( val <= snk ) break; ++l[2]; } cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
+        l[0] = l[1];     for( ;; ){ float val = L.at(l[0]) + 2*(l[1] - l[0]);     if( val <= sq  ) break; --l[0]; } //cout << "l0: " << l[0] << "     highest level <= l1\n"; 
+        l[2] = l[1] + 1; for( ;; ){ float val = L.at(l[2]) + 2*(l[2] - l[1] - 1); if( val <= snk ) break; ++l[2]; } //cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
 
         cout << HEADER_COL << "---------------------------- 6 - Shrinktree -------------\n" << RESET;
-        cout << "n: " << num_vertices(g) << '\n'; 
+        //cout << "n: " << num_vertices(g) << '\n'; 
 
         vector<VertDesc> replaceverts;
         tie(vit, vjt) = vertices(g); 
@@ -671,10 +671,10 @@ Partition lipton_tarjan(Graph& g)
 
         auto x_gone = Graph::null_vertex();
         if( !degree(x, g) ){
-                cout << "no edges to x found, deleting\n";
+                //cout << "no edges to x found, deleting\n";
                 kill_vertex(x, g);
                 x_gone = *vertices(g).first;
-                cout << "x_gone: " << x_gone << '\n';
+                //cout << "x_gone: " << x_gone << '\n';
         } else {
                 // delete all vertices x has replaced
                 for( auto& v : replaceverts ) kill_vertex(v, g);
@@ -687,8 +687,8 @@ Partition lipton_tarjan(Graph& g)
         vis_data.root = (x_gone != Graph::null_vertex()) ? x_gone : x;
         ++vis_data.verts[vis_data.root].descendant_cost;
 
-        cout << "root: " << vis_data.root << '\n'; 
-        cout << "n:    " << num_vertices(g) << '\n';
+        //cout << "root: " << vis_data.root << '\n'; 
+        //cout << "n:    " << num_vertices(g) << '\n';
 
         breadth_first_search(g, x_gone != Graph::null_vertex() ? x_gone: x, visitor(BFSVisitor(vis_data))); 
         makemaxplanar(g);
@@ -701,12 +701,12 @@ Partition lipton_tarjan(Graph& g)
         auto chosen_edge = arbitrary_nontree_edge(g, vis_data);
         auto v1          = source(chosen_edge, g);
         auto w1          = target(chosen_edge, g); 
-        cout << "ancestors v1...\n";
+        //cout << "ancestors v1...\n";
         auto parents_v   = ancestors(v1, vis_data);
-        cout << "ancestors v2...\n";
+        //cout << "ancestors v2...\n";
         auto parents_w   = ancestors(w1, vis_data); 
         auto ancestor    = common_ancestor(parents_v, parents_w, vis_data);
-        cout << "common ancestor: " << ancestor << '\n'; 
+        //cout << "common ancestor: " << ancestor << '\n'; 
         auto cycle = get_cycle(v1, w1, ancestor, vis_data);
 
         Em   em2(&g);
@@ -716,71 +716,81 @@ Partition lipton_tarjan(Graph& g)
 
         //cout << HEADER_COL << "---------------------------- 9 - Improve Separator -----------\n" << RESET;
         print_edges(g);
-        //cout << "chosen_edge: " << to_string(chosen_edge, g) << '\n';
+        cout << "chosen_edge: " << to_string(chosen_edge, g) << '\n';
 
-        //cout << "const inside:  " << cc.inside  << '\n';
-        //cout << "const outside: " << cc.outside << '\n';
+        cout << "const inside:  " << cc.inside  << '\n';
+        cout << "const outside: " << cc.outside << '\n';
         while( cc.inside > num_vertices(g)*2./3 ){
-                //cout << "const inside: " << cc.inside  << '\n';
-                //cout << "const outide: " << cc.outside << '\n';
-                //cout << "looking for a better cycle\n";
+                cout << "const inside: " << cc.inside  << '\n';
+                cout << "const outide: " << cc.outside << '\n';
+                cout << "looking for a better cycle\n";
 
                 auto vi = source(chosen_edge, g);
                 auto wi = target(chosen_edge, g);
                 assert(!vis_data.is_tree_edge(chosen_edge));
                 EdgeDesc next_edge;
-                //cout << "   vi: " << vi << '\n';
-                //cout << "   wi: " << wi << '\n';
+                cout << "   vi: " << vi << '\n';
+                cout << "   wi: " << wi << '\n';
 
                 auto neighbors_v = get_neighbors(vi, g);
                 auto neighbors_w = get_neighbors(wi, g); 
                 auto intersect   = get_intersection(neighbors_v, neighbors_w); 
                 assert(intersect.size() == 2);
-                //cout << "   intersectbegin: " << *intersect.begin() << '\n';
+                cout << "   intersectbegin: " << *intersect.begin() << '\n';
 
                 auto eee = edge(vi, *intersect.begin(), g);
-                //cout << "eee: " << to_string(eee.first, g) << '\n';
+                cout << "eee: " << to_string(eee.first, g) << '\n';
                 assert(eee.second);
 
                 InsideOut insideout = edge_inside_cycle(eee.first, *intersect.begin(), cycle, g, *em2.em);
-                auto y =  (insideout == INSIDE) ? *intersect.begin() : *(++intersect.begin());
+                auto y = (insideout == INSIDE) ? *intersect.begin() : *(++intersect.begin());
 
-                //cout << "   y: " << y << '\n';
+                cout << "   y: " << y << '\n';
                 auto viy_e = edge(vi, y, g); assert(viy_e.second); auto viy = viy_e.first;
                 auto ywi_e = edge(y, wi, g); assert(ywi_e.second); auto ywi = ywi_e.first; 
                 if ( vis_data.is_tree_edge(viy) || vis_data.is_tree_edge(ywi) ){
-                        //cout << "   at least one tree edge\n";
+                        cout << MAGENTA << "   at least one tree edge\n" << RESET;
                         next_edge = vis_data.is_tree_edge(viy) ? ywi : viy;
                         assert(!vis_data.is_tree_edge(next_edge));
+
+                        // Compute the cost inside the (vi+1 wi+1) cycle from the cost inside the (vi, wi) cycle and the cost of vi, y, and wi.  See Fig 4.
                         uint cost1 = vis_data.verts[vi].descendant_cost;
-                        uint cost2 = vis_data.verts[y  ].descendant_cost;
+                        uint cost2 = vis_data.verts[y ].descendant_cost;
                         uint cost3 = vis_data.verts[wi].descendant_cost;
                         uint cost4 = cc.inside;
                         auto new_cycle = get_cycle(source(next_edge, g), target(next_edge, g), vis_data);
-                        cc = compute_cycle_cost(new_cycle, g, vis_data, em2);
+                        cc = compute_cycle_cost(new_cycle, g, vis_data, em2); // !! CHEATED !!
                 } else {
-                        //cout << "   neither are tree edges\n";
+                        // Determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.
+                        cout << MAGENTA << "   neither are tree edges\n" << RESET;
                         auto path = ancestors(y, vis_data);
                         uint i;
                         for( i = 0; !on_cycle(path[i], cycle, g); ++i );
 
+                        // Let z be the vertex on the (vi, wi) cycle reached during the search.
                         auto z = path[i++];
                         path.erase(path.begin()+i, path.end());
                         assert(path.size() == i);
 
+                        // Compute the total cost af all vertices except z on this tree path.
                         uint path_cost = path.size() - 1;
+
+                        // Scan the tree edges inside the (y, wi) cycle, alternately scanning an edge in one cycle and an edge in the other cycle.
+                        // Stop scanning when all edges inside one of the cycles have been scanned.  Compute the cost inside this cycle by summing the associated costs of all scanned edges.
+                        // Use this cost, the cost inside the (vi, wi) cycle, and the cost on the tree path from y to z to compute the cost inside the other cycle.
                         auto cycle1 = get_cycle(vi, y, vis_data);
                         auto cycle2 = get_cycle(y, wi, vis_data);
 
                         auto cost1  = compute_cycle_cost(cycle1, g, vis_data, em2);
                         auto cost2  = compute_cycle_cost(cycle2, g, vis_data, em2);
 
+                        // Let (vi+1, wi+1) be the edge among (vi, y) and (i, wi) whose cycle has more cost inside it.
                         if( cost1.inside > cost2.inside ){ next_edge = edge(vi, y, g).first; cc = cost1; }
                         else                             { next_edge = edge(y, wi, g).first; cc = cost2; }
                 } 
                 chosen_edge = next_edge;
         }
-        //cout << "found cycle with inside cost < 2/3: " << cc.inside << '\n';
+        cout << "found cycle with inside cost < 2/3: " << cc.inside << '\n';
         print_cycle(cycle);
 
         cout << HEADER_COL << "\n------------ 10  - Construct Vertex Partition --------------\n" << RESET;

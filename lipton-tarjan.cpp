@@ -539,9 +539,10 @@ set<VertDesc> get_intersection(set<VertDesc> const& a, set<VertDesc> const& b)
 struct CycleCost
 {
         uint inside {}, outside {};
-        bool swapped = false;
 
 };
+
+bool cost_swapped = false;
 
 CycleCost compute_cycle_cost(vector<VertDesc> const& cycle, Graph const& g, BFSVisitorData const& vis_data, Em const& em)
 {
@@ -556,11 +557,6 @@ CycleCost compute_cycle_cost(vector<VertDesc> const& cycle, Graph const& g, BFSV
                         bool is_inside = (insideout == INSIDE);
                         (is_inside ? cc.inside : cc.outside) += cost;
                 }
-        }
-        if( cc.outside > cc.inside ){
-                swap(cc.outside, cc.inside);
-                cc.swapped = true;
-                //cout << "!!!!!! cost swapped !!!!!!!!\n";
         }
         return cc;
 }
@@ -710,20 +706,23 @@ Partition lipton_tarjan(Graph& g)
         auto cycle = get_cycle(v1, w1, ancestor, vis_data);
 
         Em   em2(&g);
-        auto cc = compute_cycle_cost(cycle, g, vis_data, em2);
+        auto cc = compute_cycle_cost(cycle, g, vis_data, em2); 
+        if( cc.outside > cc.inside ){
+                swap(cc.outside, cc.inside);
+                cost_swapped = true;
+                cout << "!!!!!! cost swapped !!!!!!!!\n";
+        }
         //cout << "total inside cost:  " << cc.inside  << '\n'; 
         //cout << "total outside cost: " << cc.outside << '\n'; 
 
         //cout << HEADER_COL << "---------------------------- 9 - Improve Separator -----------\n" << RESET;
         print_edges(g);
-        cout << "chosen_edge: " << to_string(chosen_edge, g) << '\n';
 
-        cout << "const inside:  " << cc.inside  << '\n';
-        cout << "const outside: " << cc.outside << '\n';
-        while( cc.inside > num_vertices(g)*2./3 ){
+        while( cc.inside > num_vertices(g)*2./3 ){ 
+                cout << RED << "chosen_edge: " << to_string(chosen_edge, g) << '\n';
                 cout << "const inside: " << cc.inside  << '\n';
                 cout << "const outide: " << cc.outside << '\n';
-                cout << "looking for a better cycle\n";
+                cout << "looking for a better cycle\n" << RESET;
 
                 auto vi = source(chosen_edge, g);
                 auto wi = target(chosen_edge, g);
@@ -760,6 +759,7 @@ Partition lipton_tarjan(Graph& g)
                         uint cost4 = cc.inside;
                         auto new_cycle = get_cycle(source(next_edge, g), target(next_edge, g), vis_data);
                         cc = compute_cycle_cost(new_cycle, g, vis_data, em2); // !! CHEATED !!
+                        if( cost_swapped ) swap(cc.outside, cc.inside);
                 } else {
                         // Determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.
                         cout << MAGENTA << "   neither are tree edges\n" << RESET;
@@ -769,11 +769,13 @@ Partition lipton_tarjan(Graph& g)
 
                         // Let z be the vertex on the (vi, wi) cycle reached during the search.
                         auto z = path[i++];
+                        cout << "    z: " << z << '\n';
                         path.erase(path.begin()+i, path.end());
                         assert(path.size() == i);
 
                         // Compute the total cost af all vertices except z on this tree path.
                         uint path_cost = path.size() - 1;
+                        cout << "    y-to-z-minus-z cost: " << path_cost << '\n';
 
                         // Scan the tree edges inside the (y, wi) cycle, alternately scanning an edge in one cycle and an edge in the other cycle.
                         // Stop scanning when all edges inside one of the cycles have been scanned.  Compute the cost inside this cycle by summing the associated costs of all scanned edges.
@@ -783,6 +785,10 @@ Partition lipton_tarjan(Graph& g)
 
                         auto cost1  = compute_cycle_cost(cycle1, g, vis_data, em2);
                         auto cost2  = compute_cycle_cost(cycle2, g, vis_data, em2);
+                        if( cost_swapped ){
+                                swap(cost1.inside, cost1.outside);
+                                swap(cost2.inside, cost2.outside);
+                        }
 
                         // Let (vi+1, wi+1) be the edge among (vi, y) and (i, wi) whose cycle has more cost inside it.
                         if( cost1.inside > cost2.inside ){ next_edge = edge(vi, y, g).first; cc = cost1; }

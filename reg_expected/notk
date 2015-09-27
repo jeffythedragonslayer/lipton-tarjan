@@ -2,52 +2,25 @@ loading graph
 n: 5
 starting lipton tarjan...
 [32m---------------------------- 1 - Check Planarity  ------------
-[0mplanar ok
-[32m---------------------------- 2 - Connected Components --------
-[0m# of components: 1
-too big
-biggest component: 0
-[32m---------------------------- 3 - BFS and Levels ------------
+[0m[32m---------------------------- 2 - Connected Components --------
+[0m[32m---------------------------- 3 - BFS and Levels ------------
 [0m  tree edge 0, 3
   tree edge 0, 4
   tree edge 3, 1
   tree edge 4, 2
 [32m---------------------------- 4 - l1 and k  ------------
-[0mk:  3      # of verts in levels 0 thru l1
-l1: 1      total cost of levels 0 thru l1 barely exceeds 1/2
-[32m---------------------------- 5 - Find More Levels -------
-[0msq:    3.4641
-snk:   2.82843
-l0: 1     highest level <= l1
-l2: 2     lowest  level >= l1 + 1
-[32m---------------------------- 6 - Shrinktree -------------
-[0mn: 5
-killing vertex 1
+[0m[32m---------------------------- 5 - Find More Levels -------
+[0m[32m---------------------------- 6 - Shrinktree -------------
+[0mkilling vertex 1
 killing vertex 2
-testing is tree edge 0, 4
-src: 0
-tar: 4
-testing is tree edge 0, 3
-src: 0
-tar: 3
-testing is tree edge 0, 3
-src: 0
-tar: 3
-testing is tree edge 0, 4
-src: 0
-tar: 4
 finishing
 edges to add size: 0
 adding: 
 edges to remove size: 0
 removing: 
-no edges to x found, deleting
 killing vertex 999999
-x_gone: 0
 [32m-------------------- 7 - New BFS and Make Max Planar -----
-[0mroot: 0
-n:    3
-  tree edge 0, 3
+[0m  tree edge 0, 3
   tree edge 0, 4
 [31m
 **********************  Graph  **************************
@@ -57,51 +30,7 @@ vert 4   hos edges 0 3
 *********************************************************
 
 [0m[32m----------------------- 8 - Locate Cycle -----------------
-[0mtesting is tree edge 0, 3
-src: 0
-tar: 3
-testing is tree edge 0, 4
-src: 0
-tar: 4
-testing is tree edge 3, 4
-src: 3
-tar: 4
-testing is tree edge 3, 4
-src: 3
-tar: 4
-arbitrarily choosing nontree edge: 3, 4
-ancestors v1...
-first v: 3
-root: 0
-pushing back v: 0
-ancestors v2...
-first v: 4
-root: 0
-pushing back v: 0
-common ancestor: 0
-   scanning cycle vert 3
-testing is tree edge 3, 0
-src: 3
-tar: 0
-testing is tree edge 3, 4
-src: 3
-tar: 4
-   scanning cycle vert 0
-testing is tree edge 0, 3
-src: 0
-tar: 3
-testing is tree edge 0, 4
-src: 0
-tar: 4
-   scanning cycle vert 4
-testing is tree edge 4, 0
-src: 4
-tar: 0
-testing is tree edge 4, 3
-src: 4
-tar: 3
-total inside cost:  0
-total outside cost: 0
+[0marbitrarily choosing nontree edge: 3, 4
 [32m---------------------------- 9 - Improve Separator -----------
 [0m[31m
 **********************  Edges  **************************
@@ -110,10 +39,15 @@ total outside cost: 0
 3, 4
 *********************************************************
 
-[0mchosen_edge: 3, 4
-const inside: 0
-found cycle with inside cost < 2/3: 0
-cycle verts: 3 0 4 
+[0mcycle verts: 3 0 4 
 [32m
 ------------ 10  - Construct Vertex Partition --------------
-[0m
+[0ml0: 1
+l1: 1
+l2: 2
+level of 0: 0  0 belongs to first part
+level of 3: 1  3 belongs to first part
+level of 4: 1  4 belongs to first part
+A = most costly part of the 3
+B = remaining 2 parts
+C = 

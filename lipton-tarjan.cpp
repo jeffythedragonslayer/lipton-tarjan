@@ -733,7 +733,7 @@ Partition lipton_tarjan(Graph& g)
                 } 
                 chosen_edge = next_edge;
         }
-        //cout << "found cycle with inside cost < 2/3: " << cc.inside << '\n';
+        cout << "found cycle with inside cost < 2/3: " << cc.inside << '\n';
         print_cycle(cycle);
 
         cout << HEADER_COL << "\n------------ 10  - Construct Vertex Partition --------------\n" << RESET;
@@ -741,53 +741,58 @@ Partition lipton_tarjan(Graph& g)
         cout << "l1: " << l[1] << '\n';
         cout << "l2: " << l[2] << '\n';
 
-        if( l[1] >= l[2] ){
+        uint r = vis_data.num_levels;
+        cout << "r: " << r << '\n';
+
+        if( l[1] >= l[2] ){ 
+                vector<VertDesc> part_a, part_b, part_c;
+                VertIter vei, vend;
+                for( tie(vei, vend) = vertices(g); vei != vend; ++vei ){ 
+                        auto v = *vei;
+                        cout << "level of " << v << ": " << vis_data.verts[v].level << "  ";
+                        if( vis_data.verts[v].level <  l[1] )                                  { cout << v << " belongs to first part\n";  part_a.push_back(v); continue; }
+                        if( vis_data.verts[v].level >= l[1]+1 && vis_data.verts[v].level <= r ){ cout << v << " belongs to middle part\n"; part_b.push_back(v); continue; }
+                        if( vis_data.verts[v].level == l[1] )                                  { cout << v << " belongs to last part\n";   part_c.push_back(v); continue; }
+                        assert(0);
+                } 
                 cout << GREEN;
-                cout << "A = all verts on levels 0    thru l1-1\n";
-                cout << "B = all verts on levels l1+1 thru r\n";
-                cout << "C = all verts on llevel l1\n" << RESET;
+                cout <<   "A = all verts on levels 0    thru l1-1: "; for( auto& a : part_a ) cout << a << ' ';
+                cout << "\nB = all verts on levels l1+1 thru r   : "; for( auto& b : part_b ) cout << b << ' ';
+                cout << "\nC = all verts on llevel l1            : "; for( auto& c : part_c ) cout << c << ' ';
+                cout << RESET;
                 return {};
         }
-                
-        vector<VertDesc> zero_one, middle_part, one_two;
+
+
+        vector<VertDesc> part_a, part_b, part_c, deleted_part;
         VertIter vei, vend;
         for( tie(vei, vend) = vertices(g); vei != vend; ++vei ){ 
                 auto v = *vei;
-                cout << "level of " << v << ": " << vis_data.verts[v].level << "  ";
-                if( vis_data.verts[v].level <= l[1] ){ 
-                        cout << v << " belongs to first part\n";
-                        zero_one.push_back(v);
-                        continue;
-                }
-                if( vis_data.verts[v].level >= l[1]+1 && 
-                    vis_data.verts[v].level <= l[2]-1 ){
-                        cout << v << " belongs to middle part\n";
-                        middle_part.push_back(v);
-                        continue;
-                }
-                if( vis_data.verts[v].level >= l[2] ){
-                        cout << v << " belongs to last part\n";
-                        one_two.push_back(v);
-                        continue;
-                }
+                cout << "level of " << v << ": " << vis_data.verts[v].level << ", ";
+                if( vis_data.verts[v].level == l[1] || vis_data.verts[v].level == l[2] ){     cout << v << " is deleted\n";             deleted_part.push_back(v); continue;}
+                if( vis_data.verts[v].level <  l[1] ){                                        cout << v << " belongs to first part\n";  part_a.push_back(v);       continue;}
+                if( vis_data.verts[v].level >= l[1]+1 && vis_data.verts[v].level <= l[2]-1 ){ cout << v << " belongs to middle part\n"; part_b.push_back(v);       continue;}
+                if( vis_data.verts[v].level >  l[2]  ){                                       cout << v << " belongs to last part\n";   part_c.push_back(v);       continue;}
                 assert(0);
         }
 
-        //delete verts in levels l1 and l2
-        ///*
-        //this separates remaining vertices into 3 parts: (all of which may be empty)
-         //       verts on levels 0 thru l1-1
-          //      verts on level l1+1 thru l2-1
-         //       verts on levels l2+1 and above
         //the only part which can have cost > 2/3 is the middle part
-        if( middle_part.size() <= 2*num_vertices(g)/3 ){
-                cout << "A = most costly part of the 3\n";
-                cout << "B = remaining 2 parts\n";
-                cout << "C = "; for( auto& v : one_two ) cout << v << ' '; cout << '\n';
+        assert(part_a.size() <= 2*num_vertices(g)/3);
+        assert(part_c.size() <= 2*num_vertices(g)/3);
+        if( part_b.size() <= 2*num_vertices(g)/3 ){
+                vector<VertDesc>* costly_part, * other1, * other2;
+                if( part_a.size() > part_b.size() && part_a.size() > part_c.size() ){ costly_part = &part_a; other1 = &part_b; other2 = &part_c;}
+                if( part_b.size() > part_a.size() && part_b.size() > part_c.size() ){ costly_part = &part_b; other1 = &part_a; other2 = &part_c;}
+                if( part_c.size() > part_a.size() && part_c.size() > part_b.size() ){ costly_part = &part_c; other1 = &part_a; other2 = &part_b;}
+                cout <<   "A = most costly part of the 3: "; for( auto& a : *costly_part ) cout << a << ' ';
+                cout << "\nB = remaining 2 parts        : "; for( auto& b : *other1      ) cout << b << ' '; for( auto& b : *other2 ) cout << b << ' '; 
+                cout << "\nC =                          : "; for( auto& v : deleted_part ) cout << v << ' '; cout << '\n';
         } else {
+                cout << "middle part is bigger\n";
                 //delete all verts on level l2 and above
                 //shrink all verts on levels l1 and belowe to a single vertex of cost zero
                 //The new graph has a spanning tree radius of l2 - l1 -1 whose root corresponds to vertices on levels l1 and below in the original graph
+                r = l[2] - l[1] - 1;
                 //Apply Lemma 2 to the new graph, A* B* C*
                 cout << "A = set among A* and B* with greater cost\n";
                 cout << "C = verts on levels l1 and l2 in the original graph plus verts in C* minus the root\n";

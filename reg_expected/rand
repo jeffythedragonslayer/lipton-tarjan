@@ -2,12 +2,8 @@ loading graph
 n: 50
 starting lipton tarjan...
 [32m---------------------------- 1 - Check Planarity  ------------
-[0mplanar ok
-[32m---------------------------- 2 - Connected Components --------
-[0m# of components: 1
-too big
-biggest component: 0
-[32m---------------------------- 3 - BFS and Levels ------------
+[0m[32m---------------------------- 2 - Connected Components --------
+[0m[32m---------------------------- 3 - BFS and Levels ------------
 [0m  tree edge 0, 33
   tree edge 0, 48
   tree edge 33, 8
@@ -58,495 +54,89 @@ biggest component: 0
   tree edge 21, 47
   tree edge 36, 4
 [32m---------------------------- 4 - l1 and k  ------------
-[0mk:  29      # of verts in levels 0 thru l1
-l1: 4      total cost of levels 0 thru l1 barely exceeds 1/2
-[32m---------------------------- 5 - Find More Levels -------
-[0msq:    10.7703
-snk:   9.16515
-l0: 4     highest level <= l1
-l2: 6     lowest  level >= l1 + 1
-[32m---------------------------- 6 - Shrinktree -------------
-[0mn: 50
-killing vertex 4
+[0m[32m---------------------------- 5 - Find More Levels -------
+[0m[32m---------------------------- 6 - Shrinktree -------------
+[0mkilling vertex 4
 killing vertex 24
 killing vertex 32
 killing vertex 43
 killing vertex 47
-testing is tree edge 0, 33
-src: 0
-tar: 33
-testing is tree edge 0, 48
-src: 0
-tar: 48
-testing is tree edge 33, 8
-src: 33
-tar: 8
-testing is tree edge 33, 20
-src: 33
-tar: 20
-testing is tree edge 33, 48
-src: 33
-tar: 48
 foundedge 33, 48     going to delete 33, 48
-testing is tree edge 0, 33
-src: 0
-tar: 33
-testing is tree edge 8, 48
-src: 8
-tar: 48
 foundedge 8, 48     going to delete 8, 48
-testing is tree edge 8, 15
-src: 8
-tar: 15
 foundedge 8, 15     going to delete 8, 15
-testing is tree edge 8, 20
-src: 8
-tar: 20
 foundedge 8, 20     going to delete 8, 20
-testing is tree edge 8, 49
-src: 8
-tar: 49
-testing is tree edge 33, 8
-src: 33
-tar: 8
-testing is tree edge 8, 49
-src: 8
-tar: 49
-testing is tree edge 49, 20
-src: 49
-tar: 20
 foundedge 49, 20     going to delete 49, 20
-testing is tree edge 33, 20
-src: 33
-tar: 20
-testing is tree edge 49, 20
-src: 49
-tar: 20
 foundedge 20, 49     going to delete 20, 49
-testing is tree edge 8, 20
-src: 8
-tar: 20
 foundedge 20, 8     going to delete 20, 8
-testing is tree edge 20, 12
-src: 20
-tar: 12
-testing is tree edge 20, 11
-src: 20
-tar: 11
 foundedge 20, 11     going to delete 20, 11
-testing is tree edge 26, 12
-src: 26
-tar: 12
 foundedge 12, 26     going to delete 12, 26
-testing is tree edge 40, 12
-src: 40
-tar: 12
 foundedge 12, 40     going to delete 12, 40
-testing is tree edge 12, 10
-src: 12
-tar: 10
 foundedge 12, 10     going to delete 12, 10
-testing is tree edge 20, 12
-src: 20
-tar: 12
-testing is tree edge 0, 48
-src: 0
-tar: 48
-testing is tree edge 33, 48
-src: 33
-tar: 48
 foundedge 48, 33     going to delete 48, 33
-testing is tree edge 11, 48
-src: 11
-tar: 48
-testing is tree edge 46, 48
-src: 46
-tar: 48
-testing is tree edge 48, 3
-src: 48
-tar: 3
-testing is tree edge 48, 15
-src: 48
-tar: 15
-testing is tree edge 8, 48
-src: 8
-tar: 48
 foundedge 48, 8     going to delete 48, 8
-testing is tree edge 15, 3
-src: 15
-tar: 3
 foundedge 3, 15     going to delete 3, 15
-testing is tree edge 48, 3
-src: 48
-tar: 3
-testing is tree edge 31, 3
-src: 31
-tar: 3
 foundedge 3, 31     going to delete 3, 31
-testing is tree edge 20, 11
-src: 20
-tar: 11
 foundedge 11, 20     going to delete 11, 20
-testing is tree edge 11, 10
-src: 11
-tar: 10
-testing is tree edge 11, 40
-src: 11
-tar: 40
-testing is tree edge 11, 38
-src: 11
-tar: 38
-testing is tree edge 11, 23
-src: 11
-tar: 23
-testing is tree edge 11, 27
-src: 11
-tar: 27
 foundedge 11, 27     going to delete 11, 27
-testing is tree edge 11, 48
-src: 11
-tar: 48
-testing is tree edge 12, 10
-src: 12
-tar: 10
 foundedge 10, 12     going to delete 10, 12
-testing is tree edge 11, 10
-src: 11
-tar: 10
-testing is tree edge 29, 23
-src: 29
-tar: 23
 foundedge 23, 29     going to delete 23, 29
-testing is tree edge 23, 41
-src: 23
-tar: 41
-testing is tree edge 23, 37
-src: 23
-tar: 37
-testing is tree edge 23, 6
-src: 23
-tar: 6
-testing is tree edge 27, 23
-src: 27
-tar: 23
 foundedge 23, 27     going to delete 23, 27
-testing is tree edge 11, 23
-src: 11
-tar: 23
-testing is tree edge 23, 6
-src: 23
-tar: 6
-testing is tree edge 6, 45
-src: 6
-tar: 45
 foundedge 6, 45   !!!!!!!going to add 999999, 45     going to delete 6, 45
-testing is tree edge 37, 6
-src: 37
-tar: 6
 foundedge 6, 37     going to delete 6, 37
-testing is tree edge 36, 6
-src: 36
-tar: 6
 foundedge 6, 36   !!!!!!!going to add 999999, 36     going to delete 6, 36
-testing is tree edge 37, 6
-src: 37
-tar: 6
 foundedge 37, 6     going to delete 37, 6
-testing is tree edge 37, 45
-src: 37
-tar: 45
 foundedge 37, 45     going to delete 37, 45
-testing is tree edge 23, 37
-src: 23
-tar: 37
-testing is tree edge 41, 37
-src: 41
-tar: 37
 foundedge 37, 41     going to delete 37, 41
-testing is tree edge 41, 37
-src: 41
-tar: 37
 foundedge 41, 37     going to delete 41, 37
-testing is tree edge 23, 41
-src: 23
-tar: 41
-testing is tree edge 41, 30
-src: 41
-tar: 30
 foundedge 41, 30   !!!!!!!going to add 999999, 30     going to delete 41, 30
-testing is tree edge 41, 25
-src: 41
-tar: 25
 foundedge 41, 25   !!!!!!!going to add 999999, 25     going to delete 41, 25
-testing is tree edge 36, 41
-src: 36
-tar: 41
 foundedge 41, 36     going to delete 41, 36
-testing is tree edge 29, 38
-src: 29
-tar: 38
-testing is tree edge 11, 38
-src: 11
-tar: 38
-testing is tree edge 29, 40
-src: 29
-tar: 40
 foundedge 29, 40     going to delete 29, 40
-testing is tree edge 35, 29
-src: 35
-tar: 29
 foundedge 29, 35   !!!!!!!going to add 999999, 35     going to delete 29, 35
-testing is tree edge 29, 30
-src: 29
-tar: 30
 foundedge 29, 30     going to delete 29, 30
-testing is tree edge 29, 23
-src: 29
-tar: 23
 foundedge 29, 23     going to delete 29, 23
-testing is tree edge 29, 38
-src: 29
-tar: 38
-testing is tree edge 40, 12
-src: 40
-tar: 12
 foundedge 40, 12     going to delete 40, 12
-testing is tree edge 40, 16
-src: 40
-tar: 16
 foundedge 40, 16     going to delete 40, 16
-testing is tree edge 26, 40
-src: 26
-tar: 40
 foundedge 40, 26     going to delete 40, 26
-testing is tree edge 29, 40
-src: 29
-tar: 40
 foundedge 40, 29     going to delete 40, 29
-testing is tree edge 11, 40
-src: 11
-tar: 40
-testing is tree edge 48, 15
-src: 48
-tar: 15
-testing is tree edge 15, 3
-src: 15
-tar: 3
 foundedge 15, 3     going to delete 15, 3
-testing is tree edge 27, 15
-src: 27
-tar: 15
-testing is tree edge 15, 26
-src: 15
-tar: 26
-testing is tree edge 8, 15
-src: 8
-tar: 15
 foundedge 15, 8     going to delete 15, 8
-testing is tree edge 15, 26
-src: 15
-tar: 26
-testing is tree edge 26, 13
-src: 26
-tar: 13
-testing is tree edge 26, 18
-src: 26
-tar: 18
-testing is tree edge 26, 28
-src: 26
-tar: 28
-testing is tree edge 26, 17
-src: 26
-tar: 17
-testing is tree edge 26, 40
-src: 26
-tar: 40
 foundedge 26, 40     going to delete 26, 40
-testing is tree edge 26, 16
-src: 26
-tar: 16
-testing is tree edge 26, 12
-src: 26
-tar: 12
 foundedge 26, 12     going to delete 26, 12
-testing is tree edge 13, 14
-src: 13
-tar: 14
 foundedge 13, 14   !!!!!!!going to add 999999, 14     going to delete 13, 14
-testing is tree edge 13, 7
-src: 13
-tar: 7
 foundedge 13, 7   !!!!!!!going to add 999999, 7     going to delete 13, 7
-testing is tree edge 9, 13
-src: 9
-tar: 13
 foundedge 13, 9   !!!!!!!going to add 999999, 9     going to delete 13, 9
-testing is tree edge 18, 13
-src: 18
-tar: 13
 foundedge 13, 18     going to delete 13, 18
-testing is tree edge 26, 13
-src: 26
-tar: 13
-testing is tree edge 27, 13
-src: 27
-tar: 13
 foundedge 13, 27     going to delete 13, 27
-testing is tree edge 26, 16
-src: 26
-tar: 16
-testing is tree edge 40, 16
-src: 40
-tar: 16
 foundedge 16, 40     going to delete 16, 40
-testing is tree edge 26, 17
-src: 26
-tar: 17
-testing is tree edge 17, 28
-src: 17
-tar: 28
 foundedge 17, 28     going to delete 17, 28
-testing is tree edge 17, 22
-src: 17
-tar: 22
 foundedge 17, 22   !!!!!!!going to add 999999, 22     going to delete 17, 22
-testing is tree edge 17, 21
-src: 17
-tar: 21
 foundedge 17, 21   !!!!!!!going to add 999999, 21     going to delete 17, 21
-testing is tree edge 17, 42
-src: 17
-tar: 42
 foundedge 17, 42   !!!!!!!going to add 999999, 42     going to delete 17, 42
-testing is tree edge 17, 39
-src: 17
-tar: 39
 foundedge 17, 39   !!!!!!!going to add 999999, 39     going to delete 17, 39
-testing is tree edge 17, 14
-src: 17
-tar: 14
 foundedge 17, 14     going to delete 17, 14
-testing is tree edge 17, 19
-src: 17
-tar: 19
 foundedge 17, 19   !!!!!!!going to add 999999, 19     going to delete 17, 19
-testing is tree edge 17, 36
-src: 17
-tar: 36
 foundedge 17, 36     going to delete 17, 36
-testing is tree edge 17, 1
-src: 17
-tar: 1
 foundedge 17, 1   !!!!!!!going to add 999999, 1     going to delete 17, 1
-testing is tree edge 17, 5
-src: 17
-tar: 5
 foundedge 17, 5   !!!!!!!going to add 999999, 5     going to delete 17, 5
-testing is tree edge 17, 35
-src: 17
-tar: 35
 foundedge 17, 35     going to delete 17, 35
-testing is tree edge 18, 13
-src: 18
-tar: 13
 foundedge 18, 13     going to delete 18, 13
-testing is tree edge 18, 21
-src: 18
-tar: 21
 foundedge 18, 21     going to delete 18, 21
-testing is tree edge 22, 18
-src: 22
-tar: 18
 foundedge 18, 22     going to delete 18, 22
-testing is tree edge 18, 28
-src: 18
-tar: 28
 foundedge 18, 28     going to delete 18, 28
-testing is tree edge 26, 18
-src: 26
-tar: 18
-testing is tree edge 18, 28
-src: 18
-tar: 28
 foundedge 28, 18     going to delete 28, 18
-testing is tree edge 22, 28
-src: 22
-tar: 28
 foundedge 28, 22     going to delete 28, 22
-testing is tree edge 17, 28
-src: 17
-tar: 28
 foundedge 28, 17     going to delete 28, 17
-testing is tree edge 26, 28
-src: 26
-tar: 28
-testing is tree edge 11, 27
-src: 11
-tar: 27
 foundedge 27, 11     going to delete 27, 11
-testing is tree edge 27, 23
-src: 27
-tar: 23
 foundedge 27, 23     going to delete 27, 23
-testing is tree edge 27, 34
-src: 27
-tar: 34
-testing is tree edge 27, 13
-src: 27
-tar: 13
 foundedge 27, 13     going to delete 27, 13
-testing is tree edge 27, 15
-src: 27
-tar: 15
-testing is tree edge 27, 2
-src: 27
-tar: 2
 foundedge 27, 2     going to delete 27, 2
-testing is tree edge 34, 19
-src: 34
-tar: 19
 foundedge 34, 19     going to delete 34, 19
-testing is tree edge 34, 44
-src: 34
-tar: 44
 foundedge 34, 44   !!!!!!!going to add 999999, 44     going to delete 34, 44
-testing is tree edge 14, 34
-src: 14
-tar: 34
 foundedge 34, 14     going to delete 34, 14
-testing is tree edge 27, 34
-src: 27
-tar: 34
-testing is tree edge 2, 46
-src: 2
-tar: 46
-testing is tree edge 31, 46
-src: 31
-tar: 46
-testing is tree edge 46, 48
-src: 46
-tar: 48
-testing is tree edge 27, 2
-src: 27
-tar: 2
 foundedge 2, 27     going to delete 2, 27
-testing is tree edge 2, 31
-src: 2
-tar: 31
 foundedge 2, 31     going to delete 2, 31
-testing is tree edge 2, 46
-src: 2
-tar: 46
-testing is tree edge 31, 3
-src: 31
-tar: 3
 foundedge 31, 3     going to delete 31, 3
-testing is tree edge 31, 46
-src: 31
-tar: 46
-testing is tree edge 2, 31
-src: 2
-tar: 31
 foundedge 31, 2     going to delete 31, 2
 finishing
 edges to add size: 16
@@ -583,9 +173,7 @@ killing vertex 46
 killing vertex 48
 killing vertex 49
 [32m-------------------- 7 - New BFS and Make Max Planar -----
-[0mroot: 999999
-n:    17
-  tree edge 999999, 1
+[0m  tree edge 999999, 1
   tree edge 999999, 5
   tree edge 999999, 7
   tree edge 999999, 9
@@ -623,336 +211,8 @@ vert 999999   hos edges 1 5 7 9 14 19 21 22 25 30 35 36 39 42 44 45
 *********************************************************
 
 [0m[32m----------------------- 8 - Locate Cycle -----------------
-[0mtesting is tree edge 1, 36
-src: 1
-tar: 36
-testing is tree edge 1, 36
-src: 1
-tar: 36
-arbitrarily choosing nontree edge: 1, 36
-ancestors v1...
-first v: 1
-root: 999999
-pushing back v: 999999
-ancestors v2...
-first v: 36
-root: 999999
-pushing back v: 999999
-common ancestor: 999999
-   scanning cycle vert 1
-testing is tree edge 1, 36
-src: 1
-tar: 36
-testing is tree edge 1, 5
-src: 1
-tar: 5
-testing is tree edge 1, 999999
-src: 1
-tar: 999999
-testing is tree edge 1, 9
-src: 1
-tar: 9
-testing is tree edge 1, 44
-src: 1
-tar: 44
-   scanning cycle vert 999999
-testing is tree edge 999999, 1
-src: 999999
-tar: 1
-testing is tree edge 999999, 5
-src: 999999
-tar: 5
-testing is tree edge 999999, 5
-src: 999999
-tar: 5
-      scanning incident tree edge 999999, 5   cost: 1
-cycle: 1 999999 36 
-      testing if edge 999999, 5 is inside the cycle:       common_vert:    999999
-
-      it:     999999
-      v:      999999
-      before: 1
-      after:  36
-      other:  5
-pushback2
-pushback1
-pushback3
-      NO
-testing is tree edge 999999, 7
-src: 999999
-tar: 7
-testing is tree edge 999999, 7
-src: 999999
-tar: 7
-      scanning incident tree edge 999999, 7   cost: 1
-cycle: 1 999999 36 
-      testing if edge 999999, 7 is inside the cycle:       common_vert:    999999
-
-      it:     999999
-      v:      999999
-      before: 1
-      after:  36
-      other:  7
-pushback2
-pushback3
-pushback1
-      YES
-testing is tree edge 999999, 9
-src: 999999
-tar: 9
-testing is tree edge 999999, 9
-src: 999999
-tar: 9
-      scanning incident tree edge 999999, 9   cost: 1
-cycle: 1 999999 36 
-      testing if edge 999999, 9 is inside the cycle:       common_vert:    999999
-
-      it:     999999
-      v:      999999
-      before: 1
-      after:  36
-      other:  9
-pushback2
-pushback3
-pushback1
-      YES
-testing is tree edge 999999, 14
-src: 999999
-tar: 14
-testing is tree edge 999999, 14
-src: 999999
-tar: 14
-      scanning incident tree edge 999999, 14   cost: 1
-cycle: 1 999999 36 
-      testing if edge 999999, 14 is inside the cycle:       common_vert:    999999
-
-      it:     999999
-      v:      999999
-      before: 1
-      after:  36
-      other:  14
-pushback2
-pushback3
-pushback1
-      YES
-testing is tree edge 999999, 19
-src: 999999
-tar: 19
-testing is tree edge 999999, 19
-src: 999999
-tar: 19
-      scanning incident tree edge 999999, 19   cost: 1
-cycle: 1 999999 36 
-      testing if edge 999999, 19 is inside the cycle:       common_vert:    999999
-
-      it:     999999
-      v:      999999
-      before: 1
-      after:  36
-      other:  19
-pushback2
-pushback3
-pushback1
-      YES
-testing is tree edge 999999, 21
-src: 999999
-tar: 21
-testing is tree edge 999999, 21
-src: 999999
-tar: 21
-      scanning incident tree edge 999999, 21   cost: 1
-cycle: 1 999999 36 
-      testing if edge 999999, 21 is inside the cycle:       common_vert:    999999
-
-      it:     999999
-      v:      999999
-      before: 1
-      after:  36
-      other:  21
-pushback2
-pushback3
-pushback1
-      YES
-testing is tree edge 999999, 22
-src: 999999
-tar: 22
-testing is tree edge 999999, 22
-src: 999999
-tar: 22
-      scanning incident tree edge 999999, 22   cost: 1
-cycle: 1 999999 36 
-      testing if edge 999999, 22 is inside the cycle:       common_vert:    999999
-
-      it:     999999
-      v:      999999
-      before: 1
-      after:  36
-      other:  22
-pushback2
-pushback3
-pushback1
-      YES
-testing is tree edge 999999, 25
-src: 999999
-tar: 25
-testing is tree edge 999999, 25
-src: 999999
-tar: 25
-      scanning incident tree edge 999999, 25   cost: 1
-cycle: 1 999999 36 
-      testing if edge 999999, 25 is inside the cycle:       common_vert:    999999
-
-      it:     999999
-      v:      999999
-      before: 1
-      after:  36
-      other:  25
-pushback2
-pushback1
-pushback3
-      NO
-testing is tree edge 999999, 30
-src: 999999
-tar: 30
-testing is tree edge 999999, 30
-src: 999999
-tar: 30
-      scanning incident tree edge 999999, 30   cost: 1
-cycle: 1 999999 36 
-      testing if edge 999999, 30 is inside the cycle:       common_vert:    999999
-
-      it:     999999
-      v:      999999
-      before: 1
-      after:  36
-      other:  30
-pushback2
-pushback1
-pushback3
-      NO
-testing is tree edge 999999, 35
-src: 999999
-tar: 35
-testing is tree edge 999999, 35
-src: 999999
-tar: 35
-      scanning incident tree edge 999999, 35   cost: 1
-cycle: 1 999999 36 
-      testing if edge 999999, 35 is inside the cycle:       common_vert:    999999
-
-      it:     999999
-      v:      999999
-      before: 1
-      after:  36
-      other:  35
-pushback2
-pushback1
-pushback3
-      NO
-testing is tree edge 999999, 36
-src: 999999
-tar: 36
-testing is tree edge 999999, 39
-src: 999999
-tar: 39
-testing is tree edge 999999, 39
-src: 999999
-tar: 39
-      scanning incident tree edge 999999, 39   cost: 1
-cycle: 1 999999 36 
-      testing if edge 999999, 39 is inside the cycle:       common_vert:    999999
-
-      it:     999999
-      v:      999999
-      before: 1
-      after:  36
-      other:  39
-pushback2
-pushback3
-pushback1
-      YES
-testing is tree edge 999999, 42
-src: 999999
-tar: 42
-testing is tree edge 999999, 42
-src: 999999
-tar: 42
-      scanning incident tree edge 999999, 42   cost: 1
-cycle: 1 999999 36 
-      testing if edge 999999, 42 is inside the cycle:       common_vert:    999999
-
-      it:     999999
-      v:      999999
-      before: 1
-      after:  36
-      other:  42
-pushback2
-pushback3
-pushback1
-      YES
-testing is tree edge 999999, 44
-src: 999999
-tar: 44
-testing is tree edge 999999, 44
-src: 999999
-tar: 44
-      scanning incident tree edge 999999, 44   cost: 1
-cycle: 1 999999 36 
-      testing if edge 999999, 44 is inside the cycle:       common_vert:    999999
-
-      it:     999999
-      v:      999999
-      before: 1
-      after:  36
-      other:  44
-pushback2
-pushback3
-pushback1
-      YES
-testing is tree edge 999999, 45
-src: 999999
-tar: 45
-testing is tree edge 999999, 45
-src: 999999
-tar: 45
-      scanning incident tree edge 999999, 45   cost: 1
-cycle: 1 999999 36 
-      testing if edge 999999, 45 is inside the cycle:       common_vert:    999999
-
-      it:     999999
-      v:      999999
-      before: 1
-      after:  36
-      other:  45
-pushback2
-pushback3
-pushback1
-      YES
-   scanning cycle vert 36
-testing is tree edge 36, 1
-src: 36
-tar: 1
-testing is tree edge 36, 19
-src: 36
-tar: 19
-testing is tree edge 36, 5
-src: 36
-tar: 5
-testing is tree edge 36, 25
-src: 36
-tar: 25
-testing is tree edge 36, 999999
-src: 36
-tar: 999999
-testing is tree edge 36, 44
-src: 36
-tar: 44
-testing is tree edge 36, 30
-src: 36
-tar: 30
-total inside cost:  10
-total outside cost: 4
-[32m---------------------------- 9 - Improve Separator -----------
+[0marbitrarily choosing nontree edge: 1, 36
+1 999999 36 1 999999 36 1 999999 36 1 999999 36 1 999999 36 1 999999 36 1 999999 36 1 999999 36 1 999999 36 1 999999 36 1 999999 36 1 999999 36 1 999999 36 1 999999 36 [32m---------------------------- 9 - Improve Separator -----------
 [0m[31m
 **********************  Edges  **************************
 1, 36
@@ -1002,10 +262,29 @@ total outside cost: 4
 45, 14
 *********************************************************
 
-[0mchosen_edge: 1, 36
-const inside: 10
-found cycle with inside cost < 2/3: 10
-cycle verts: 1 999999 36 
+[0mcycle verts: 1 999999 36 
 [32m
 ------------ 10  - Construct Vertex Partition --------------
-[0m
+[0ml0: 4
+l1: 4
+l2: 6
+level of 1: 1  1 belongs to first part
+level of 5: 1  5 belongs to first part
+level of 7: 1  7 belongs to first part
+level of 9: 1  9 belongs to first part
+level of 14: 1  14 belongs to first part
+level of 19: 1  19 belongs to first part
+level of 21: 1  21 belongs to first part
+level of 22: 1  22 belongs to first part
+level of 25: 1  25 belongs to first part
+level of 30: 1  30 belongs to first part
+level of 35: 1  35 belongs to first part
+level of 36: 1  36 belongs to first part
+level of 39: 1  39 belongs to first part
+level of 42: 1  42 belongs to first part
+level of 44: 1  44 belongs to first part
+level of 45: 1  45 belongs to first part
+level of 999999: 0  999999 belongs to first part
+A = most costly part of the 3
+B = remaining 2 parts
+C = 

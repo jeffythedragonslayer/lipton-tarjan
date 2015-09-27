@@ -2,12 +2,8 @@ loading graph
 n: 8
 starting lipton tarjan...
 [32m---------------------------- 1 - Check Planarity  ------------
-[0mplanar ok
-[32m---------------------------- 2 - Connected Components --------
-[0m# of components: 1
-too big
-biggest component: 0
-[32m---------------------------- 3 - BFS and Levels ------------
+[0m[32m---------------------------- 2 - Connected Components --------
+[0m[32m---------------------------- 3 - BFS and Levels ------------
 [0m  tree edge 0, 3
   tree edge 3, 2
   tree edge 3, 6
@@ -16,54 +12,19 @@ biggest component: 0
   tree edge 1, 5
   tree edge 5, 4
 [32m---------------------------- 4 - l1 and k  ------------
-[0mk:  5      # of verts in levels 0 thru l1
-l1: 2      total cost of levels 0 thru l1 barely exceeds 1/2
-[32m---------------------------- 5 - Find More Levels -------
-[0msq:    4.47214
-snk:   3.4641
-l0: 2     highest level <= l1
-l2: 3     lowest  level >= l1 + 1
-[32m---------------------------- 6 - Shrinktree -------------
-[0mn: 8
-killing vertex 4
+[0m[32m---------------------------- 5 - Find More Levels -------
+[0m[32m---------------------------- 6 - Shrinktree -------------
+[0mkilling vertex 4
 killing vertex 5
 killing vertex 7
-testing is tree edge 0, 3
-src: 0
-tar: 3
-testing is tree edge 3, 1
-src: 3
-tar: 1
-testing is tree edge 3, 6
-src: 3
-tar: 6
-testing is tree edge 3, 2
-src: 3
-tar: 2
-testing is tree edge 0, 3
-src: 0
-tar: 3
-testing is tree edge 3, 1
-src: 3
-tar: 1
-testing is tree edge 3, 2
-src: 3
-tar: 2
-testing is tree edge 3, 6
-src: 3
-tar: 6
 finishing
 edges to add size: 0
 adding: 
 edges to remove size: 0
 removing: 
-no edges to x found, deleting
 killing vertex 999999
-x_gone: 0
 [32m-------------------- 7 - New BFS and Make Max Planar -----
-[0mroot: 0
-n:    5
-  tree edge 0, 3
+[0m  tree edge 0, 3
   tree edge 3, 2
   tree edge 3, 6
   tree edge 3, 1
@@ -77,107 +38,8 @@ vert 6   hos edges 3 1 2 0
 *********************************************************
 
 [0m[32m----------------------- 8 - Locate Cycle -----------------
-[0mtesting is tree edge 2, 3
-src: 2
-tar: 3
-testing is tree edge 3, 0
-src: 3
-tar: 0
-testing is tree edge 6, 3
-src: 6
-tar: 3
-testing is tree edge 1, 3
-src: 1
-tar: 3
-testing is tree edge 6, 1
-src: 6
-tar: 1
-testing is tree edge 6, 1
-src: 6
-tar: 1
-arbitrarily choosing nontree edge: 6, 1
-ancestors v1...
-first v: 6
-root: 0
-pushing back v: 3
-pushing back v: 0
-ancestors v2...
-first v: 1
-root: 0
-pushing back v: 3
-pushing back v: 0
-common ancestor: 3
-   scanning cycle vert 6
-testing is tree edge 6, 3
-src: 6
-tar: 3
-testing is tree edge 6, 1
-src: 6
-tar: 1
-testing is tree edge 6, 2
-src: 6
-tar: 2
-testing is tree edge 6, 0
-src: 6
-tar: 0
-   scanning cycle vert 3
-testing is tree edge 3, 2
-src: 3
-tar: 2
-testing is tree edge 3, 2
-src: 3
-tar: 2
-      scanning incident tree edge 3, 2   cost: 1
-cycle: 6 3 1 
-      testing if edge 3, 2 is inside the cycle:       common_vert:    3
-
-      it:     3
-      v:      3
-      before: 6
-      after:  1
-      other:  2
-pushback1
-pushback2
-pushback3
-      YES
-testing is tree edge 3, 0
-src: 3
-tar: 0
-testing is tree edge 3, 0
-src: 3
-tar: 0
-      scanning incident tree edge 3, 0   cost: 1
-cycle: 6 3 1 
-      testing if edge 3, 0 is inside the cycle:       common_vert:    3
-
-      it:     3
-      v:      3
-      before: 6
-      after:  1
-      other:  0
-pushback2
-pushback3
-pushback1
-      YES
-testing is tree edge 3, 6
-src: 3
-tar: 6
-testing is tree edge 3, 1
-src: 3
-tar: 1
-   scanning cycle vert 1
-testing is tree edge 1, 3
-src: 1
-tar: 3
-testing is tree edge 1, 6
-src: 1
-tar: 6
-testing is tree edge 1, 0
-src: 1
-tar: 0
-total inside cost:  2
-total outside cost: 0
-[32m---------------------------- 9 - Improve Separator -----------
+[0marbitrarily choosing nontree edge: 6, 1
+6 3 1 6 3 1 [32m---------------------------- 9 - Improve Separator -----------
 [0m[31m
 **********************  Edges  **************************
 2, 3
@@ -191,10 +53,19 @@ total outside cost: 0
 0, 1
 *********************************************************
 
-[0mchosen_edge: 6, 1
-const inside: 2
-found cycle with inside cost < 2/3: 2
+[0mfound cycle with inside cost < 2/3: 2
 cycle verts: 6 3 1 
 [32m
 ------------ 10  - Construct Vertex Partition --------------
-[0m
+[0ml0: 2
+l1: 2
+l2: 3
+r: 3
+level of 0: 0, 0 belongs to first part
+level of 1: 2, 1 is deleted
+level of 2: 2, 2 is deleted
+level of 3: 1, 3 belongs to first part
+level of 6: 2, 6 is deleted
+A = most costly part of the 3: 0 3 
+B = remaining 2 parts        : 
+C =                          : 1 2 6 

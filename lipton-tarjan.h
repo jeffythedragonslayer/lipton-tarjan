@@ -24,7 +24,7 @@ struct Partition
         std::vector<VertDesc> a, b, c;
 }; 
 
-Partition lipton_tarjan(Graph& g);
+Partition lipton_tarjan(Graph& g, Graph& g_orig);
 
 extern std::map<VertDesc, uint> vert2uint;
 extern std::map<uint, VertDesc> uint2vert;

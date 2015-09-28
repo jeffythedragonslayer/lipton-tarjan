@@ -23,6 +23,7 @@
 #include <boost/graph/breadth_first_search.hpp>
 #include <boost/pending/indirect_cmp.hpp>
 #include <boost/range/irange.hpp> 
+#include <boost/graph/copy.hpp>
 using namespace std;
 using namespace boost; 
 #define STLALL(x) (x).begin(), (x).end()
@@ -476,7 +477,6 @@ set<VertDesc> get_intersection(set<VertDesc> const& a, set<VertDesc> const& b)
 struct CycleCost
 {
         uint inside {}, outside {};
-
 };
 
 bool cost_swapped = false;
@@ -502,12 +502,13 @@ struct NotPlanar
 {
 };
 
-Partition lipton_tarjan(Graph& g)
+Partition lipton_tarjan(Graph& g, Graph& g_orig)
 {
         cout << HEADER_COL << "---------------------------- 1 - Check Planarity  ------------\n" << RESET;
         Em em1(&g);
         if( !em1.testplanar() ) throw NotPlanar();
-        //cout << "planar ok\n";
+        cout << "planar ok\n";
+        print_graph(g);
 
         cout << HEADER_COL << "---------------------------- 2 - Connected Components --------\n" << RESET;
         VertDescMap idx; 
@@ -517,7 +518,7 @@ Partition lipton_tarjan(Graph& g)
         for( uint i = 0; vit != vjt; ++vit, ++i ) put(vertid_to_component, *vit, i);
         uint components = connected_components(g, vertid_to_component);
 
-        //cout << "# of components: " << components << '\n';
+        cout << "# of components: " << components << '\n';
         vector<uint> verts_per_comp(components, 0);
         for( tie(vit, vjt) = vertices(g); vit != vjt; ++vit ) ++verts_per_comp[vertid_to_component[*vit]];
         uint biggest_component = 0;
@@ -525,7 +526,7 @@ Partition lipton_tarjan(Graph& g)
         bool too_big           = false;
         for( uint i = 0; i < components; ++i ){
                 if( 3*verts_per_comp[i] > 2*num_vertices(g) ){
-                        //cout << "too big\n";
+                        cout << "too big\n";
                         too_big = true;
                 }
                 if( verts_per_comp[i] > biggest_size ){
@@ -538,7 +539,7 @@ Partition lipton_tarjan(Graph& g)
                 theorem4(0, g);
                 return {};
         }
-        //cout << "biggest component: " << biggest_component << '\n';
+        cout << "biggest component: " << biggest_component << '\n';
 
         cout << HEADER_COL << "---------------------------- 3 - BFS and Levels ------------\n" << RESET;
         BFSVisitorData vis_data(&g);
@@ -549,39 +550,39 @@ Partition lipton_tarjan(Graph& g)
         vector<uint> L(vis_data.num_levels + 1, 0);
         for( auto& d : vis_data.verts ) ++L[d.second.level];
 
-        //for( tie(vi, vj) = vertices(g); vi != vj; ++vi ) cout << "level/cost of vert " << *vi << ": " << vis_data.verts[*vi].level << '\n';
-        //for( uint i = 0; i < L.size(); ++i ) cout << "L[" << i << "]: " << L[i] << '\n';
+        for( tie(vit, vjt) = vertices(g); vit != vjt; ++vit ) cout << "level/cost of vert " << *vit << ": " << vis_data.verts[*vit].level << '\n';
+        for( uint i = 0; i < L.size(); ++i ) cout << "L[" << i << "]: " << L[i] << '\n';
 
         cout << HEADER_COL << "---------------------------- 4 - l1 and k  ------------\n" << RESET;
         uint k = L[0]; 
         int l[3];
         l[1] = 0;
         while( k <= num_vertices(g)/2 ) k += L[++l[1]];
-        //cout << "k:  " << k    << "      # of verts in levels 0 thru l1\n";
-        //cout << "l1: " << l[1] << "      total cost of levels 0 thru l1 barely exceeds 1/2\n";
+        cout << "k:  " << k    << "      # of verts in levels 0 thru l1\n";
+        cout << "l1: " << l[1] << "      total cost of levels 0 thru l1 barely exceeds 1/2\n";
 
         cout << HEADER_COL << "---------------------------- 5 - Find More Levels -------\n" << RESET;
         float sq  = 2 * sqrt(k); 
         float snk = 2 * sqrt(num_vertices(g) - k); 
-        //cout << "sq:    " << sq << '\n';
-        //cout << "snk:   " << snk << '\n';
+        cout << "sq:    " << sq << '\n';
+        cout << "snk:   " << snk << '\n';
 
-        l[0] = l[1];     for( ;; ){ float val = L.at(l[0]) + 2*(l[1] - l[0]);     if( val <= sq  ) break; --l[0]; } //cout << "l0: " << l[0] << "     highest level <= l1\n"; 
-        l[2] = l[1] + 1; for( ;; ){ float val = L.at(l[2]) + 2*(l[2] - l[1] - 1); if( val <= snk ) break; ++l[2]; } //cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
+        l[0] = l[1];     for( ;; ){ float val = L.at(l[0]) + 2*(l[1] - l[0]);     if( val <= sq  ) break; --l[0]; } cout << "l0: " << l[0] << "     highest level <= l1\n";
+        l[2] = l[1] + 1; for( ;; ){ float val = L.at(l[2]) + 2*(l[2] - l[1] - 1); if( val <= snk ) break; ++l[2]; } cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
 
         cout << HEADER_COL << "---------------------------- 6 - Shrinktree -------------\n" << RESET;
-        //cout << "n: " << num_vertices(g) << '\n'; 
+        cout << "n: " << num_vertices(g) << '\n'; 
 
         vector<VertDesc> replaceverts;
         tie(vit, vjt) = vertices(g); 
         for( auto next = vit; vit != vjt; vit = next ){
                 ++next;
                 if( vis_data.verts[*vit].level >= l[2] ){
-                        //cout << "deleting vertex " << *vit << " of level l2 " << vis_data.verts[*vit].level << " >= " << l[2] << '\n';
+                        cout << "deleting vertex " << *vit << " of level l2 " << vis_data.verts[*vit].level << " >= " << l[2] << '\n';
                         kill_vertex(*vit, g);
                 }
                 if( vis_data.verts[*vit].level <= l[0] ){
-                        //cout << "going to replace vertex " << *vit << " of level l0 " << vis_data.verts[*vit].level << " <= " << l[0] << '\n';
+                        cout << "going to replace vertex " << *vit << " of level l0 " << vis_data.verts[*vit].level << " <= " << l[0] << '\n';
                         replaceverts.push_back(*vit);
                 }
         }
@@ -589,8 +590,8 @@ Partition lipton_tarjan(Graph& g)
         auto x = add_vertex(g); uint2vert[vert2uint[x] = 999999] = x; 
         map<VertDesc, bool> t;
         for( tie(vit, vjt) = vertices(g); vit != vjt; ++vit ){
-                t[*vit] = (vis_data.verts[*vit].level <= l[0]);
-                //cout << "vertex " << *vit << " at level " << vis_data.verts[*vit].level << " is " << (t[*vit] ? "TRUE" : "FALSE") << '\n';
+                t[*vit] = vis_data.verts[*vit].level <= l[0];
+                cout << "vertex " << *vit << " at level " << vis_data.verts[*vit].level << " is " << (t[*vit] ? "TRUE" : "FALSE") << '\n';
         }
 
         reset_vertex_indices(g);
@@ -604,10 +605,10 @@ Partition lipton_tarjan(Graph& g)
 
         auto x_gone = Graph::null_vertex();
         if( !degree(x, g) ){
-                //cout << "no edges to x found, deleting\n";
+                cout << "no edges to x found, deleting\n";
                 kill_vertex(x, g);
                 x_gone = *vertices(g).first;
-                //cout << "x_gone: " << x_gone << '\n';
+                cout << "x_gone: " << x_gone << '\n';
         } else {
                 // delete all vertices x has replaced
                 for( auto& v : replaceverts ) kill_vertex(v, g);
@@ -620,8 +621,8 @@ Partition lipton_tarjan(Graph& g)
         vis_data.root = (x_gone != Graph::null_vertex()) ? x_gone : x;
         ++vis_data.verts[vis_data.root].descendant_cost;
 
-        //cout << "root: " << vis_data.root << '\n'; 
-        //cout << "n:    " << num_vertices(g) << '\n';
+        cout << "root: " << vis_data.root << '\n'; 
+        cout << "n:    " << num_vertices(g) << '\n';
 
         breadth_first_search(g, x_gone != Graph::null_vertex() ? x_gone: x, visitor(BFSVisitor(vis_data))); 
         makemaxplanar(g);
@@ -634,12 +635,12 @@ Partition lipton_tarjan(Graph& g)
         auto chosen_edge = arbitrary_nontree_edge(g, vis_data);
         auto v1          = source(chosen_edge, g);
         auto w1          = target(chosen_edge, g); 
-        //cout << "ancestors v1...\n";
+        cout << "ancestors v1...\n";
         auto parents_v   = ancestors(v1, vis_data);
-        //cout << "ancestors v2...\n";
+        cout << "ancestors v2...\n";
         auto parents_w   = ancestors(w1, vis_data); 
         auto ancestor    = common_ancestor(parents_v, parents_w, vis_data);
-        //cout << "common ancestor: " << ancestor << '\n'; 
+        cout << "common ancestor: " << ancestor << '\n'; 
         auto cycle = get_cycle(v1, w1, ancestor, vis_data);
 
         Em   em2(&g);
@@ -649,43 +650,43 @@ Partition lipton_tarjan(Graph& g)
                 cost_swapped = true;
                 cout << "!!!!!! cost swapped !!!!!!!!\n";
         }
-        //cout << "total inside cost:  " << cc.inside  << '\n'; 
-        //cout << "total outside cost: " << cc.outside << '\n'; 
+        cout << "total inside cost:  " << cc.inside  << '\n'; 
+        cout << "total outside cost: " << cc.outside << '\n'; 
 
         cout << HEADER_COL << "---------------------------- 9 - Improve Separator -----------\n" << RESET;
         print_edges(g);
 
         while( cc.inside > num_vertices(g)*2./3 ){ 
-                //cout << RED << "chosen_edge: " << to_string(chosen_edge, g) << '\n';
-                //cout << "const inside: " << cc.inside  << '\n';
-                //cout << "const outide: " << cc.outside << '\n';
-                //cout << "looking for a better cycle\n" << RESET;
+                cout << RED << "chosen_edge: " << to_string(chosen_edge, g) << '\n';
+                cout << "const inside: " << cc.inside  << '\n';
+                cout << "const outide: " << cc.outside << '\n';
+                cout << "looking for a better cycle\n" << RESET;
 
                 auto vi = source(chosen_edge, g);
                 auto wi = target(chosen_edge, g);
                 assert(!vis_data.is_tree_edge(chosen_edge));
                 EdgeDesc next_edge;
-                //cout << "   vi: " << vi << '\n';
-                //cout << "   wi: " << wi << '\n';
+                cout << "   vi: " << vi << '\n';
+                cout << "   wi: " << wi << '\n';
 
                 auto neighbors_v = get_neighbors(vi, g);
                 auto neighbors_w = get_neighbors(wi, g); 
                 auto intersect   = get_intersection(neighbors_v, neighbors_w); 
                 assert(intersect.size() == 2);
-                //cout << "   intersectbegin: " << *intersect.begin() << '\n';
+                cout << "   intersectbegin: " << *intersect.begin() << '\n';
 
                 auto eee = edge(vi, *intersect.begin(), g);
-                //cout << "eee: " << to_string(eee.first, g) << '\n';
+                cout << "eee: " << to_string(eee.first, g) << '\n';
                 assert(eee.second);
 
                 InsideOut insideout = edge_inside_cycle(eee.first, *intersect.begin(), cycle, g, *em2.em);
                 auto y = (insideout == INSIDE) ? *intersect.begin() : *(++intersect.begin());
 
-                //cout << "   y: " << y << '\n';
+                cout << "   y: " << y << '\n';
                 auto viy_e = edge(vi, y, g); assert(viy_e.second); auto viy = viy_e.first;
                 auto ywi_e = edge(y, wi, g); assert(ywi_e.second); auto ywi = ywi_e.first; 
                 if ( vis_data.is_tree_edge(viy) || vis_data.is_tree_edge(ywi) ){
-                        //cout << MAGENTA << "   at least one tree edge\n" << RESET;
+                        cout << MAGENTA << "   at least one tree edge\n" << RESET;
                         next_edge = vis_data.is_tree_edge(viy) ? ywi : viy;
                         assert(!vis_data.is_tree_edge(next_edge));
 
@@ -699,20 +700,20 @@ Partition lipton_tarjan(Graph& g)
                         if( cost_swapped ) swap(cc.outside, cc.inside);
                 } else {
                         // Determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.
-                        //cout << MAGENTA << "   neither are tree edges\n" << RESET;
+                        cout << MAGENTA << "   neither are tree edges\n" << RESET;
                         auto path = ancestors(y, vis_data);
                         uint i;
                         for( i = 0; !on_cycle(path[i], cycle, g); ++i );
 
                         // Let z be the vertex on the (vi, wi) cycle reached during the search.
                         auto z = path[i++];
-                        //cout << "    z: " << z << '\n';
+                        cout << "    z: " << z << '\n';
                         path.erase(path.begin()+i, path.end());
                         assert(path.size() == i);
 
                         // Compute the total cost af all vertices except z on this tree path.
                         uint path_cost = path.size() - 1;
-                        //cout << "    y-to-z-minus-z cost: " << path_cost << '\n';
+                        cout << "    y-to-z-minus-z cost: " << path_cost << '\n';
 
                         // Scan the tree edges inside the (y, wi) cycle, alternately scanning an edge in one cycle and an edge in the other cycle.
                         // Stop scanning when all edges inside one of the cycles have been scanned.  Compute the cost inside this cycle by summing the associated costs of all scanned edges.
@@ -737,6 +738,7 @@ Partition lipton_tarjan(Graph& g)
         print_cycle(cycle);
 
         cout << HEADER_COL << "\n------------ 10  - Construct Vertex Partition --------------\n" << RESET;
+        print_graph(g_orig, false);
         cout << "l0: " << l[0] << '\n';
         cout << "l1: " << l[1] << '\n';
         cout << "l2: " << l[2] << '\n';
@@ -745,9 +747,10 @@ Partition lipton_tarjan(Graph& g)
         cout << "r: " << r << '\n';
 
         if( l[1] >= l[2] ){ 
+                cout << MAGENTA << "l1 is less than l2\n" << RESET; 
                 vector<VertDesc> part_a, part_b, part_c;
                 VertIter vei, vend;
-                for( tie(vei, vend) = vertices(g); vei != vend; ++vei ){ 
+                for( tie(vei, vend) = vertices(g_orig); vei != vend; ++vei ){ 
                         auto v = *vei;
                         cout << "level of " << v << ": " << vis_data.verts[v].level << "  ";
                         if( vis_data.verts[v].level <  l[1] )                                  { cout << v << " belongs to first part\n";  part_a.push_back(v); continue; }
@@ -761,12 +764,11 @@ Partition lipton_tarjan(Graph& g)
                 cout << "\nC = all verts on llevel l1            : "; for( auto& c : part_c ) cout << c << ' ';
                 cout << RESET;
                 return {};
-        }
-
+        } 
 
         vector<VertDesc> part_a, part_b, part_c, deleted_part;
         VertIter vei, vend;
-        for( tie(vei, vend) = vertices(g); vei != vend; ++vei ){ 
+        for( tie(vei, vend) = vertices(g_orig); vei != vend; ++vei ){ 
                 auto v = *vei;
                 cout << "level of " << v << ": " << vis_data.verts[v].level << ", ";
                 if( vis_data.verts[v].level == l[1] || vis_data.verts[v].level == l[2] ){     cout << v << " is deleted\n";             deleted_part.push_back(v); continue;}
@@ -777,18 +779,22 @@ Partition lipton_tarjan(Graph& g)
         }
 
         //the only part which can have cost > 2/3 is the middle part
-        assert(part_a.size() <= 2*num_vertices(g)/3);
-        assert(part_c.size() <= 2*num_vertices(g)/3);
-        if( part_b.size() <= 2*num_vertices(g)/3 ){
+        assert(part_a.size() <= 2*num_vertices(g_orig)/3);
+        assert(part_c.size() <= 2*num_vertices(g_orig)/3);
+        if( part_b.size() <= 2*num_vertices(g_orig)/3 ){
+                cout << MAGENTA << "middle part NOT biggest\n" << RESET;
                 vector<VertDesc>* costly_part, * other1, * other2;
-                if( part_a.size() > part_b.size() && part_a.size() > part_c.size() ){ costly_part = &part_a; other1 = &part_b; other2 = &part_c;}
-                if( part_b.size() > part_a.size() && part_b.size() > part_c.size() ){ costly_part = &part_b; other1 = &part_a; other2 = &part_c;}
-                if( part_c.size() > part_a.size() && part_c.size() > part_b.size() ){ costly_part = &part_c; other1 = &part_a; other2 = &part_b;}
+                if( part_a.size() > part_b.size() && part_a.size() > part_c.size() ){ costly_part = &part_a; other1 = &part_b; other2 = &part_c; cout << "part a is most costly\n";}
+                if( part_b.size() > part_a.size() && part_b.size() > part_c.size() ){ costly_part = &part_b; other1 = &part_a; other2 = &part_c; cout << "part b is most costly\n";}
+                if( part_c.size() > part_a.size() && part_c.size() > part_b.size() ){ costly_part = &part_c; other1 = &part_a; other2 = &part_b; cout << "part c is most costly\n";}
+                cout << "part a size: " << part_a.size() << '\n';
+                cout << "part b size: " << part_b.size() << '\n';
+                cout << "part c size: " << part_c.size() << '\n';
                 cout <<   "A = most costly part of the 3: "; for( auto& a : *costly_part ) cout << a << ' ';
                 cout << "\nB = remaining 2 parts        : "; for( auto& b : *other1      ) cout << b << ' '; for( auto& b : *other2 ) cout << b << ' '; 
                 cout << "\nC =                          : "; for( auto& v : deleted_part ) cout << v << ' '; cout << '\n';
         } else {
-                cout << "middle part is bigger\n";
+                cout << MAGENTA << "middle part biggest\n" << RESET;
                 //delete all verts on level l2 and above
                 //shrink all verts on levels l1 and belowe to a single vertex of cost zero
                 //The new graph has a spanning tree radius of l2 - l1 -1 whose root corresponds to vertices on levels l1 and below in the original graph

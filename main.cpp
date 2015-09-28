@@ -6,6 +6,7 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp> 
+#include <boost/graph/copy.hpp>
 #include "colors.h"
 #include "strutil.h"
 using namespace std;
@@ -78,6 +79,12 @@ int main(int argc, char* argv[])
                 uint e = num_edges(g);
 
                 cout << "starting lipton tarjan...\n";
-                auto p = lipton_tarjan(g); 
+                Graph g_copy;
+                copy_graph(g, g_copy);
+                cout << "g\n";
+                print_graph(g);
+                cout << "g_copy\n";
+                print_graph(g_copy);
+                auto p = lipton_tarjan(g, g_copy); 
         }
 }

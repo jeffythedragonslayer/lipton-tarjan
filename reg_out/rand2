@@ -84,6 +84,18 @@ vert 999999   hos edges 1 2 3 5 7 8 9
 cycle verts: 3 999999 2 
 [32m
 ------------ 10  - Construct Vertex Partition --------------
+[0m[31m
+**********************  Graph  **************************
+vert 1   hos edges 9 999999 8 2 
+vert 2   hos edges 3 999999 8 1 9 
+vert 3   hos edges 2 8 7 999999 
+vert 5   hos edges 7 8 999999 
+vert 7   hos edges 5 3 999999 8 
+vert 8   hos edges 3 5 999999 1 2 7 
+vert 9   hos edges 1 999999 2 
+vert 999999   hos edges 1 2 3 5 7 8 9 
+*********************************************************
+
 [0ml0: 1
 l1: 2
 l2: 3

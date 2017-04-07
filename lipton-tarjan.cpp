@@ -30,6 +30,8 @@ using namespace boost;
 
 #define HEADER_COL GREEN
 
+Partition empty_partition;
+
 int levi_civita(uint i, uint j, uint k)
 {
         if( i == j || j == k || k == i ) return 0; 
@@ -537,7 +539,7 @@ Partition lipton_tarjan(Graph& g, Graph& g_orig)
 
         if( !too_big ){
                 theorem4(0, g);
-                return {};
+                return empty_partition;
         }
         cout << "biggest component: " << biggest_component << '\n';
 
@@ -763,7 +765,7 @@ Partition lipton_tarjan(Graph& g, Graph& g_orig)
                 cout << "\nB = all verts on levels l1+1 thru r   : "; for( auto& b : part_b ) cout << b << ' ';
                 cout << "\nC = all verts on llevel l1            : "; for( auto& c : part_c ) cout << c << ' ';
                 cout << RESET;
-                return {};
+                return empty_partition;
         } 
 
         vector<VertDesc> part_a, part_b, part_c, deleted_part;
@@ -807,5 +809,5 @@ Partition lipton_tarjan(Graph& g, Graph& g_orig)
                 //But A U C* has total cost >= 1/3, so B also has total cost <= 2/3
                 //Futhermore, C contains no more than L[l1] + L[l2] + 2(l2 - l1 - 1)
         }
-        return {};
+        return empty_partition;
 }

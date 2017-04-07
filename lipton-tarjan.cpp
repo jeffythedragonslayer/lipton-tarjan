@@ -764,6 +764,20 @@ Partition shrinktree(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt, BFSVis
 	return new_bfs_and_make_max_planar(g, g_orig, vis_data, x_gone, x, l);
 }
 
+Partition find_more_levels(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt, uint k, int l[3], vector<uint> const& L, BFSVisitorData& vis_data)
+{
+        cout << HEADER_COL << "---------------------------- 5 - Find More Levels -------\n" << RESET;
+        float sq  = 2 * sqrt(k); 
+        float snk = 2 * sqrt(num_vertices(g) - k); 
+        cout << "sq:    " << sq << '\n';
+        cout << "snk:   " << snk << '\n';
+
+        l[0] = l[1];     for( ;; ){ float val = L.at(l[0]) + 2*(l[1] - l[0]);     if( val <= sq  ) break; --l[0]; } cout << "l0: " << l[0] << "     highest level <= l1\n";
+        l[2] = l[1] + 1; for( ;; ){ float val = L.at(l[2]) + 2*(l[2] - l[1] - 1); if( val <= snk ) break; ++l[2]; } cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
+
+	return shrinktree(g, g_orig, vit, vjt, vis_data, l);
+}
+
 Partition lipton_tarjan(Graph& g, Graph& g_orig)
 {
         cout << HEADER_COL << "---------------------------- 1 - Check Planarity  ------------\n" << RESET;
@@ -823,14 +837,5 @@ Partition lipton_tarjan(Graph& g, Graph& g_orig)
         cout << "k:  " << k    << "      # of verts in levels 0 thru l1\n";
         cout << "l1: " << l[1] << "      total cost of levels 0 thru l1 barely exceeds 1/2\n";
 
-        cout << HEADER_COL << "---------------------------- 5 - Find More Levels -------\n" << RESET;
-        float sq  = 2 * sqrt(k); 
-        float snk = 2 * sqrt(num_vertices(g) - k); 
-        cout << "sq:    " << sq << '\n';
-        cout << "snk:   " << snk << '\n';
-
-        l[0] = l[1];     for( ;; ){ float val = L.at(l[0]) + 2*(l[1] - l[0]);     if( val <= sq  ) break; --l[0]; } cout << "l0: " << l[0] << "     highest level <= l1\n";
-        l[2] = l[1] + 1; for( ;; ){ float val = L.at(l[2]) + 2*(l[2] - l[1] - 1); if( val <= snk ) break; ++l[2]; } cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
-
-	return shrinktree(g, g_orig, vit, vjt, vis_data, l);
+	return find_more_levels(g, g_orig, vit, vjt, k, l, L, vis_data);
 }

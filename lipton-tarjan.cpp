@@ -479,10 +479,10 @@ CycleCost compute_cycle_cost(vector<VertDesc> const& cycle, Graph const& g, BFSV
         return cc;
 }
 
-Partition construct_vertex_partition(Graph const& g_orig, int l[3], BFSVisitorData& vis_data)
+Partition construct_vertex_partition(Graph const& g, int l[3], BFSVisitorData& vis_data)
 {
         cout  << "\n------------ 10  - Construct Vertex Partition --------------\n";
-        print_graph(g_orig, false);
+        print_graph(g, false);
         cout << "l0: " << l[0] << '\n';
         cout << "l1: " << l[1] << '\n';
         cout << "l2: " << l[2] << '\n';
@@ -494,7 +494,7 @@ Partition construct_vertex_partition(Graph const& g_orig, int l[3], BFSVisitorDa
         if( l[1] >= l[2] ){ 
                 cout << "l1 is less than l2\n"; 
                 VertIter vei, vend;
-                for( tie(vei, vend) = vertices(g_orig); vei != vend; ++vei ){ 
+                for( tie(vei, vend) = vertices(g); vei != vend; ++vei ){ 
                         auto v = *vei;
                         cout << "level of " << v << ": " << vis_data.verts[v].level << "  ";
                         if( vis_data.verts[v].level <  l[1] )                                  { cout << v << " belongs to first part\n";  partition.a.push_back(v); continue; }
@@ -510,7 +510,7 @@ Partition construct_vertex_partition(Graph const& g_orig, int l[3], BFSVisitorDa
 
         vector<VertDesc> deleted_part;
         VertIter vei, vend;
-        for( tie(vei, vend) = vertices(g_orig); vei != vend; ++vei ){ 
+        for( tie(vei, vend) = vertices(g); vei != vend; ++vei ){ 
                 auto v = *vei;
                 cout << "level of " << v << ": " << vis_data.verts[v].level << ", ";
                 if( vis_data.verts[v].level == l[1] || vis_data.verts[v].level == l[2] ){     cout << v << " is deleted\n";             deleted_part.push_back(v); continue;}
@@ -521,9 +521,9 @@ Partition construct_vertex_partition(Graph const& g_orig, int l[3], BFSVisitorDa
         }
 
         //the only part which can have cost > 2/3 is the middle part
-        assert(partition.a.size() <= 2*num_vertices(g_orig)/3);
-        assert(partition.c.size() <= 2*num_vertices(g_orig)/3);
-        if( partition.b.size() <= 2*num_vertices(g_orig)/3 ){
+        assert(partition.a.size() <= 2*num_vertices(g)/3);
+        assert(partition.c.size() <= 2*num_vertices(g)/3);
+        if( partition.b.size() <= 2*num_vertices(g)/3 ){
                 cout << "middle part NOT biggest\n";
                 vector<VertDesc>* costly_part, * other1, * other2;
                 if( partition.a.size() > partition.b.size() && partition.a.size() > partition.c.size() ){ costly_part = &partition.a; other1 = &partition.b; other2 = &partition.c; cout << "part a is most costly\n";}
@@ -552,40 +552,40 @@ Partition construct_vertex_partition(Graph const& g_orig, int l[3], BFSVisitorDa
         return partition;
 }
 
-Partition improve_separator(Graph const& g, Graph const& g_orig, CycleCost& cc, EdgeDesc chosen_edge, BFSVisitorData& vis_data, vector<VertDesc> const& cycle, EmbedStruct const& em, bool cost_swapped, int l[3])
+Partition improve_separator(Graph const& g_copy, Graph const& g, CycleCost& cc, EdgeDesc chosen_edge, BFSVisitorData& vis_data, vector<VertDesc> const& cycle, EmbedStruct const& em, bool cost_swapped, int l[3])
 {
         cout << "---------------------------- 9 - Improve Separator -----------\n";
-        print_edges(g);
+        print_edges(g_copy);
 
-        while( cc.inside > num_vertices(g)*2./3 ){ 
-                cout << "chosen_edge: " << to_string(chosen_edge, g) << '\n';
+        while( cc.inside > num_vertices(g_copy)*2./3 ){ 
+                cout << "chosen_edge: " << to_string(chosen_edge, g_copy) << '\n';
                 cout << "const inside: " << cc.inside  << '\n';
                 cout << "const outide: " << cc.outside << '\n';
                 cout << "looking for a better cycle\n";
 
-                auto vi = source(chosen_edge, g);
-                auto wi = target(chosen_edge, g);
+                auto vi = source(chosen_edge, g_copy);
+                auto wi = target(chosen_edge, g_copy);
                 assert(!vis_data.is_tree_edge(chosen_edge));
                 EdgeDesc next_edge;
                 cout << "   vi: " << vi << '\n';
                 cout << "   wi: " << wi << '\n';
 
-                auto neighbors_v = get_neighbors(vi, g);
-                auto neighbors_w = get_neighbors(wi, g); 
+                auto neighbors_v = get_neighbors(vi, g_copy);
+                auto neighbors_w = get_neighbors(wi, g_copy); 
                 auto intersect   = get_intersection(neighbors_v, neighbors_w); 
                 assert(intersect.size() == 2);
                 cout << "   intersectbegin: " << *intersect.begin() << '\n';
 
-                auto eee = edge(vi, *intersect.begin(), g);
-                cout << "eee: " << to_string(eee.first, g) << '\n';
+                auto eee = edge(vi, *intersect.begin(), g_copy);
+                cout << "eee: " << to_string(eee.first, g_copy) << '\n';
                 assert(eee.second);
 
-                InsideOutOn insideout = edge_inside_cycle(eee.first, *intersect.begin(), cycle, g, em.em);
+                InsideOutOn insideout = edge_inside_cycle(eee.first, *intersect.begin(), cycle, g_copy, em.em);
                 auto y = (insideout == INSIDE) ? *intersect.begin() : *(++intersect.begin());
 
                 cout << "   y: " << y << '\n';
-                auto viy_e = edge(vi, y, g); assert(viy_e.second); auto viy = viy_e.first;
-                auto ywi_e = edge(y, wi, g); assert(ywi_e.second); auto ywi = ywi_e.first; 
+                auto viy_e = edge(vi, y, g_copy); assert(viy_e.second); auto viy = viy_e.first;
+                auto ywi_e = edge(y, wi, g_copy); assert(ywi_e.second); auto ywi = ywi_e.first; 
                 if ( vis_data.is_tree_edge(viy) || vis_data.is_tree_edge(ywi) ){
                         cout << "   at least one tree edge\n";
                         next_edge = vis_data.is_tree_edge(viy) ? ywi : viy;
@@ -596,15 +596,15 @@ Partition improve_separator(Graph const& g, Graph const& g_orig, CycleCost& cc, 
                         uint cost2 = vis_data.verts[y ].descendant_cost;
                         uint cost3 = vis_data.verts[wi].descendant_cost;
                         uint cost4 = cc.inside;
-                        auto new_cycle = get_cycle(source(next_edge, g), target(next_edge, g), vis_data);
-                        cc = compute_cycle_cost(new_cycle, g, vis_data, em); // !! CHEATED !!
+                        auto new_cycle = get_cycle(source(next_edge, g_copy), target(next_edge, g_copy), vis_data);
+                        cc = compute_cycle_cost(new_cycle, g_copy, vis_data, em); // !! CHEATED !!
                         if( cost_swapped ) swap(cc.outside, cc.inside);
                 } else {
                         // Determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.
                         cout << "   neither are tree edges\n";
                         auto path = ancestors(y, vis_data);
                         uint i;
-                        for( i = 0; !on_cycle(path[i], cycle, g); ++i );
+                        for( i = 0; !on_cycle(path[i], cycle, g_copy); ++i );
 
                         // Let z be the vertex on the (vi, wi) cycle reached during the search.
                         auto z = path[i++];
@@ -622,33 +622,33 @@ Partition improve_separator(Graph const& g, Graph const& g_orig, CycleCost& cc, 
                         auto cycle1 = get_cycle(vi, y, vis_data);
                         auto cycle2 = get_cycle(y, wi, vis_data);
 
-                        auto cost1  = compute_cycle_cost(cycle1, g, vis_data, em);
-                        auto cost2  = compute_cycle_cost(cycle2, g, vis_data, em);
+                        auto cost1  = compute_cycle_cost(cycle1, g_copy, vis_data, em);
+                        auto cost2  = compute_cycle_cost(cycle2, g_copy, vis_data, em);
                         if( cost_swapped ){
                                 swap(cost1.inside, cost1.outside);
                                 swap(cost2.inside, cost2.outside);
                         }
 
                         // Let (vi+1, wi+1) be the edge among (vi, y) and (i, wi) whose cycle has more cost inside it.
-                        if( cost1.inside > cost2.inside ){ next_edge = edge(vi, y, g).first; cc = cost1; }
-                        else                             { next_edge = edge(y, wi, g).first; cc = cost2; }
+                        if( cost1.inside > cost2.inside ){ next_edge = edge(vi, y, g_copy).first; cc = cost1; }
+                        else                             { next_edge = edge(y, wi, g_copy).first; cc = cost2; }
                 } 
                 chosen_edge = next_edge;
         }
         cout << "found cycle with inside cost < 2/3: " << cc.inside << '\n';
         print_cycle(cycle);
 
-	return construct_vertex_partition(g_orig, l, vis_data);
+	return construct_vertex_partition(g, l, vis_data);
 } 
 
 struct NotPlanar {}; 
 
-Partition locate_cycle(Graph& g, Graph const& g_orig, BFSVisitorData& vis_data, int l[3])
+Partition locate_cycle(Graph& g_copy, Graph const& g, BFSVisitorData& vis_data, int l[3])
 {
         cout  << "----------------------- 8 - Locate Cycle -----------------\n"; 
-        auto chosen_edge = arbitrary_nontree_edge(g, vis_data);
-        auto v1          = source(chosen_edge, g);
-        auto w1          = target(chosen_edge, g); 
+        auto chosen_edge = arbitrary_nontree_edge(g_copy, vis_data);
+        auto v1          = source(chosen_edge, g_copy);
+        auto w1          = target(chosen_edge, g_copy); 
         cout << "ancestors v1...\n";
         auto parents_v   = ancestors(v1, vis_data);
         cout << "ancestors v2...\n";
@@ -657,8 +657,8 @@ Partition locate_cycle(Graph& g, Graph const& g_orig, BFSVisitorData& vis_data, 
         cout << "common ancestor: " << ancestor << '\n'; 
         auto cycle = get_cycle(v1, w1, ancestor, vis_data);
 
-        EmbedStruct em(&g);
-        auto cc = compute_cycle_cost(cycle, g, vis_data, em); 
+        EmbedStruct em(&g_copy);
+        auto cc = compute_cycle_cost(cycle, g_copy, vis_data, em); 
 	bool cost_swapped;
         if( cc.outside > cc.inside ){
                 swap(cc.outside, cc.inside);
@@ -668,7 +668,7 @@ Partition locate_cycle(Graph& g, Graph const& g_orig, BFSVisitorData& vis_data, 
         cout << "total inside cost:  " << cc.inside  << '\n'; 
         cout << "total outside cost: " << cc.outside << '\n';
 
-	return improve_separator(g, g_orig, cc, chosen_edge, vis_data, cycle, em, cost_swapped, l);
+	return improve_separator(g_copy, g, cc, chosen_edge, vis_data, cycle, em, cost_swapped, l);
 }
 
 void make_max_planar(Graph& g)
@@ -687,40 +687,40 @@ void make_max_planar(Graph& g)
         assert(em.test_planar());
 } 
 
-Partition new_bfs_and_make_max_planar(Graph& g, Graph const& g_orig, BFSVisitorData& vis_data, VertDesc x_gone, VertDesc x, int l[3])
+Partition new_bfs_and_make_max_planar(Graph& g_copy, Graph const& g, BFSVisitorData& vis_data, VertDesc x_gone, VertDesc x, int l[3])
 {
         cout  << "-------------------- 7 - New BFS and Make Max Planar -----\n";
-        reset_vertex_indices(g);
-        reset_edge_index(g);
-        vis_data.reset(&g);
+        reset_vertex_indices(g_copy);
+        reset_edge_index(g_copy);
+        vis_data.reset(&g_copy);
         vis_data.root = (x_gone != Graph::null_vertex()) ? x_gone : x;
         ++vis_data.verts[vis_data.root].descendant_cost;
 
         cout << "root: " << vis_data.root << '\n'; 
-        cout << "n:    " << num_vertices(g) << '\n';
+        cout << "n:    " << num_vertices(g_copy) << '\n';
 
-        breadth_first_search(g, x_gone != Graph::null_vertex() ? x_gone: x, visitor(BFSVisitor(vis_data))); 
-        make_max_planar(g);
-        reset_vertex_indices(g);
-        reset_edge_index(g);
+        breadth_first_search(g_copy, x_gone != Graph::null_vertex() ? x_gone: x, visitor(BFSVisitor(vis_data))); 
+        make_max_planar(g_copy);
+        reset_vertex_indices(g_copy);
+        reset_edge_index(g_copy);
 
-        print_graph(g);
+        print_graph(g_copy);
 
-	return locate_cycle(g, g_orig, vis_data, l); 
+	return locate_cycle(g_copy, g, vis_data, l); 
 }
 
-Partition shrinktree(Graph& g, Graph const& g_orig, VertIter vit, VertIter vjt, BFSVisitorData& vis_data, int l[3])
+Partition shrinktree(Graph& g_copy, Graph const& g, VertIter vit, VertIter vjt, BFSVisitorData& vis_data, int l[3])
 {
         cout  << "---------------------------- 6 - Shrinktree -------------\n";
-        cout << "n: " << num_vertices(g) << '\n'; 
+        cout << "n: " << num_vertices(g_copy) << '\n'; 
 
         vector<VertDesc> replaceverts;
-        tie(vit, vjt) = vertices(g); 
+        tie(vit, vjt) = vertices(g_copy); 
         for( auto next = vit; vit != vjt; vit = next ){
                 ++next;
                 if( vis_data.verts[*vit].level >= l[2] ){
                         cout << "deleting vertex " << *vit << " of level l2 " << vis_data.verts[*vit].level << " >= " << l[2] << '\n';
-                        kill_vertex(*vit, g);
+                        kill_vertex(*vit, g_copy);
                 }
                 if( vis_data.verts[*vit].level <= l[0] ){
                         cout << "going to replace vertex " << *vit << " of level l0 " << vis_data.verts[*vit].level << " <= " << l[0] << '\n';
@@ -728,98 +728,98 @@ Partition shrinktree(Graph& g, Graph const& g_orig, VertIter vit, VertIter vjt, 
                 }
         }
 
-        auto x = add_vertex(g); uint2vert[vert2uint[x] = 999999] = x; 
+        auto x = add_vertex(g_copy); uint2vert[vert2uint[x] = 999999] = x; 
         map<VertDesc, bool> t;
-        for( tie(vit, vjt) = vertices(g); vit != vjt; ++vit ){
+        for( tie(vit, vjt) = vertices(g_copy); vit != vjt; ++vit ){
                 t[*vit] = vis_data.verts[*vit].level <= l[0];
                 cout << "vertex " << *vit << " at level " << vis_data.verts[*vit].level << " is " << (t[*vit] ? "TRUE" : "FALSE") << '\n';
         }
 
-        reset_vertex_indices(g);
-        reset_edge_index(g);
-        EmbedStruct em(&g);
+        reset_vertex_indices(g_copy);
+        reset_edge_index(g_copy);
+        EmbedStruct em(&g_copy);
         assert(em.test_planar());
 
-        ScanVisitor svis(&t, &g, x, l[0]);
-        svis.scan_nonsubtree_edges(*vertices(g).first, g, em.em, vis_data);
+        ScanVisitor svis(&t, &g_copy, x, l[0]);
+        svis.scan_nonsubtree_edges(*vertices(g_copy).first, g_copy, em.em, vis_data);
         svis.finish();
 
         auto x_gone = Graph::null_vertex();
-        if( !degree(x, g) ){
+        if( !degree(x, g_copy) ){
                 cout << "no edges to x found, deleting\n";
-                kill_vertex(x, g);
-                x_gone = *vertices(g).first;
+                kill_vertex(x, g_copy);
+                x_gone = *vertices(g_copy).first;
                 cout << "x_gone: " << x_gone << '\n';
         } else {
                 // delete all vertices x has replaced
-                for( auto& v : replaceverts ) kill_vertex(v, g);
+                for( auto& v : replaceverts ) kill_vertex(v, g_copy);
         }
 
-	return new_bfs_and_make_max_planar(g, g_orig, vis_data, x_gone, x, l);
+	return new_bfs_and_make_max_planar(g_copy, g, vis_data, x_gone, x, l);
 }
 
-Partition find_more_levels(Graph& g, Graph const& g_orig, VertIter vit, VertIter vjt, uint k, int l[3], vector<uint> const& L, BFSVisitorData& vis_data)
+Partition find_more_levels(Graph& g_copy, Graph const& g, VertIter vit, VertIter vjt, uint k, int l[3], vector<uint> const& L, BFSVisitorData& vis_data)
 {
         cout  << "---------------------------- 5 - Find More Levels -------\n";
         float sq  = 2 * sqrt(k); 
-        float snk = 2 * sqrt(num_vertices(g) - k); 
+        float snk = 2 * sqrt(num_vertices(g_copy) - k); 
         cout << "sq:    " << sq << '\n';
         cout << "snk:   " << snk << '\n';
 
         l[0] = l[1];     for( ;; ){ float val = L.at(l[0]) + 2*(l[1] - l[0]);     if( val <= sq  ) break; --l[0]; } cout << "l0: " << l[0] << "     highest level <= l1\n";
         l[2] = l[1] + 1; for( ;; ){ float val = L.at(l[2]) + 2*(l[2] - l[1] - 1); if( val <= snk ) break; ++l[2]; } cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
 
-	return shrinktree(g, g_orig, vit, vjt, vis_data, l);
+	return shrinktree(g_copy, g, vit, vjt, vis_data, l);
 }
 
-Partition l1_and_k(Graph& g, Graph const& g_orig, VertIter vit, VertIter vjt, vector<uint> const& L, BFSVisitorData& vis_data)
+Partition l1_and_k(Graph& g_copy, Graph const& g, VertIter vit, VertIter vjt, vector<uint> const& L, BFSVisitorData& vis_data)
 {
         cout  << "---------------------------- 4 - l1 and k  ------------\n";
         uint k = L[0]; 
         int l[3];
         l[1] = 0;
-        while( k <= num_vertices(g)/2 ) k += L[++l[1]];
+        while( k <= num_vertices(g_copy)/2 ) k += L[++l[1]];
         cout << "k:  " << k    << "      # of verts in levels 0 thru l1\n";
         cout << "l1: " << l[1] << "      total cost of levels 0 thru l1 barely exceeds 1/2\n";
 
-	return find_more_levels(g, g_orig, vit, vjt, k, l, L, vis_data);
+	return find_more_levels(g_copy, g, vit, vjt, k, l, L, vis_data);
 }
 
-Partition bfs_and_levels(Graph& g, Graph const& g_orig, VertIter vit, VertIter vjt)
+Partition bfs_and_levels(Graph& g_copy, Graph const& g, VertIter vit, VertIter vjt)
 {
         cout << "---------------------------- 3 - BFS and Levels ------------\n";
-        BFSVisitorData vis_data(&g);
-        auto root = *vertices(g).first;
+        BFSVisitorData vis_data(&g_copy);
+        auto root = *vertices(g_copy).first;
         vis_data.root = root;
-        breadth_first_search(g, root, visitor(BFSVisitor(vis_data)));
+        breadth_first_search(g_copy, root, visitor(BFSVisitor(vis_data)));
 
         vector<uint> L(vis_data.num_levels + 1, 0);
         for( auto& d : vis_data.verts ) ++L[d.second.level];
 
-        for( tie(vit, vjt) = vertices(g); vit != vjt; ++vit ) cout << "level/cost of vert " << *vit << ": " << vis_data.verts[*vit].level << '\n';
+        for( tie(vit, vjt) = vertices(g_copy); vit != vjt; ++vit ) cout << "level/cost of vert " << *vit << ": " << vis_data.verts[*vit].level << '\n';
         for( uint i = 0; i < L.size(); ++i ) cout << "L[" << i << "]: " << L[i] << '\n';
 
-	return l1_and_k(g, g_orig, vit, vjt, L, vis_data);
+	return l1_and_k(g_copy, g, vit, vjt, L, vis_data);
 } 
 
-Partition connected_components(Graph& g, Graph const& g_orig)
+Partition connected_components(Graph& g_copy, Graph const& g)
 {
         cout << "---------------------------- 2 - Connected Components --------\n";
         VertDescMap idx; 
         associative_property_map<VertDescMap> vertid_to_component(idx);
         VertIter vit, vjt;
-        tie(vit, vjt) = vertices(g);
+        tie(vit, vjt) = vertices(g_copy);
         for( uint i = 0; vit != vjt; ++vit, ++i ) put(vertid_to_component, *vit, i);
-        uint components = connected_components(g, vertid_to_component);
+        uint components = connected_components(g_copy, vertid_to_component);
 
         cout << "# of components: " << components << '\n';
         vector<uint> verts_per_comp(components, 0);
-        for( tie(vit, vjt) = vertices(g); vit != vjt; ++vit ) ++verts_per_comp[vertid_to_component[*vit]];
+        for( tie(vit, vjt) = vertices(g_copy); vit != vjt; ++vit ) ++verts_per_comp[vertid_to_component[*vit]];
         uint biggest_component = 0;
         uint biggest_size      = 0;
         bool too_big           = false;
         for( uint i = 0; i < components; ++i ){
-                if( 3*verts_per_comp[i] > 2*num_vertices(g) ){
+                if( 3*verts_per_comp[i] > 2*num_vertices(g_copy) ){
                         cout << "too big\n";
                         too_big = true;
                 }
@@ -830,24 +830,24 @@ Partition connected_components(Graph& g, Graph const& g_orig)
         }
 
         if( !too_big ){
-                theorem4(0, g);
+                theorem4(0, g_copy);
                 return empty_partition;
         }
         cout << "biggest component: " << biggest_component << '\n';
 
-	return bfs_and_levels(g, g_orig, vit, vjt);
+	return bfs_and_levels(g_copy, g, vit, vjt);
 }
 
-Partition lipton_tarjan(Graph const& g_orig)
+Partition lipton_tarjan(Graph const& g)
 {
-	Graph g;
-	copy_graph(g_orig, g);
+	Graph g_copy;
+	copy_graph(g, g_copy);
 
         cout << "---------------------------- 1 - Check Planarity  ------------\n";
-        EmbedStruct em(&g);
+        EmbedStruct em(&g_copy);
         if( !em.test_planar() ) throw NotPlanar();
         cout << "planar ok\n";
-        print_graph(g);
+        print_graph(g_copy);
 
-	return connected_components(g, g_orig);
+	return connected_components(g_copy, g);
 }

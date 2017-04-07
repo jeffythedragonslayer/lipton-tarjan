@@ -808,14 +808,9 @@ Partition bfs_and_levels(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt)
 	return l1_and_k(g, g_orig, vit, vjt, L, vis_data);
 }
 
-Partition lipton_tarjan(Graph& g, Graph& g_orig)
-{
-        cout << HEADER_COL << "---------------------------- 1 - Check Planarity  ------------\n" << RESET;
-        Em em1(&g);
-        if( !em1.testplanar() ) throw NotPlanar();
-        cout << "planar ok\n";
-        print_graph(g);
 
+Partition connected_components(Graph& g, Graph& g_orig)
+{
         cout << HEADER_COL << "---------------------------- 2 - Connected Components --------\n" << RESET;
         VertDescMap idx; 
         associative_property_map<VertDescMap> vertid_to_component(idx);
@@ -848,4 +843,15 @@ Partition lipton_tarjan(Graph& g, Graph& g_orig)
         cout << "biggest component: " << biggest_component << '\n';
 
 	return bfs_and_levels(g, g_orig, vit, vjt);
+}
+
+Partition lipton_tarjan(Graph& g, Graph& g_orig)
+{
+        cout << HEADER_COL << "---------------------------- 1 - Check Planarity  ------------\n" << RESET;
+        Em em1(&g);
+        if( !em1.testplanar() ) throw NotPlanar();
+        cout << "planar ok\n";
+        print_graph(g);
+
+	return connected_components(g, g_orig);
 }

@@ -1,5 +1,4 @@
 #include "strutil.h"
-#include "colors.h"
 #include <boost/lexical_cast.hpp>
 using namespace std;
 using namespace boost;
@@ -27,7 +26,7 @@ void print_cycle(vector<VertDesc> const& cycle)
 void print_graph(Graph const& g, bool use_map)
 { 
         use_map = true;
-        cout << RED << "\n**********************  Graph  **************************\n"; 
+        cout << "\n**********************  Graph  **************************\n"; 
         VertIter vi, vi_end;
         for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
                 if( use_map ) cout << "vert " << vert2uint[*vi];
@@ -43,17 +42,17 @@ void print_graph(Graph const& g, bool use_map)
                 }
                 cout << '\n';
         }
-        cout << "*********************************************************\n\n" << RESET;
+        cout << "*********************************************************\n\n";
 }
 
 void print_edges(Graph const& g)
 {
-        cout << RED << "\n**********************  Edges  **************************\n"; 
+        cout << "\n**********************  Edges  **************************\n"; 
         EdgeIter ei, ei_end;
         for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ){ 
                 auto src = source(*ei, g);
                 auto tar = target(*ei, g);
                 cout << vert2uint[src] << ", " << vert2uint[tar] << '\n';
         } 
-        cout << "*********************************************************\n\n" << RESET;
+        cout << "*********************************************************\n\n";
 }

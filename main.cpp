@@ -7,7 +7,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp> 
 #include <boost/graph/copy.hpp>
-#include "colors.h"
 #include "strutil.h"
 using namespace std;
 using namespace boost;

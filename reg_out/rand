@@ -2,7 +2,7 @@ loading graph
 n: 50
 starting lipton tarjan...
 g
-[31m
+
 **********************  Graph  **************************
 vert 0   hos edges 33 48 
 vert 1   hos edges 36 17 5 
@@ -56,8 +56,8 @@ vert 48   hos edges 46 15 11 8 3 33 0
 vert 49   hos edges 8 20 
 *********************************************************
 
-[0mg_copy
-[31m
+g_copy
+
 **********************  Graph  **************************
 vert 0   hos edges 0 0 
 vert 0   hos edges 0 0 0 
@@ -111,9 +111,9 @@ vert 0   hos edges 0 0 0 0 0 0 0
 vert 0   hos edges 0 0 
 *********************************************************
 
-[0m[32m---------------------------- 1 - Check Planarity  ------------
-[0mplanar ok
-[31m
+---------------------------- 1 - Check Planarity  ------------
+planar ok
+
 **********************  Graph  **************************
 vert 0   hos edges 33 48 
 vert 1   hos edges 36 17 5 
@@ -167,12 +167,12 @@ vert 48   hos edges 46 15 11 8 3 33 0
 vert 49   hos edges 8 20 
 *********************************************************
 
-[0m[32m---------------------------- 2 - Connected Components --------
-[0m# of components: 1
+---------------------------- 2 - Connected Components --------
+# of components: 1
 too big
 biggest component: 0
-[32m---------------------------- 3 - BFS and Levels ------------
-[0m  tree edge 0, 33
+---------------------------- 3 - BFS and Levels ------------
+  tree edge 0, 33
   tree edge 0, 48
   tree edge 33, 8
   tree edge 33, 20
@@ -279,16 +279,16 @@ L[4]: 10
 L[5]: 16
 L[6]: 5
 L[7]: 0
-[32m---------------------------- 4 - l1 and k  ------------
-[0mk:  29      # of verts in levels 0 thru l1
+---------------------------- 4 - l1 and k  ------------
+k:  29      # of verts in levels 0 thru l1
 l1: 4      total cost of levels 0 thru l1 barely exceeds 1/2
-[32m---------------------------- 5 - Find More Levels -------
-[0msq:    10.7703
+---------------------------- 5 - Find More Levels -------
+sq:    10.7703
 snk:   9.16515
 l0: 4     highest level <= l1
 l2: 6     lowest  level >= l1 + 1
-[32m---------------------------- 6 - Shrinktree -------------
-[0mn: 50
+---------------------------- 6 - Shrinktree -------------
+n: 50
 going to replace vertex 0 of level l0 0 <= 4
 going to replace vertex 2 of level l0 3 <= 4
 going to replace vertex 3 of level l0 2 <= 4
@@ -485,8 +485,8 @@ killing vertex 41
 killing vertex 46
 killing vertex 48
 killing vertex 49
-[32m-------------------- 7 - New BFS and Make Max Planar -----
-[0mroot: 999999
+-------------------- 7 - New BFS and Make Max Planar -----
+root: 999999
 n:    17
   tree edge 999999, 1
   tree edge 999999, 5
@@ -504,7 +504,7 @@ n:    17
   tree edge 999999, 42
   tree edge 999999, 44
   tree edge 999999, 45
-[31m
+
 **********************  Graph  **************************
 vert 1   hos edges 36 5 999999 9 44 
 vert 5   hos edges 35 25 36 1 999999 
@@ -525,15 +525,15 @@ vert 45   hos edges 999999 7 14
 vert 999999   hos edges 1 5 7 9 14 19 21 22 25 30 35 36 39 42 44 45 
 *********************************************************
 
-[0m[32m----------------------- 8 - Locate Cycle -----------------
-[0marbitrarily choosing nontree edge: 1, 36
+----------------------- 8 - Locate Cycle -----------------
+arbitrarily choosing nontree edge: 1, 36
 ancestors v1...
 ancestors v2...
 common ancestor: 999999
 total inside cost:  10
 total outside cost: 4
-[32m---------------------------- 9 - Improve Separator -----------
-[0m[31m
+---------------------------- 9 - Improve Separator -----------
+
 **********************  Edges  **************************
 1, 36
 5, 35
@@ -582,11 +582,11 @@ total outside cost: 4
 45, 14
 *********************************************************
 
-[0mfound cycle with inside cost < 2/3: 10
+found cycle with inside cost < 2/3: 10
 cycle verts: 1 999999 36 
-[32m
+
 ------------ 10  - Construct Vertex Partition --------------
-[0m[31m
+
 **********************  Graph  **************************
 vert 0   hos edges 0 0 
 vert 0   hos edges 0 0 0 
@@ -640,7 +640,7 @@ vert 0   hos edges 0 0 0 0 0 0 0
 vert 0   hos edges 0 0 
 *********************************************************
 
-[0ml0: 4
+l0: 4
 l1: 4
 l2: 6
 r: 2

@@ -1,5 +1,4 @@
 #include "lipton-tarjan.h"
-#include "colors.h"
 #include "strutil.h"
 #include <iostream>
 #include <vector>
@@ -27,8 +26,6 @@
 using namespace std;
 using namespace boost; 
 #define STLALL(x) (x).begin(), (x).end()
-
-#define HEADER_COL GREEN
 
 Partition empty_partition;
 
@@ -343,7 +340,7 @@ struct Em
 
         void print()
         {
-                cout << CYAN << "\n************** Embedding ************\n" << RESET;
+                cout << "\n************** Embedding ************\n";
                 VertIter vi, vend;
                 for( tie(vi, vend) = vertices(*g); vi != vend; ++vi ){
                         cout << "vert " << *vi << ": ";
@@ -356,7 +353,7 @@ struct Em
                         }
                         cout << "\n"; 
                 }
-                cout << CYAN << "*************************************\n" << RESET;
+                cout << "*************************************\n";
         }
 };
 
@@ -367,22 +364,6 @@ EdgeIndex reset_edge_index(Graph const& g)
         EdgeIter ei, ei_end;
         for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ) edgedesc_to_uint[*ei] = num_edges++;
         return edgedesc_to_uint;
-} 
-
-void makemaxplanar(Graph& g)
-{ 
-        auto index = reset_edge_index(g);
-        Em em(&g);
-        em.testplanar();
-        make_biconnected_planar(g, *em.em, index);
-
-        reset_edge_index(g);
-        em.testplanar();
-
-        make_maximal_planar(g, *em.em);
-
-        reset_edge_index(g);
-        assert(em.testplanar());
 } 
 
 vector<VertDesc> ancestors(VertDesc v, BFSVisitorData const& vis)
@@ -501,7 +482,7 @@ CycleCost compute_cycle_cost(vector<VertDesc> const& cycle, Graph const& g, BFSV
 
 Partition construct_vertex_partition(Graph const& g_orig, int l[3], BFSVisitorData& vis_data)
 {
-        cout << HEADER_COL << "\n------------ 10  - Construct Vertex Partition --------------\n" << RESET;
+        cout  << "\n------------ 10  - Construct Vertex Partition --------------\n";
         print_graph(g_orig, false);
         cout << "l0: " << l[0] << '\n';
         cout << "l1: " << l[1] << '\n';
@@ -511,7 +492,7 @@ Partition construct_vertex_partition(Graph const& g_orig, int l[3], BFSVisitorDa
         cout << "r: " << r << '\n';
 
         if( l[1] >= l[2] ){ 
-                cout << MAGENTA << "l1 is less than l2\n" << RESET; 
+                cout << "l1 is less than l2\n"; 
                 vector<VertDesc> part_a, part_b, part_c;
                 VertIter vei, vend;
                 for( tie(vei, vend) = vertices(g_orig); vei != vend; ++vei ){ 
@@ -522,11 +503,9 @@ Partition construct_vertex_partition(Graph const& g_orig, int l[3], BFSVisitorDa
                         if( vis_data.verts[v].level == l[1] )                                  { cout << v << " belongs to last part\n";   part_c.push_back(v); continue; }
                         assert(0);
                 } 
-                cout << GREEN;
                 cout <<   "A = all verts on levels 0    thru l1-1: "; for( auto& a : part_a ) cout << a << ' ';
                 cout << "\nB = all verts on levels l1+1 thru r   : "; for( auto& b : part_b ) cout << b << ' ';
                 cout << "\nC = all verts on llevel l1            : "; for( auto& c : part_c ) cout << c << ' ';
-                cout << RESET;
                 return empty_partition;
         } 
 
@@ -546,7 +525,7 @@ Partition construct_vertex_partition(Graph const& g_orig, int l[3], BFSVisitorDa
         assert(part_a.size() <= 2*num_vertices(g_orig)/3);
         assert(part_c.size() <= 2*num_vertices(g_orig)/3);
         if( part_b.size() <= 2*num_vertices(g_orig)/3 ){
-                cout << MAGENTA << "middle part NOT biggest\n" << RESET;
+                cout << "middle part NOT biggest\n";
                 vector<VertDesc>* costly_part, * other1, * other2;
                 if( part_a.size() > part_b.size() && part_a.size() > part_c.size() ){ costly_part = &part_a; other1 = &part_b; other2 = &part_c; cout << "part a is most costly\n";}
                 if( part_b.size() > part_a.size() && part_b.size() > part_c.size() ){ costly_part = &part_b; other1 = &part_a; other2 = &part_c; cout << "part b is most costly\n";}
@@ -558,7 +537,7 @@ Partition construct_vertex_partition(Graph const& g_orig, int l[3], BFSVisitorDa
                 cout << "\nB = remaining 2 parts        : "; for( auto& b : *other1      ) cout << b << ' '; for( auto& b : *other2 ) cout << b << ' '; 
                 cout << "\nC =                          : "; for( auto& v : deleted_part ) cout << v << ' '; cout << '\n';
         } else {
-                cout << MAGENTA << "middle part biggest\n" << RESET;
+                cout << "middle part biggest\n";
                 //delete all verts on level l2 and above
                 //shrink all verts on levels l1 and belowe to a single vertex of cost zero
                 //The new graph has a spanning tree radius of l2 - l1 -1 whose root corresponds to vertices on levels l1 and below in the original graph
@@ -576,14 +555,14 @@ Partition construct_vertex_partition(Graph const& g_orig, int l[3], BFSVisitorDa
 
 Partition improve_separator(Graph const& g, Graph const& g_orig, CycleCost& cc, EdgeDesc chosen_edge, BFSVisitorData& vis_data, vector<VertDesc> const& cycle, Em const& em2, bool cost_swapped, int l[3])
 {
-        cout << HEADER_COL << "---------------------------- 9 - Improve Separator -----------\n" << RESET;
+        cout  << "---------------------------- 9 - Improve Separator -----------\n";
         print_edges(g);
 
         while( cc.inside > num_vertices(g)*2./3 ){ 
-                cout << RED << "chosen_edge: " << to_string(chosen_edge, g) << '\n';
+                cout << "chosen_edge: " << to_string(chosen_edge, g) << '\n';
                 cout << "const inside: " << cc.inside  << '\n';
                 cout << "const outide: " << cc.outside << '\n';
-                cout << "looking for a better cycle\n" << RESET;
+                cout << "looking for a better cycle\n";
 
                 auto vi = source(chosen_edge, g);
                 auto wi = target(chosen_edge, g);
@@ -609,7 +588,7 @@ Partition improve_separator(Graph const& g, Graph const& g_orig, CycleCost& cc, 
                 auto viy_e = edge(vi, y, g); assert(viy_e.second); auto viy = viy_e.first;
                 auto ywi_e = edge(y, wi, g); assert(ywi_e.second); auto ywi = ywi_e.first; 
                 if ( vis_data.is_tree_edge(viy) || vis_data.is_tree_edge(ywi) ){
-                        cout << MAGENTA << "   at least one tree edge\n" << RESET;
+                        cout << "   at least one tree edge\n";
                         next_edge = vis_data.is_tree_edge(viy) ? ywi : viy;
                         assert(!vis_data.is_tree_edge(next_edge));
 
@@ -623,7 +602,7 @@ Partition improve_separator(Graph const& g, Graph const& g_orig, CycleCost& cc, 
                         if( cost_swapped ) swap(cc.outside, cc.inside);
                 } else {
                         // Determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.
-                        cout << MAGENTA << "   neither are tree edges\n" << RESET;
+                        cout << "   neither are tree edges\n";
                         auto path = ancestors(y, vis_data);
                         uint i;
                         for( i = 0; !on_cycle(path[i], cycle, g); ++i );
@@ -667,7 +646,7 @@ struct NotPlanar {};
 
 Partition locate_cycle(Graph& g, Graph& g_orig, BFSVisitorData& vis_data, int l[3])
 {
-        cout << HEADER_COL << "----------------------- 8 - Locate Cycle -----------------\n" << RESET; 
+        cout  << "----------------------- 8 - Locate Cycle -----------------\n"; 
         auto chosen_edge = arbitrary_nontree_edge(g, vis_data);
         auto v1          = source(chosen_edge, g);
         auto w1          = target(chosen_edge, g); 
@@ -693,9 +672,25 @@ Partition locate_cycle(Graph& g, Graph& g_orig, BFSVisitorData& vis_data, int l[
 	return improve_separator(g, g_orig, cc, chosen_edge, vis_data, cycle, em2, cost_swapped, l);
 }
 
+void make_max_planar(Graph& g)
+{ 
+        auto index = reset_edge_index(g);
+        Em em(&g);
+        em.testplanar();
+        make_biconnected_planar(g, *em.em, index);
+
+        reset_edge_index(g);
+        em.testplanar();
+
+        make_maximal_planar(g, *em.em);
+
+        reset_edge_index(g);
+        assert(em.testplanar());
+} 
+
 Partition new_bfs_and_make_max_planar(Graph& g, Graph& g_orig, BFSVisitorData& vis_data, VertDesc x_gone, VertDesc x, int l[3])
 {
-        cout << HEADER_COL << "-------------------- 7 - New BFS and Make Max Planar -----\n" << RESET;
+        cout  << "-------------------- 7 - New BFS and Make Max Planar -----\n";
         reset_vertex_indices(g);
         reset_edge_index(g);
         vis_data.reset(&g);
@@ -706,7 +701,7 @@ Partition new_bfs_and_make_max_planar(Graph& g, Graph& g_orig, BFSVisitorData& v
         cout << "n:    " << num_vertices(g) << '\n';
 
         breadth_first_search(g, x_gone != Graph::null_vertex() ? x_gone: x, visitor(BFSVisitor(vis_data))); 
-        makemaxplanar(g);
+        make_max_planar(g);
         reset_vertex_indices(g);
         reset_edge_index(g);
 
@@ -717,7 +712,7 @@ Partition new_bfs_and_make_max_planar(Graph& g, Graph& g_orig, BFSVisitorData& v
 
 Partition shrinktree(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt, BFSVisitorData& vis_data, int l[3])
 {
-        cout << HEADER_COL << "---------------------------- 6 - Shrinktree -------------\n" << RESET;
+        cout  << "---------------------------- 6 - Shrinktree -------------\n";
         cout << "n: " << num_vertices(g) << '\n'; 
 
         vector<VertDesc> replaceverts;
@@ -766,7 +761,7 @@ Partition shrinktree(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt, BFSVis
 
 Partition find_more_levels(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt, uint k, int l[3], vector<uint> const& L, BFSVisitorData& vis_data)
 {
-        cout << HEADER_COL << "---------------------------- 5 - Find More Levels -------\n" << RESET;
+        cout  << "---------------------------- 5 - Find More Levels -------\n";
         float sq  = 2 * sqrt(k); 
         float snk = 2 * sqrt(num_vertices(g) - k); 
         cout << "sq:    " << sq << '\n';
@@ -780,7 +775,7 @@ Partition find_more_levels(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt, 
 
 Partition l1_and_k(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt, vector<uint> const& L, BFSVisitorData& vis_data)
 {
-        cout << HEADER_COL << "---------------------------- 4 - l1 and k  ------------\n" << RESET;
+        cout  << "---------------------------- 4 - l1 and k  ------------\n";
         uint k = L[0]; 
         int l[3];
         l[1] = 0;
@@ -793,7 +788,7 @@ Partition l1_and_k(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt, vector<u
 
 Partition bfs_and_levels(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt)
 {
-        cout << HEADER_COL << "---------------------------- 3 - BFS and Levels ------------\n" << RESET;
+        cout << "---------------------------- 3 - BFS and Levels ------------\n";
         BFSVisitorData vis_data(&g);
         auto root = *vertices(g).first;
         vis_data.root = root;
@@ -806,12 +801,11 @@ Partition bfs_and_levels(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt)
         for( uint i = 0; i < L.size(); ++i ) cout << "L[" << i << "]: " << L[i] << '\n';
 
 	return l1_and_k(g, g_orig, vit, vjt, L, vis_data);
-}
-
+} 
 
 Partition connected_components(Graph& g, Graph& g_orig)
 {
-        cout << HEADER_COL << "---------------------------- 2 - Connected Components --------\n" << RESET;
+        cout << "---------------------------- 2 - Connected Components --------\n";
         VertDescMap idx; 
         associative_property_map<VertDescMap> vertid_to_component(idx);
         VertIter vit, vjt;
@@ -847,7 +841,7 @@ Partition connected_components(Graph& g, Graph& g_orig)
 
 Partition lipton_tarjan(Graph& g, Graph& g_orig)
 {
-        cout << HEADER_COL << "---------------------------- 1 - Check Planarity  ------------\n" << RESET;
+        cout << "---------------------------- 1 - Check Planarity  ------------\n";
         Em em1(&g);
         if( !em1.testplanar() ) throw NotPlanar();
         cout << "planar ok\n";

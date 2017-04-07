@@ -499,7 +499,7 @@ CycleCost compute_cycle_cost(vector<VertDesc> const& cycle, Graph const& g, BFSV
         return cc;
 }
 
-Partition construct_vertex_partition(Graph& g_orig, int l[3], BFSVisitorData& vis_data)
+Partition construct_vertex_partition(Graph const& g_orig, int l[3], BFSVisitorData& vis_data)
 {
         cout << HEADER_COL << "\n------------ 10  - Construct Vertex Partition --------------\n" << RESET;
         print_graph(g_orig, false);
@@ -573,6 +573,95 @@ Partition construct_vertex_partition(Graph& g_orig, int l[3], BFSVisitorData& vi
         }
         return empty_partition;
 }
+
+Partition improve_separator(Graph const& g, Graph const& g_orig, CycleCost& cc, EdgeDesc chosen_edge, BFSVisitorData& vis_data, vector<VertDesc> const& cycle, Em const& em2, bool cost_swapped, int l[3])
+{
+        cout << HEADER_COL << "---------------------------- 9 - Improve Separator -----------\n" << RESET;
+        print_edges(g);
+
+        while( cc.inside > num_vertices(g)*2./3 ){ 
+                cout << RED << "chosen_edge: " << to_string(chosen_edge, g) << '\n';
+                cout << "const inside: " << cc.inside  << '\n';
+                cout << "const outide: " << cc.outside << '\n';
+                cout << "looking for a better cycle\n" << RESET;
+
+                auto vi = source(chosen_edge, g);
+                auto wi = target(chosen_edge, g);
+                assert(!vis_data.is_tree_edge(chosen_edge));
+                EdgeDesc next_edge;
+                cout << "   vi: " << vi << '\n';
+                cout << "   wi: " << wi << '\n';
+
+                auto neighbors_v = get_neighbors(vi, g);
+                auto neighbors_w = get_neighbors(wi, g); 
+                auto intersect   = get_intersection(neighbors_v, neighbors_w); 
+                assert(intersect.size() == 2);
+                cout << "   intersectbegin: " << *intersect.begin() << '\n';
+
+                auto eee = edge(vi, *intersect.begin(), g);
+                cout << "eee: " << to_string(eee.first, g) << '\n';
+                assert(eee.second);
+
+                InsideOutOn insideout = edge_inside_cycle(eee.first, *intersect.begin(), cycle, g, *em2.em);
+                auto y = (insideout == INSIDE) ? *intersect.begin() : *(++intersect.begin());
+
+                cout << "   y: " << y << '\n';
+                auto viy_e = edge(vi, y, g); assert(viy_e.second); auto viy = viy_e.first;
+                auto ywi_e = edge(y, wi, g); assert(ywi_e.second); auto ywi = ywi_e.first; 
+                if ( vis_data.is_tree_edge(viy) || vis_data.is_tree_edge(ywi) ){
+                        cout << MAGENTA << "   at least one tree edge\n" << RESET;
+                        next_edge = vis_data.is_tree_edge(viy) ? ywi : viy;
+                        assert(!vis_data.is_tree_edge(next_edge));
+
+                        // Compute the cost inside the (vi+1 wi+1) cycle from the cost inside the (vi, wi) cycle and the cost of vi, y, and wi.  See Fig 4.
+                        uint cost1 = vis_data.verts[vi].descendant_cost;
+                        uint cost2 = vis_data.verts[y ].descendant_cost;
+                        uint cost3 = vis_data.verts[wi].descendant_cost;
+                        uint cost4 = cc.inside;
+                        auto new_cycle = get_cycle(source(next_edge, g), target(next_edge, g), vis_data);
+                        cc = compute_cycle_cost(new_cycle, g, vis_data, em2); // !! CHEATED !!
+                        if( cost_swapped ) swap(cc.outside, cc.inside);
+                } else {
+                        // Determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.
+                        cout << MAGENTA << "   neither are tree edges\n" << RESET;
+                        auto path = ancestors(y, vis_data);
+                        uint i;
+                        for( i = 0; !on_cycle(path[i], cycle, g); ++i );
+
+                        // Let z be the vertex on the (vi, wi) cycle reached during the search.
+                        auto z = path[i++];
+                        cout << "    z: " << z << '\n';
+                        path.erase(path.begin()+i, path.end());
+                        assert(path.size() == i);
+
+                        // Compute the total cost af all vertices except z on this tree path.
+                        uint path_cost = path.size() - 1;
+                        cout << "    y-to-z-minus-z cost: " << path_cost << '\n';
+
+                        // Scan the tree edges inside the (y, wi) cycle, alternately scanning an edge in one cycle and an edge in the other cycle.
+                        // Stop scanning when all edges inside one of the cycles have been scanned.  Compute the cost inside this cycle by summing the associated costs of all scanned edges.
+                        // Use this cost, the cost inside the (vi, wi) cycle, and the cost on the tree path from y to z to compute the cost inside the other cycle.
+                        auto cycle1 = get_cycle(vi, y, vis_data);
+                        auto cycle2 = get_cycle(y, wi, vis_data);
+
+                        auto cost1  = compute_cycle_cost(cycle1, g, vis_data, em2);
+                        auto cost2  = compute_cycle_cost(cycle2, g, vis_data, em2);
+                        if( cost_swapped ){
+                                swap(cost1.inside, cost1.outside);
+                                swap(cost2.inside, cost2.outside);
+                        }
+
+                        // Let (vi+1, wi+1) be the edge among (vi, y) and (i, wi) whose cycle has more cost inside it.
+                        if( cost1.inside > cost2.inside ){ next_edge = edge(vi, y, g).first; cc = cost1; }
+                        else                             { next_edge = edge(y, wi, g).first; cc = cost2; }
+                } 
+                chosen_edge = next_edge;
+        }
+        cout << "found cycle with inside cost < 2/3: " << cc.inside << '\n';
+        print_cycle(cycle);
+
+	return construct_vertex_partition(g_orig, l, vis_data);
+} 
 
 struct NotPlanar {}; 
 
@@ -728,89 +817,5 @@ Partition lipton_tarjan(Graph& g, Graph& g_orig)
         cout << "total inside cost:  " << cc.inside  << '\n'; 
         cout << "total outside cost: " << cc.outside << '\n'; 
 
-        cout << HEADER_COL << "---------------------------- 9 - Improve Separator -----------\n" << RESET;
-        print_edges(g);
-
-        while( cc.inside > num_vertices(g)*2./3 ){ 
-                cout << RED << "chosen_edge: " << to_string(chosen_edge, g) << '\n';
-                cout << "const inside: " << cc.inside  << '\n';
-                cout << "const outide: " << cc.outside << '\n';
-                cout << "looking for a better cycle\n" << RESET;
-
-                auto vi = source(chosen_edge, g);
-                auto wi = target(chosen_edge, g);
-                assert(!vis_data.is_tree_edge(chosen_edge));
-                EdgeDesc next_edge;
-                cout << "   vi: " << vi << '\n';
-                cout << "   wi: " << wi << '\n';
-
-                auto neighbors_v = get_neighbors(vi, g);
-                auto neighbors_w = get_neighbors(wi, g); 
-                auto intersect   = get_intersection(neighbors_v, neighbors_w); 
-                assert(intersect.size() == 2);
-                cout << "   intersectbegin: " << *intersect.begin() << '\n';
-
-                auto eee = edge(vi, *intersect.begin(), g);
-                cout << "eee: " << to_string(eee.first, g) << '\n';
-                assert(eee.second);
-
-                InsideOutOn insideout = edge_inside_cycle(eee.first, *intersect.begin(), cycle, g, *em2.em);
-                auto y = (insideout == INSIDE) ? *intersect.begin() : *(++intersect.begin());
-
-                cout << "   y: " << y << '\n';
-                auto viy_e = edge(vi, y, g); assert(viy_e.second); auto viy = viy_e.first;
-                auto ywi_e = edge(y, wi, g); assert(ywi_e.second); auto ywi = ywi_e.first; 
-                if ( vis_data.is_tree_edge(viy) || vis_data.is_tree_edge(ywi) ){
-                        cout << MAGENTA << "   at least one tree edge\n" << RESET;
-                        next_edge = vis_data.is_tree_edge(viy) ? ywi : viy;
-                        assert(!vis_data.is_tree_edge(next_edge));
-
-                        // Compute the cost inside the (vi+1 wi+1) cycle from the cost inside the (vi, wi) cycle and the cost of vi, y, and wi.  See Fig 4.
-                        uint cost1 = vis_data.verts[vi].descendant_cost;
-                        uint cost2 = vis_data.verts[y ].descendant_cost;
-                        uint cost3 = vis_data.verts[wi].descendant_cost;
-                        uint cost4 = cc.inside;
-                        auto new_cycle = get_cycle(source(next_edge, g), target(next_edge, g), vis_data);
-                        cc = compute_cycle_cost(new_cycle, g, vis_data, em2); // !! CHEATED !!
-                        if( cost_swapped ) swap(cc.outside, cc.inside);
-                } else {
-                        // Determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.
-                        cout << MAGENTA << "   neither are tree edges\n" << RESET;
-                        auto path = ancestors(y, vis_data);
-                        uint i;
-                        for( i = 0; !on_cycle(path[i], cycle, g); ++i );
-
-                        // Let z be the vertex on the (vi, wi) cycle reached during the search.
-                        auto z = path[i++];
-                        cout << "    z: " << z << '\n';
-                        path.erase(path.begin()+i, path.end());
-                        assert(path.size() == i);
-
-                        // Compute the total cost af all vertices except z on this tree path.
-                        uint path_cost = path.size() - 1;
-                        cout << "    y-to-z-minus-z cost: " << path_cost << '\n';
-
-                        // Scan the tree edges inside the (y, wi) cycle, alternately scanning an edge in one cycle and an edge in the other cycle.
-                        // Stop scanning when all edges inside one of the cycles have been scanned.  Compute the cost inside this cycle by summing the associated costs of all scanned edges.
-                        // Use this cost, the cost inside the (vi, wi) cycle, and the cost on the tree path from y to z to compute the cost inside the other cycle.
-                        auto cycle1 = get_cycle(vi, y, vis_data);
-                        auto cycle2 = get_cycle(y, wi, vis_data);
-
-                        auto cost1  = compute_cycle_cost(cycle1, g, vis_data, em2);
-                        auto cost2  = compute_cycle_cost(cycle2, g, vis_data, em2);
-                        if( cost_swapped ){
-                                swap(cost1.inside, cost1.outside);
-                                swap(cost2.inside, cost2.outside);
-                        }
-
-                        // Let (vi+1, wi+1) be the edge among (vi, y) and (i, wi) whose cycle has more cost inside it.
-                        if( cost1.inside > cost2.inside ){ next_edge = edge(vi, y, g).first; cc = cost1; }
-                        else                             { next_edge = edge(y, wi, g).first; cc = cost2; }
-                } 
-                chosen_edge = next_edge;
-        }
-        cout << "found cycle with inside cost < 2/3: " << cc.inside << '\n';
-        print_cycle(cycle);
-
-	return construct_vertex_partition(g_orig, l, vis_data);
+	return improve_separator(g, g_orig, cc, chosen_edge, vis_data, cycle, em2, cost_swapped, l);
 }

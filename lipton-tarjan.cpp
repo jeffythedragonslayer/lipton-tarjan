@@ -29,6 +29,41 @@ using namespace boost;
 
 Partition empty_partition;
 
+void Partition::get_most_costly_part(vector<VertDesc>** most_costly,
+				     vector<VertDesc>** other1,
+				     vector<VertDesc>** other2)
+{
+	if( a.size() > b.size() && a.size() > c.size() ){
+		*most_costly = &a;
+		*other1      = &b;
+		*other2      = &c;
+		return;
+	}
+	if( b.size() > a.size() && b.size() > c.size() ){
+		*most_costly = &b;
+		*other1      = &a;
+		*other2      = &c;
+		return;
+	}
+	if( c.size() > a.size() && c.size() > b.size() ){
+		*most_costly = &c;
+		*other1      = &a;
+		*other2      = &b;
+		return;
+	}
+	assert(0);
+}
+
+void Partition::print() const
+{
+	cout << "<<<< Partition >>>>\n"; 
+	cout << "sizes of A, B, C: " << a.size() << ", " << b.size() << ", " << c.size() << '\n';
+	cout <<   "A = "; for( auto& v : a ) cout << v << ' ';
+	cout << "\nB = "; for( auto& v : b ) cout << v << ' ';
+	cout << "\nC = "; for( auto& v : c ) cout << v << ' '; 
+	cout << "<<<< /Partition >>>>\n";
+}
+
 int levi_civita(uint i, uint j, uint k)
 {
         if( i == j || j == k || k == i ) return 0; 
@@ -115,7 +150,7 @@ struct BFSVisitorData
         Graph*                       g;
         VertDesc                     root;
 
-        BFSVisitorData(Graph* g) : g(g), num_levels(0), root(Graph::null_vertex()) {}
+        BFSVisitorData(Graph* g, VertDesc root) : g(g), num_levels(0), root(root) {}
 
         void reset(Graph* g)
         {
@@ -502,9 +537,10 @@ Partition construct_vertex_partition(Graph const& g, int l[3], BFSVisitorData& v
                         if( vis_data.verts[v].level == l[1] )                                  { cout << v << " belongs to last part\n";   partition.c.push_back(v); continue; }
                         assert(0);
                 } 
-                cout <<   "A = all verts on levels 0    thru l1-1: "; for( auto& a : partition.a ) cout << a << ' ';
-                cout << "\nB = all verts on levels l1+1 thru r   : "; for( auto& b : partition.b ) cout << b << ' ';
-                cout << "\nC = all verts on llevel l1            : "; for( auto& c : partition.c ) cout << c << ' ';
+                cout << "A = all verts on levels 0    thru l1-1\n";
+                cout << "B = all verts on levels l1+1 thru r\n";
+                cout << "C = all verts on llevel l1\n";
+		partition.print();
                 return partition;
         } 
 
@@ -526,12 +562,10 @@ Partition construct_vertex_partition(Graph const& g, int l[3], BFSVisitorData& v
         if( partition.b.size() <= 2*num_vertices(g)/3 ){
                 cout << "middle part NOT biggest\n";
                 vector<VertDesc>* costly_part, * other1, * other2;
-                if( partition.a.size() > partition.b.size() && partition.a.size() > partition.c.size() ){ costly_part = &partition.a; other1 = &partition.b; other2 = &partition.c; cout << "part a is most costly\n";}
-                if( partition.b.size() > partition.a.size() && partition.b.size() > partition.c.size() ){ costly_part = &partition.b; other1 = &partition.a; other2 = &partition.c; cout << "partition.b is most costly\n";}
-                if( partition.c.size() > partition.a.size() && partition.c.size() > partition.b.size() ){ costly_part = &partition.c; other1 = &partition.a; other2 = &partition.b; cout << "part c is most costly\n";}
-                cout << "part a size: " << partition.a.size() << '\n';
-                cout << "partition.b size: " << partition.b.size() << '\n';
-                cout << "part c size: " << partition.c.size() << '\n';
+
+		partition.get_most_costly_part(&costly_part, &other1, &other2);
+
+		partition.print();
                 cout <<   "A = most costly part of the 3: "; for( auto& a : *costly_part ) cout << a << ' ';
                 cout << "\nB = remaining 2 parts        : "; for( auto& b : *other1      ) cout << b << ' '; for( auto& b : *other2 ) cout << b << ' '; 
                 cout << "\nC =                          : "; for( auto& v : deleted_part ) cout << v << ' '; cout << '\n';
@@ -751,8 +785,7 @@ Partition shrinktree(Graph& g_copy, Graph const& g, VertIter vit, VertIter vjt, 
                 x_gone = *vertices(g_copy).first;
                 cout << "x_gone: " << x_gone << '\n';
         } else {
-                // delete all vertices x has replaced
-                for( auto& v : replaceverts ) kill_vertex(v, g_copy);
+                for( auto& v : replaceverts ) kill_vertex(v, g_copy); // delete all vertices x has replaced
         }
 
 	return new_bfs_and_make_max_planar(g_copy, g, vis_data, x_gone, x, l);
@@ -788,10 +821,8 @@ Partition l1_and_k(Graph& g_copy, Graph const& g, VertIter vit, VertIter vjt, ve
 Partition bfs_and_levels(Graph& g_copy, Graph const& g, VertIter vit, VertIter vjt)
 {
         cout << "---------------------------- 3 - BFS and Levels ------------\n";
-        BFSVisitorData vis_data(&g_copy);
-        auto root = *vertices(g_copy).first;
-        vis_data.root = root;
-        breadth_first_search(g_copy, root, visitor(BFSVisitor(vis_data)));
+        BFSVisitorData vis_data(&g_copy, *vertices(g_copy).first);
+        breadth_first_search(g_copy, vis_data.root, visitor(BFSVisitor(vis_data)));
 
         vector<uint> L(vis_data.num_levels + 1, 0);
         for( auto& d : vis_data.verts ) ++L[d.second.level];

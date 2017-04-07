@@ -665,6 +665,34 @@ Partition improve_separator(Graph const& g, Graph const& g_orig, CycleCost& cc, 
 
 struct NotPlanar {}; 
 
+Partition locate_cycle(Graph& g, Graph& g_orig, BFSVisitorData& vis_data, int l[3])
+{
+        cout << HEADER_COL << "----------------------- 8 - Locate Cycle -----------------\n" << RESET; 
+        auto chosen_edge = arbitrary_nontree_edge(g, vis_data);
+        auto v1          = source(chosen_edge, g);
+        auto w1          = target(chosen_edge, g); 
+        cout << "ancestors v1...\n";
+        auto parents_v   = ancestors(v1, vis_data);
+        cout << "ancestors v2...\n";
+        auto parents_w   = ancestors(w1, vis_data); 
+        auto ancestor    = common_ancestor(parents_v, parents_w, vis_data);
+        cout << "common ancestor: " << ancestor << '\n'; 
+        auto cycle = get_cycle(v1, w1, ancestor, vis_data);
+
+        Em   em2(&g);
+        auto cc = compute_cycle_cost(cycle, g, vis_data, em2); 
+	bool cost_swapped;
+        if( cc.outside > cc.inside ){
+                swap(cc.outside, cc.inside);
+                cost_swapped = true;
+                cout << "!!!!!! cost swapped !!!!!!!!\n";
+        } else cost_swapped = false;
+        cout << "total inside cost:  " << cc.inside  << '\n'; 
+        cout << "total outside cost: " << cc.outside << '\n';
+
+	return improve_separator(g, g_orig, cc, chosen_edge, vis_data, cycle, em2, cost_swapped, l);
+}
+
 Partition lipton_tarjan(Graph& g, Graph& g_orig)
 {
         cout << HEADER_COL << "---------------------------- 1 - Check Planarity  ------------\n" << RESET;
@@ -794,28 +822,5 @@ Partition lipton_tarjan(Graph& g, Graph& g_orig)
 
         print_graph(g);
 
-        cout << HEADER_COL << "----------------------- 8 - Locate Cycle -----------------\n" << RESET; 
-        auto chosen_edge = arbitrary_nontree_edge(g, vis_data);
-        auto v1          = source(chosen_edge, g);
-        auto w1          = target(chosen_edge, g); 
-        cout << "ancestors v1...\n";
-        auto parents_v   = ancestors(v1, vis_data);
-        cout << "ancestors v2...\n";
-        auto parents_w   = ancestors(w1, vis_data); 
-        auto ancestor    = common_ancestor(parents_v, parents_w, vis_data);
-        cout << "common ancestor: " << ancestor << '\n'; 
-        auto cycle = get_cycle(v1, w1, ancestor, vis_data);
-
-        Em   em2(&g);
-        auto cc = compute_cycle_cost(cycle, g, vis_data, em2); 
-	bool cost_swapped;
-        if( cc.outside > cc.inside ){
-                swap(cc.outside, cc.inside);
-                cost_swapped = true;
-                cout << "!!!!!! cost swapped !!!!!!!!\n";
-        } else cost_swapped = false;
-        cout << "total inside cost:  " << cc.inside  << '\n'; 
-        cout << "total outside cost: " << cc.outside << '\n'; 
-
-	return improve_separator(g, g_orig, cc, chosen_edge, vis_data, cycle, em2, cost_swapped, l);
+	return locate_cycle(g, g_orig, vis_data, l); 
 }

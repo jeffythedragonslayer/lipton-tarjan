@@ -715,6 +715,55 @@ Partition new_bfs_and_make_max_planar(Graph& g, Graph& g_orig, BFSVisitorData& v
 	return locate_cycle(g, g_orig, vis_data, l); 
 }
 
+Partition shrinktree(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt, BFSVisitorData& vis_data, int l[3])
+{
+        cout << HEADER_COL << "---------------------------- 6 - Shrinktree -------------\n" << RESET;
+        cout << "n: " << num_vertices(g) << '\n'; 
+
+        vector<VertDesc> replaceverts;
+        tie(vit, vjt) = vertices(g); 
+        for( auto next = vit; vit != vjt; vit = next ){
+                ++next;
+                if( vis_data.verts[*vit].level >= l[2] ){
+                        cout << "deleting vertex " << *vit << " of level l2 " << vis_data.verts[*vit].level << " >= " << l[2] << '\n';
+                        kill_vertex(*vit, g);
+                }
+                if( vis_data.verts[*vit].level <= l[0] ){
+                        cout << "going to replace vertex " << *vit << " of level l0 " << vis_data.verts[*vit].level << " <= " << l[0] << '\n';
+                        replaceverts.push_back(*vit);
+                }
+        }
+
+        auto x = add_vertex(g); uint2vert[vert2uint[x] = 999999] = x; 
+        map<VertDesc, bool> t;
+        for( tie(vit, vjt) = vertices(g); vit != vjt; ++vit ){
+                t[*vit] = vis_data.verts[*vit].level <= l[0];
+                cout << "vertex " << *vit << " at level " << vis_data.verts[*vit].level << " is " << (t[*vit] ? "TRUE" : "FALSE") << '\n';
+        }
+
+        reset_vertex_indices(g);
+        reset_edge_index(g);
+        Em em(&g);
+        assert(em.testplanar());
+
+        ScanVisitor svis(&t, &g, x, l[0]);
+        svis.scan_nonsubtree_edges(*vertices(g).first, g, *em.em, vis_data);
+        svis.finish();
+
+        auto x_gone = Graph::null_vertex();
+        if( !degree(x, g) ){
+                cout << "no edges to x found, deleting\n";
+                kill_vertex(x, g);
+                x_gone = *vertices(g).first;
+                cout << "x_gone: " << x_gone << '\n';
+        } else {
+                // delete all vertices x has replaced
+                for( auto& v : replaceverts ) kill_vertex(v, g);
+        }
+
+	return new_bfs_and_make_max_planar(g, g_orig, vis_data, x_gone, x, l);
+}
+
 Partition lipton_tarjan(Graph& g, Graph& g_orig)
 {
         cout << HEADER_COL << "---------------------------- 1 - Check Planarity  ------------\n" << RESET;
@@ -783,49 +832,5 @@ Partition lipton_tarjan(Graph& g, Graph& g_orig)
         l[0] = l[1];     for( ;; ){ float val = L.at(l[0]) + 2*(l[1] - l[0]);     if( val <= sq  ) break; --l[0]; } cout << "l0: " << l[0] << "     highest level <= l1\n";
         l[2] = l[1] + 1; for( ;; ){ float val = L.at(l[2]) + 2*(l[2] - l[1] - 1); if( val <= snk ) break; ++l[2]; } cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
 
-        cout << HEADER_COL << "---------------------------- 6 - Shrinktree -------------\n" << RESET;
-        cout << "n: " << num_vertices(g) << '\n'; 
-
-        vector<VertDesc> replaceverts;
-        tie(vit, vjt) = vertices(g); 
-        for( auto next = vit; vit != vjt; vit = next ){
-                ++next;
-                if( vis_data.verts[*vit].level >= l[2] ){
-                        cout << "deleting vertex " << *vit << " of level l2 " << vis_data.verts[*vit].level << " >= " << l[2] << '\n';
-                        kill_vertex(*vit, g);
-                }
-                if( vis_data.verts[*vit].level <= l[0] ){
-                        cout << "going to replace vertex " << *vit << " of level l0 " << vis_data.verts[*vit].level << " <= " << l[0] << '\n';
-                        replaceverts.push_back(*vit);
-                }
-        }
-
-        auto x = add_vertex(g); uint2vert[vert2uint[x] = 999999] = x; 
-        map<VertDesc, bool> t;
-        for( tie(vit, vjt) = vertices(g); vit != vjt; ++vit ){
-                t[*vit] = vis_data.verts[*vit].level <= l[0];
-                cout << "vertex " << *vit << " at level " << vis_data.verts[*vit].level << " is " << (t[*vit] ? "TRUE" : "FALSE") << '\n';
-        }
-
-        reset_vertex_indices(g);
-        reset_edge_index(g);
-        Em em(&g);
-        assert(em.testplanar());
-
-        ScanVisitor svis(&t, &g, x, l[0]);
-        svis.scan_nonsubtree_edges(*vertices(g).first, g, *em.em, vis_data);
-        svis.finish();
-
-        auto x_gone = Graph::null_vertex();
-        if( !degree(x, g) ){
-                cout << "no edges to x found, deleting\n";
-                kill_vertex(x, g);
-                x_gone = *vertices(g).first;
-                cout << "x_gone: " << x_gone << '\n';
-        } else {
-                // delete all vertices x has replaced
-                for( auto& v : replaceverts ) kill_vertex(v, g);
-        }
-
-	return new_bfs_and_make_max_planar(g, g_orig, vis_data, x_gone, x, l);
+	return shrinktree(g, g_orig, vit, vjt, vis_data, l);
 }

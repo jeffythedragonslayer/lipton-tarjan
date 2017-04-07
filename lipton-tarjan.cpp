@@ -778,6 +778,19 @@ Partition find_more_levels(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt, 
 	return shrinktree(g, g_orig, vit, vjt, vis_data, l);
 }
 
+Partition l1_and_k(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt, vector<uint> const& L, BFSVisitorData& vis_data)
+{
+        cout << HEADER_COL << "---------------------------- 4 - l1 and k  ------------\n" << RESET;
+        uint k = L[0]; 
+        int l[3];
+        l[1] = 0;
+        while( k <= num_vertices(g)/2 ) k += L[++l[1]];
+        cout << "k:  " << k    << "      # of verts in levels 0 thru l1\n";
+        cout << "l1: " << l[1] << "      total cost of levels 0 thru l1 barely exceeds 1/2\n";
+
+	return find_more_levels(g, g_orig, vit, vjt, k, l, L, vis_data);
+}
+
 Partition lipton_tarjan(Graph& g, Graph& g_orig)
 {
         cout << HEADER_COL << "---------------------------- 1 - Check Planarity  ------------\n" << RESET;
@@ -829,13 +842,5 @@ Partition lipton_tarjan(Graph& g, Graph& g_orig)
         for( tie(vit, vjt) = vertices(g); vit != vjt; ++vit ) cout << "level/cost of vert " << *vit << ": " << vis_data.verts[*vit].level << '\n';
         for( uint i = 0; i < L.size(); ++i ) cout << "L[" << i << "]: " << L[i] << '\n';
 
-        cout << HEADER_COL << "---------------------------- 4 - l1 and k  ------------\n" << RESET;
-        uint k = L[0]; 
-        int l[3];
-        l[1] = 0;
-        while( k <= num_vertices(g)/2 ) k += L[++l[1]];
-        cout << "k:  " << k    << "      # of verts in levels 0 thru l1\n";
-        cout << "l1: " << l[1] << "      total cost of levels 0 thru l1 barely exceeds 1/2\n";
-
-	return find_more_levels(g, g_orig, vit, vjt, k, l, L, vis_data);
+	return l1_and_k(g, g_orig, vit, vjt, L, vis_data);
 }

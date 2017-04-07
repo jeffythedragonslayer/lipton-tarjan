@@ -118,7 +118,7 @@ vert 4   hos edges 0 3 1
 ancestors v1...
 ancestors v2...
 common ancestor: 0
-3 0 4 !!!!!! cost swapped !!!!!!!!
+!!!!!! cost swapped !!!!!!!!
 total inside cost:  1
 total outside cost: 0
 [32m---------------------------- 9 - Improve Separator -----------

@@ -156,7 +156,7 @@ vert 7   hos edges 4 5 0
 ancestors v1...
 ancestors v2...
 common ancestor: 0
-0 1 2 0 1 2 total inside cost:  5
+total inside cost:  5
 total outside cost: 0
 [32m---------------------------- 9 - Improve Separator -----------
 [0m[31m

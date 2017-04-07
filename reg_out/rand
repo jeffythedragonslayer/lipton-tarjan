@@ -530,7 +530,7 @@ vert 999999   hos edges 1 5 7 9 14 19 21 22 25 30 35 36 39 42 44 45
 ancestors v1...
 ancestors v2...
 common ancestor: 999999
-1 999999 36 1 999999 36 1 999999 36 1 999999 36 1 999999 36 1 999999 36 1 999999 36 1 999999 36 1 999999 36 1 999999 36 1 999999 36 1 999999 36 1 999999 36 1 999999 36 total inside cost:  10
+total inside cost:  10
 total outside cost: 4
 [32m---------------------------- 9 - Improve Separator -----------
 [0m[31m

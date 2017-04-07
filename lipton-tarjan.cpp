@@ -53,24 +53,24 @@ bool on_cycle(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g)
         return on_cycle(src, cycle, g) && on_cycle(tar, cycle, g);
 }
 
-enum InsideOut {INSIDE, OUTSIDE, ON};
+enum InsideOutOn {INSIDE, OUTSIDE, ON};
 
-InsideOut edge_inside_cycle(EdgeDesc e, VertDesc common_vert, vector<VertDesc> const& cycle, Graph const& g, Embedding const& em)
+InsideOutOn edge_inside_cycle(EdgeDesc e, VertDesc common_vert, vector<VertDesc> const& cycle, Graph const& g, Embedding const& em)
 {
         //cout << "cycle: ";
-        for( uint i = 0; i < cycle.size(); ++i ) cout << cycle[i] << ' ';
+        //for( uint i = 0; i < cycle.size(); ++i ) cout << cycle[i] << ' ';
         //cout << '\n';
         auto src = source(e, g);
         auto tar = target(e, g);
         if( on_cycle(e, cycle, g) ) return ON;
         //cout << "      testing if edge " << src << ", " << tar << " is inside the cycle: ";
         //cout << "      common_vert:    " << common_vert   << '\n';
-        auto it     = find(STLALL(cycle), common_vert);
+        auto it = find(STLALL(cycle), common_vert);
         if( it == cycle.end() ){ cout << "      not here at all!\n"; assert(0); }
         assert(*it == common_vert);
         auto before = it   == cycle.begin() ?  cycle.end  ()-1   : it-1;
         auto after  = it+1 == cycle.end  () ?  cycle.begin()     : it+1; 
-        auto other  = (source(e, g) == common_vert) ?  target(e, g)        : source(e, g); 
+        auto other  = source(e, g) == common_vert ? target(e, g) : source(e, g); 
         
         //cout << '\n';
         //cout << "      it:     " << *it         << '\n';
@@ -94,8 +94,10 @@ InsideOut edge_inside_cycle(EdgeDesc e, VertDesc common_vert, vector<VertDesc> c
                 else if( tar == *after  ) perm.push_back(3);
         } 
         assert(perm.size() == 3);
-        if( levi_civita(perm[0], perm[1], perm[2]) == 1 ){ return INSIDE;
-        } else { return OUTSIDE; }
+
+	return levi_civita(perm[0], perm[1], perm[2]) == 1 ?
+	       INSIDE					   :
+	       OUTSIDE;
 }
 
 
@@ -328,9 +330,9 @@ void reset_vertex_indices(Graph& g)
 
 struct Em
 {
-        EmbeddingStorage* storage;
-        Embedding*        em;
-        Graph*            g;
+        unique_ptr<EmbeddingStorage> storage;
+        unique_ptr<Embedding>        em;
+        Graph*            	     g;
 
         Em(Graph* g) : g(g), storage(new EmbeddingStorage(num_vertices(*g))), em(new Embedding(storage->begin())) 
         {
@@ -355,12 +357,6 @@ struct Em
                         cout << "\n"; 
                 }
                 cout << CYAN << "*************************************\n" << RESET;
-        }
-
-        ~Em()
-        {
-                delete storage;
-                delete em;
         }
 };
 
@@ -463,7 +459,11 @@ set<VertDesc> get_neighbors(VertDesc v, Graph const& g)
 { 
         set<VertDesc> neighbors;
         OutEdgeIter e_cur, e_end;
-        for( tie(e_cur, e_end) = out_edges(v, g); e_cur != e_end; ++e_cur ){ auto ne = target(*e_cur, g); neighbors.insert(ne); cout << "      vertex " << v << " has neighbor " << ne << '\n'; }
+        for( tie(e_cur, e_end) = out_edges(v, g); e_cur != e_end; ++e_cur ){
+		auto ne = target(*e_cur, g);
+		neighbors.insert(ne);
+		cout << "      vertex " << v << " has neighbor " << ne << '\n';
+	}
         return neighbors;
 }
 
@@ -478,10 +478,9 @@ set<VertDesc> get_intersection(set<VertDesc> const& a, set<VertDesc> const& b)
 
 struct CycleCost
 {
-        uint inside {}, outside {};
+        uint inside = 0;
+	uint outside = 0;
 };
-
-bool cost_swapped = false;
 
 CycleCost compute_cycle_cost(vector<VertDesc> const& cycle, Graph const& g, BFSVisitorData const& vis_data, Em const& em)
 {
@@ -500,9 +499,7 @@ CycleCost compute_cycle_cost(vector<VertDesc> const& cycle, Graph const& g, BFSV
         return cc;
 }
 
-struct NotPlanar
-{
-};
+struct NotPlanar {}; 
 
 Partition lipton_tarjan(Graph& g, Graph& g_orig)
 {
@@ -647,11 +644,12 @@ Partition lipton_tarjan(Graph& g, Graph& g_orig)
 
         Em   em2(&g);
         auto cc = compute_cycle_cost(cycle, g, vis_data, em2); 
+	bool cost_swapped;
         if( cc.outside > cc.inside ){
                 swap(cc.outside, cc.inside);
                 cost_swapped = true;
                 cout << "!!!!!! cost swapped !!!!!!!!\n";
-        }
+        } else cost_swapped = false;
         cout << "total inside cost:  " << cc.inside  << '\n'; 
         cout << "total outside cost: " << cc.outside << '\n'; 
 
@@ -681,7 +679,7 @@ Partition lipton_tarjan(Graph& g, Graph& g_orig)
                 cout << "eee: " << to_string(eee.first, g) << '\n';
                 assert(eee.second);
 
-                InsideOut insideout = edge_inside_cycle(eee.first, *intersect.begin(), cycle, g, *em2.em);
+                InsideOutOn insideout = edge_inside_cycle(eee.first, *intersect.begin(), cycle, g, *em2.em);
                 auto y = (insideout == INSIDE) ? *intersect.begin() : *(++intersect.begin());
 
                 cout << "   y: " << y << '\n';

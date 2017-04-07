@@ -791,6 +791,23 @@ Partition l1_and_k(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt, vector<u
 	return find_more_levels(g, g_orig, vit, vjt, k, l, L, vis_data);
 }
 
+Partition bfs_and_levels(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt)
+{
+        cout << HEADER_COL << "---------------------------- 3 - BFS and Levels ------------\n" << RESET;
+        BFSVisitorData vis_data(&g);
+        auto root = *vertices(g).first;
+        vis_data.root = root;
+        breadth_first_search(g, root, visitor(BFSVisitor(vis_data)));
+
+        vector<uint> L(vis_data.num_levels + 1, 0);
+        for( auto& d : vis_data.verts ) ++L[d.second.level];
+
+        for( tie(vit, vjt) = vertices(g); vit != vjt; ++vit ) cout << "level/cost of vert " << *vit << ": " << vis_data.verts[*vit].level << '\n';
+        for( uint i = 0; i < L.size(); ++i ) cout << "L[" << i << "]: " << L[i] << '\n';
+
+	return l1_and_k(g, g_orig, vit, vjt, L, vis_data);
+}
+
 Partition lipton_tarjan(Graph& g, Graph& g_orig)
 {
         cout << HEADER_COL << "---------------------------- 1 - Check Planarity  ------------\n" << RESET;
@@ -830,17 +847,5 @@ Partition lipton_tarjan(Graph& g, Graph& g_orig)
         }
         cout << "biggest component: " << biggest_component << '\n';
 
-        cout << HEADER_COL << "---------------------------- 3 - BFS and Levels ------------\n" << RESET;
-        BFSVisitorData vis_data(&g);
-        auto root = *vertices(g).first;
-        vis_data.root = root;
-        breadth_first_search(g, root, visitor(BFSVisitor(vis_data)));
-
-        vector<uint> L(vis_data.num_levels + 1, 0);
-        for( auto& d : vis_data.verts ) ++L[d.second.level];
-
-        for( tie(vit, vjt) = vertices(g); vit != vjt; ++vit ) cout << "level/cost of vert " << *vit << ": " << vis_data.verts[*vit].level << '\n';
-        for( uint i = 0; i < L.size(); ++i ) cout << "L[" << i << "]: " << L[i] << '\n';
-
-	return l1_and_k(g, g_orig, vit, vjt, L, vis_data);
+	return bfs_and_levels(g, g_orig, vit, vjt);
 }

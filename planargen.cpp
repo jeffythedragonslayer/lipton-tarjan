@@ -12,8 +12,8 @@ using namespace std;
 using namespace boost;
 
 typedef adjacency_list<vecS, vecS, undirectedS> Graph;
-typedef graph_traits<Graph>::vertex_descriptor VertDesc;
-typedef graph_traits<Graph>::edge_iterator     EdgeIter;
+typedef graph_traits<Graph>::vertex_descriptor  VertDesc;
+typedef graph_traits<Graph>::edge_iterator      EdgeIter;
 
 int main(int argc, char** argv)
 { 
@@ -23,6 +23,7 @@ int main(int argc, char** argv)
                 cerr << "   e - number of edges (<= 3n-6)\n";
                 return 0;
         }
+
         int n = atoi(argv[1]);
         int e = atof(argv[2]);
         if( e > 3*n - 6 ){
@@ -34,10 +35,13 @@ int main(int argc, char** argv)
         uint v1, v2;
         for( uint i = 0; i < e; ++i ){ 
 
-                if( i < n ) v1 = i; // force all verts to be used at least once
-                else v1 = rand() % n;
+		v1 = i < n ?
+		      i : // force all verts to be used at least once
+		      rand() % n;
 
-                do { v2 = rand() % n; } while( v1 == v2 );
+                do {
+			v2 = rand() % n;
+		} while( v1 == v2 );
 
                 if( edge(v1, v2, g).second ) continue;
 
@@ -47,13 +51,13 @@ int main(int argc, char** argv)
                 if( boyer_myrvold_planarity_test(g_tmp) ){
                         g = g_tmp;
                         cout << v1 << ", " << v2 << '\n';
-                        cerr << (i*100.0/e) << "%\n";
+                        cerr << i*100.0/e << "% done\n";
                 } else --i; 
         }
 
         vector<int> component(num_vertices(g));
-        int num = connected_components(g, &component[0]);
+        int num_cc = connected_components(g, &component[0]);
 
         vector<int>::size_type i;
-        cerr << "Total number of components: " << num << endl;
+        cerr << "Total number of connected components: " << num_cc << endl;
 }

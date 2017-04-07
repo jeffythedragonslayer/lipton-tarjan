@@ -162,7 +162,7 @@ struct BFSVisitorData
         void print_parents() const {for( auto& v : verts ) cout << "parent of " << v.first << " is " << v.second.parent << '\n';}
 };
 
-struct BFSVisitor : public default_bfs_visitor
+struct BFSVisitor : default_bfs_visitor
 {
         BFSVisitorData& data;
 

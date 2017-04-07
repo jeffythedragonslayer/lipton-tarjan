@@ -4,19 +4,19 @@ if [ ! -f lt ]; then
         make
 fi
 
-lt g/box            > reg_out/box
-lt g/box2           > reg_out/box2
-lt g/in             > reg_out/in
-lt g/in2            > reg_out/in2
-lt g/in3            > reg_out/in3
-lt g/in4            > reg_out/in4
-lt g/notk           > reg_out/notk
-lt g/rand           > reg_out/rand
-lt g/rand2          > reg_out/rand2
-lt g/rand3          > reg_out/rand3
-lt g/square         > reg_out/square
-lt g/tri            > reg_out/tri
-lt g/tie            > reg_out/tie
+./lt graphs/box            > reg_out/box
+./lt graphs/box2           > reg_out/box2
+./lt graphs/in             > reg_out/in
+./lt graphs/in2            > reg_out/in2
+./lt graphs/in3            > reg_out/in3
+./lt graphs/in4            > reg_out/in4
+./lt graphs/notk           > reg_out/notk
+./lt graphs/rand           > reg_out/rand
+./lt graphs/rand2          > reg_out/rand2
+./lt graphs/rand3          > reg_out/rand3
+./lt graphs/square         > reg_out/square
+./lt graphs/tri            > reg_out/tri
+./lt graphs/tie            > reg_out/tie
 
 for file in reg_expected/*
 do

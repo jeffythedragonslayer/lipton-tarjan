@@ -1,0 +1,201 @@
+loading graph
+n: 10
+starting lipton tarjan...
+g
+[31m
+**********************  Graph  **************************
+vert 0   hos edges 1 2 
+vert 1   hos edges 0 4 5 6 7 
+vert 2   hos edges 0 3 8 9 
+vert 3   hos edges 2 4 
+vert 4   hos edges 3 1 
+vert 5   hos edges 1 
+vert 6   hos edges 1 
+vert 7   hos edges 1 
+vert 8   hos edges 2 
+vert 9   hos edges 2 
+*********************************************************
+
+[0mg_copy
+[31m
+**********************  Graph  **************************
+vert 0   hos edges 0 0 
+vert 0   hos edges 0 0 0 0 0 
+vert 0   hos edges 0 0 0 0 
+vert 0   hos edges 0 0 
+vert 0   hos edges 0 0 
+vert 0   hos edges 0 
+vert 0   hos edges 0 
+vert 0   hos edges 0 
+vert 0   hos edges 0 
+vert 0   hos edges 0 
+*********************************************************
+
+[0m[32m---------------------------- 1 - Check Planarity  ------------
+[0mplanar ok
+[31m
+**********************  Graph  **************************
+vert 0   hos edges 1 2 
+vert 1   hos edges 0 4 5 6 7 
+vert 2   hos edges 0 3 8 9 
+vert 3   hos edges 2 4 
+vert 4   hos edges 3 1 
+vert 5   hos edges 1 
+vert 6   hos edges 1 
+vert 7   hos edges 1 
+vert 8   hos edges 2 
+vert 9   hos edges 2 
+*********************************************************
+
+[0m[32m---------------------------- 2 - Connected Components --------
+[0m# of components: 1
+too big
+biggest component: 0
+[32m---------------------------- 3 - BFS and Levels ------------
+[0m  tree edge 0, 1
+  tree edge 0, 2
+  tree edge 1, 4
+  tree edge 1, 5
+  tree edge 1, 6
+  tree edge 1, 7
+  tree edge 2, 3
+  tree edge 2, 8
+  tree edge 2, 9
+level/cost of vert 0: 0
+level/cost of vert 1: 1
+level/cost of vert 2: 1
+level/cost of vert 3: 2
+level/cost of vert 4: 2
+level/cost of vert 5: 2
+level/cost of vert 6: 2
+level/cost of vert 7: 2
+level/cost of vert 8: 2
+level/cost of vert 9: 2
+L[0]: 1
+L[1]: 2
+L[2]: 7
+L[3]: 0
+[32m---------------------------- 4 - l1 and k  ------------
+[0mk:  10      # of verts in levels 0 thru l1
+l1: 2      total cost of levels 0 thru l1 barely exceeds 1/2
+[32m---------------------------- 5 - Find More Levels -------
+[0msq:    6.32456
+snk:   0
+l0: 1     highest level <= l1
+l2: 3     lowest  level >= l1 + 1
+[32m---------------------------- 6 - Shrinktree -------------
+[0mn: 10
+going to replace vertex 0 of level l0 0 <= 1
+going to replace vertex 1 of level l0 1 <= 1
+going to replace vertex 2 of level l0 1 <= 1
+vertex 0 at level 0 is TRUE
+vertex 1 at level 1 is TRUE
+vertex 2 at level 1 is TRUE
+vertex 3 at level 2 is FALSE
+vertex 4 at level 2 is FALSE
+vertex 5 at level 2 is FALSE
+vertex 6 at level 2 is FALSE
+vertex 7 at level 2 is FALSE
+vertex 8 at level 2 is FALSE
+vertex 9 at level 2 is FALSE
+vertex 999999 at level 0 is TRUE
+foundedge 1, 7   !!!!!!!going to add 999999, 7     going to delete 1, 7
+foundedge 1, 6   !!!!!!!going to add 999999, 6     going to delete 1, 6
+foundedge 1, 5   !!!!!!!going to add 999999, 5     going to delete 1, 5
+foundedge 1, 4   !!!!!!!going to add 999999, 4     going to delete 1, 4
+foundedge 2, 9   !!!!!!!going to add 999999, 9     going to delete 2, 9
+foundedge 2, 8   !!!!!!!going to add 999999, 8     going to delete 2, 8
+foundedge 2, 3   !!!!!!!going to add 999999, 3     going to delete 2, 3
+finishing
+edges to add size: 7
+adding: (999999, 3)   (999999, 4)   (999999, 5)   (999999, 6)   (999999, 7)   (999999, 8)   (999999, 9)   
+edges to remove size: 7
+removing: (1, 4)   (1, 5)   (1, 6)   (1, 7)   (2, 3)   (2, 8)   (2, 9)   
+killing vertex 0
+killing vertex 1
+killing vertex 2
+[32m-------------------- 7 - New BFS and Make Max Planar -----
+[0mroot: 999999
+n:    8
+  tree edge 999999, 3
+  tree edge 999999, 4
+  tree edge 999999, 5
+  tree edge 999999, 6
+  tree edge 999999, 7
+  tree edge 999999, 8
+  tree edge 999999, 9
+[31m
+**********************  Graph  **************************
+vert 3   hos edges 4 999999 5 9 
+vert 4   hos edges 3 999999 5 
+vert 5   hos edges 999999 6 3 4 9 
+vert 6   hos edges 999999 7 5 9 
+vert 7   hos edges 999999 8 6 9 
+vert 8   hos edges 999999 9 7 
+vert 9   hos edges 999999 8 3 5 6 7 
+vert 999999   hos edges 3 4 5 6 7 8 9 
+*********************************************************
+
+[0m[32m----------------------- 8 - Locate Cycle -----------------
+[0marbitrarily choosing nontree edge: 3, 4
+ancestors v1...
+ancestors v2...
+common ancestor: 999999
+3 999999 4 3 999999 4 3 999999 4 3 999999 4 3 999999 4 !!!!!! cost swapped !!!!!!!!
+total inside cost:  5
+total outside cost: 0
+[32m---------------------------- 9 - Improve Separator -----------
+[0m[31m
+**********************  Edges  **************************
+3, 4
+999999, 3
+999999, 4
+999999, 5
+999999, 6
+999999, 7
+999999, 8
+999999, 9
+8, 9
+7, 8
+6, 7
+5, 6
+3, 5
+4, 5
+9, 3
+9, 5
+9, 6
+9, 7
+*********************************************************
+
+[0mfound cycle with inside cost < 2/3: 5
+cycle verts: 3 999999 4 
+[32m
+------------ 10  - Construct Vertex Partition --------------
+[0m[31m
+**********************  Graph  **************************
+vert 0   hos edges 0 0 
+vert 0   hos edges 0 0 0 0 0 
+vert 0   hos edges 0 0 0 0 
+vert 0   hos edges 0 0 
+vert 0   hos edges 0 0 
+vert 0   hos edges 0 
+vert 0   hos edges 0 
+vert 0   hos edges 0 
+vert 0   hos edges 0 
+vert 0   hos edges 0 
+*********************************************************
+
+[0ml0: 1
+l1: 2
+l2: 3
+r: 2
+level of 0: 0, 0 belongs to first part
+level of 0: 0, 0 belongs to first part
+level of 0: 0, 0 belongs to first part
+level of 0: 0, 0 belongs to first part
+level of 0: 0, 0 belongs to first part
+level of 0: 0, 0 belongs to first part
+level of 0: 0, 0 belongs to first part
+level of 0: 0, 0 belongs to first part
+level of 0: 0, 0 belongs to first part
+level of 0: 0, 0 belongs to first part

@@ -6,13 +6,13 @@ OBJS := main.o lipton-tarjan.o strutil.o
 
 -include $(OBJS:.o=.d)
 
-all: lt graphgen chrobak
+all: lt planargen chrobak
 
 lt: $(OBJS)
 	$(CXX) $(OBJS) -o lt
 
-graphgen: graphgen.o
-	$(CXX) graphgen.o -o graphgen
+planargen: planargen.o
+	$(CXX) planargen.o -o planargen
 
 chrobak: chrobak.o
 	$(CXX) chrobak.o -o chrobak

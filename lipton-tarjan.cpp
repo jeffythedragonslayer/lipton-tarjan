@@ -693,6 +693,28 @@ Partition locate_cycle(Graph& g, Graph& g_orig, BFSVisitorData& vis_data, int l[
 	return improve_separator(g, g_orig, cc, chosen_edge, vis_data, cycle, em2, cost_swapped, l);
 }
 
+Partition new_bfs_and_make_max_planar(Graph& g, Graph& g_orig, BFSVisitorData& vis_data, VertDesc x_gone, VertDesc x, int l[3])
+{
+        cout << HEADER_COL << "-------------------- 7 - New BFS and Make Max Planar -----\n" << RESET;
+        reset_vertex_indices(g);
+        reset_edge_index(g);
+        vis_data.reset(&g);
+        vis_data.root = (x_gone != Graph::null_vertex()) ? x_gone : x;
+        ++vis_data.verts[vis_data.root].descendant_cost;
+
+        cout << "root: " << vis_data.root << '\n'; 
+        cout << "n:    " << num_vertices(g) << '\n';
+
+        breadth_first_search(g, x_gone != Graph::null_vertex() ? x_gone: x, visitor(BFSVisitor(vis_data))); 
+        makemaxplanar(g);
+        reset_vertex_indices(g);
+        reset_edge_index(g);
+
+        print_graph(g);
+
+	return locate_cycle(g, g_orig, vis_data, l); 
+}
+
 Partition lipton_tarjan(Graph& g, Graph& g_orig)
 {
         cout << HEADER_COL << "---------------------------- 1 - Check Planarity  ------------\n" << RESET;
@@ -805,22 +827,5 @@ Partition lipton_tarjan(Graph& g, Graph& g_orig)
                 for( auto& v : replaceverts ) kill_vertex(v, g);
         }
 
-        cout << HEADER_COL << "-------------------- 7 - New BFS and Make Max Planar -----\n" << RESET;
-        reset_vertex_indices(g);
-        reset_edge_index(g);
-        vis_data.reset(&g);
-        vis_data.root = (x_gone != Graph::null_vertex()) ? x_gone : x;
-        ++vis_data.verts[vis_data.root].descendant_cost;
-
-        cout << "root: " << vis_data.root << '\n'; 
-        cout << "n:    " << num_vertices(g) << '\n';
-
-        breadth_first_search(g, x_gone != Graph::null_vertex() ? x_gone: x, visitor(BFSVisitor(vis_data))); 
-        makemaxplanar(g);
-        reset_vertex_indices(g);
-        reset_edge_index(g);
-
-        print_graph(g);
-
-	return locate_cycle(g, g_orig, vis_data, l); 
+	return new_bfs_and_make_max_planar(g, g_orig, vis_data, x_gone, x, l);
 }

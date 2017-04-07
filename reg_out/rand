@@ -56,7 +56,8 @@ vert 48   hos edges 46 15 11 8 3 33 0
 vert 49   hos edges 8 20 
 *********************************************************
 
-g_copy
+---------------------------- 1 - Check Planarity  ------------
+planar ok
 
 **********************  Graph  **************************
 vert 0   hos edges 0 0 
@@ -111,8 +112,425 @@ vert 0   hos edges 0 0 0 0 0 0 0
 vert 0   hos edges 0 0 
 *********************************************************
 
----------------------------- 1 - Check Planarity  ------------
-planar ok
+---------------------------- 2 - Connected Components --------
+# of components: 1
+too big
+biggest component: 0
+---------------------------- 3 - BFS and Levels ------------
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+level/cost of vert 0: 0
+level/cost of vert 0: 5
+level/cost of vert 0: 3
+level/cost of vert 0: 2
+level/cost of vert 0: 6
+level/cost of vert 0: 5
+level/cost of vert 0: 4
+level/cost of vert 0: 5
+level/cost of vert 0: 2
+level/cost of vert 0: 5
+level/cost of vert 0: 3
+level/cost of vert 0: 2
+level/cost of vert 0: 3
+level/cost of vert 0: 4
+level/cost of vert 0: 5
+level/cost of vert 0: 2
+level/cost of vert 0: 4
+level/cost of vert 0: 4
+level/cost of vert 0: 4
+level/cost of vert 0: 5
+level/cost of vert 0: 2
+level/cost of vert 0: 5
+level/cost of vert 0: 5
+level/cost of vert 0: 3
+level/cost of vert 0: 6
+level/cost of vert 0: 5
+level/cost of vert 0: 3
+level/cost of vert 0: 3
+level/cost of vert 0: 4
+level/cost of vert 0: 4
+level/cost of vert 0: 5
+level/cost of vert 0: 3
+level/cost of vert 0: 6
+level/cost of vert 0: 1
+level/cost of vert 0: 4
+level/cost of vert 0: 5
+level/cost of vert 0: 5
+level/cost of vert 0: 4
+level/cost of vert 0: 3
+level/cost of vert 0: 5
+level/cost of vert 0: 3
+level/cost of vert 0: 4
+level/cost of vert 0: 5
+level/cost of vert 0: 6
+level/cost of vert 0: 5
+level/cost of vert 0: 5
+level/cost of vert 0: 2
+level/cost of vert 0: 6
+level/cost of vert 0: 1
+level/cost of vert 0: 3
+L[0]: 1
+L[1]: 2
+L[2]: 6
+L[3]: 10
+L[4]: 10
+L[5]: 16
+L[6]: 5
+L[7]: 0
+---------------------------- 4 - l1 and k  ------------
+k:  29      # of verts in levels 0 thru l1
+l1: 4      total cost of levels 0 thru l1 barely exceeds 1/2
+---------------------------- 5 - Find More Levels -------
+sq:    10.7703
+snk:   9.16515
+l0: 4     highest level <= l1
+l2: 6     lowest  level >= l1 + 1
+---------------------------- 6 - Shrinktree -------------
+n: 50
+going to replace vertex 0 of level l0 0 <= 4
+going to replace vertex 0 of level l0 3 <= 4
+going to replace vertex 0 of level l0 2 <= 4
+deleting vertex 0 of level l2 6 >= 6
+killing vertex 0
+going to replace vertex 0 of level l0 4 <= 4
+going to replace vertex 0 of level l0 2 <= 4
+going to replace vertex 0 of level l0 3 <= 4
+going to replace vertex 0 of level l0 2 <= 4
+going to replace vertex 0 of level l0 3 <= 4
+going to replace vertex 0 of level l0 4 <= 4
+going to replace vertex 0 of level l0 2 <= 4
+going to replace vertex 0 of level l0 4 <= 4
+going to replace vertex 0 of level l0 4 <= 4
+going to replace vertex 0 of level l0 4 <= 4
+going to replace vertex 0 of level l0 2 <= 4
+going to replace vertex 0 of level l0 3 <= 4
+deleting vertex 0 of level l2 6 >= 6
+killing vertex 0
+going to replace vertex 0 of level l0 3 <= 4
+going to replace vertex 0 of level l0 3 <= 4
+going to replace vertex 0 of level l0 4 <= 4
+going to replace vertex 0 of level l0 4 <= 4
+going to replace vertex 0 of level l0 3 <= 4
+deleting vertex 0 of level l2 6 >= 6
+killing vertex 0
+going to replace vertex 0 of level l0 1 <= 4
+going to replace vertex 0 of level l0 4 <= 4
+going to replace vertex 0 of level l0 4 <= 4
+going to replace vertex 0 of level l0 3 <= 4
+going to replace vertex 0 of level l0 3 <= 4
+going to replace vertex 0 of level l0 4 <= 4
+deleting vertex 0 of level l2 6 >= 6
+killing vertex 0
+going to replace vertex 0 of level l0 2 <= 4
+deleting vertex 0 of level l2 6 >= 6
+killing vertex 0
+going to replace vertex 0 of level l0 1 <= 4
+going to replace vertex 0 of level l0 3 <= 4
+vertex 0 at level 0 is TRUE
+vertex 0 at level 5 is FALSE
+vertex 0 at level 3 is TRUE
+vertex 0 at level 2 is TRUE
+vertex 0 at level 5 is FALSE
+vertex 0 at level 4 is TRUE
+vertex 0 at level 5 is FALSE
+vertex 0 at level 2 is TRUE
+vertex 0 at level 5 is FALSE
+vertex 0 at level 3 is TRUE
+vertex 0 at level 2 is TRUE
+vertex 0 at level 3 is TRUE
+vertex 0 at level 4 is TRUE
+vertex 0 at level 5 is FALSE
+vertex 0 at level 2 is TRUE
+vertex 0 at level 4 is TRUE
+vertex 0 at level 4 is TRUE
+vertex 0 at level 4 is TRUE
+vertex 0 at level 5 is FALSE
+vertex 0 at level 2 is TRUE
+vertex 0 at level 5 is FALSE
+vertex 0 at level 5 is FALSE
+vertex 0 at level 3 is TRUE
+vertex 0 at level 5 is FALSE
+vertex 0 at level 3 is TRUE
+vertex 0 at level 3 is TRUE
+vertex 0 at level 4 is TRUE
+vertex 0 at level 4 is TRUE
+vertex 0 at level 5 is FALSE
+vertex 0 at level 3 is TRUE
+vertex 0 at level 1 is TRUE
+vertex 0 at level 4 is TRUE
+vertex 0 at level 5 is FALSE
+vertex 0 at level 5 is FALSE
+vertex 0 at level 4 is TRUE
+vertex 0 at level 3 is TRUE
+vertex 0 at level 5 is FALSE
+vertex 0 at level 3 is TRUE
+vertex 0 at level 4 is TRUE
+vertex 0 at level 5 is FALSE
+vertex 0 at level 5 is FALSE
+vertex 0 at level 5 is FALSE
+vertex 0 at level 2 is TRUE
+vertex 0 at level 1 is TRUE
+vertex 0 at level 3 is TRUE
+vertex 999999 at level 6 is FALSE
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
+finishing
+edges to add size: 16
+adding: (999999, 0)   (999999, 0)   (999999, 0)   (999999, 0)   (999999, 0)   (999999, 0)   (999999, 0)   (999999, 0)   (999999, 0)   (999999, 0)   (999999, 0)   (999999, 0)   (999999, 0)   (999999, 0)   (999999, 0)   (999999, 0)   
+edges to remove size: 77
+removing: (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+killing vertex 0
+-------------------- 7 - New BFS and Make Max Planar -----
+root: 999999
+n:    17
+  tree edge 999999, 0
+  tree edge 999999, 0
+  tree edge 999999, 0
+  tree edge 999999, 0
+  tree edge 999999, 0
+  tree edge 999999, 0
+  tree edge 999999, 0
+  tree edge 999999, 0
+  tree edge 999999, 0
+  tree edge 999999, 0
+  tree edge 999999, 0
+  tree edge 999999, 0
+  tree edge 999999, 0
+  tree edge 999999, 0
+  tree edge 999999, 0
+  tree edge 999999, 0
+
+**********************  Graph  **************************
+vert 0   hos edges 0 0 999999 0 0 
+vert 0   hos edges 0 0 0 0 999999 
+vert 0   hos edges 0 0 0 0 999999 0 0 
+vert 0   hos edges 0 0 999999 0 0 0 
+vert 0   hos edges 0 0 999999 0 
+vert 0   hos edges 0 0 999999 
+vert 0   hos edges 0 0 0 0 999999 0 
+vert 0   hos edges 0 999999 0 
+vert 0   hos edges 0 0 0 0 999999 
+vert 0   hos edges 0 999999 0 
+vert 0   hos edges 0 0 999999 0 
+vert 0   hos edges 0 0 0 0 999999 0 
+vert 0   hos edges 0 999999 0 
+vert 0   hos edges 0 0 0 0 999999 
+vert 0   hos edges 0 999999 0 0 0 0 
+vert 0   hos edges 999999 0 0 
+vert 999999   hos edges 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+*********************************************************
+
+----------------------- 8 - Locate Cycle -----------------
+arbitrarily choosing nontree edge: 0, 0
+ancestors v1...
+ancestors v2...
+common ancestor: 999999
+total inside cost:  10
+total outside cost: 4
+---------------------------- 9 - Improve Separator -----------
+
+**********************  Edges  **************************
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+999999, 0
+999999, 0
+999999, 0
+999999, 0
+999999, 0
+999999, 0
+999999, 0
+999999, 0
+999999, 0
+999999, 0
+999999, 0
+999999, 0
+999999, 0
+999999, 0
+999999, 0
+999999, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+*********************************************************
+
+found cycle with inside cost < 2/3: 10
+cycle verts: 0 999999 0 
+
+------------ 10  - Construct Vertex Partition --------------
 
 **********************  Graph  **************************
 vert 0   hos edges 33 48 
@@ -167,530 +585,57 @@ vert 48   hos edges 46 15 11 8 3 33 0
 vert 49   hos edges 8 20 
 *********************************************************
 
----------------------------- 2 - Connected Components --------
-# of components: 1
-too big
-biggest component: 0
----------------------------- 3 - BFS and Levels ------------
-  tree edge 0, 33
-  tree edge 0, 48
-  tree edge 33, 8
-  tree edge 33, 20
-  tree edge 48, 46
-  tree edge 48, 15
-  tree edge 48, 11
-  tree edge 48, 3
-  tree edge 8, 49
-  tree edge 20, 12
-  tree edge 46, 31
-  tree edge 46, 2
-  tree edge 15, 26
-  tree edge 15, 27
-  tree edge 11, 38
-  tree edge 11, 10
-  tree edge 11, 40
-  tree edge 11, 23
-  tree edge 26, 17
-  tree edge 26, 13
-  tree edge 26, 28
-  tree edge 26, 18
-  tree edge 26, 16
-  tree edge 27, 34
-  tree edge 38, 29
-  tree edge 23, 41
-  tree edge 23, 6
-  tree edge 23, 37
-  tree edge 17, 22
-  tree edge 17, 35
-  tree edge 17, 14
-  tree edge 17, 1
-  tree edge 17, 42
-  tree edge 17, 19
-  tree edge 17, 5
-  tree edge 17, 21
-  tree edge 17, 39
-  tree edge 17, 36
-  tree edge 13, 9
-  tree edge 13, 7
-  tree edge 34, 44
-  tree edge 29, 30
-  tree edge 41, 25
-  tree edge 6, 45
-  tree edge 22, 32
-  tree edge 22, 24
-  tree edge 19, 43
-  tree edge 21, 47
-  tree edge 36, 4
-level/cost of vert 0: 0
-level/cost of vert 1: 5
-level/cost of vert 2: 3
-level/cost of vert 3: 2
-level/cost of vert 4: 6
-level/cost of vert 5: 5
-level/cost of vert 6: 4
-level/cost of vert 7: 5
-level/cost of vert 8: 2
-level/cost of vert 9: 5
-level/cost of vert 10: 3
-level/cost of vert 11: 2
-level/cost of vert 12: 3
-level/cost of vert 13: 4
-level/cost of vert 14: 5
-level/cost of vert 15: 2
-level/cost of vert 16: 4
-level/cost of vert 17: 4
-level/cost of vert 18: 4
-level/cost of vert 19: 5
-level/cost of vert 20: 2
-level/cost of vert 21: 5
-level/cost of vert 22: 5
-level/cost of vert 23: 3
-level/cost of vert 24: 6
-level/cost of vert 25: 5
-level/cost of vert 26: 3
-level/cost of vert 27: 3
-level/cost of vert 28: 4
-level/cost of vert 29: 4
-level/cost of vert 30: 5
-level/cost of vert 31: 3
-level/cost of vert 32: 6
-level/cost of vert 33: 1
-level/cost of vert 34: 4
-level/cost of vert 35: 5
-level/cost of vert 36: 5
-level/cost of vert 37: 4
-level/cost of vert 38: 3
-level/cost of vert 39: 5
-level/cost of vert 40: 3
-level/cost of vert 41: 4
-level/cost of vert 42: 5
-level/cost of vert 43: 6
-level/cost of vert 44: 5
-level/cost of vert 45: 5
-level/cost of vert 46: 2
-level/cost of vert 47: 6
-level/cost of vert 48: 1
-level/cost of vert 49: 3
-L[0]: 1
-L[1]: 2
-L[2]: 6
-L[3]: 10
-L[4]: 10
-L[5]: 16
-L[6]: 5
-L[7]: 0
----------------------------- 4 - l1 and k  ------------
-k:  29      # of verts in levels 0 thru l1
-l1: 4      total cost of levels 0 thru l1 barely exceeds 1/2
----------------------------- 5 - Find More Levels -------
-sq:    10.7703
-snk:   9.16515
-l0: 4     highest level <= l1
-l2: 6     lowest  level >= l1 + 1
----------------------------- 6 - Shrinktree -------------
-n: 50
-going to replace vertex 0 of level l0 0 <= 4
-going to replace vertex 2 of level l0 3 <= 4
-going to replace vertex 3 of level l0 2 <= 4
-deleting vertex 4 of level l2 6 >= 6
-killing vertex 4
-going to replace vertex 6 of level l0 4 <= 4
-going to replace vertex 8 of level l0 2 <= 4
-going to replace vertex 10 of level l0 3 <= 4
-going to replace vertex 11 of level l0 2 <= 4
-going to replace vertex 12 of level l0 3 <= 4
-going to replace vertex 13 of level l0 4 <= 4
-going to replace vertex 15 of level l0 2 <= 4
-going to replace vertex 16 of level l0 4 <= 4
-going to replace vertex 17 of level l0 4 <= 4
-going to replace vertex 18 of level l0 4 <= 4
-going to replace vertex 20 of level l0 2 <= 4
-going to replace vertex 23 of level l0 3 <= 4
-deleting vertex 24 of level l2 6 >= 6
-killing vertex 24
-going to replace vertex 26 of level l0 3 <= 4
-going to replace vertex 27 of level l0 3 <= 4
-going to replace vertex 28 of level l0 4 <= 4
-going to replace vertex 29 of level l0 4 <= 4
-going to replace vertex 31 of level l0 3 <= 4
-deleting vertex 32 of level l2 6 >= 6
-killing vertex 32
-going to replace vertex 33 of level l0 1 <= 4
-going to replace vertex 34 of level l0 4 <= 4
-going to replace vertex 37 of level l0 4 <= 4
-going to replace vertex 38 of level l0 3 <= 4
-going to replace vertex 40 of level l0 3 <= 4
-going to replace vertex 41 of level l0 4 <= 4
-deleting vertex 43 of level l2 6 >= 6
-killing vertex 43
-going to replace vertex 46 of level l0 2 <= 4
-deleting vertex 47 of level l2 6 >= 6
-killing vertex 47
-going to replace vertex 48 of level l0 1 <= 4
-going to replace vertex 49 of level l0 3 <= 4
-vertex 0 at level 0 is TRUE
-vertex 1 at level 5 is FALSE
-vertex 2 at level 3 is TRUE
-vertex 3 at level 2 is TRUE
-vertex 5 at level 5 is FALSE
-vertex 6 at level 4 is TRUE
-vertex 7 at level 5 is FALSE
-vertex 8 at level 2 is TRUE
-vertex 9 at level 5 is FALSE
-vertex 10 at level 3 is TRUE
-vertex 11 at level 2 is TRUE
-vertex 12 at level 3 is TRUE
-vertex 13 at level 4 is TRUE
-vertex 14 at level 5 is FALSE
-vertex 15 at level 2 is TRUE
-vertex 16 at level 4 is TRUE
-vertex 17 at level 4 is TRUE
-vertex 18 at level 4 is TRUE
-vertex 19 at level 5 is FALSE
-vertex 20 at level 2 is TRUE
-vertex 21 at level 5 is FALSE
-vertex 22 at level 5 is FALSE
-vertex 23 at level 3 is TRUE
-vertex 25 at level 5 is FALSE
-vertex 26 at level 3 is TRUE
-vertex 27 at level 3 is TRUE
-vertex 28 at level 4 is TRUE
-vertex 29 at level 4 is TRUE
-vertex 30 at level 5 is FALSE
-vertex 31 at level 3 is TRUE
-vertex 33 at level 1 is TRUE
-vertex 34 at level 4 is TRUE
-vertex 35 at level 5 is FALSE
-vertex 36 at level 5 is FALSE
-vertex 37 at level 4 is TRUE
-vertex 38 at level 3 is TRUE
-vertex 39 at level 5 is FALSE
-vertex 40 at level 3 is TRUE
-vertex 41 at level 4 is TRUE
-vertex 42 at level 5 is FALSE
-vertex 44 at level 5 is FALSE
-vertex 45 at level 5 is FALSE
-vertex 46 at level 2 is TRUE
-vertex 48 at level 1 is TRUE
-vertex 49 at level 3 is TRUE
-vertex 999999 at level 6 is FALSE
-foundedge 33, 48     going to delete 33, 48
-foundedge 8, 48     going to delete 8, 48
-foundedge 8, 15     going to delete 8, 15
-foundedge 8, 20     going to delete 8, 20
-foundedge 49, 20     going to delete 49, 20
-foundedge 20, 49     going to delete 20, 49
-foundedge 20, 8     going to delete 20, 8
-foundedge 20, 11     going to delete 20, 11
-foundedge 12, 26     going to delete 12, 26
-foundedge 12, 40     going to delete 12, 40
-foundedge 12, 10     going to delete 12, 10
-foundedge 48, 33     going to delete 48, 33
-foundedge 48, 8     going to delete 48, 8
-foundedge 3, 15     going to delete 3, 15
-foundedge 3, 31     going to delete 3, 31
-foundedge 11, 20     going to delete 11, 20
-foundedge 11, 27     going to delete 11, 27
-foundedge 10, 12     going to delete 10, 12
-foundedge 23, 29     going to delete 23, 29
-foundedge 23, 27     going to delete 23, 27
-foundedge 6, 45   !!!!!!!going to add 999999, 45     going to delete 6, 45
-foundedge 6, 37     going to delete 6, 37
-foundedge 6, 36   !!!!!!!going to add 999999, 36     going to delete 6, 36
-foundedge 37, 6     going to delete 37, 6
-foundedge 37, 45     going to delete 37, 45
-foundedge 37, 41     going to delete 37, 41
-foundedge 41, 37     going to delete 41, 37
-foundedge 41, 30   !!!!!!!going to add 999999, 30     going to delete 41, 30
-foundedge 41, 25   !!!!!!!going to add 999999, 25     going to delete 41, 25
-foundedge 41, 36     going to delete 41, 36
-foundedge 29, 40     going to delete 29, 40
-foundedge 29, 35   !!!!!!!going to add 999999, 35     going to delete 29, 35
-foundedge 29, 30     going to delete 29, 30
-foundedge 29, 23     going to delete 29, 23
-foundedge 40, 12     going to delete 40, 12
-foundedge 40, 16     going to delete 40, 16
-foundedge 40, 26     going to delete 40, 26
-foundedge 40, 29     going to delete 40, 29
-foundedge 15, 3     going to delete 15, 3
-foundedge 15, 8     going to delete 15, 8
-foundedge 26, 40     going to delete 26, 40
-foundedge 26, 12     going to delete 26, 12
-foundedge 13, 14   !!!!!!!going to add 999999, 14     going to delete 13, 14
-foundedge 13, 7   !!!!!!!going to add 999999, 7     going to delete 13, 7
-foundedge 13, 9   !!!!!!!going to add 999999, 9     going to delete 13, 9
-foundedge 13, 18     going to delete 13, 18
-foundedge 13, 27     going to delete 13, 27
-foundedge 16, 40     going to delete 16, 40
-foundedge 17, 28     going to delete 17, 28
-foundedge 17, 22   !!!!!!!going to add 999999, 22     going to delete 17, 22
-foundedge 17, 21   !!!!!!!going to add 999999, 21     going to delete 17, 21
-foundedge 17, 42   !!!!!!!going to add 999999, 42     going to delete 17, 42
-foundedge 17, 39   !!!!!!!going to add 999999, 39     going to delete 17, 39
-foundedge 17, 14     going to delete 17, 14
-foundedge 17, 19   !!!!!!!going to add 999999, 19     going to delete 17, 19
-foundedge 17, 36     going to delete 17, 36
-foundedge 17, 1   !!!!!!!going to add 999999, 1     going to delete 17, 1
-foundedge 17, 5   !!!!!!!going to add 999999, 5     going to delete 17, 5
-foundedge 17, 35     going to delete 17, 35
-foundedge 18, 13     going to delete 18, 13
-foundedge 18, 21     going to delete 18, 21
-foundedge 18, 22     going to delete 18, 22
-foundedge 18, 28     going to delete 18, 28
-foundedge 28, 18     going to delete 28, 18
-foundedge 28, 22     going to delete 28, 22
-foundedge 28, 17     going to delete 28, 17
-foundedge 27, 11     going to delete 27, 11
-foundedge 27, 23     going to delete 27, 23
-foundedge 27, 13     going to delete 27, 13
-foundedge 27, 2     going to delete 27, 2
-foundedge 34, 19     going to delete 34, 19
-foundedge 34, 44   !!!!!!!going to add 999999, 44     going to delete 34, 44
-foundedge 34, 14     going to delete 34, 14
-foundedge 2, 27     going to delete 2, 27
-foundedge 2, 31     going to delete 2, 31
-foundedge 31, 3     going to delete 31, 3
-foundedge 31, 2     going to delete 31, 2
-finishing
-edges to add size: 16
-adding: (999999, 1)   (999999, 5)   (999999, 7)   (999999, 9)   (999999, 14)   (999999, 19)   (999999, 21)   (999999, 22)   (999999, 25)   (999999, 30)   (999999, 35)   (999999, 36)   (999999, 39)   (999999, 42)   (999999, 44)   (999999, 45)   
-edges to remove size: 77
-removing: (2, 27)   (2, 31)   (3, 15)   (3, 31)   (6, 36)   (6, 37)   (6, 45)   (8, 15)   (8, 20)   (8, 48)   (10, 12)   (11, 20)   (11, 27)   (12, 10)   (12, 26)   (12, 40)   (13, 7)   (13, 9)   (13, 14)   (13, 18)   (13, 27)   (15, 3)   (15, 8)   (16, 40)   (17, 1)   (17, 5)   (17, 14)   (17, 19)   (17, 21)   (17, 22)   (17, 28)   (17, 35)   (17, 36)   (17, 39)   (17, 42)   (18, 13)   (18, 21)   (18, 22)   (18, 28)   (20, 8)   (20, 11)   (20, 49)   (23, 27)   (23, 29)   (26, 12)   (26, 40)   (27, 2)   (27, 11)   (27, 13)   (27, 23)   (28, 17)   (28, 18)   (28, 22)   (29, 23)   (29, 30)   (29, 35)   (29, 40)   (31, 2)   (31, 3)   (33, 48)   (34, 14)   (34, 19)   (34, 44)   (37, 6)   (37, 41)   (37, 45)   (40, 12)   (40, 16)   (40, 26)   (40, 29)   (41, 25)   (41, 30)   (41, 36)   (41, 37)   (48, 8)   (48, 33)   (49, 20)   
-killing vertex 0
-killing vertex 2
-killing vertex 3
-killing vertex 6
-killing vertex 8
-killing vertex 10
-killing vertex 11
-killing vertex 12
-killing vertex 13
-killing vertex 15
-killing vertex 16
-killing vertex 17
-killing vertex 18
-killing vertex 20
-killing vertex 23
-killing vertex 26
-killing vertex 27
-killing vertex 28
-killing vertex 29
-killing vertex 31
-killing vertex 33
-killing vertex 34
-killing vertex 37
-killing vertex 38
-killing vertex 40
-killing vertex 41
-killing vertex 46
-killing vertex 48
-killing vertex 49
--------------------- 7 - New BFS and Make Max Planar -----
-root: 999999
-n:    17
-  tree edge 999999, 1
-  tree edge 999999, 5
-  tree edge 999999, 7
-  tree edge 999999, 9
-  tree edge 999999, 14
-  tree edge 999999, 19
-  tree edge 999999, 21
-  tree edge 999999, 22
-  tree edge 999999, 25
-  tree edge 999999, 30
-  tree edge 999999, 35
-  tree edge 999999, 36
-  tree edge 999999, 39
-  tree edge 999999, 42
-  tree edge 999999, 44
-  tree edge 999999, 45
-
-**********************  Graph  **************************
-vert 1   hos edges 36 5 999999 9 44 
-vert 5   hos edges 35 25 36 1 999999 
-vert 7   hos edges 42 14 21 9 999999 45 44 
-vert 9   hos edges 21 7 999999 1 44 22 
-vert 14   hos edges 42 7 999999 45 
-vert 19   hos edges 36 44 999999 
-vert 21   hos edges 9 42 22 7 999999 39 
-vert 22   hos edges 21 999999 9 
-vert 25   hos edges 30 5 35 36 999999 
-vert 30   hos edges 25 999999 36 
-vert 35   hos edges 5 25 999999 
-vert 36   hos edges 1 19 5 25 999999 44 30 
-vert 39   hos edges 42 999999 21 
-vert 42   hos edges 7 39 21 14 999999 
-vert 44   hos edges 19 999999 7 9 1 36 
-vert 45   hos edges 999999 7 14 
-vert 999999   hos edges 1 5 7 9 14 19 21 22 25 30 35 36 39 42 44 45 
-*********************************************************
-
------------------------ 8 - Locate Cycle -----------------
-arbitrarily choosing nontree edge: 1, 36
-ancestors v1...
-ancestors v2...
-common ancestor: 999999
-total inside cost:  10
-total outside cost: 4
----------------------------- 9 - Improve Separator -----------
-
-**********************  Edges  **************************
-1, 36
-5, 35
-7, 42
-9, 21
-19, 36
-25, 30
-39, 42
-42, 21
-5, 25
-36, 5
-44, 19
-42, 14
-5, 1
-22, 21
-25, 35
-36, 25
-7, 14
-21, 7
-7, 9
-999999, 1
-999999, 5
-999999, 7
-999999, 9
-999999, 14
-999999, 19
-999999, 21
-999999, 22
-999999, 25
-999999, 30
-999999, 35
-999999, 36
-999999, 39
-999999, 42
-999999, 44
-999999, 45
-7, 45
-1, 9
-44, 7
-44, 9
-44, 1
-44, 36
-22, 9
-30, 36
-39, 21
-45, 14
-*********************************************************
-
-found cycle with inside cost < 2/3: 10
-cycle verts: 1 999999 36 
-
------------- 10  - Construct Vertex Partition --------------
-
-**********************  Graph  **************************
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 0 0 
-vert 0   hos edges 0 0 0 
-vert 0   hos edges 0 0 0 
-vert 0   hos edges 0 0 0 
-vert 0   hos edges 0 0 0 0 0 
-vert 0   hos edges 0 0 0 0 
-vert 0   hos edges 0 0 0 0 0 
-vert 0   hos edges 0 0 0 0 0 
-vert 0   hos edges 0 0 0 
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 0 0 0 0 0 0 
-vert 0   hos edges 0 0 0 0 
-vert 0   hos edges 0 0 0 0 0 0 
-vert 0   hos edges 0 0 0 0 0 
-vert 0   hos edges 0 0 0 0 0 
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 0 0 0 0 0 0 0 0 0 0 0 
-vert 0   hos edges 0 0 0 0 0 
-vert 0   hos edges 0 0 0 0 0 
-vert 0   hos edges 0 0 0 0 0 
-vert 0   hos edges 0 0 0 0 0 0 0 0 
-vert 0   hos edges 0 0 0 0 0 0 
-vert 0   hos edges 0 0 0 0 0 0 
-vert 0   hos edges 0 0 0 0 
-vert 0   hos edges 0 0 0 0 0 
-vert 0   hos edges 0 0 0 0 0 0 0 0 
-vert 0   hos edges 0 0 0 0 0 0 
-vert 0   hos edges 0 0 0 0 
-vert 0   hos edges 0 0 0 0 0 
-vert 0   hos edges 0 0 0 
-vert 0   hos edges 0 0 0 
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 0 0 0 
-vert 0   hos edges 0 0 0 0 
-vert 0   hos edges 0 0 0 0 
-vert 0   hos edges 0 0 0 0 0 0 0 0 0 
-vert 0   hos edges 0 0 0 0 
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 0 0 0 0 
-vert 0   hos edges 0 0 0 0 0 
-vert 0   hos edges 0 0 0 0 0 
-vert 0   hos edges 0 0 0 0 
-vert 0   hos edges 0 0 0 0 
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 0 0 
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 0 0 0 0 0 0 
-vert 0   hos edges 0 0 
-*********************************************************
-
 l0: 4
 l1: 4
 l2: 6
 r: 2
 level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
+level of 1: 0, 1 belongs to first part
+level of 2: 0, 2 belongs to first part
+level of 3: 0, 3 belongs to first part
+level of 4: 0, 4 belongs to first part
+level of 5: 0, 5 belongs to first part
+level of 6: 0, 6 belongs to first part
+level of 7: 0, 7 belongs to first part
+level of 8: 0, 8 belongs to first part
+level of 9: 0, 9 belongs to first part
+level of 10: 0, 10 belongs to first part
+level of 11: 0, 11 belongs to first part
+level of 12: 0, 12 belongs to first part
+level of 13: 0, 13 belongs to first part
+level of 14: 0, 14 belongs to first part
+level of 15: 0, 15 belongs to first part
+level of 16: 0, 16 belongs to first part
+level of 17: 0, 17 belongs to first part
+level of 18: 0, 18 belongs to first part
+level of 19: 0, 19 belongs to first part
+level of 20: 0, 20 belongs to first part
+level of 21: 0, 21 belongs to first part
+level of 22: 0, 22 belongs to first part
+level of 23: 0, 23 belongs to first part
+level of 24: 0, 24 belongs to first part
+level of 25: 0, 25 belongs to first part
+level of 26: 0, 26 belongs to first part
+level of 27: 0, 27 belongs to first part
+level of 28: 0, 28 belongs to first part
+level of 29: 0, 29 belongs to first part
+level of 30: 0, 30 belongs to first part
+level of 31: 0, 31 belongs to first part
+level of 32: 0, 32 belongs to first part
+level of 33: 0, 33 belongs to first part
+level of 34: 0, 34 belongs to first part
+level of 35: 0, 35 belongs to first part
+level of 36: 0, 36 belongs to first part
+level of 37: 0, 37 belongs to first part
+level of 38: 0, 38 belongs to first part
+level of 39: 0, 39 belongs to first part
+level of 40: 0, 40 belongs to first part
+level of 41: 0, 41 belongs to first part
+level of 42: 0, 42 belongs to first part
+level of 43: 0, 43 belongs to first part
+level of 44: 0, 44 belongs to first part
+level of 45: 0, 45 belongs to first part
+level of 46: 0, 46 belongs to first part
+level of 47: 0, 47 belongs to first part
+level of 48: 0, 48 belongs to first part
+level of 49: 0, 49 belongs to first part

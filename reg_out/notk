@@ -11,25 +11,15 @@ vert 3   hos edges 0 1
 vert 4   hos edges 0 2 
 *********************************************************
 
-g_copy
-
-**********************  Graph  **************************
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 0 
-*********************************************************
-
 ---------------------------- 1 - Check Planarity  ------------
 planar ok
 
 **********************  Graph  **************************
-vert 0   hos edges 3 4 
-vert 1   hos edges 3 2 
-vert 2   hos edges 4 1 
-vert 3   hos edges 0 1 
-vert 4   hos edges 0 2 
+vert 0   hos edges 0 0 
+vert 0   hos edges 0 0 
+vert 0   hos edges 0 0 
+vert 0   hos edges 0 0 
+vert 0   hos edges 0 0 
 *********************************************************
 
 ---------------------------- 2 - Connected Components --------
@@ -37,15 +27,15 @@ vert 4   hos edges 0 2
 too big
 biggest component: 0
 ---------------------------- 3 - BFS and Levels ------------
-  tree edge 0, 3
-  tree edge 0, 4
-  tree edge 3, 1
-  tree edge 4, 2
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
 level/cost of vert 0: 0
-level/cost of vert 1: 2
-level/cost of vert 2: 2
-level/cost of vert 3: 1
-level/cost of vert 4: 1
+level/cost of vert 0: 2
+level/cost of vert 0: 2
+level/cost of vert 0: 1
+level/cost of vert 0: 1
 L[0]: 1
 L[1]: 2
 L[2]: 2
@@ -61,15 +51,15 @@ l2: 2     lowest  level >= l1 + 1
 ---------------------------- 6 - Shrinktree -------------
 n: 5
 going to replace vertex 0 of level l0 0 <= 1
-deleting vertex 1 of level l2 2 >= 2
-killing vertex 1
-deleting vertex 2 of level l2 2 >= 2
-killing vertex 2
-going to replace vertex 3 of level l0 1 <= 1
-going to replace vertex 4 of level l0 1 <= 1
+deleting vertex 0 of level l2 2 >= 2
+killing vertex 0
+deleting vertex 0 of level l2 2 >= 2
+killing vertex 0
+going to replace vertex 0 of level l0 1 <= 1
+going to replace vertex 0 of level l0 1 <= 1
 vertex 0 at level 0 is TRUE
-vertex 3 at level 1 is TRUE
-vertex 4 at level 1 is TRUE
+vertex 0 at level 1 is TRUE
+vertex 0 at level 1 is TRUE
 vertex 999999 at level 0 is TRUE
 finishing
 edges to add size: 0
@@ -82,17 +72,17 @@ x_gone: 0
 -------------------- 7 - New BFS and Make Max Planar -----
 root: 0
 n:    3
-  tree edge 0, 3
-  tree edge 0, 4
+  tree edge 0, 0
+  tree edge 0, 0
 
 **********************  Graph  **************************
-vert 0   hos edges 3 4 
-vert 3   hos edges 0 4 
-vert 4   hos edges 0 3 
+vert 0   hos edges 0 0 
+vert 0   hos edges 0 0 
+vert 0   hos edges 0 0 
 *********************************************************
 
 ----------------------- 8 - Locate Cycle -----------------
-arbitrarily choosing nontree edge: 3, 4
+arbitrarily choosing nontree edge: 0, 0
 ancestors v1...
 ancestors v2...
 common ancestor: 0
@@ -101,22 +91,22 @@ total outside cost: 0
 ---------------------------- 9 - Improve Separator -----------
 
 **********************  Edges  **************************
-0, 3
-0, 4
-3, 4
+0, 0
+0, 0
+0, 0
 *********************************************************
 
 found cycle with inside cost < 2/3: 0
-cycle verts: 3 0 4 
+cycle verts: 0 0 0 
 
 ------------ 10  - Construct Vertex Partition --------------
 
 **********************  Graph  **************************
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 0 
+vert 0   hos edges 3 4 
+vert 1   hos edges 3 2 
+vert 2   hos edges 4 1 
+vert 3   hos edges 0 1 
+vert 4   hos edges 0 2 
 *********************************************************
 
 l0: 1
@@ -124,7 +114,7 @@ l1: 1
 l2: 2
 r: 2
 level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
+level of 1: 0, 1 belongs to first part
+level of 2: 0, 2 belongs to first part
+level of 3: 0, 3 belongs to first part
+level of 4: 0, 4 belongs to first part

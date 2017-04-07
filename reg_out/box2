@@ -16,7 +16,8 @@ vert 8   hos edges 2
 vert 9   hos edges 2 
 *********************************************************
 
-g_copy
+---------------------------- 1 - Check Planarity  ------------
+planar ok
 
 **********************  Graph  **************************
 vert 0   hos edges 0 0 
@@ -31,46 +32,30 @@ vert 0   hos edges 0
 vert 0   hos edges 0 
 *********************************************************
 
----------------------------- 1 - Check Planarity  ------------
-planar ok
-
-**********************  Graph  **************************
-vert 0   hos edges 1 2 
-vert 1   hos edges 0 4 5 6 7 
-vert 2   hos edges 0 3 8 9 
-vert 3   hos edges 2 4 
-vert 4   hos edges 3 1 
-vert 5   hos edges 1 
-vert 6   hos edges 1 
-vert 7   hos edges 1 
-vert 8   hos edges 2 
-vert 9   hos edges 2 
-*********************************************************
-
 ---------------------------- 2 - Connected Components --------
 # of components: 1
 too big
 biggest component: 0
 ---------------------------- 3 - BFS and Levels ------------
-  tree edge 0, 1
-  tree edge 0, 2
-  tree edge 1, 4
-  tree edge 1, 5
-  tree edge 1, 6
-  tree edge 1, 7
-  tree edge 2, 3
-  tree edge 2, 8
-  tree edge 2, 9
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
+  tree edge 0, 0
 level/cost of vert 0: 0
-level/cost of vert 1: 1
-level/cost of vert 2: 1
-level/cost of vert 3: 2
-level/cost of vert 4: 2
-level/cost of vert 5: 2
-level/cost of vert 6: 2
-level/cost of vert 7: 2
-level/cost of vert 8: 2
-level/cost of vert 9: 2
+level/cost of vert 0: 1
+level/cost of vert 0: 1
+level/cost of vert 0: 2
+level/cost of vert 0: 2
+level/cost of vert 0: 2
+level/cost of vert 0: 2
+level/cost of vert 0: 2
+level/cost of vert 0: 2
+level/cost of vert 0: 2
 L[0]: 1
 L[1]: 2
 L[2]: 7
@@ -86,58 +71,58 @@ l2: 3     lowest  level >= l1 + 1
 ---------------------------- 6 - Shrinktree -------------
 n: 10
 going to replace vertex 0 of level l0 0 <= 1
-going to replace vertex 1 of level l0 1 <= 1
-going to replace vertex 2 of level l0 1 <= 1
+going to replace vertex 0 of level l0 1 <= 1
+going to replace vertex 0 of level l0 1 <= 1
 vertex 0 at level 0 is TRUE
-vertex 1 at level 1 is TRUE
-vertex 2 at level 1 is TRUE
-vertex 3 at level 2 is FALSE
-vertex 4 at level 2 is FALSE
-vertex 5 at level 2 is FALSE
-vertex 6 at level 2 is FALSE
-vertex 7 at level 2 is FALSE
-vertex 8 at level 2 is FALSE
-vertex 9 at level 2 is FALSE
+vertex 0 at level 1 is TRUE
+vertex 0 at level 1 is TRUE
+vertex 0 at level 2 is FALSE
+vertex 0 at level 2 is FALSE
+vertex 0 at level 2 is FALSE
+vertex 0 at level 2 is FALSE
+vertex 0 at level 2 is FALSE
+vertex 0 at level 2 is FALSE
+vertex 0 at level 2 is FALSE
 vertex 999999 at level 0 is TRUE
-foundedge 1, 7   !!!!!!!going to add 999999, 7     going to delete 1, 7
-foundedge 1, 6   !!!!!!!going to add 999999, 6     going to delete 1, 6
-foundedge 1, 5   !!!!!!!going to add 999999, 5     going to delete 1, 5
-foundedge 1, 4   !!!!!!!going to add 999999, 4     going to delete 1, 4
-foundedge 2, 9   !!!!!!!going to add 999999, 9     going to delete 2, 9
-foundedge 2, 8   !!!!!!!going to add 999999, 8     going to delete 2, 8
-foundedge 2, 3   !!!!!!!going to add 999999, 3     going to delete 2, 3
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
+foundedge 0, 0   !!!!!!!going to add 999999, 0     going to delete 0, 0
 finishing
 edges to add size: 7
-adding: (999999, 3)   (999999, 4)   (999999, 5)   (999999, 6)   (999999, 7)   (999999, 8)   (999999, 9)   
+adding: (999999, 0)   (999999, 0)   (999999, 0)   (999999, 0)   (999999, 0)   (999999, 0)   (999999, 0)   
 edges to remove size: 7
-removing: (1, 4)   (1, 5)   (1, 6)   (1, 7)   (2, 3)   (2, 8)   (2, 9)   
+removing: (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   (0, 0)   
 killing vertex 0
-killing vertex 1
-killing vertex 2
+killing vertex 0
+killing vertex 0
 -------------------- 7 - New BFS and Make Max Planar -----
 root: 999999
 n:    8
-  tree edge 999999, 3
-  tree edge 999999, 4
-  tree edge 999999, 5
-  tree edge 999999, 6
-  tree edge 999999, 7
-  tree edge 999999, 8
-  tree edge 999999, 9
+  tree edge 999999, 0
+  tree edge 999999, 0
+  tree edge 999999, 0
+  tree edge 999999, 0
+  tree edge 999999, 0
+  tree edge 999999, 0
+  tree edge 999999, 0
 
 **********************  Graph  **************************
-vert 3   hos edges 4 999999 5 9 
-vert 4   hos edges 3 999999 5 
-vert 5   hos edges 999999 6 3 4 9 
-vert 6   hos edges 999999 7 5 9 
-vert 7   hos edges 999999 8 6 9 
-vert 8   hos edges 999999 9 7 
-vert 9   hos edges 999999 8 3 5 6 7 
-vert 999999   hos edges 3 4 5 6 7 8 9 
+vert 0   hos edges 0 999999 0 0 
+vert 0   hos edges 0 999999 0 
+vert 0   hos edges 999999 0 0 0 0 
+vert 0   hos edges 999999 0 0 0 
+vert 0   hos edges 999999 0 0 0 
+vert 0   hos edges 999999 0 0 
+vert 0   hos edges 999999 0 0 0 0 0 
+vert 999999   hos edges 0 0 0 0 0 0 0 
 *********************************************************
 
 ----------------------- 8 - Locate Cycle -----------------
-arbitrarily choosing nontree edge: 3, 4
+arbitrarily choosing nontree edge: 0, 0
 ancestors v1...
 ancestors v2...
 common ancestor: 999999
@@ -147,42 +132,42 @@ total outside cost: 0
 ---------------------------- 9 - Improve Separator -----------
 
 **********************  Edges  **************************
-3, 4
-999999, 3
-999999, 4
-999999, 5
-999999, 6
-999999, 7
-999999, 8
-999999, 9
-8, 9
-7, 8
-6, 7
-5, 6
-3, 5
-4, 5
-9, 3
-9, 5
-9, 6
-9, 7
+0, 0
+999999, 0
+999999, 0
+999999, 0
+999999, 0
+999999, 0
+999999, 0
+999999, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
+0, 0
 *********************************************************
 
 found cycle with inside cost < 2/3: 5
-cycle verts: 3 999999 4 
+cycle verts: 0 999999 0 
 
 ------------ 10  - Construct Vertex Partition --------------
 
 **********************  Graph  **************************
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 0 0 0 0 
-vert 0   hos edges 0 0 0 0 
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 
-vert 0   hos edges 0 
-vert 0   hos edges 0 
-vert 0   hos edges 0 
-vert 0   hos edges 0 
+vert 0   hos edges 1 2 
+vert 1   hos edges 0 4 5 6 7 
+vert 2   hos edges 0 3 8 9 
+vert 3   hos edges 2 4 
+vert 4   hos edges 3 1 
+vert 5   hos edges 1 
+vert 6   hos edges 1 
+vert 7   hos edges 1 
+vert 8   hos edges 2 
+vert 9   hos edges 2 
 *********************************************************
 
 l0: 1
@@ -190,12 +175,12 @@ l1: 2
 l2: 3
 r: 2
 level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
+level of 1: 0, 1 belongs to first part
+level of 2: 0, 2 belongs to first part
+level of 3: 0, 3 belongs to first part
+level of 4: 0, 4 belongs to first part
+level of 5: 0, 5 belongs to first part
+level of 6: 0, 6 belongs to first part
+level of 7: 0, 7 belongs to first part
+level of 8: 0, 8 belongs to first part
+level of 9: 0, 9 belongs to first part

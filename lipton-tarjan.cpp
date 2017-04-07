@@ -325,18 +325,18 @@ void reset_vertex_indices(Graph& g)
         for( tie(vi, vend) = vertices(g); vi != vend; ++vi, ++i ) put(vertex_index, g, *vi, i); 
 }
 
-struct Em
+struct EmbedStruct
 {
         unique_ptr<EmbeddingStorage> storage;
         unique_ptr<Embedding>        em;
         Graph*            	     g;
 
-        Em(Graph* g) : g(g), storage(new EmbeddingStorage(num_vertices(*g))), em(new Embedding(storage->begin())) 
+        EmbedStruct(Graph* g) : g(g), storage(new EmbeddingStorage(num_vertices(*g))), em(new Embedding(storage->begin())) 
         {
-                testplanar();
+                test_planar();
         } 
 
-        bool testplanar() {return boyer_myrvold_planarity_test(boyer_myrvold_params::graph = *g, boyer_myrvold_params::embedding = *em);}
+        bool test_planar() {return boyer_myrvold_planarity_test(boyer_myrvold_params::graph = *g, boyer_myrvold_params::embedding = *em);}
 
         void print()
         {
@@ -463,7 +463,7 @@ struct CycleCost
 	uint outside = 0;
 };
 
-CycleCost compute_cycle_cost(vector<VertDesc> const& cycle, Graph const& g, BFSVisitorData const& vis_data, Em const& em)
+CycleCost compute_cycle_cost(vector<VertDesc> const& cycle, Graph const& g, BFSVisitorData const& vis_data, EmbedStruct const& em)
 {
         CycleCost cc;
         for( auto& v : cycle ){
@@ -553,7 +553,7 @@ Partition construct_vertex_partition(Graph const& g_orig, int l[3], BFSVisitorDa
         return empty_partition;
 }
 
-Partition improve_separator(Graph const& g, Graph const& g_orig, CycleCost& cc, EdgeDesc chosen_edge, BFSVisitorData& vis_data, vector<VertDesc> const& cycle, Em const& em2, bool cost_swapped, int l[3])
+Partition improve_separator(Graph const& g, Graph const& g_orig, CycleCost& cc, EdgeDesc chosen_edge, BFSVisitorData& vis_data, vector<VertDesc> const& cycle, EmbedStruct const& em, bool cost_swapped, int l[3])
 {
         cout  << "---------------------------- 9 - Improve Separator -----------\n";
         print_edges(g);
@@ -581,7 +581,7 @@ Partition improve_separator(Graph const& g, Graph const& g_orig, CycleCost& cc, 
                 cout << "eee: " << to_string(eee.first, g) << '\n';
                 assert(eee.second);
 
-                InsideOutOn insideout = edge_inside_cycle(eee.first, *intersect.begin(), cycle, g, *em2.em);
+                InsideOutOn insideout = edge_inside_cycle(eee.first, *intersect.begin(), cycle, g, *em.em);
                 auto y = (insideout == INSIDE) ? *intersect.begin() : *(++intersect.begin());
 
                 cout << "   y: " << y << '\n';
@@ -598,7 +598,7 @@ Partition improve_separator(Graph const& g, Graph const& g_orig, CycleCost& cc, 
                         uint cost3 = vis_data.verts[wi].descendant_cost;
                         uint cost4 = cc.inside;
                         auto new_cycle = get_cycle(source(next_edge, g), target(next_edge, g), vis_data);
-                        cc = compute_cycle_cost(new_cycle, g, vis_data, em2); // !! CHEATED !!
+                        cc = compute_cycle_cost(new_cycle, g, vis_data, em); // !! CHEATED !!
                         if( cost_swapped ) swap(cc.outside, cc.inside);
                 } else {
                         // Determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.
@@ -623,8 +623,8 @@ Partition improve_separator(Graph const& g, Graph const& g_orig, CycleCost& cc, 
                         auto cycle1 = get_cycle(vi, y, vis_data);
                         auto cycle2 = get_cycle(y, wi, vis_data);
 
-                        auto cost1  = compute_cycle_cost(cycle1, g, vis_data, em2);
-                        auto cost2  = compute_cycle_cost(cycle2, g, vis_data, em2);
+                        auto cost1  = compute_cycle_cost(cycle1, g, vis_data, em);
+                        auto cost2  = compute_cycle_cost(cycle2, g, vis_data, em);
                         if( cost_swapped ){
                                 swap(cost1.inside, cost1.outside);
                                 swap(cost2.inside, cost2.outside);
@@ -644,7 +644,7 @@ Partition improve_separator(Graph const& g, Graph const& g_orig, CycleCost& cc, 
 
 struct NotPlanar {}; 
 
-Partition locate_cycle(Graph& g, Graph& g_orig, BFSVisitorData& vis_data, int l[3])
+Partition locate_cycle(Graph& g, Graph const& g_orig, BFSVisitorData& vis_data, int l[3])
 {
         cout  << "----------------------- 8 - Locate Cycle -----------------\n"; 
         auto chosen_edge = arbitrary_nontree_edge(g, vis_data);
@@ -658,8 +658,8 @@ Partition locate_cycle(Graph& g, Graph& g_orig, BFSVisitorData& vis_data, int l[
         cout << "common ancestor: " << ancestor << '\n'; 
         auto cycle = get_cycle(v1, w1, ancestor, vis_data);
 
-        Em   em2(&g);
-        auto cc = compute_cycle_cost(cycle, g, vis_data, em2); 
+        EmbedStruct em(&g);
+        auto cc = compute_cycle_cost(cycle, g, vis_data, em); 
 	bool cost_swapped;
         if( cc.outside > cc.inside ){
                 swap(cc.outside, cc.inside);
@@ -669,26 +669,26 @@ Partition locate_cycle(Graph& g, Graph& g_orig, BFSVisitorData& vis_data, int l[
         cout << "total inside cost:  " << cc.inside  << '\n'; 
         cout << "total outside cost: " << cc.outside << '\n';
 
-	return improve_separator(g, g_orig, cc, chosen_edge, vis_data, cycle, em2, cost_swapped, l);
+	return improve_separator(g, g_orig, cc, chosen_edge, vis_data, cycle, em, cost_swapped, l);
 }
 
 void make_max_planar(Graph& g)
 { 
         auto index = reset_edge_index(g);
-        Em em(&g);
-        em.testplanar();
+        EmbedStruct em(&g);
+        em.test_planar();
         make_biconnected_planar(g, *em.em, index);
 
         reset_edge_index(g);
-        em.testplanar();
+        em.test_planar();
 
         make_maximal_planar(g, *em.em);
 
         reset_edge_index(g);
-        assert(em.testplanar());
+        assert(em.test_planar());
 } 
 
-Partition new_bfs_and_make_max_planar(Graph& g, Graph& g_orig, BFSVisitorData& vis_data, VertDesc x_gone, VertDesc x, int l[3])
+Partition new_bfs_and_make_max_planar(Graph& g, Graph const& g_orig, BFSVisitorData& vis_data, VertDesc x_gone, VertDesc x, int l[3])
 {
         cout  << "-------------------- 7 - New BFS and Make Max Planar -----\n";
         reset_vertex_indices(g);
@@ -710,7 +710,7 @@ Partition new_bfs_and_make_max_planar(Graph& g, Graph& g_orig, BFSVisitorData& v
 	return locate_cycle(g, g_orig, vis_data, l); 
 }
 
-Partition shrinktree(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt, BFSVisitorData& vis_data, int l[3])
+Partition shrinktree(Graph& g, Graph const& g_orig, VertIter vit, VertIter vjt, BFSVisitorData& vis_data, int l[3])
 {
         cout  << "---------------------------- 6 - Shrinktree -------------\n";
         cout << "n: " << num_vertices(g) << '\n'; 
@@ -738,8 +738,8 @@ Partition shrinktree(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt, BFSVis
 
         reset_vertex_indices(g);
         reset_edge_index(g);
-        Em em(&g);
-        assert(em.testplanar());
+        EmbedStruct em(&g);
+        assert(em.test_planar());
 
         ScanVisitor svis(&t, &g, x, l[0]);
         svis.scan_nonsubtree_edges(*vertices(g).first, g, *em.em, vis_data);
@@ -759,7 +759,7 @@ Partition shrinktree(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt, BFSVis
 	return new_bfs_and_make_max_planar(g, g_orig, vis_data, x_gone, x, l);
 }
 
-Partition find_more_levels(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt, uint k, int l[3], vector<uint> const& L, BFSVisitorData& vis_data)
+Partition find_more_levels(Graph& g, Graph const& g_orig, VertIter vit, VertIter vjt, uint k, int l[3], vector<uint> const& L, BFSVisitorData& vis_data)
 {
         cout  << "---------------------------- 5 - Find More Levels -------\n";
         float sq  = 2 * sqrt(k); 
@@ -773,7 +773,7 @@ Partition find_more_levels(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt, 
 	return shrinktree(g, g_orig, vit, vjt, vis_data, l);
 }
 
-Partition l1_and_k(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt, vector<uint> const& L, BFSVisitorData& vis_data)
+Partition l1_and_k(Graph& g, Graph const& g_orig, VertIter vit, VertIter vjt, vector<uint> const& L, BFSVisitorData& vis_data)
 {
         cout  << "---------------------------- 4 - l1 and k  ------------\n";
         uint k = L[0]; 
@@ -786,7 +786,7 @@ Partition l1_and_k(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt, vector<u
 	return find_more_levels(g, g_orig, vit, vjt, k, l, L, vis_data);
 }
 
-Partition bfs_and_levels(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt)
+Partition bfs_and_levels(Graph& g, Graph const& g_orig, VertIter vit, VertIter vjt)
 {
         cout << "---------------------------- 3 - BFS and Levels ------------\n";
         BFSVisitorData vis_data(&g);
@@ -803,7 +803,7 @@ Partition bfs_and_levels(Graph& g, Graph& g_orig, VertIter vit, VertIter vjt)
 	return l1_and_k(g, g_orig, vit, vjt, L, vis_data);
 } 
 
-Partition connected_components(Graph& g, Graph& g_orig)
+Partition connected_components(Graph& g, Graph const& g_orig)
 {
         cout << "---------------------------- 2 - Connected Components --------\n";
         VertDescMap idx; 
@@ -839,11 +839,14 @@ Partition connected_components(Graph& g, Graph& g_orig)
 	return bfs_and_levels(g, g_orig, vit, vjt);
 }
 
-Partition lipton_tarjan(Graph& g, Graph& g_orig)
+Partition lipton_tarjan(Graph const& g_orig)
 {
+	Graph g;
+	copy_graph(g_orig, g);
+
         cout << "---------------------------- 1 - Check Planarity  ------------\n";
-        Em em1(&g);
-        if( !em1.testplanar() ) throw NotPlanar();
+        EmbedStruct em(&g);
+        if( !em.test_planar() ) throw NotPlanar();
         cout << "planar ok\n";
         print_graph(g);
 

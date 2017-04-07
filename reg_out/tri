@@ -9,21 +9,13 @@ vert 1   hos edges 0 2
 vert 2   hos edges 1 0 
 *********************************************************
 
-g_copy
-
-**********************  Graph  **************************
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 0 
-*********************************************************
-
 ---------------------------- 1 - Check Planarity  ------------
 planar ok
 
 **********************  Graph  **************************
-vert 0   hos edges 1 2 
-vert 1   hos edges 0 2 
-vert 2   hos edges 1 0 
+vert 0   hos edges 0 0 
+vert 0   hos edges 0 0 
+vert 0   hos edges 0 0 
 *********************************************************
 
 ---------------------------- 2 - Connected Components --------
@@ -31,11 +23,11 @@ vert 2   hos edges 1 0
 too big
 biggest component: 0
 ---------------------------- 3 - BFS and Levels ------------
-  tree edge 0, 1
-  tree edge 0, 2
+  tree edge 0, 0
+  tree edge 0, 0
 level/cost of vert 0: 0
-level/cost of vert 1: 1
-level/cost of vert 2: 1
+level/cost of vert 0: 1
+level/cost of vert 0: 1
 L[0]: 1
 L[1]: 2
 L[2]: 0
@@ -50,36 +42,36 @@ l2: 2     lowest  level >= l1 + 1
 ---------------------------- 6 - Shrinktree -------------
 n: 3
 going to replace vertex 0 of level l0 0 <= 1
-going to replace vertex 1 of level l0 1 <= 1
-going to replace vertex 2 of level l0 1 <= 1
+going to replace vertex 0 of level l0 1 <= 1
+going to replace vertex 0 of level l0 1 <= 1
 vertex 0 at level 0 is TRUE
-vertex 1 at level 1 is TRUE
-vertex 2 at level 1 is TRUE
+vertex 0 at level 1 is TRUE
+vertex 0 at level 1 is TRUE
 vertex 999999 at level 0 is TRUE
-foundedge 1, 2     going to delete 1, 2
-foundedge 2, 1     going to delete 2, 1
+foundedge 0, 0     going to delete 0, 0
+foundedge 0, 0     going to delete 0, 0
 finishing
 edges to add size: 0
 adding: 
 edges to remove size: 2
-removing: (1, 2)   (2, 1)   
+removing: (0, 0)   (0, 0)   
 no edges to x found, deleting
 killing vertex 999999
 x_gone: 0
 -------------------- 7 - New BFS and Make Max Planar -----
 root: 0
 n:    3
-  tree edge 0, 1
-  tree edge 0, 2
+  tree edge 0, 0
+  tree edge 0, 0
 
 **********************  Graph  **************************
-vert 0   hos edges 1 2 
-vert 1   hos edges 0 2 
-vert 2   hos edges 0 1 
+vert 0   hos edges 0 0 
+vert 0   hos edges 0 0 
+vert 0   hos edges 0 0 
 *********************************************************
 
 ----------------------- 8 - Locate Cycle -----------------
-arbitrarily choosing nontree edge: 1, 2
+arbitrarily choosing nontree edge: 0, 0
 ancestors v1...
 ancestors v2...
 common ancestor: 0
@@ -88,20 +80,20 @@ total outside cost: 0
 ---------------------------- 9 - Improve Separator -----------
 
 **********************  Edges  **************************
-0, 1
-2, 0
-1, 2
+0, 0
+0, 0
+0, 0
 *********************************************************
 
 found cycle with inside cost < 2/3: 0
-cycle verts: 1 0 2 
+cycle verts: 0 0 0 
 
 ------------ 10  - Construct Vertex Partition --------------
 
 **********************  Graph  **************************
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 0 
-vert 0   hos edges 0 0 
+vert 0   hos edges 1 2 
+vert 1   hos edges 0 2 
+vert 2   hos edges 1 0 
 *********************************************************
 
 l0: 1
@@ -109,5 +101,5 @@ l1: 1
 l2: 2
 r: 2
 level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
-level of 0: 0, 0 belongs to first part
+level of 1: 0, 1 belongs to first part
+level of 2: 0, 2 belongs to first part

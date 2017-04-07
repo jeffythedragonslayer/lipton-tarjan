@@ -327,16 +327,16 @@ void reset_vertex_indices(Graph& g)
 
 struct EmbedStruct
 {
-        unique_ptr<EmbeddingStorage> storage;
-        unique_ptr<Embedding>        em;
-        Graph*            	     g;
+        EmbeddingStorage storage;
+        Embedding        em;
+        Graph*           g;
 
-        EmbedStruct(Graph* g) : g(g), storage(new EmbeddingStorage(num_vertices(*g))), em(new Embedding(storage->begin())) 
+        EmbedStruct(Graph* g) : g(g), storage(num_vertices(*g)), em(storage.begin()) 
         {
                 test_planar();
         } 
 
-        bool test_planar() {return boyer_myrvold_planarity_test(boyer_myrvold_params::graph = *g, boyer_myrvold_params::embedding = *em);}
+        bool test_planar() {return boyer_myrvold_planarity_test(boyer_myrvold_params::graph = *g, boyer_myrvold_params::embedding = em);}
 
         void print()
         {
@@ -344,8 +344,7 @@ struct EmbedStruct
                 VertIter vi, vend;
                 for( tie(vi, vend) = vertices(*g); vi != vend; ++vi ){
                         cout << "vert " << *vi << ": ";
-                        Embedding& embedding = *em;
-                        for( auto ei = embedding[*vi].begin(); ei != embedding[*vi].end(); ++ei ){
+                        for( auto ei = em[*vi].begin(); ei != em[*vi].end(); ++ei ){
                                 auto src = source(*ei, *g);
                                 auto tar = target(*ei, *g);
                                 if( tar == *vi ) swap(src, tar);
@@ -471,7 +470,7 @@ CycleCost compute_cycle_cost(vector<VertDesc> const& cycle, Graph const& g, BFSV
                 for( auto e = out_edges(v, g); e.first != e.second; ++e.first ) if( vis_data.is_tree_edge(*e.first) && !on_cycle(*e.first, cycle, g) ){
                         uint cost = vis_data.edge_cost(*e.first, cycle, g);
                         //cout << "      scanning incident tree edge " << to_string(*e.first, g) << "   cost: " << cost << '\n';
-                        auto insideout = edge_inside_cycle(*e.first, v, cycle, g, *em.em);
+                        auto insideout = edge_inside_cycle(*e.first, v, cycle, g, em.em);
                         assert(insideout != ON);
                         bool is_inside = (insideout == INSIDE);
                         (is_inside ? cc.inside : cc.outside) += cost;
@@ -581,7 +580,7 @@ Partition improve_separator(Graph const& g, Graph const& g_orig, CycleCost& cc, 
                 cout << "eee: " << to_string(eee.first, g) << '\n';
                 assert(eee.second);
 
-                InsideOutOn insideout = edge_inside_cycle(eee.first, *intersect.begin(), cycle, g, *em.em);
+                InsideOutOn insideout = edge_inside_cycle(eee.first, *intersect.begin(), cycle, g, em.em);
                 auto y = (insideout == INSIDE) ? *intersect.begin() : *(++intersect.begin());
 
                 cout << "   y: " << y << '\n';
@@ -677,12 +676,12 @@ void make_max_planar(Graph& g)
         auto index = reset_edge_index(g);
         EmbedStruct em(&g);
         em.test_planar();
-        make_biconnected_planar(g, *em.em, index);
+        make_biconnected_planar(g, em.em, index);
 
         reset_edge_index(g);
         em.test_planar();
 
-        make_maximal_planar(g, *em.em);
+        make_maximal_planar(g, em.em);
 
         reset_edge_index(g);
         assert(em.test_planar());
@@ -742,7 +741,7 @@ Partition shrinktree(Graph& g, Graph const& g_orig, VertIter vit, VertIter vjt, 
         assert(em.test_planar());
 
         ScanVisitor svis(&t, &g, x, l[0]);
-        svis.scan_nonsubtree_edges(*vertices(g).first, g, *em.em, vis_data);
+        svis.scan_nonsubtree_edges(*vertices(g).first, g, em.em, vis_data);
         svis.finish();
 
         auto x_gone = Graph::null_vertex();

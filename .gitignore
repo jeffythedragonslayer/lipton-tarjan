@@ -31,8 +31,8 @@ core
 *.exe
 *.out
 *.app
-chazelle
-lt
+*.bin
+*.elf
 
 #auto generated
 typedefs.h

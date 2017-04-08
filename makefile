@@ -6,7 +6,7 @@ OBJS := main.o lipton-tarjan.o strutil.o
 
 -include $(OBJS:.o=.d)
 
-all: lt planargen chrobak
+all: lt planargen straightline unittest
 
 lt: $(OBJS)
 	$(CXX) $(OBJS) -o lt
@@ -14,8 +14,11 @@ lt: $(OBJS)
 planargen: planargen.o
 	$(CXX) planargen.o -o planargen
 
-chrobak: chrobak.o
-	$(CXX) chrobak.o -o chrobak
+straightline: straightline.o
+	$(CXX) straightline.o -o straighline
+
+unittest: unittest.o
+	$(CXX) unittest.o -o unittest
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(BOOST) $*.cpp
@@ -26,4 +29,4 @@ chrobak: chrobak.o
 	@rm -f $*.d.tmp 
 
 clean:
-	rm -f *.o *.d lt
+	rm -f *.o *.d lt planargen straightline unittest graphgen newexpect regtest

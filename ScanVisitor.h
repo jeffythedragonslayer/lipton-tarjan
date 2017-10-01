@@ -14,6 +14,4 @@ struct ScanVisitor
         void foundedge(VertDesc, EdgeDesc); 
         void finish(); 
         void scan_nonsubtree_edges(VertDesc, Graph const&, Embedding const&, BFSVisitorData const&);
-
 };
-

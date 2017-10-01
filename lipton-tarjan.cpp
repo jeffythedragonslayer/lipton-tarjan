@@ -27,8 +27,6 @@ using namespace std;
 using namespace boost; 
 #define STLALL(x) (x).begin(), (x).end()
 
-Partition empty_partition;
-
 int levi_civita(uint i, uint j, uint k)
 {
         if( i == j || j == k || k == i ) return 0; 
@@ -47,7 +45,8 @@ bool on_cycle(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g)
 {
         auto src = source(e, g);
         auto tar = target(e, g);
-        return on_cycle(src, cycle, g) && on_cycle(tar, cycle, g);
+        return on_cycle(src, cycle, g) &&
+	       on_cycle(tar, cycle, g);
 }
 
 enum InsideOutOn {INSIDE, OUTSIDE, ON};
@@ -103,7 +102,7 @@ struct BFSVert
         BFSVert() : parent(Graph::null_vertex()), level(0), descendant_cost(0) {}
 
         VertDesc parent;
-        int      level;
+        uint     level;
         uint     descendant_cost;
 };
 
@@ -111,7 +110,7 @@ struct BFSVisitorData
 {
         map<VertDesc, set<VertDesc>> children;
         map<VertDesc, BFSVert>       verts;
-        int                          num_levels;
+        uint                         num_levels;
         Graph*                       g;
         VertDesc                     root;
 
@@ -827,6 +826,7 @@ Partition connected_components(Graph& g_copy, Graph const& g)
 
         if( !too_big ){
                 theorem4(0, g_copy);
+		Partition empty_partition;
                 return empty_partition;
         }
         cout << "biggest component: " << biggest_component << '\n';

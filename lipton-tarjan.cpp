@@ -159,10 +159,14 @@ vector<VertDesc> ancestors(VertDesc v, BFSVisitorData const& vis)
         return ans;
 }
 
-VertDesc common_ancestor(vector<VertDesc> const& ancestors_v, vector<VertDesc> const& ancestors_w, BFSVisitorData const& vis)
+VertDesc common_ancestor(vector<VertDesc> const& ancestors_v, vector<VertDesc> const& ancestors_w)
 {
         uint i, j;
-        for( i = 0; i < ancestors_v.size(); ++i ) for( j = 0; j < ancestors_w.size(); ++j ) if( ancestors_v[i] == ancestors_w[j] ) return ancestors_v[i];
+        for( i = 0; i < ancestors_v.size(); ++i ){
+		for( j = 0; j < ancestors_w.size(); ++j ){
+			if( ancestors_v[i] == ancestors_w[j] ) return ancestors_v[i];
+		}
+	}
         assert(0);
         return ancestors_v[i];
 }
@@ -182,7 +186,7 @@ vector<VertDesc> get_cycle(VertDesc v, VertDesc w, BFSVisitorData const& vis_dat
 { 
         auto parents_v   = ancestors(v, vis_data);
         auto parents_w   = ancestors(w, vis_data); 
-        auto ancestor    = common_ancestor(parents_v, parents_w, vis_data);
+        auto ancestor    = common_ancestor(parents_v, parents_w);
         cout << "common ancestor: " << ancestor << '\n'; 
         return get_cycle(v, w, ancestor, vis_data);
 }
@@ -214,14 +218,15 @@ EdgeDesc arbitrary_nontree_edge(Graph const& g, BFSVisitorData const& vis_data)
         return chosen_edge;
 }
 
+// return set of vertices neighboring v in graph g
 set<VertDesc> get_neighbors(VertDesc v, Graph const& g)
 { 
         set<VertDesc> neighbors;
         OutEdgeIter e_cur, e_end;
         for( tie(e_cur, e_end) = out_edges(v, g); e_cur != e_end; ++e_cur ){
-		auto ne = target(*e_cur, g);
-		neighbors.insert(ne);
-		cout << "      vertex " << v << " has neighbor " << ne << '\n';
+		auto n = target(*e_cur, g);
+		neighbors.insert(n);
+		cout << "      vertex " << v << " has neighbor " << n << '\n';
 	}
         return neighbors;
 }
@@ -451,7 +456,7 @@ Partition locate_cycle(Graph& g_copy, Graph const& g, BFSVisitorData& vis_data, 
         auto parents_v   = ancestors(v1, vis_data);
         cout << "ancestors v2...\n";
         auto parents_w   = ancestors(w1, vis_data); 
-        auto ancestor    = common_ancestor(parents_v, parents_w, vis_data);
+        auto ancestor    = common_ancestor(parents_v, parents_w);
         cout << "common ancestor: " << ancestor << '\n'; 
         auto cycle = get_cycle(v1, w1, ancestor, vis_data);
 

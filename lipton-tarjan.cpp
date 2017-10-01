@@ -745,7 +745,7 @@ Partition new_bfs_and_make_max_planar(Graph& g_copy, Graph const& g, BFSVisitorD
 
 Partition shrinktree(Graph& g_copy, Graph const& g, VertIter vit, VertIter vjt, BFSVisitorData& vis_data, int l[3])
 {
-        cout  << "---------------------------- 6 - Shrinktree -------------\n";
+        cout << "---------------------------- 6 - Shrinktree -------------\n";
         cout << "n: " << num_vertices(g_copy) << '\n'; 
 
         vector<VertDesc> replaceverts;

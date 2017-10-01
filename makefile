@@ -15,7 +15,7 @@ planargen: planargen.o
 	$(CXX) planargen.o -o planargen
 
 straightline: straightline.o
-	$(CXX) straightline.o -o straighline
+	$(CXX) straightline.o -o straightline
 
 unittest: unittest.o
 	$(CXX) unittest.o -o unittest
@@ -29,4 +29,4 @@ unittest: unittest.o
 	@rm -f $*.d.tmp 
 
 clean:
-	rm -f *.o *.d lt planargen straightline unittest graphgen newexpect regtest
+	rm -f *.o *.d lt

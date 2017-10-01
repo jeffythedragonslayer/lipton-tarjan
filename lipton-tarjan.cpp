@@ -1,5 +1,9 @@
 #include "lipton-tarjan.h"
 #include "strutil.h"
+#include "BFSVert.h"
+#include "BFSVisitorData.h"
+#include "BFSVisitor.h"
+#include "EmbedStruct.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -25,7 +29,6 @@
 #include <boost/graph/copy.hpp>
 using namespace std;
 using namespace boost; 
-#define STLALL(x) (x).begin(), (x).end()
 
 int levi_civita(uint i, uint j, uint k)
 {
@@ -35,19 +38,6 @@ int levi_civita(uint i, uint j, uint k)
         if( i == 3 && j == 1 && k == 2 ) return 1;
         return -1;
 } 
-
-bool on_cycle(VertDesc v, vector<VertDesc> const& cycle, Graph const& g)
-{
-        return find(STLALL(cycle), v) != cycle.end();
-}
-
-bool on_cycle(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g)
-{
-        auto src = source(e, g);
-        auto tar = target(e, g);
-        return on_cycle(src, cycle, g) &&
-	       on_cycle(tar, cycle, g);
-}
 
 enum InsideOutOn {INSIDE, OUTSIDE, ON};
 
@@ -95,101 +85,6 @@ InsideOutOn edge_inside_cycle(EdgeDesc e, VertDesc common_vert, vector<VertDesc>
 	       INSIDE					   :
 	       OUTSIDE;
 }
-
-
-struct BFSVert
-{
-        BFSVert() : parent(Graph::null_vertex()), level(0), descendant_cost(0) {}
-
-        VertDesc parent;
-        uint     level;
-        uint     descendant_cost;
-};
-
-struct BFSVisitorData
-{
-        map<VertDesc, set<VertDesc>> children;
-        map<VertDesc, BFSVert>       verts;
-        uint                         num_levels;
-        Graph*                       g;
-        VertDesc                     root;
-
-        BFSVisitorData(Graph* g, VertDesc root) : g(g), num_levels(0), root(root) {}
-
-        void reset(Graph* g)
-        {
-                children.clear();
-                verts   .clear();
-                num_levels = 0;
-                this->g = g;
-                root = Graph::null_vertex();
-        }
-        
-        bool is_tree_edge(EdgeDesc e) const
-        { 
-                //cout << "testing is tree edge " << to_string(e, *g) << '\n';
-                auto src = source(e, *g);
-                auto tar = target(e, *g); 
-                auto src_it = verts.find(src);
-                auto tar_it = verts.find(tar);
-                //cout << "src: " << src << '\n';
-                //cout << "tar: " << tar << '\n';
-                assert(src_it != verts.end());
-                assert(tar_it != verts.end());
-                return src_it->second.parent == tar || tar_it->second.parent == src;
-        }
-
-        uint edge_cost(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g) const
-        {
-                assert(is_tree_edge(e));
-
-                auto v = source(e, g); 
-                auto w = target(e, g); 
-                auto v_it = verts.find(v); assert(v_it != verts.end());
-                auto w_it = verts.find(w); assert(w_it != verts.end());
-                if( !on_cycle(v, cycle, g) ) swap(v, w);
-
-                assert( on_cycle(v, cycle, g));
-                assert(!on_cycle(w, cycle, g));
-
-                uint total = num_vertices(g);
-
-                assert(w_it->second.parent == v || v_it->second.parent == w);
-                return w_it->second.parent == v ? w_it->second.descendant_cost : total - v_it->second.descendant_cost;
-        } 
-
-        void print_costs  () const {for( auto& v : verts ) cout << "descendant cost of vertex " << v.first << " is " << v.second.descendant_cost << '\n';}
-        void print_parents() const {for( auto& v : verts ) cout << "parent of " << v.first << " is " << v.second.parent << '\n';}
-};
-
-struct BFSVisitor : default_bfs_visitor
-{
-        BFSVisitorData& data;
-
-        BFSVisitor(BFSVisitorData& data) : data(data) {}
-
-        template<typename Edge, typename Graph> void tree_edge(Edge e, Graph const& g)
-        {
-                auto parent = source(e, g);
-                auto child  = target(e, g);
-                cout << "  tree edge " << parent << ", " << child << '\n';
-                data.verts[child].parent = parent;
-                data.verts[child].level  = data.verts[parent].level + 1;
-                data.num_levels = max(data.num_levels, data.verts[child].level + 1);
-                if( Graph::null_vertex() != parent ) data.children[parent].insert(child);
-
-                VertDesc v = child;
-                data.verts[v].descendant_cost = 1;
-                //cout << "     vertex/descendant cost: ";
-                //cout << v << '/'  << data.verts[v].descendant_cost << "   ";
-                while( data.verts[v].level ){
-                        v =  data.verts[v].parent;
-                        ++data.verts[v].descendant_cost;
-                        //cout << v << '/'  << data.verts[v].descendant_cost << "   ";
-                } 
-                //cout << '\n';
-        } 
-};
 
 uint theorem4(uint partition, Graph const& g)
 {
@@ -323,37 +218,6 @@ void reset_vertex_indices(Graph& g)
         uint i = 0;
         for( tie(vi, vend) = vertices(g); vi != vend; ++vi, ++i ) put(vertex_index, g, *vi, i); 
 }
-
-struct EmbedStruct
-{
-        EmbeddingStorage storage;
-        Embedding        em;
-        Graph*           g;
-
-        EmbedStruct(Graph* g) : g(g), storage(num_vertices(*g)), em(storage.begin()) 
-        {
-                test_planar();
-        } 
-
-        bool test_planar() {return boyer_myrvold_planarity_test(boyer_myrvold_params::graph = *g, boyer_myrvold_params::embedding = em);}
-
-        void print()
-        {
-                cout << "\n************** Embedding ************\n";
-                VertIter vi, vend;
-                for( tie(vi, vend) = vertices(*g); vi != vend; ++vi ){
-                        cout << "vert " << *vi << ": ";
-                        for( auto ei = em[*vi].begin(); ei != em[*vi].end(); ++ei ){
-                                auto src = source(*ei, *g);
-                                auto tar = target(*ei, *g);
-                                if( tar == *vi ) swap(src, tar);
-                                cout << tar << ' ';
-                        }
-                        cout << "\n"; 
-                }
-                cout << "*************************************\n";
-        }
-};
 
 EdgeIndex reset_edge_index(Graph const& g)
 {

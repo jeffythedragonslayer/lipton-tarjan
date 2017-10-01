@@ -243,7 +243,7 @@ struct ScanVisitor
         map<VertDesc, bool>*          table;
         Graph*                        g;
         VertDesc                      x;
-        int                           l0;
+        uint                          l0;
         set<pair<VertDesc, VertDesc>> edges_to_add, edges_to_delete;
 
         ScanVisitor(map<VertDesc, bool>* table, Graph* g, VertDesc x, int l0) : table(table), g(g), x(x), l0(l0) {}
@@ -478,7 +478,7 @@ CycleCost compute_cycle_cost(vector<VertDesc> const& cycle, Graph const& g, BFSV
         return cc;
 }
 
-Partition construct_vertex_partition(Graph const& g, int l[3], BFSVisitorData& vis_data)
+Partition construct_vertex_partition(Graph const& g, uint l[3], BFSVisitorData& vis_data)
 {
         cout  << "\n------------ 10  - Construct Vertex Partition --------------\n";
         print_graph(g, false);
@@ -550,7 +550,7 @@ Partition construct_vertex_partition(Graph const& g, int l[3], BFSVisitorData& v
         return partition;
 }
 
-Partition improve_separator(Graph const& g_copy, Graph const& g, CycleCost& cc, EdgeDesc chosen_edge, BFSVisitorData& vis_data, vector<VertDesc> const& cycle, EmbedStruct const& em, bool cost_swapped, int l[3])
+Partition improve_separator(Graph const& g_copy, Graph const& g, CycleCost& cc, EdgeDesc chosen_edge, BFSVisitorData& vis_data, vector<VertDesc> const& cycle, EmbedStruct const& em, bool cost_swapped, uint l[3])
 {
         cout << "---------------------------- 9 - Improve Separator -----------\n";
         print_edges(g_copy);
@@ -637,11 +637,11 @@ Partition improve_separator(Graph const& g_copy, Graph const& g, CycleCost& cc, 
         print_cycle(cycle);
 
 	return construct_vertex_partition(g, l, vis_data);
-} 
+}
 
 struct NotPlanar {}; 
 
-Partition locate_cycle(Graph& g_copy, Graph const& g, BFSVisitorData& vis_data, int l[3])
+Partition locate_cycle(Graph& g_copy, Graph const& g, BFSVisitorData& vis_data, uint l[3])
 {
         cout  << "----------------------- 8 - Locate Cycle -----------------\n"; 
         auto chosen_edge = arbitrary_nontree_edge(g_copy, vis_data);
@@ -685,7 +685,7 @@ void make_max_planar(Graph& g)
         assert(em.test_planar());
 } 
 
-Partition new_bfs_and_make_max_planar(Graph& g_copy, Graph const& g, BFSVisitorData& vis_data, VertDesc x_gone, VertDesc x, int l[3])
+Partition new_bfs_and_make_max_planar(Graph& g_copy, Graph const& g, BFSVisitorData& vis_data, VertDesc x_gone, VertDesc x, uint l[3])
 {
         cout  << "-------------------- 7 - New BFS and Make Max Planar -----\n";
         reset_vertex_indices(g_copy);
@@ -707,7 +707,7 @@ Partition new_bfs_and_make_max_planar(Graph& g_copy, Graph const& g, BFSVisitorD
 	return locate_cycle(g_copy, g, vis_data, l); 
 }
 
-Partition shrinktree(Graph& g_copy, Graph const& g, VertIter vit, VertIter vjt, BFSVisitorData& vis_data, int l[3])
+Partition shrinktree(Graph& g_copy, Graph const& g, VertIter vit, VertIter vjt, BFSVisitorData& vis_data, uint l[3])
 {
         cout << "---------------------------- 6 - Shrinktree -------------\n";
         cout << "n: " << num_vertices(g_copy) << '\n'; 
@@ -755,7 +755,7 @@ Partition shrinktree(Graph& g_copy, Graph const& g, VertIter vit, VertIter vjt, 
 	return new_bfs_and_make_max_planar(g_copy, g, vis_data, x_gone, x, l);
 }
 
-Partition find_more_levels(Graph& g_copy, Graph const& g, VertIter vit, VertIter vjt, uint k, int l[3], vector<uint> const& L, BFSVisitorData& vis_data)
+Partition find_more_levels(Graph& g_copy, Graph const& g, VertIter vit, VertIter vjt, uint k, uint l[3], vector<uint> const& L, BFSVisitorData& vis_data)
 {
         cout  << "---------------------------- 5 - Find More Levels -------\n";
         float sq  = 2 * sqrt(k); 
@@ -773,7 +773,7 @@ Partition l1_and_k(Graph& g_copy, Graph const& g, VertIter vit, VertIter vjt, ve
 {
         cout  << "---------------------------- 4 - l1 and k  ------------\n";
         uint k = L[0]; 
-        int l[3];
+        uint l[3];
         l[1] = 0;
         while( k <= num_vertices(g_copy)/2 ) k += L[++l[1]];
         cout << "k:  " << k    << "      # of verts in levels 0 thru l1\n";

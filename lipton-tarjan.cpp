@@ -6,28 +6,22 @@
 #include "EmbedStruct.h"
 #include "ScanVisitor.h"
 #include <iostream>
-#include <vector>
 #include <algorithm>
 #include <utility>
 #include <csignal>
 #include <boost/lexical_cast.hpp>
 #include <boost/graph/graph_concepts.hpp>
-#include <boost/graph/properties.hpp>
-#include <boost/graph/graph_traits.hpp>
-#include <boost/property_map/property_map.hpp>
 #include <boost/graph/planar_canonical_ordering.hpp>
 #include <boost/graph/is_straight_line_drawing.hpp>
 #include <boost/graph/boyer_myrvold_planar_test.hpp> 
-#include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/make_biconnected_planar.hpp>
 #include <boost/graph/make_maximal_planar.hpp>
 #include <boost/graph/connected_components.hpp>
-#include <boost/config.hpp>
-#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/copy.hpp>
 #include <boost/graph/breadth_first_search.hpp>
 #include <boost/pending/indirect_cmp.hpp>
 #include <boost/range/irange.hpp> 
-#include <boost/graph/copy.hpp>
+#include <boost/config.hpp>
 using namespace std;
 using namespace boost; 
 

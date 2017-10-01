@@ -3,7 +3,7 @@
 using namespace std;
 using namespace boost;
 
-ScanVisitor::ScanVisitor(map<VertDesc, bool>* table, Graph* g, VertDesc x, int l0) : table(table), g(g), x(x), l0(l0) {}
+ScanVisitor::ScanVisitor(map<VertDesc, bool>* table, Graph* g, VertDesc x, uint l0) : table(table), g(g), x(x), l0(l0) {}
 
 void ScanVisitor::foundedge(VertDesc V, EdgeDesc e)
 {

@@ -7,12 +7,14 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp> 
 #include <boost/graph/copy.hpp>
+#include <boost/bimap.hpp>
 #include "strutil.h"
 using namespace std;
 using namespace boost;
 
 map<VertDesc, uint> vert2uint;
 map<uint, VertDesc> uint2vert;
+bimap<VertDesc, uint> vu_bimap;
 
 Graph load_graph(string fname)
 {
@@ -40,15 +42,18 @@ Graph load_graph(string fname)
         for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
                 vert2uint[*vi] = i;
                 uint2vert[i] = *vi;
+		vu_bimap.insert({*vi, i});
                 ++i;
         }
         for( auto& e : edges ){
                 auto src = uint2vert[e.first];
                 auto tar = uint2vert[e.second];
+		//map<uint, VertDesc> m = vu_bimap.left;
                 add_edge(src, tar, g);
         }
 
         vert2uint[Graph::null_vertex()] = -1;
+	//vu_bimap.insert({Graph::null_vertex(), static_cast<uint>(-1)});
         return g;
 }
 

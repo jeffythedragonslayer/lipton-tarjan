@@ -36,4 +36,3 @@ void Partition::print() const
 	cout << "\nC = "; for( auto& v : c ) cout << v << ' '; 
 	cout << "<<<< /Partition >>>>\n";
 }
-

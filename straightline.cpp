@@ -41,7 +41,7 @@ void make_max_planar(Graph& g)
         graph_traits<Graph>::edge_iterator ei, ei_end;
         for(tie(ei, ei_end) = edges(g); ei != ei_end; ++ei) put(e_index, *ei, edge_count++);
 
-        typedef vector< graph_traits<Graph>::edge_descriptor > vec_t;
+        typedef vector<graph_traits<Graph>::edge_descriptor> vec_t;
         vector<vec_t> embedding(num_vertices(g));
         boyer_myrvold_planarity_test(boyer_myrvold_params::graph = g, boyer_myrvold_params::embedding = &embedding[0]);
 

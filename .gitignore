@@ -34,9 +34,6 @@ core
 *.bin
 *.elf
 
-#auto generated
-typedefs.h
-
 #header dependency information
 *.d
 

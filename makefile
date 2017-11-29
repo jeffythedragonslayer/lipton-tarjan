@@ -1,5 +1,5 @@
-CXX=clang++
-BOOST=-I/usr/local/boost_1_63_0
+CXX=g++
+BOOST=-I/usr/local/boost_1_65_1
 CXXFLAGS=-g -O0 -std=c++1z -c
 OBJS := main.o lipton-tarjan.o strutil.o Partition.o BFSVisitor.o BFSVisitorData.o EmbedStruct.o ScanVisitor.o graphutil.o
 .DEFAULT_GOAL = all

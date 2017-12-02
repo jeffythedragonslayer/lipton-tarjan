@@ -20,7 +20,7 @@ struct BFSVisitor : boost::default_bfs_visitor
 {
         BFSVisitorData& data;
 
-        BFSVisitor(BFSVisitorData& data); 
+        BFSVisitor(BFSVisitorData& data) : data(data) {}
 
 	template<typename Edge, typename Graph> void tree_edge(Edge e, Graph const& g)
 	{

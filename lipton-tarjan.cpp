@@ -26,7 +26,9 @@
 using namespace std;
 using namespace boost; 
 
-uint theorem4(uint partition, Graph const& g)
+typedef Graph const& GraphCR;
+
+uint theorem4(uint partition, GraphCR g)
 {
         /*
         Assume G is connected.
@@ -77,7 +79,7 @@ uint theorem4(uint partition, Graph const& g)
 // Time:    O(n)
 //
 // Use the cycle found in Step 9 and the levels found in Step 4 to construct a satisfactory vertex partition as described in the proof of Lemma 3.  Extend this partition from the connected component chosen in Step 2 to the entire graph as described in the proof of Theorem 4.
-Partition construct_vertex_partition(Graph const& g, uint l[3], BFSVisitorData& vis_data)
+Partition construct_vertex_partition(GraphCR g, uint l[3], BFSVisitorData& vis_data)
 {
         cout  << "\n------------ 10  - Construct Vertex Partition --------------\n";
         print_graph(g, false);
@@ -157,7 +159,7 @@ Partition construct_vertex_partition(Graph const& g, uint l[3], BFSVisitorData& 
 // 	Locate the triangle (vi, y, wi) which has (vi, wi) as a boundary edge and lies inside the (vi, wi) cycle.  If either (vi, y) or (y, wi) is a tree edge, let (vi+1, wi+1) be the nontree edge among (vi, y) and (y, wi).  Compute the cost inside the (vi+1, wi+1) cycle from the cost inside the (vi, wi) cycle and the cost of vi, y and wi.
 // 	If neither (vi, y) nor (y, wi) is a tree edge, determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.  Let z be the vertex on the (vi, wi) cycle reached during this search.  Compute the total cost of all vertices except z on this tree path.  Scan the tree edges inside the (y, wi) cycle, alternately scanning an edge in one cycle and an edge in the other cycle.  Stop scanning when all edges inside one of the cycles have been scanned.  Compute the cost inside this cycle by summing the associated costs of all scanned edges.  Use this cost, the cost inside the (vi, wi) cycle, and the cost on the tree path from y to z to compute the cost inside the other cycle.  Let (vi+1, wi+1) be the edge among (vi, y) and (y, wi) whose cycle has more cost inside it.
 // 	Repeat Step 9 until finding a cycle whose inside has cost not exceeding 2/3.
-Partition improve_separator(Graph const& g_copy, Graph const& g, CycleCost& cc, EdgeDesc chosen_edge, BFSVisitorData& vis_data, vector<VertDesc> const& cycle, EmbedStruct const& em, bool cost_swapped, uint l[3])
+Partition improve_separator(GraphCR  g_copy, GraphCR g, CycleCost& cc, EdgeDesc chosen_edge, BFSVisitorData& vis_data, vector<VertDesc> const& cycle, EmbedStruct const& em, bool cost_swapped, uint l[3])
 {
         cout << "---------------------------- 9 - Improve Separator -----------\n";
         print_edges(g_copy);
@@ -256,7 +258,7 @@ struct NotPlanar {};
 // Compute the cost on each side of this cycle by scanning the tree edges incident on either side of the cycle and summing their associated costs.
 // If (v, w) is a tree edge with v on the cycle and w not on the cycle, the cost associated with (v,w) is the descendant cost of w if v is the parent of w, and the cost of all vertices minus the descendant cost of v if w is the parent of v.
 // Determine which side of the cycle has greater cost and call it the "inside"
-Partition locate_cycle(Graph& g_copy, Graph const& g, BFSVisitorData& vis_data, uint l[3])
+Partition locate_cycle(Graph& g_copy, GraphCR g, BFSVisitorData& vis_data, uint l[3])
 {
         cout  << "----------------------- 8 - Locate Cycle -----------------\n"; 
         auto chosen_edge = arbitrary_nontree_edge(g_copy, vis_data);
@@ -291,7 +293,7 @@ Partition locate_cycle(Graph& g_copy, Graph const& g, BFSVisitorData& vis_data, 
 // (This can be done by modifying the breadth-first spanning tree constructed in Step 3.)
 // Record, for each vertex v, the parent of v in the tree, and the total cost of all descendants of v includiing v itself.
 // Make all faces of the new graph into triangles by scanning the boundary of each face and adding (nontree) edges as necessary.
-Partition new_bfs_and_make_max_planar(Graph& g_copy, Graph const& g, BFSVisitorData& vis_data, VertDesc x_gone, VertDesc x, uint l[3])
+Partition new_bfs_and_make_max_planar(Graph& g_copy, GraphCR g, BFSVisitorData& vis_data, VertDesc x_gone, VertDesc x, uint l[3])
 {
         cout  << "-------------------- 7 - New BFS and Make Max Planar -----\n";
         reset_vertex_indices(g_copy);
@@ -328,7 +330,7 @@ Partition new_bfs_and_make_max_planar(Graph& g_copy, Graph const& g, BFSVisitorD
 // If it is true, delete edge(v, w).
 // If it is false, change it to true, construct an edge(x,w) and delete edge(v,w).
 // The result of this step is a planar representation of the shrunken graph to which Lemma 2 is to be applied.
-Partition shrinktree(Graph& g_copy, Graph const& g, VertIter vit, VertIter vjt, BFSVisitorData& vis_data, uint l[3])
+Partition shrinktree(Graph& g_copy, GraphCR g, VertIter vit, VertIter vjt, BFSVisitorData& vis_data, uint l[3])
 {
         cout << "---------------------------- 6 - Shrinktree -------------\n";
         cout << "n: " << num_vertices(g_copy) << '\n'; 
@@ -381,7 +383,7 @@ Partition shrinktree(Graph& g_copy, Graph const& g, VertIter vit, VertIter vjt, 
 //
 // Find the highest level l0 <= l1 such that L(l0) + 2(l1 - l0) <= 2*sqrt(k).
 // Find the lowest level l2 >= l1 + 1 such that L(l2) + 2(l2-l1-1) <= 2*sqrt(n-k)
-Partition find_more_levels(Graph& g_copy, Graph const& g, VertIter vit, VertIter vjt, uint k, uint l[3], vector<uint> const& L, BFSVisitorData& vis_data)
+Partition find_more_levels(Graph& g_copy, GraphCR g, VertIter vit, VertIter vjt, uint k, uint l[3], vector<uint> const& L, BFSVisitorData& vis_data)
 {
         cout  << "---------------------------- 5 - Find More Levels -------\n";
         float sq  = 2 * sqrt(k); 
@@ -401,7 +403,7 @@ Partition find_more_levels(Graph& g_copy, Graph const& g, VertIter vit, VertIter
 // Find the level l1 such that the total cost of levels 0 through l1 - 1 does not exceed 1/2,
 // but the total cost of levels 0 through l1 does exceed 1/2.
 // Let k be the number of vertices in levels 0 through l1
-Partition l1_and_k(Graph& g_copy, Graph const& g, VertIter vit, VertIter vjt, vector<uint> const& L, BFSVisitorData& vis_data)
+Partition l1_and_k(Graph& g_copy, GraphCR g, VertIter vit, VertIter vjt, vector<uint> const& L, BFSVisitorData& vis_data)
 {
         cout  << "---------------------------- 4 - l1 and k  ------------\n";
         uint k = L[0]; 
@@ -421,7 +423,7 @@ Partition l1_and_k(Graph& g_copy, Graph const& g, VertIter vit, VertIter vjt, ve
 //
 // Find a breadth-first spanning tree of the most costly component.
 // Compute the level of each vertex and the number of vertices L(l) in each level l.
-Partition bfs_and_levels(Graph& g_copy, Graph const& g, VertIter vit, VertIter vjt)
+Partition bfs_and_levels(Graph& g_copy, GraphCR g, VertIter vit, VertIter vjt)
 {
         cout << "---------------------------- 3 - BFS and Levels ------------\n";
         BFSVisitorData vis_data(&g_copy, *vertices(g_copy).first);
@@ -442,13 +444,13 @@ Partition bfs_and_levels(Graph& g_copy, Graph const& g, VertIter vit, VertIter v
 	return l1_and_k(g_copy, g, vit, vjt, L, vis_data);
 } 
 
-// Step 2: connected_components
+// Step 2: find_connected_components
 // Time:   O(n)
 //
 // Find the connected components of G and determine the cost of each one.
 // If none has cost exceeding 2/3, construct the partition as described in the proof of Theorem 4.
 // If some component has cost exceeding 2/3, go to Step 3.
-Partition connected_components(Graph& g_copy, Graph const& g)
+Partition find_connected_components(Graph& g_copy, GraphCR g)
 {
         cout << "---------------------------- 2 - Connected Components --------\n";
         VertDescMap idx; 
@@ -493,7 +495,7 @@ Partition connected_components(Graph& g_copy, Graph const& g)
 // Time:   O(n)
 //
 // Find a planar embedding of G and construct a representation for it of the kind described above.
-Partition lipton_tarjan(Graph const& g)
+Partition lipton_tarjan(GraphCR g)
 {
 	Graph g_copy;
 	copy_graph(g, g_copy);
@@ -501,8 +503,8 @@ Partition lipton_tarjan(Graph const& g)
         cout << "---------------------------- 1 - Check Planarity  ------------\n";
         EmbedStruct em(&g_copy);
         if( !em.test_planar() ) throw NotPlanar();
-        cout << "planar ok\n";
+        cout << "graph is planar\n";
         print_graph(g_copy);
 
-	return connected_components(g_copy, g);
+	return find_connected_components(g_copy, g);
 }

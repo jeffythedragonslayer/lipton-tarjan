@@ -14,6 +14,12 @@ void check_partition_is_legal(string graphfile)
 	Graph g;
 	fstream f(graphfile);
 
+	vector<vertex_t> vs;
+
+	for( uint i = 0; i < 100; ++i ){
+		vs.push_back(add_vertex(g));
+	}
+
 	while( f ){
 		int edge1, edge2;
 		f >> edge1;
@@ -21,7 +27,8 @@ void check_partition_is_legal(string graphfile)
 		f >> comma;
 		BOOST_CHECK(comma == ',');
 		f >> edge2;
-		//add_edge(edge1, edge2, g);
+		//v = edge1;
+		add_edge(vs[edge1], vs[edge2], g);
 	}
 
 	//auto partition = lipton_tarjan(g);

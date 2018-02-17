@@ -2,9 +2,9 @@
 #include <iostream>
 using namespace std;
 
-void Partition::get_most_costly_part(vector<VertDesc>** most_costly,
-				     vector<VertDesc>** other1,
-				     vector<VertDesc>** other2)
+void Partition::get_most_costly_part(vector<vertex_t>** most_costly,
+				     vector<vertex_t>** other1,
+				     vector<vertex_t>** other2)
 {
 	if( a.size() > b.size() && a.size() > c.size() ){
 		*most_costly = &a;

@@ -109,7 +109,7 @@ Partition construct_vertex_partition(GraphCR g, uint l[3], BFSVisitorData& vis_d
                 return partition;
         } 
 
-        vector<VertDesc> deleted_part;
+        vector<vertex_t> deleted_part;
         VertIter vei, vend;
         for( tie(vei, vend) = vertices(g); vei != vend; ++vei ){ 
                 auto v = *vei;
@@ -126,7 +126,7 @@ Partition construct_vertex_partition(GraphCR g, uint l[3], BFSVisitorData& vis_d
         assert(partition.c.size() <= 2*num_vertices(g)/3);
         if( partition.b.size() <= 2*num_vertices(g)/3 ){
                 cout << "middle part NOT biggest\n";
-                vector<VertDesc>* costly_part, * other1, * other2;
+                vector<vertex_t>* costly_part, * other1, * other2;
 
 		partition.get_most_costly_part(&costly_part, &other1, &other2);
 
@@ -159,7 +159,7 @@ Partition construct_vertex_partition(GraphCR g, uint l[3], BFSVisitorData& vis_d
 // 	Locate the triangle (vi, y, wi) which has (vi, wi) as a boundary edge and lies inside the (vi, wi) cycle.  If either (vi, y) or (y, wi) is a tree edge, let (vi+1, wi+1) be the nontree edge among (vi, y) and (y, wi).  Compute the cost inside the (vi+1, wi+1) cycle from the cost inside the (vi, wi) cycle and the cost of vi, y and wi.
 // 	If neither (vi, y) nor (y, wi) is a tree edge, determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.  Let z be the vertex on the (vi, wi) cycle reached during this search.  Compute the total cost of all vertices except z on this tree path.  Scan the tree edges inside the (y, wi) cycle, alternately scanning an edge in one cycle and an edge in the other cycle.  Stop scanning when all edges inside one of the cycles have been scanned.  Compute the cost inside this cycle by summing the associated costs of all scanned edges.  Use this cost, the cost inside the (vi, wi) cycle, and the cost on the tree path from y to z to compute the cost inside the other cycle.  Let (vi+1, wi+1) be the edge among (vi, y) and (y, wi) whose cycle has more cost inside it.
 // 	Repeat Step 9 until finding a cycle whose inside has cost not exceeding 2/3.
-Partition improve_separator(GraphCR  g_copy, GraphCR g, CycleCost& cc, EdgeDesc chosen_edge, BFSVisitorData& vis_data, vector<VertDesc> const& cycle, EmbedStruct const& em, bool cost_swapped, uint l[3])
+Partition improve_separator(GraphCR  g_copy, GraphCR g, CycleCost& cc, edge_t chosen_edge, BFSVisitorData& vis_data, vector<vertex_t> const& cycle, EmbedStruct const& em, bool cost_swapped, uint l[3])
 {
         cout << "---------------------------- 9 - Improve Separator -----------\n";
         print_edges(g_copy);
@@ -173,7 +173,7 @@ Partition improve_separator(GraphCR  g_copy, GraphCR g, CycleCost& cc, EdgeDesc 
                 auto vi = source(chosen_edge, g_copy);
                 auto wi = target(chosen_edge, g_copy);
                 assert(!vis_data.is_tree_edge(chosen_edge));
-                EdgeDesc next_edge;
+                edge_t next_edge;
                 cout << "   vi: " << vi << '\n';
                 cout << "   wi: " << wi << '\n';
 
@@ -293,7 +293,7 @@ Partition locate_cycle(Graph& g_copy, GraphCR g, BFSVisitorData& vis_data, uint 
 // (This can be done by modifying the breadth-first spanning tree constructed in Step 3.)
 // Record, for each vertex v, the parent of v in the tree, and the total cost of all descendants of v includiing v itself.
 // Make all faces of the new graph into triangles by scanning the boundary of each face and adding (nontree) edges as necessary.
-Partition new_bfs_and_make_max_planar(Graph& g_copy, GraphCR g, BFSVisitorData& vis_data, VertDesc x_gone, VertDesc x, uint l[3])
+Partition new_bfs_and_make_max_planar(Graph& g_copy, GraphCR g, BFSVisitorData& vis_data, vertex_t x_gone, vertex_t x, uint l[3])
 {
         cout  << "-------------------- 7 - New BFS and Make Max Planar -----\n";
         reset_vertex_indices(g_copy);
@@ -335,7 +335,7 @@ Partition shrinktree(Graph& g_copy, GraphCR g, VertIter vit, VertIter vjt, BFSVi
         cout << "---------------------------- 6 - Shrinktree -------------\n";
         cout << "n: " << num_vertices(g_copy) << '\n'; 
 
-        vector<VertDesc> replaceverts;
+        vector<vertex_t> replaceverts;
         tie(vit, vjt) = vertices(g_copy); 
         for( auto next = vit; vit != vjt; vit = next ){
                 ++next;
@@ -350,7 +350,7 @@ Partition shrinktree(Graph& g_copy, GraphCR g, VertIter vit, VertIter vjt, BFSVi
         }
 
         auto x = add_vertex(g_copy); uint2vert[vert2uint[x] = 999999] = x; 
-        map<VertDesc, bool> t;
+        map<vertex_t, bool> t;
         for( tie(vit, vjt) = vertices(g_copy); vit != vjt; ++vit ){
                 t[*vit] = vis_data.verts[*vit].level <= l[0];
                 cout << "vertex " << *vit << " at level " << vis_data.verts[*vit].level << " is " << (t[*vit] ? "TRUE" : "FALSE") << '\n';
@@ -453,8 +453,8 @@ Partition bfs_and_levels(Graph& g_copy, GraphCR g, VertIter vit, VertIter vjt)
 Partition find_connected_components(Graph& g_copy, GraphCR g)
 {
         cout << "---------------------------- 2 - Connected Components --------\n";
-        VertDescMap idx; 
-        associative_property_map<VertDescMap> vertid_to_component(idx);
+        vertex_map idx; 
+        associative_property_map<vertex_map> vertid_to_component(idx);
         VertIter vit, vjt;
         tie(vit, vjt) = vertices(g_copy);
         for( uint i = 0; vit != vjt; ++vit, ++i ){

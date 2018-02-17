@@ -3,9 +3,9 @@
 using namespace std;
 using namespace boost;
 
-ScanVisitor::ScanVisitor(map<VertDesc, bool>* table, Graph* g, VertDesc x, uint l0) : table(table), g(g), x(x), l0(l0) {}
+ScanVisitor::ScanVisitor(map<vertex_t, bool>* table, Graph* g, vertex_t x, uint l0) : table(table), g(g), x(x), l0(l0) {}
 
-void ScanVisitor::foundedge(VertDesc V, EdgeDesc e)
+void ScanVisitor::foundedge(vertex_t V, edge_t e)
 {
 	auto v = source(e, *g);
 	auto w = target(e, *g);
@@ -43,7 +43,7 @@ void ScanVisitor::finish()
 	cout << '\n';
 }
 
-void ScanVisitor::scan_nonsubtree_edges(VertDesc v, Graph const& g, Embedding const& em, BFSVisitorData const& bfs)
+void ScanVisitor::scan_nonsubtree_edges(vertex_t v, Graph const& g, Embedding const& em, BFSVisitorData const& bfs)
 {
 	auto v_it = bfs.verts.find(v);
 	assert(v_it != bfs.verts.end());

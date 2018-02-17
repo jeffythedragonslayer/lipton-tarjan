@@ -3,12 +3,12 @@
 #include <iostream>
 using namespace std;
 
-bool on_cycle(VertDesc v, vector<VertDesc> const& cycle, Graph const& g)
+bool on_cycle(vertex_t v, vector<vertex_t> const& cycle, Graph const& g)
 {
         return find(STLALL(cycle), v) != cycle.end();
 }
 
-bool on_cycle(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g)
+bool on_cycle(edge_t e, vector<vertex_t> const& cycle, Graph const& g)
 {
         auto src = source(e, g);
         auto tar = target(e, g);
@@ -16,7 +16,7 @@ bool on_cycle(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g)
 	       on_cycle(tar, cycle, g);
 }
 
-BFSVisitorData::BFSVisitorData(Graph* g, VertDesc root) : g(g), num_levels(0), root(root) {}
+BFSVisitorData::BFSVisitorData(Graph* g, vertex_t root) : g(g), num_levels(0), root(root) {}
 
 void BFSVisitorData::reset(Graph* g)
 {
@@ -27,7 +27,7 @@ void BFSVisitorData::reset(Graph* g)
 	root = Graph::null_vertex();
 }
 
-bool BFSVisitorData::is_tree_edge(EdgeDesc e) const
+bool BFSVisitorData::is_tree_edge(edge_t e) const
 { 
 	//cout << "testing is tree edge " << to_string(e, *g) << '\n';
 	auto src = source(e, *g);
@@ -41,7 +41,7 @@ bool BFSVisitorData::is_tree_edge(EdgeDesc e) const
 	return src_it->second.parent == tar || tar_it->second.parent == src;
 }
 
-uint BFSVisitorData::edge_cost(EdgeDesc e, vector<VertDesc> const& cycle, Graph const& g) const
+uint BFSVisitorData::edge_cost(edge_t e, vector<vertex_t> const& cycle, Graph const& g) const
 {
 	assert(is_tree_edge(e));
 

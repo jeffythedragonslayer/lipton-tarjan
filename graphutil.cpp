@@ -16,7 +16,7 @@ int levi_civita(uint i, uint j, uint k)
         return -1;
 } 
 
-VertDesc common_ancestor(vector<VertDesc> const& ancestors_v, vector<VertDesc> const& ancestors_w)
+vertex_t common_ancestor(vector<vertex_t> const& ancestors_v, vector<vertex_t> const& ancestors_w)
 {
         for( uint i = 0; i < ancestors_v.size(); ++i ){
 		for( uint j = 0; j < ancestors_w.size(); ++j ){
@@ -24,14 +24,14 @@ VertDesc common_ancestor(vector<VertDesc> const& ancestors_v, vector<VertDesc> c
 		}
 	}
 	assert(0);
-        return VertDesc();
+        return vertex_t();
 }
 
-vector<VertDesc> ancestors(VertDesc v, BFSVisitorData const& vis)
+vector<vertex_t> ancestors(vertex_t v, BFSVisitorData const& vis)
 {
         //cout << "first v: " << v << '\n';
         //cout << "root: " << vis.root << '\n';
-        vector<VertDesc> ans = {v};
+        vector<vertex_t> ans = {v};
         while( v != vis.root ){
                 auto v_it = vis.verts.find(v);
                 assert(v_it != vis.verts.end());
@@ -42,10 +42,10 @@ vector<VertDesc> ancestors(VertDesc v, BFSVisitorData const& vis)
         return ans;
 }
 
-vector<VertDesc> get_cycle(VertDesc v, VertDesc w, VertDesc ancestor, BFSVisitorData const& vis_data)
+vector<vertex_t> get_cycle(vertex_t v, vertex_t w, vertex_t ancestor, BFSVisitorData const& vis_data)
 {
-        vector<VertDesc> cycle, tmp;
-        VertDesc cur;
+        vector<vertex_t> cycle, tmp;
+        vertex_t cur;
         cur = v; while( cur != ancestor ){ cycle.push_back(cur); auto cur_it = vis_data.verts.find(cur); cur = cur_it->second.parent; } cycle.push_back(ancestor); 
         cur = w; while( cur != ancestor ){ tmp  .push_back(cur); auto cur_it = vis_data.verts.find(cur); cur = cur_it->second.parent; }
         reverse(STLALL(tmp));
@@ -53,7 +53,7 @@ vector<VertDesc> get_cycle(VertDesc v, VertDesc w, VertDesc ancestor, BFSVisitor
         return cycle;
 }
 
-vector<VertDesc> get_cycle(VertDesc v, VertDesc w, BFSVisitorData const& vis_data)
+vector<vertex_t> get_cycle(vertex_t v, vertex_t w, BFSVisitorData const& vis_data)
 { 
         auto parents_v = ancestors(v, vis_data);
         auto parents_w = ancestors(w, vis_data); 
@@ -63,9 +63,9 @@ vector<VertDesc> get_cycle(VertDesc v, VertDesc w, BFSVisitorData const& vis_dat
 }
 
 // return set of vertices neighboring v in graph g
-set<VertDesc> get_neighbors(VertDesc v, Graph const& g)
+set<vertex_t> get_neighbors(vertex_t v, Graph const& g)
 { 
-        set<VertDesc> neighbors;
+        set<vertex_t> neighbors;
         OutEdgeIter e_cur, e_end;
         for( tie(e_cur, e_end) = out_edges(v, g); e_cur != e_end; ++e_cur ){
 		auto n = target(*e_cur, g);
@@ -75,16 +75,16 @@ set<VertDesc> get_neighbors(VertDesc v, Graph const& g)
         return neighbors;
 }
 
-set<VertDesc> get_intersection(set<VertDesc> const& a, set<VertDesc> const& b)
+set<vertex_t> get_intersection(set<vertex_t> const& a, set<vertex_t> const& b)
 {
-        set<VertDesc> c;
+        set<vertex_t> c;
         set_intersection(STLALL(a), STLALL(b), inserter(c, c.begin())); 
         for( auto& i : c ) cout << "      set intersection: " << i << '\n'; 
         assert(c.size() == 2);
         return c;
 } 
 
-InsideOutOn edge_inside_cycle(EdgeDesc e, VertDesc common_vert, vector<VertDesc> const& cycle, Graph const& g, Embedding const& em)
+InsideOutOn edge_inside_cycle(edge_t e, vertex_t common_vert, vector<vertex_t> const& cycle, Graph const& g, Embedding const& em)
 {
         //cout << "cycle: ";
         //for( uint i = 0; i < cycle.size(); ++i ) cout << cycle[i] << ' ';
@@ -109,7 +109,7 @@ InsideOutOn edge_inside_cycle(EdgeDesc e, VertDesc common_vert, vector<VertDesc>
         //cout << "      other:  " << other       << '\n';
 
         vector<uint> perm;
-        set<VertDesc> seenbefore;
+        set<vertex_t> seenbefore;
         for( auto& tar_it : em[*it] ){ // why does this contain duplicates?
                 auto src = source(tar_it, g);
                 auto tar = target(tar_it, g);
@@ -129,7 +129,7 @@ InsideOutOn edge_inside_cycle(EdgeDesc e, VertDesc common_vert, vector<VertDesc>
 	       OUTSIDE;
 }
 
-EdgeDesc arbitrary_nontree_edge(Graph const& g, BFSVisitorData const& vis_data)
+edge_t arbitrary_nontree_edge(Graph const& g, BFSVisitorData const& vis_data)
 { 
         EdgeIter ei, ei_end;
         for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ){
@@ -141,12 +141,12 @@ EdgeDesc arbitrary_nontree_edge(Graph const& g, BFSVisitorData const& vis_data)
         }
         assert(ei != ei_end);
         assert(!vis_data.is_tree_edge(*ei));
-        EdgeDesc chosen_edge = *ei;
+        edge_t chosen_edge = *ei;
         cout << "arbitrarily choosing nontree edge: " << to_string(chosen_edge, g) << '\n';
         return chosen_edge;
 }
 
-CycleCost compute_cycle_cost(vector<VertDesc> const& cycle, Graph const& g, BFSVisitorData const& vis_data, EmbedStruct const& em)
+CycleCost compute_cycle_cost(vector<vertex_t> const& cycle, Graph const& g, BFSVisitorData const& vis_data, EmbedStruct const& em)
 {
         CycleCost cc;
         for( auto& v : cycle ){
@@ -199,7 +199,7 @@ EdgeIndex reset_edge_index(Graph const& g)
         return edgedesc_to_uint;
 } 
 
-void kill_vertex(VertDesc v, Graph& g)
+void kill_vertex(vertex_t v, Graph& g)
 {
         cout << "killing vertex " << v << '\n';
         auto i = vert2uint[v];

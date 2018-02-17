@@ -12,9 +12,9 @@
 using namespace std;
 using namespace boost;
 
-map<VertDesc, uint> vert2uint;
-map<uint, VertDesc> uint2vert;
-bimap<VertDesc, uint> vu_bimap;
+map<vertex_t, uint> vert2uint;
+map<uint, vertex_t> uint2vert;
+bimap<vertex_t, uint> vu_bimap;
 
 Graph load_graph(string fname)
 {
@@ -48,7 +48,7 @@ Graph load_graph(string fname)
         for( auto& e : edges ){
                 auto src = uint2vert[e.first];
                 auto tar = uint2vert[e.second];
-		//map<uint, VertDesc> m = vu_bimap.left;
+		//map<uint, vertex_t> m = vu_bimap.left;
                 add_edge(src, tar, g);
         }
 

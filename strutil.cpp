@@ -3,20 +3,20 @@
 using namespace std;
 using namespace boost;
 
-ostream& operator<<(ostream& o, VertDesc v)
+ostream& operator<<(ostream& o, vertex_t v)
 {
         o << vert2uint[v];
         return o;
 }
 
-string to_string(EdgeDesc e, Graph const& g)
+string to_string(edge_t e, Graph const& g)
 {
         auto src = lexical_cast<string>(vert2uint[source(e, g)]);
         auto tar = lexical_cast<string>(vert2uint[target(e, g)]);
         return src + ", " + tar;
 }
 
-void print_cycle(vector<VertDesc> const& cycle)
+void print_cycle(vector<vertex_t> const& cycle)
 {
         cout << "cycle verts: ";
         for( auto& v : cycle ) cout << v << ' ';

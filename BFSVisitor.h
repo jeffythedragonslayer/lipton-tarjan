@@ -32,7 +32,7 @@ struct BFSVisitor : boost::default_bfs_visitor
 		data.num_levels = std::max(data.num_levels, data.verts[child].level + 1);
 		if( Graph::null_vertex() != parent ) data.children[parent].insert(child);
 
-		VertDesc v = child;
+		vertex_t v = child;
 		data.verts[v].descendant_cost = 1;
 		//cout << "     vertex/descendant cost: ";
 		//cout << v << '/'  << data.verts[v].descendant_cost << "   ";

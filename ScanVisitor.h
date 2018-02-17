@@ -4,14 +4,14 @@
 
 struct ScanVisitor
 {
-	std::map<VertDesc, bool>*     		table;
+	std::map<vertex_t, bool>*     		table;
         Graph*                        		g;
-        VertDesc                      		x;
+        vertex_t                      		x;
         uint                          		l0;
-	std::set<std::pair<VertDesc, VertDesc>> edges_to_add, edges_to_delete;
+	std::set<std::pair<vertex_t, vertex_t>> edges_to_add, edges_to_delete;
 
-        ScanVisitor(std::map<VertDesc, bool>* table, Graph*, VertDesc, uint l0); 
-        void foundedge(VertDesc, EdgeDesc); 
+        ScanVisitor(std::map<vertex_t, bool>* table, Graph*, vertex_t, uint l0); 
+        void foundedge(vertex_t, edge_t); 
         void finish(); 
-        void scan_nonsubtree_edges(VertDesc, Graph const&, Embedding const&, BFSVisitorData const&);
+        void scan_nonsubtree_edges(vertex_t, Graph const&, Embedding const&, BFSVisitorData const&);
 };

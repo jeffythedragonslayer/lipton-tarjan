@@ -12,7 +12,7 @@ using namespace std;
 using namespace boost;
 
 typedef adjacency_list<vecS, vecS, undirectedS> Graph;
-typedef graph_traits<Graph>::vertex_descriptor  VertDesc;
+typedef graph_traits<Graph>::vertex_descriptor  vertex_t;
 typedef graph_traits<Graph>::edge_iterator      EdgeIter;
 
 int main(int argc, char** argv)

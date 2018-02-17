@@ -12,9 +12,9 @@
 using namespace std;
 using namespace boost;
 
-map<vertex_t, uint> vert2uint;
-map<uint, vertex_t> uint2vert;
-bimap<vertex_t, uint> vu_bimap;
+extern map<vertex_t, uint> vert2uint;
+extern map<uint, vertex_t> uint2vert;
+extern bimap<vertex_t, uint> vu_bimap;
 
 Graph load_graph(string fname)
 {

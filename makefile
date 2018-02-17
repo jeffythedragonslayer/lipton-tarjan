@@ -17,8 +17,8 @@ planargen: planargen.o
 straightline: straightline.o
 	$(CXX) straightline.o -o straightline
 
-unittest: unittest.o
-	$(CXX) unittest.o -o unittest
+unittest: unittest.o lipton-tarjan.o strutil.o Partition.o BFSVisitorData.o graphutil.o EmbedStruct.o ScanVisitor.o 
+	$(CXX) unittest.o lipton-tarjan.o strutil.o Partition.o BFSVisitorData.o graphutil.o EmbedStruct.o ScanVisitor.o -o unittest
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(BOOST) $*.cpp

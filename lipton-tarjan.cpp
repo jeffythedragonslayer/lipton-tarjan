@@ -22,11 +22,17 @@
 #include <boost/graph/breadth_first_search.hpp>
 #include <boost/pending/indirect_cmp.hpp>
 #include <boost/range/irange.hpp> 
+#include <boost/bimap.hpp>
 #include <boost/config.hpp>
 using namespace std;
 using namespace boost; 
 
-typedef Graph const& GraphCR;
+typedef Graph const& GraphCR; 
+typedef graph_traits<Graph>::vertex_descriptor  vertex_t;
+
+map<vertex_t, uint> vert2uint;
+map<uint, vertex_t> uint2vert;
+bimap<vertex_t, uint> vu_bimap;
 
 uint theorem4(uint partition, GraphCR g)
 {

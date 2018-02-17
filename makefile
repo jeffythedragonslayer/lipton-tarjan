@@ -1,5 +1,5 @@
 CXX=clang++
-BOOST=-I/usr/local/boost_1_65_1
+BOOST=-I/usr/local/boost_1_66_1
 CXXFLAGS=-g -O0 -std=c++1z -c
 OBJS := main.o lipton-tarjan.o strutil.o Partition.o BFSVisitorData.o EmbedStruct.o ScanVisitor.o graphutil.o
 .DEFAULT_GOAL = all
@@ -29,4 +29,4 @@ unittest: unittest.o
 	@rm -f $*.d.tmp 
 
 clean:
-	rm -f *.o *.d lt
+	rm -f *.o *.d lt planargen straightline unittest

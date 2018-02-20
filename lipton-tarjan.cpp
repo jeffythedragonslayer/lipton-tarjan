@@ -28,57 +28,89 @@ using namespace std;
 using namespace boost; 
 
 typedef Graph const& GraphCR; 
-typedef graph_traits<Graph>::vertex_descriptor  vertex_t;
+typedef graph_traits<Graph>::vertex_descriptor vertex_t;
 
 map<vertex_t, uint> vert2uint;
 map<uint, vertex_t> uint2vert;
 bimap<vertex_t, uint> vu_bimap;
 
-uint theorem4(uint partition, GraphCR g)
+Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid_to_component, vector<uint> num_verts_per_component)
 {
+	uint num_verts = num_vertices(g);
+	uint num_components = num_verts_per_component.size();
+	bool graph_connected = (num_components == 1);
+
         /*
-        Assume G is connected.
-        Partition the vertices into levels according to their distance from some vertex v.
-        L[l] = # of vertices on level l
-        If r is the maximum distance of any vertex from v, define additional levels -1 and r+1 containing no vertices
-        l1 = the level such that the sum of costs in levels 0 thru l1-1 < 1/2, but the sum of costs in levels 0 thru l1 is >= 1/2
-        (If no such l1 exists, the total cost of all vertices < 1/2, and B = C = {} and return true)
-        k = # of vertices on levels 0 thru l1.
-        Find a level l0 such that l0 <= l1 and |L[l0]| + 2(l1-l0) <= 2sqrt(k)
-        Find a level l2 such that l1+1 <= l2 and |L[l2] + 2(l2-l1-1) <= 2sqrt(n-k)
-        If 2 such levels exist, then by Lemma 3 the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex in A with a vertex in B,
-        neither A or C has cost > 2/3, and C contains no more than 2(sqrt(k) + sqrt(n-k)) vertices.
-        But 2(sqrt(k) + sqrt(n-k) <= 2(sqrt(n/2) + sqrt(n/2)) = 2sqrt(2)sqrt(n)
-        Thus the theorem holds if suitable levels l0 and l2 exist
-                Suppose a suitable level l0 does not exist.  Then, for i <= l1, L[i] >= 2sqrt(k) - 2(l1-i)
-                Since L[0] = 1, this means 1 >= 2sqrt(k) - 2l1 and l1 + 1/2 >= sqrt(k).  Thus l1 = floor(l1 + 1/2) > 
-                Contradiction
+	Let G be any n-vertex planar graph having nonnegative vertex costs summing to no more than one.
+	Then the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex
+	in A with a vertex in B, neither A nor B has total cost exceeding 2/3, and C contains no more than
+	2sqrt(2)sqrt(n) vertices
 
-        Now suppose G is not connected
-        Let G1, G2, ... , Gk be the connected components of G, with vertex sets V1, V2, ... , Vk respectively.
-        If no connected component has total vertex cost > 1/3, let i be the minimum index such that the total cost of V1 U V2 U ... U Vi > 1/3
-        A = V1 U V2 U ... U Vi
-        B = Vi+1 U Vi+2 U ... U Vk
-        C = {}
-        Since i is minimum and the cost of Vi <= 1/3, the cost of A <= 2/3. return true;
-        If some connected component (say Gi) has total vertex cost between 1/3 and 2/3,
-        A = Vi
-        B = V1 U ... U Vi-1 U Vi+1 U ... U Vk
-        C = {}
-        return true
+	Proof:*/
+	if( graph_connected ){
+		cout << "graph is connected\n";
+	
+		/*Partition the vertices into levels according to their distance from some vertex v.
+		L[l] = # of vertices on level l
+		If r is the maximum distance of any vertex from v, define additional levels -1 and r+1 containing no vertices
+		l1 = the level such that the sum of costs in levels 0 thru l1-1 < 1/2, but the sum of costs in levels 0 thru l1 is >= 1/2
+		(If no such l1 exists, the total cost of all vertices < 1/2, and B = C = {} and return true)
+		k = # of vertices on levels 0 thru l1.
+		Find a level l0 such that l0 <= l1 and |L[l0]| + 2(l1-l0) <= 2sqrt(k)
+		Find a level l2 such that l1+1 <= l2 and |L[l2] + 2(l2-l1-1) <= 2sqrt(n-k)
+		If 2 such levels exist, then by Lemma 3 the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex in A with a vertex in B,
+		neither A or C has cost > 2/3, and C contains no more than 2(sqrt(k) + sqrt(n-k)) vertices.
+		But 2(sqrt(k) + sqrt(n-k) <= 2(sqrt(n/2) + sqrt(n/2)) = 2sqrt(2)sqrt(n)
+		Thus the theorem holds if suitable levels l0 and l2 exist
+			Suppose a suitable level l0 does not exist.  Then, for i <= l1, L[i] >= 2sqrt(k) - 2(l1-i)
+			Since L[0] = 1, this means 1 >= 2sqrt(k) - 2l1 and l1 + 1/2 >= sqrt(k).  Thus l1 = floor(l1 + 1/2) > 
+			Contradiction*/
+	} else {
+		// Now suppose G is not connected
+		cout << "graph is disconnected with " << num_components << " components\n";
 
-        Finally, if some connected component (say Gi) has total vertex cost exceeding 2/3,
+		bool bigger_than_one_third = false;
+
+		vector<vector<VertIter>> vertex_sets; // set of vertex ids, indexed by component number (second vector should be set but compiler did not like call to .insert())
+
+		vertex_sets.resize(num_components);
+
+		// populate vertex sets
+		VertIter vit, vjt;
+		tie(vit, vjt) = vertices(g);
+		for( uint i = 0; vit != vjt; ++vit, ++i ){
+			uint component = vertid_to_component[*vit];
+			auto& vset = vertex_sets[component];
+			vset.push_back(vit);
+		}
+
+		/* Let G1, G2, ... , Gk be the connected components of G, with vertex sets V1, V2, ... , Vk respectively.
+		If no connected component has total vertex cost > 1/3, let i be the minimum index such that the total cost of V1 U V2 U ... U Vi > 1/3
+		A = V1 U V2 U ... U Vi
+		B = Vi+1 U Vi+2 U ... U Vk
+		C = {}
+		Since i is minimum and the cost of Vi <= 1/3, the cost of A <= 2/3. return true;
+		If some connected component (say Gi) has total vertex cost between 1/3 and 2/3,
+		A = Vi
+		B = V1 U ... U Vi-1 U Vi+1 U ... U Vk
+		C = {}
+		return true*/
+
+	}
+
+        /*Finally, if some connected component (say Gi) has total vertex cost exceeding 2/3,
         apply the above argument to Gi
-        Let A*, B*, C* be the resulting partition.
-        A = set among A* and B* with greater cost
-        C = C*
-        B = remanining vertices of G
-        Then A and B have cost <= 2/3, g
-        return true;
+		Let A*, B*, C* be the resulting partition.
+		A = set among A* and B* with greater cost
+		C = C*
+		B = remanining vertices of G
+		Then A and B have cost <= 2/3, g
+		return true;
 
         In all cases the separator C is either empty or contained in only one connected component of G
         */
-        return partition;
+	Partition p;
+        return p;
 }
 
 // Step 10: construct_vertex_partition
@@ -165,7 +197,7 @@ Partition construct_vertex_partition(GraphCR g, uint l[3], BFSVisitorData& vis_d
 // 	Locate the triangle (vi, y, wi) which has (vi, wi) as a boundary edge and lies inside the (vi, wi) cycle.  If either (vi, y) or (y, wi) is a tree edge, let (vi+1, wi+1) be the nontree edge among (vi, y) and (y, wi).  Compute the cost inside the (vi+1, wi+1) cycle from the cost inside the (vi, wi) cycle and the cost of vi, y and wi.
 // 	If neither (vi, y) nor (y, wi) is a tree edge, determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.  Let z be the vertex on the (vi, wi) cycle reached during this search.  Compute the total cost of all vertices except z on this tree path.  Scan the tree edges inside the (y, wi) cycle, alternately scanning an edge in one cycle and an edge in the other cycle.  Stop scanning when all edges inside one of the cycles have been scanned.  Compute the cost inside this cycle by summing the associated costs of all scanned edges.  Use this cost, the cost inside the (vi, wi) cycle, and the cost on the tree path from y to z to compute the cost inside the other cycle.  Let (vi+1, wi+1) be the edge among (vi, y) and (y, wi) whose cycle has more cost inside it.
 // 	Repeat Step 9 until finding a cycle whose inside has cost not exceeding 2/3.
-Partition improve_separator(GraphCR  g_copy, GraphCR g, CycleCost& cc, edge_t chosen_edge, BFSVisitorData& vis_data, vector<vertex_t> const& cycle, EmbedStruct const& em, bool cost_swapped, uint l[3])
+Partition improve_separator(GraphCR g_copy, GraphCR g, CycleCost& cc, edge_t chosen_edge, BFSVisitorData& vis_data, vector<vertex_t> const& cycle, EmbedStruct const& em, bool cost_swapped, uint l[3])
 {
         cout << "---------------------------- 9 - Improve Separator -----------\n";
         print_edges(g_copy);
@@ -254,7 +286,7 @@ Partition improve_separator(GraphCR  g_copy, GraphCR g, CycleCost& cc, edge_t ch
 	return construct_vertex_partition(g, l, vis_data);
 }
 
-struct NotPlanar {}; 
+struct NotPlanarException {}; 
 
 // Step 8: locate_cycle
 // Time: O(n)
@@ -469,32 +501,31 @@ Partition find_connected_components(Graph& g_copy, GraphCR g)
         uint components = connected_components(g_copy, vertid_to_component);
 
         cout << "# of components: " << components << '\n';
-        vector<uint> verts_per_comp(components, 0);
+        vector<uint> num_verts_per_component(components, 0);
         for( tie(vit, vjt) = vertices(g_copy); vit != vjt; ++vit ){
-	       	++verts_per_comp[vertid_to_component[*vit]];
+	       	++num_verts_per_component[vertid_to_component[*vit]];
 	}
         uint biggest_component = 0;
         uint biggest_size      = 0;
-        bool too_big           = false;
+        bool bigger_than_two_thirds = false;
         for( uint i = 0; i < components; ++i ){
-                if( 3*verts_per_comp[i] > 2*num_vertices(g_copy) ){
+                if( 3*num_verts_per_component[i] > 2*num_vertices(g_copy) ){
                         cout << "too big\n";
-                        too_big = true;
+                        bigger_than_two_thirds = true;
                 }
-                if( verts_per_comp[i] > biggest_size ){
-                        biggest_size = verts_per_comp[i];
+                if( num_verts_per_component[i] > biggest_size ){
+                        biggest_size = num_verts_per_component[i];
                         biggest_component = i;
                 }
         }
 
-        if( !too_big ){
-                theorem4(0, g_copy);
-		Partition empty_partition;
-                return empty_partition;
+        if( !bigger_than_two_thirds ){
+		cout << "exiting early through theorem 4\n"; // none has cost exceeding 2/3
+                return theorem4(g_copy, vertid_to_component, num_verts_per_component);
         }
         cout << "biggest component: " << biggest_component << '\n';
 
-	return bfs_and_levels(g_copy, g, vit, vjt);
+	return bfs_and_levels(g_copy, g, vit, vjt); // goto step 3
 }
 
 // Step 1: check_planarity
@@ -508,7 +539,7 @@ Partition lipton_tarjan(GraphCR g)
 
         cout << "---------------------------- 1 - Check Planarity  ------------\n";
         EmbedStruct em(&g_copy);
-        if( !em.test_planar() ) throw NotPlanar();
+        if( !em.test_planar() ) throw NotPlanarException();
         cout << "graph is planar\n";
         print_graph(g_copy);
 

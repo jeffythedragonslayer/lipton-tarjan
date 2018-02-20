@@ -30,8 +30,9 @@ void verify_partition_edges(Partition const& p, Graph const& g)
 	for (tie(ei, ei_end) = edges(g); ei != ei_end; ++ei){
 		auto v1 = source(*ei, g);
 		auto v2 = target(*ei, g);
-		BOOST_CHECK((find(STLALL(p.c), v1) != p.c.end()) || 
-			    (find(STLALL(p.c), v2) != p.c.end()));
+		bool v1_in_part_c = (find(STLALL(p.c), v1) != p.c.end());
+		bool v2_in_part_c = (find(STLALL(p.c), v2) != p.c.end());
+		BOOST_CHECK(!v1_in_part_c && !v2_in_part_c);
 
 	}
 }
@@ -90,7 +91,7 @@ BOOST_AUTO_TEST_CASE( box2_test )
 	check_partition_is_legal("graphs/box2");
 }
 
-/*BOOST_AUTO_TEST_CASE( box3_test )
+BOOST_AUTO_TEST_CASE( box3_test )
 {
 	check_partition_is_legal("graphs/box3");
 }
@@ -178,4 +179,9 @@ BOOST_AUTO_TEST_CASE( tri_test )
 BOOST_AUTO_TEST_CASE( two_test )
 {
 	check_partition_is_legal("graphs/two");
-}*/
+}
+
+BOOST_AUTO_TEST_CASE( disconnected_test )
+{
+	check_partition_is_legal("graphs/disconnected");
+}

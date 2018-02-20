@@ -39,7 +39,6 @@ void verify_partition_edges(Partition const& p, Graph const& g)
 
 void check_partition_is_legal(string graphfile)
 {
-	Graph g;
 	fstream f(graphfile);
 	if( !f.good() ){ 
 		cerr << graphfile << " file does not exist!\n";
@@ -61,12 +60,13 @@ void check_partition_is_legal(string graphfile)
 		BOOST_CHECK(comma == ',');
 		f >> edge2;
 
-		num_verts = std::max(std::max(num_verts, edge1), edge2);
+		num_verts = max(max(num_verts, edge1), edge2);
 		edges.push_back(make_pair(edge1, edge2));
 	}
 
 	if( num_verts == 0 ) return;
 
+	Graph g;
 	vector<vertex_t> verts(++num_verts);
 	for( uint i = 0; i < num_verts; ++i ){
 		verts[i] = add_vertex(g);
@@ -77,7 +77,8 @@ void check_partition_is_legal(string graphfile)
 		cout << "added edge " << edges[i].first << ", " << edges[i].second << '\n';
 	}
 
-	//print_graph(g);
+	cout << "starting lipton tarjan...\n";
+	print_graph2(g);
 	auto partition = lipton_tarjan(g);
 	//partition.print();
 
@@ -86,7 +87,7 @@ void check_partition_is_legal(string graphfile)
 	verify_partition_edges(partition, g);
 }
 
-BOOST_AUTO_TEST_CASE( box2_test )
+/*BOOST_AUTO_TEST_CASE( box2_test )
 {
 	check_partition_is_legal("graphs/box2");
 }
@@ -179,7 +180,7 @@ BOOST_AUTO_TEST_CASE( tri_test )
 BOOST_AUTO_TEST_CASE( two_test )
 {
 	check_partition_is_legal("graphs/two");
-}
+}*/
 
 BOOST_AUTO_TEST_CASE( disconnected_test )
 {

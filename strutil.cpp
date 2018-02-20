@@ -45,6 +45,31 @@ void print_graph(Graph const& g, bool use_map)
         cout << "*********************************************************\n\n";
 }
 
+void print_graph2(Graph const& g)
+{ 
+	map<vertex_t, uint> vmap;
+	VertIter vi, vi_end;
+        uint i = 0;
+        for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi, ++i ){ 
+		vmap.insert(make_pair(*vi, i));
+        } 
+
+        cout << "\n**********************  Graph  **************************\n"; 
+	i = 0;
+        for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi, ++i ){ 
+                cout << "vert " << i;
+                OutEdgeIter ei, e_end;
+                cout << "   hos edges ";
+                for( tie(ei, e_end) = out_edges(*vi, g); ei != e_end; ++ei ){
+                        auto src = source(*ei, g);
+                        auto tar = target(*ei, g);
+                        cout << (tar == *vi ? vmap[src] : vmap[tar]) << ' ';
+                }
+                cout << '\n';
+        }
+        cout << "*********************************************************\n\n";
+}
+
 void print_edges(Graph const& g)
 {
         cout << "\n**********************  Edges  **************************\n"; 

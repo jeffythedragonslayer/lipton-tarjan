@@ -83,8 +83,7 @@ int main(int argc, char* argv[])
                 uint e = num_edges(g);
 
                 cout << "starting lipton tarjan...\n";
-                cout << "g\n";
-                print_graph(g);
+                print_graph2(g);
                 auto p = lipton_tarjan(g); 
         }
 }

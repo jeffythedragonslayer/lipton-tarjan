@@ -147,7 +147,7 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 Partition construct_vertex_partition(GraphCR g, uint l[3], BFSVisitorData& vis_data)
 {
         cout  << "\n------------ 10  - Construct Vertex Partition --------------\n";
-        print_graph(g, false);
+        print_graph2(g);
         cout << "l0: " << l[0] << '\n';
         cout << "l1: " << l[1] << '\n';
         cout << "l2: " << l[2] << '\n';
@@ -375,7 +375,7 @@ Partition new_bfs_and_make_max_planar(Graph& g_copy, GraphCR g, BFSVisitorData& 
         reset_vertex_indices(g_copy);
         reset_edge_index(g_copy);
 
-        print_graph(g_copy);
+        print_graph2(g_copy);
 
 	return locate_cycle(g_copy, g, vis_data, l); 
 }
@@ -523,6 +523,7 @@ Partition find_connected_components(Graph& g_copy, GraphCR g)
         VertIter vit, vjt;
         tie(vit, vjt) = vertices(g_copy);
         for( uint i = 0; vit != vjt; ++vit, ++i ){
+		cout << "checking vertex: " << i << '\n';
 	       	put(vertid_to_component, *vit, i);
 	}
         uint components = connected_components(g_copy, vertid_to_component);
@@ -563,12 +564,12 @@ Partition lipton_tarjan(GraphCR g)
 {
 	Graph g_copy;
 	copy_graph(g, g_copy);
+        print_graph2(g_copy);
 
         cout << "---------------------------- 1 - Check Planarity  ------------\n";
         EmbedStruct em(&g_copy);
         if( !em.test_planar() ) throw NotPlanarException();
         cout << "graph is planar\n";
-        print_graph(g_copy);
 
 	return find_connected_components(g_copy, g);
 }

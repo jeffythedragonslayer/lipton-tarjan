@@ -15,7 +15,7 @@ void verify_partition_sizes(Partition const& p)
 	uint a_verts = p.a.size();
 	uint b_verts = p.b.size();
 	uint c_verts = p.c.size();
-	uint n = a_verts + b_verts + c_verts;
+	uint n       = a_verts + b_verts + c_verts;
 
 	BOOST_CHECK(a_verts <= 2*n/3);
 	BOOST_CHECK(b_verts <= 2*n/3);
@@ -25,21 +25,19 @@ void verify_partition_sizes(Partition const& p)
 // verify that no edge joins a vertex in A with a vertex in B
 void verify_partition_edges(Partition const& p, Graph const& g)
 {
-	//typedef graph_traits<Graph>::edge_iterator edge_iter;
 	pair<EdgeIter, EdgeIter> ep;
 	EdgeIter ei, ei_end;
 	for (tie(ei, ei_end) = edges(g); ei != ei_end; ++ei){
 		auto v1 = source(*ei, g);
 		auto v2 = target(*ei, g);
-		BOOST_CHECK((find(p.c.begin(), p.c.end(), v1) != p.c.end()) || 
-			    (find(p.c.begin(), p.c.end(), v2) != p.c.end()));
+		BOOST_CHECK((find(STLALL(p.c), v1) != p.c.end()) || 
+			    (find(STLALL(p.c), v2) != p.c.end()));
 
 	}
 }
 
 void check_partition_is_legal(string graphfile)
 {
-
 	Graph g;
 	fstream f(graphfile);
 	if( !f.good() ){ 
@@ -92,7 +90,7 @@ BOOST_AUTO_TEST_CASE( box2_test )
 	check_partition_is_legal("graphs/box2");
 }
 
-BOOST_AUTO_TEST_CASE( box3_test )
+/*BOOST_AUTO_TEST_CASE( box3_test )
 {
 	check_partition_is_legal("graphs/box3");
 }
@@ -180,4 +178,4 @@ BOOST_AUTO_TEST_CASE( tri_test )
 BOOST_AUTO_TEST_CASE( two_test )
 {
 	check_partition_is_legal("graphs/two");
-}
+}*/

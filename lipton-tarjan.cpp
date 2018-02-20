@@ -103,9 +103,9 @@ Partition construct_vertex_partition(GraphCR g, uint l[3], BFSVisitorData& vis_d
                 for( tie(vei, vend) = vertices(g); vei != vend; ++vei ){ 
                         auto v = *vei;
                         cout << "level of " << v << ": " << vis_data.verts[v].level << "  ";
-                        if( vis_data.verts[v].level <  l[1] )                                  { cout << v << " belongs to first part\n";  partition.a.push_back(v); continue; }
-                        if( vis_data.verts[v].level >= l[1]+1 && vis_data.verts[v].level <= r ){ cout << v << " belongs to middle part\n"; partition.b.push_back(v); continue; }
-                        if( vis_data.verts[v].level == l[1] )                                  { cout << v << " belongs to last part\n";   partition.c.push_back(v); continue; }
+                        if( vis_data.verts[v].level <  l[1] )                                  { cout << v << " belongs to first part\n";  partition.a.insert(v); continue; }
+                        if( vis_data.verts[v].level >= l[1]+1 && vis_data.verts[v].level <= r ){ cout << v << " belongs to middle part\n"; partition.b.insert(v); continue; }
+                        if( vis_data.verts[v].level == l[1] )                                  { cout << v << " belongs to last part\n";   partition.c.insert(v); continue; }
                         assert(0);
                 } 
                 cout << "A = all verts on levels 0    thru l1-1\n";
@@ -115,15 +115,15 @@ Partition construct_vertex_partition(GraphCR g, uint l[3], BFSVisitorData& vis_d
                 return partition;
         } 
 
-        vector<vertex_t> deleted_part;
+        set<vertex_t> deleted_part;
         VertIter vei, vend;
         for( tie(vei, vend) = vertices(g); vei != vend; ++vei ){ 
                 auto v = *vei;
                 cout << "level of " << v << ": " << vis_data.verts[v].level << ", ";
-                if( vis_data.verts[v].level == l[1] || vis_data.verts[v].level == l[2] ){     cout << v << " is deleted\n";             deleted_part.push_back(v); continue;}
-                if( vis_data.verts[v].level <  l[1] ){                                        cout << v << " belongs to first part\n";  partition.a.push_back(v);  continue;}
-                if( vis_data.verts[v].level >= l[1]+1 && vis_data.verts[v].level <= l[2]-1 ){ cout << v << " belongs to middle part\n"; partition.b.push_back(v);  continue;}
-                if( vis_data.verts[v].level >  l[2]  ){                                       cout << v << " belongs to last part\n";   partition.c.push_back(v);  continue;}
+                if( vis_data.verts[v].level == l[1] || vis_data.verts[v].level == l[2] ){     cout << v << " is deleted\n";             deleted_part.insert(v); continue;}
+                if( vis_data.verts[v].level <  l[1] ){                                        cout << v << " belongs to first part\n";  partition.a.insert(v);  continue;}
+                if( vis_data.verts[v].level >= l[1]+1 && vis_data.verts[v].level <= l[2]-1 ){ cout << v << " belongs to middle part\n"; partition.b.insert(v);  continue;}
+                if( vis_data.verts[v].level >  l[2]  ){                                       cout << v << " belongs to last part\n";   partition.c.insert(v);  continue;}
                 assert(0);
         }
 
@@ -132,7 +132,7 @@ Partition construct_vertex_partition(GraphCR g, uint l[3], BFSVisitorData& vis_d
         assert(partition.c.size() <= 2*num_vertices(g)/3);
         if( partition.b.size() <= 2*num_vertices(g)/3 ){
                 cout << "middle part NOT biggest\n";
-                vector<vertex_t>* costly_part, * other1, * other2;
+                set<vertex_t>* costly_part, * other1, * other2;
 
 		partition.get_most_costly_part(&costly_part, &other1, &other2);
 

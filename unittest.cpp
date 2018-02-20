@@ -22,8 +22,19 @@ void verify_partition_sizes(Partition const& p)
 	BOOST_CHECK(c_verts <= 2*sqrt(2)*sqrt(n));
 }
 
-void verify_partition_edges(Partition const& p)
+// verify that no edge joins a vertex in A with a vertex in B
+void verify_partition_edges(Partition const& p, Graph const& g)
 {
+	//typedef graph_traits<Graph>::edge_iterator edge_iter;
+	pair<EdgeIter, EdgeIter> ep;
+	EdgeIter ei, ei_end;
+	for (tie(ei, ei_end) = edges(g); ei != ei_end; ++ei){
+		auto v1 = source(*ei, g);
+		auto v2 = target(*ei, g);
+		BOOST_CHECK((find(p.c.begin(), p.c.end(), v1) != p.c.end()) || 
+			    (find(p.c.begin(), p.c.end(), v2) != p.c.end()));
+
+	}
 }
 
 void check_partition_is_legal(string graphfile)
@@ -73,7 +84,7 @@ void check_partition_is_legal(string graphfile)
 
 
 	verify_partition_sizes(partition);
-	verify_partition_edges(partition);
+	verify_partition_edges(partition, g);
 }
 
 //BOOST_AUTO_TEST_CASE( box2my_test )

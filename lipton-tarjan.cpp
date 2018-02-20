@@ -69,7 +69,6 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 		// Now suppose G is not connected
 		cout << "graph is disconnected with " << num_components << " components\n";
 
-		bool bigger_than_one_third = false;
 
 		vector<vector<VertIter>> vertex_sets; // set of vertex ids, indexed by component number (second vector should be set but compiler did not like call to .insert())
 
@@ -84,17 +83,45 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 			vset.push_back(vit);
 		}
 
-		/* Let G1, G2, ... , Gk be the connected components of G, with vertex sets V1, V2, ... , Vk respectively.
-		If no connected component has total vertex cost > 1/3, let i be the minimum index such that the total cost of V1 U V2 U ... U Vi > 1/3
-		A = V1 U V2 U ... U Vi
-		B = Vi+1 U Vi+2 U ... U Vk
-		C = {}
-		Since i is minimum and the cost of Vi <= 1/3, the cost of A <= 2/3. return true;
-		If some connected component (say Gi) has total vertex cost between 1/3 and 2/3,
-		A = Vi
-		B = V1 U ... U Vi-1 U Vi+1 U ... U Vk
-		C = {}
-		return true*/
+		// Let G1, G2, ... , Gk be the connected components of G, with vertex sets V1, V2, ... , Vk respectively.
+		bool bigger_than_one_third = false;
+		uint i = 0;
+		for( ; i < num_components; ++i ){
+			if( num_verts_per_component[i]/3.0 > num_verts ){
+				bigger_than_one_third = true;
+			}
+		}
+
+		if( !bigger_than_one_third ){ 
+
+			//If no connected component has total vertex cost > 1/3, let i be the minimum index such that the total cost of V1 U V2 U ... U Vi > 1/3
+			uint total_cost = 0;
+			uint i = 0;
+			for( ; i < num_components; ++i ){
+				total_cost += num_verts_per_component[i];
+				if ( total_cost > num_verts/3 ) break;
+			}
+			/*A = V1 U V2 U ... U Vi
+			B = Vi+1 U Vi+2 U ... U Vk
+			C = {}
+			Since i is minimum and the cost of Vi <= 1/3, the cost of A <= 2/3. return true;*/
+			cout << "bigger than one third\n";
+			Partition p;
+			return p;
+		} else {
+	
+			/*If some connected component (say Gi) has total vertex cost between 1/3 and 2/3,
+			A = Vi
+			B = V1 U ... U Vi-1 U Vi+1 U ... U Vk
+			C = {}
+			return true*/
+			cout << "not bigger than one third\n";
+			Partition p;
+			for(uint j = 0; j < vertex_sets[i].size(); ++j){
+				p.a.insert(*vertex_sets[i][j]);
+			}
+			return p;
+		}
 
 	}
 

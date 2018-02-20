@@ -12,6 +12,14 @@ typedef adjacency_list<listS, listS, undirectedS, property<vertex_index_t, int>,
 
 void verify_partition_sizes(Partition const& p)
 {
+	uint a_verts = p.a.size();
+	uint b_verts = p.b.size();
+	uint c_verts = p.c.size();
+	uint n = a_verts + b_verts + c_verts;
+
+	BOOST_CHECK(a_verts <= 2*n/3);
+	BOOST_CHECK(b_verts <= 2*n/3);
+	BOOST_CHECK(c_verts <= 2*sqrt(2)*sqrt(n));
 }
 
 void verify_partition_edges(Partition const& p)

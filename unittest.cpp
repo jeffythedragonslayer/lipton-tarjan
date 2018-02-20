@@ -10,6 +10,14 @@ using namespace boost;
 
 typedef adjacency_list<listS, listS, undirectedS, property<vertex_index_t, int>, property<edge_index_t, int>> Graph;
 
+void verify_partition_sizes(Partition const& p)
+{
+}
+
+void verify_partition_edges(Partition const& p)
+{
+}
+
 void check_partition_is_legal(string graphfile)
 {
 
@@ -54,6 +62,10 @@ void check_partition_is_legal(string graphfile)
 	//print_graph(g);
 	auto partition = lipton_tarjan(g);
 	//partition.print();
+
+
+	verify_partition_sizes(partition);
+	verify_partition_edges(partition);
 }
 
 //BOOST_AUTO_TEST_CASE( box2my_test )

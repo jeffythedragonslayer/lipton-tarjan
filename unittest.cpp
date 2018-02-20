@@ -87,97 +87,97 @@ void check_partition_is_legal(string graphfile)
 	verify_partition_edges(partition, g);
 }
 
-//BOOST_AUTO_TEST_CASE( box2my_test )
-//{
-	//check_partition_is_legal("graphs/box2");
-//}
+BOOST_AUTO_TEST_CASE( box2_test )
+{
+	check_partition_is_legal("graphs/box2");
+}
 
-//BOOST_AUTO_TEST_CASE( box3my_test )
-//{
-	//check_partition_is_legal("graphs/box3");
-//}
+BOOST_AUTO_TEST_CASE( box3_test )
+{
+	check_partition_is_legal("graphs/box3");
+}
 
-BOOST_AUTO_TEST_CASE( emptymy_test )
+BOOST_AUTO_TEST_CASE( empty_test )
 {
 	check_partition_is_legal("graphs/empty");
 }
 
-//BOOST_AUTO_TEST_CASE( hugemy_test )
-//{
-//	check_partition_is_legal("graphs/huge");
-//}
+BOOST_AUTO_TEST_CASE( huge_test )
+{
+	check_partition_is_legal("graphs/huge");
+}
 
-//BOOST_AUTO_TEST_CASE( inmy_test )
-//{
-//	check_partition_is_legal("graphs/in");
-//}
+BOOST_AUTO_TEST_CASE( inm_test )
+{
+	check_partition_is_legal("graphs/in");
+}
 
-/*BOOST_AUTO_TEST_CASE( in2my_test )
+BOOST_AUTO_TEST_CASE( in2_test )
 {
 	check_partition_is_legal("graphs/in2");
 }
 
-BOOST_AUTO_TEST_CASE( in3my_test )
+BOOST_AUTO_TEST_CASE( in3_test )
 {
 	check_partition_is_legal("graphs/in3");
 }
 
-BOOST_AUTO_TEST_CASE( in4my_test )
+BOOST_AUTO_TEST_CASE( in4_test )
 {
 	check_partition_is_legal("graphs/in4");
 }
 
-BOOST_AUTO_TEST_CASE( insideoutmy_test )
+BOOST_AUTO_TEST_CASE( insideout_test )
 {
 	check_partition_is_legal("graphs/insideout");
-}*/
+}
 
-BOOST_AUTO_TEST_CASE( kuratowski33my_test )
+BOOST_AUTO_TEST_CASE( kuratowski33_test )
 {
 	check_partition_is_legal("graphs/kuratowski33");
 }
 
-BOOST_AUTO_TEST_CASE( kuratowski5my_test )
+BOOST_AUTO_TEST_CASE( kuratowski5_test )
 {
 	check_partition_is_legal("graphs/kuratowski5");
 }
 
-BOOST_AUTO_TEST_CASE( notkmy_test )
+BOOST_AUTO_TEST_CASE( notk_test )
 {
 	check_partition_is_legal("graphs/notk");
 }
 
-/*BOOST_AUTO_TEST_CASE( randmy_test )
+BOOST_AUTO_TEST_CASE( rand_test )
 {
 	check_partition_is_legal("graphs/rand");
 }
 
-BOOST_AUTO_TEST_CASE( rand2my_test )
+BOOST_AUTO_TEST_CASE( rand2_test )
 {
 	check_partition_is_legal("graphs/rand2");
 }
 
-BOOST_AUTO_TEST_CASE( rand3my_test )
+BOOST_AUTO_TEST_CASE( rand3_test )
 {
 	check_partition_is_legal("graphs/rand3");
-}*/
+}
 
-BOOST_AUTO_TEST_CASE( squaremy_test )
+BOOST_AUTO_TEST_CASE( square_test )
 {
 	check_partition_is_legal("graphs/square");
 }
 
-BOOST_AUTO_TEST_CASE( tiemy_test )
+BOOST_AUTO_TEST_CASE( tie_test )
 {
 	check_partition_is_legal("graphs/tie");
 }
 
-BOOST_AUTO_TEST_CASE( trimy_test )
+BOOST_AUTO_TEST_CASE( tri_test )
 {
 	check_partition_is_legal("graphs/tri");
 }
 
-BOOST_AUTO_TEST_CASE( twomy_test )
+BOOST_AUTO_TEST_CASE( two_test )
 {
 	check_partition_is_legal("graphs/two");
 }

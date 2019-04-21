@@ -55,9 +55,9 @@ int main(int argc, char** argv)
                 } else --i; 
         }
 
-        vector<int> component(num_vertices(g));
-        int num_cc = connected_components(g, &component[0]);
+        vector<uint> component(num_vertices(g));
+        uint num_cc = connected_components(g, &component[0]);
 
-        vector<int>::size_type i;
+        vector<uint>::size_type i;
         cerr << "Total number of connected components: " << num_cc << endl;
 }

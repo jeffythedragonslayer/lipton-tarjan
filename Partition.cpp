@@ -29,10 +29,11 @@ void Partition::get_most_costly_part(set<vertex_t>** most_costly,
 
 void Partition::print() const
 {
-	cout << "<<<< Partition >>>>\n"; 
-	cout << "sizes of A, B, C: " << a.size() << ", " << b.size() << ", " << c.size() << '\n';
-	cout <<   "A = "; for( auto& v : a ) cout << v << ' ';
-	cout << "\nB = "; for( auto& v : b ) cout << v << ' ';
-	cout << "\nC = "; for( auto& v : c ) cout << v << ' '; 
-	cout << "<<<< /Partition >>>>\n";
+	cout << "Partition\n"; 
+	cout << "  size of A: " << a.size() << '\n';
+	cout << "  size of B: " << b.size() << '\n';
+	cout << "  size of C: " << c.size() << '\n'; 
+	cout << "  A = "; for( auto& v : a ) cout << v << ' '; cout << '\n';
+	cout << "  B = "; for( auto& v : b ) cout << v << ' '; cout << '\n'; 
+	cout << "  C = "; for( auto& v : c ) cout << v << ' '; cout << '\n'; 
 }

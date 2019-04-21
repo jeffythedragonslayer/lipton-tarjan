@@ -187,6 +187,11 @@ Partition construct_vertex_partition(GraphCR g, uint l[3], BFSVisitorData& vis_d
         }
 
         //the only part which can have cost > 2/3 is the middle part
+        cout << "Partition A size: " << partition.a.size() << '\n';
+        cout << "Partition B size: " << partition.b.size() << '\n';
+        cout << "Partition C size: " << partition.c.size() << '\n';
+	partition.print();
+
         assert(partition.a.size() <= 2*num_vertices(g)/3);
         assert(partition.c.size() <= 2*num_vertices(g)/3);
         if( partition.b.size() <= 2*num_vertices(g)/3 ){

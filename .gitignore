@@ -33,6 +33,10 @@ core
 *.app
 *.bin
 *.elf
+planargen
+lt
+straightline
+unittest
 
 #header dependency information
 *.d
@@ -40,8 +44,4 @@ core
 #text file temporaries
 *.swp
 
-lt
-straightline
-unittest
-planargen
 .vscode

@@ -90,24 +90,24 @@ void check_partition_is_legal(string graphfile)
 /*BOOST_AUTO_TEST_CASE( box2_test )
 {
 	check_partition_is_legal("graphs/box2");
-}
+}*/
 
-BOOST_AUTO_TEST_CASE( box3_test )
+/*BOOST_AUTO_TEST_CASE( box3_test )
 {
 	check_partition_is_legal("graphs/box3");
-}
+}*/
 
 BOOST_AUTO_TEST_CASE( empty_test )
 {
 	check_partition_is_legal("graphs/empty");
 }
 
-BOOST_AUTO_TEST_CASE( huge_test )
+/*BOOST_AUTO_TEST_CASE( huge_test )
 {
 	check_partition_is_legal("graphs/huge");
-}
+}*/
 
-BOOST_AUTO_TEST_CASE( inm_test )
+/*BOOST_AUTO_TEST_CASE( in_test )
 {
 	check_partition_is_legal("graphs/in");
 }
@@ -115,22 +115,22 @@ BOOST_AUTO_TEST_CASE( inm_test )
 BOOST_AUTO_TEST_CASE( in2_test )
 {
 	check_partition_is_legal("graphs/in2");
-}
+}*/
 
-BOOST_AUTO_TEST_CASE( in3_test )
+/*BOOST_AUTO_TEST_CASE( in3_test )
 {
 	check_partition_is_legal("graphs/in3");
-}
+}*/
 
-BOOST_AUTO_TEST_CASE( in4_test )
+/*BOOST_AUTO_TEST_CASE( in4_test )
 {
 	check_partition_is_legal("graphs/in4");
-}
+}*/
 
-BOOST_AUTO_TEST_CASE( insideout_test )
+/*BOOST_AUTO_TEST_CASE( insideout_test )
 {
 	check_partition_is_legal("graphs/insideout");
-}
+}*/
 
 BOOST_AUTO_TEST_CASE( kuratowski33_test )
 {
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE( notk_test )
 	check_partition_is_legal("graphs/notk");
 }
 
-BOOST_AUTO_TEST_CASE( rand_test )
+/*BOOST_AUTO_TEST_CASE( rand_test )
 {
 	check_partition_is_legal("graphs/rand");
 }
@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE( rand2_test )
 BOOST_AUTO_TEST_CASE( rand3_test )
 {
 	check_partition_is_legal("graphs/rand3");
-}
+}*/
 
 BOOST_AUTO_TEST_CASE( square_test )
 {
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE( tri_test )
 BOOST_AUTO_TEST_CASE( two_test )
 {
 	check_partition_is_legal("graphs/two");
-}*/
+}
 
 BOOST_AUTO_TEST_CASE( disconnected_test )
 {

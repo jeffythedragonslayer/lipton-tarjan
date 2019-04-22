@@ -22,7 +22,7 @@ void verify_partition_sizes(Partition const& p)
 	BOOST_CHECK(c_verts <= 2*sqrt(2)*sqrt(n));
 }
 
-// verify that no edge joins a vertex in A with a vertex in B
+// verify that no edge joins a vertex in partition A with a vertex in partition B
 void verify_partition_edges(Partition const& p, Graph const& g)
 {
 	pair<EdgeIter, EdgeIter> ep;

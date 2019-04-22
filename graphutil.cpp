@@ -131,14 +131,19 @@ InsideOutOn edge_inside_cycle(edge_t e, vertex_t common_vert, vector<vertex_t> c
 
 edge_t arbitrary_nontree_edge(Graph const& g, BFSVisitorData const& vis_data)
 { 
+	cout << "starting arbitrary_nontree_edge function\n";
         EdgeIter ei, ei_end;
+	uint i = 0;
         for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ){
                 auto src = source(*ei, g);
                 auto tar = target(*ei, g);
+		cout << "candidate edge: " << src << ' ' << tar << '\n';
                 assert(edge(src, tar, g).second); // exists
                 assert(src != tar); 
                 if( !vis_data.is_tree_edge(*ei) ) break;
+		++i;
         }
+	cout << "total edges: " << i << '\n';
         assert(ei != ei_end);
         assert(!vis_data.is_tree_edge(*ei));
         edge_t chosen_edge = *ei;

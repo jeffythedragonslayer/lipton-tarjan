@@ -232,6 +232,7 @@ Partition construct_vertex_partition(GraphCR g, uint l[3], BFSVisitorData& vis_d
 Partition improve_separator(GraphCR g_copy, GraphCR g, CycleCost& cc, edge_t chosen_edge, BFSVisitorData& vis_data, vector<vertex_t> const& cycle, EmbedStruct const& em, bool cost_swapped, uint l[3])
 {
         cout << "---------------------------- 9 - Improve Separator -----------\n";
+	print_edges(g);
         print_edges(g_copy);
 
         while( cc.inside > num_vertices(g_copy)*2./3 ){ 
@@ -522,7 +523,7 @@ Partition bfs_and_levels(Graph& g_copy, GraphCR g, VertIter vit, VertIter vjt)
 // If some component has cost exceeding 2/3, go to Step 3.
 Partition find_connected_components(Graph& g_copy, GraphCR g)
 {
-        cout << "---------------------------- 2 - Connected Components --------\n";
+        cout << "---------------------------- 2 - Find Connected Components --------\n";
         vertex_map idx; 
         associative_property_map<vertex_map> vertid_to_component(idx);
         VertIter vit, vjt;
@@ -531,32 +532,32 @@ Partition find_connected_components(Graph& g_copy, GraphCR g)
 		cout << "checking vertex: " << i << '\n';
 	       	put(vertid_to_component, *vit, i);
 	}
-        uint components = connected_components(g_copy, vertid_to_component);
+        uint num_components = connected_components(g_copy, vertid_to_component);
 
-        cout << "# of components: " << components << '\n';
-        vector<uint> num_verts_per_component(components, 0);
+        cout << "# of components: " << num_components << '\n';
+        vector<uint> num_verts_per_component(num_components, 0);
         for( tie(vit, vjt) = vertices(g_copy); vit != vjt; ++vit ){
 	       	++num_verts_per_component[vertid_to_component[*vit]];
 	}
-        uint biggest_component = 0;
-        uint biggest_size      = 0;
-        bool bigger_than_two_thirds = false;
-        for( uint i = 0; i < components; ++i ){
+        uint biggest_component_index = 0;
+        uint biggest_size            = 0;
+        bool bigger_than_two_thirds  = false;
+        for( uint i = 0; i < num_components; ++i ){
                 if( 3*num_verts_per_component[i] > 2*num_vertices(g_copy) ){
-                        cout << "too big\n";
+                        cout << "component " << i << " is bigger than two thirds of the entire graph\n";
                         bigger_than_two_thirds = true;
                 }
                 if( num_verts_per_component[i] > biggest_size ){
                         biggest_size = num_verts_per_component[i];
-                        biggest_component = i;
+                        biggest_component_index = i;
                 }
         }
 
         if( !bigger_than_two_thirds ){
-		cout << "exiting early through theorem 4\n"; // none has cost exceeding 2/3
+		cout << "exiting early through theorem 4 - no component has cost exceeding two thirds\n";
                 return theorem4(g_copy, vertid_to_component, num_verts_per_component);
         }
-        cout << "biggest component: " << biggest_component << '\n';
+        cout << "index of biggest component: " << biggest_component_index << '\n';
 
 	return bfs_and_levels(g_copy, g, vit, vjt); // goto step 3
 }
@@ -568,8 +569,16 @@ Partition find_connected_components(Graph& g_copy, GraphCR g)
 Partition lipton_tarjan(GraphCR g)
 {
 	Graph g_copy;
-	copy_graph(g, g_copy);
-        print_graph2(g_copy);
+	//copy_graph(g, g_copy);
+	g_copy = g;
+	cout << "g:\n";
+	print_graph(g);
+	cout << "g_copy:\n";
+        print_graph(g_copy);
+
+	cout << "---------------------------- 0 -----------------------\n";
+	print_edges(g);
+	print_edges(g_copy);
 
         cout << "---------------------------- 1 - Check Planarity  ------------\n";
         EmbedStruct em(&g_copy);

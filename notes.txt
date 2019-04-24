@@ -1,0 +1,1 @@
+probably better to cleate a class called Vert2UintMap and have one of those objects per actual graph, and use that for things like printing it out

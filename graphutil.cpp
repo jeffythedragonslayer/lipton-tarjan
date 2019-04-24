@@ -207,9 +207,9 @@ EdgeIndex reset_edge_index(Graph const& g)
 void kill_vertex(vertex_t v, Graph& g)
 {
         cout << "killing vertex " << v << '\n';
-        auto i = vert2uint[v];
-        uint2vert.erase(i);
-        vert2uint.erase(v);
+        auto i = vmap.vert2uint[v];
+        vmap.uint2vert.erase(i);
+        vmap.vert2uint.erase(v);
         clear_vertex(v, g);
         remove_vertex(v, g);
 }

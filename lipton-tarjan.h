@@ -1,5 +1,6 @@
 #pragma once
 #include "Partition.h"
+#include "Vert2UintMap.h"
 #include <boost/config.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graph_traits.hpp>
@@ -22,5 +23,4 @@ typedef boost::property_map<Graph, boost::edge_index_t>::type                   
 
 Partition lipton_tarjan(Graph const& g);
 
-extern std::map<vertex_t, uint> vert2uint;
-extern std::map<uint, vertex_t> uint2vert;
+extern Vert2UintMap vmap;

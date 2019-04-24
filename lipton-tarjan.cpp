@@ -6,6 +6,7 @@
 #include "EmbedStruct.h"
 #include "ScanVisitor.h"
 #include "graphutil.h"
+#include "Vert2UintMap.h"
 #include <iostream>
 #include <algorithm>
 #include <utility>
@@ -30,9 +31,7 @@ using namespace boost;
 typedef Graph const& GraphCR; 
 typedef graph_traits<Graph>::vertex_descriptor vertex_t;
 
-map<vertex_t, uint> vert2uint;
-map<uint, vertex_t> uint2vert;
-bimap<vertex_t, uint> vu_bimap;
+Vert2UintMap vmap;
 
 Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid_to_component, vector<uint> num_verts_per_component)
 {
@@ -420,7 +419,7 @@ Partition shrinktree(Graph& g_copy, GraphCR g, VertIter vit, VertIter vjt, BFSVi
                 }
         }
 
-        auto x = add_vertex(g_copy); uint2vert[vert2uint[x] = 999999] = x; 
+        auto x = add_vertex(g_copy); vmap.uint2vert[vmap.vert2uint[x] = 999999] = x; 
         map<vertex_t, bool> t;
         for( tie(vit, vjt) = vertices(g_copy); vit != vjt; ++vit ){
                 t[*vit] = vis_data.verts[*vit].level <= l[0];
@@ -568,16 +567,18 @@ Partition find_connected_components(Graph& g_copy, GraphCR g)
 // Find a planar embedding of G and construct a representation for it of the kind described above.
 Partition lipton_tarjan(GraphCR g)
 {
-	Graph g_copy;
-	//copy_graph(g, g_copy);
+	Graph g_copy(g);
+	copy_graph(g, g_copy);
 	g_copy = g;
-	cout << "g:\n";
-	print_graph(g);
-	cout << "g_copy:\n";
-        print_graph(g_copy);
+	cout << "@#$original g:\n";
+	print_graph(g, true);
+	cout << "@#$g_copy:\n";
+        print_graph(g_copy, true);
 
-	cout << "---------------------------- 0 -----------------------\n";
+	cout << "---------------------------- 0 - Printing Edges -------------------\n";
+	cout << "edges of g:\n";
 	print_edges(g);
+	cout << "edges of g_copy:\n";
 	print_edges(g_copy);
 
         cout << "---------------------------- 1 - Check Planarity  ------------\n";

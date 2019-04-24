@@ -5,14 +5,14 @@ using namespace boost;
 
 ostream& operator<<(ostream& o, vertex_t v)
 {
-        o << vert2uint[v];
+        o << vmap.vert2uint[v];
         return o;
 }
 
 string to_string(edge_t e, Graph const& g)
 {
-        auto src = lexical_cast<string>(vert2uint[source(e, g)]);
-        auto tar = lexical_cast<string>(vert2uint[target(e, g)]);
+        auto src = lexical_cast<string>(vmap.vert2uint[source(e, g)]);
+        auto tar = lexical_cast<string>(vmap.vert2uint[target(e, g)]);
         return src + ", " + tar;
 }
 
@@ -29,7 +29,7 @@ void print_graph(Graph const& g, bool use_map)
         cout << "\n**********************  Graph  **************************\n"; 
         VertIter vi, vi_end;
         for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
-                if( use_map ) cout << "vert " << vert2uint[*vi];
+                if( use_map ) cout << "vert " << vmap.vert2uint[*vi];
                 else cout << "vert " << *vi;
                 OutEdgeIter ei, e_end;
                 cout << "   hos edges ";
@@ -37,7 +37,7 @@ void print_graph(Graph const& g, bool use_map)
                         auto src = source(*ei, g);
                         auto tar = target(*ei, g);
                         if( tar == *vi ) swap(src, tar);
-                        if( use_map ) cout << vert2uint[tar] << ' ';
+                        if( use_map ) cout << vmap.vert2uint[tar] << ' ';
                         else cout << tar << ' ';
                 }
                 cout << '\n';
@@ -77,7 +77,7 @@ void print_edges(Graph const& g)
         for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ){ 
                 auto src = source(*ei, g);
                 auto tar = target(*ei, g);
-                cout << vert2uint[src] << ", " << vert2uint[tar] << '\n';
+                cout << vmap.vert2uint[src] << ", " << vmap.vert2uint[tar] << '\n';
         } 
         cout << "*********************************************************\n\n";
 }

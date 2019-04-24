@@ -132,20 +132,20 @@ BOOST_AUTO_TEST_CASE( in2_test )
 	check_partition_is_legal("graphs/insideout");
 }*/
 
-BOOST_AUTO_TEST_CASE( kuratowski33_test )
+/*BOOST_AUTO_TEST_CASE( kuratowski33_test )
 {
 	check_partition_is_legal("graphs/kuratowski33");
-}
+}*/
 
-BOOST_AUTO_TEST_CASE( kuratowski5_test )
+/*BOOST_AUTO_TEST_CASE( kuratowski5_test )
 {
 	check_partition_is_legal("graphs/kuratowski5");
-}
+}*/
 
-BOOST_AUTO_TEST_CASE( notk_test )
+/*BOOST_AUTO_TEST_CASE( notk_test )
 {
 	check_partition_is_legal("graphs/notk");
-}
+}*/
 
 /*BOOST_AUTO_TEST_CASE( rand_test )
 {
@@ -177,10 +177,10 @@ BOOST_AUTO_TEST_CASE( tri_test )
 	check_partition_is_legal("graphs/tri");
 }
 
-BOOST_AUTO_TEST_CASE( two_test )
+/*BOOST_AUTO_TEST_CASE( two_test )
 {
 	check_partition_is_legal("graphs/two");
-}
+}*/
 
 BOOST_AUTO_TEST_CASE( disconnected_test )
 {

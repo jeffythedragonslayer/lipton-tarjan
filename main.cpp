@@ -12,10 +12,6 @@
 using namespace std;
 using namespace boost;
 
-extern map<vertex_t, uint> vert2uint;
-extern map<uint, vertex_t> uint2vert;
-extern bimap<vertex_t, uint> vu_bimap;
-
 Graph load_graph(string fname)
 {
         ifstream in(fname);
@@ -40,19 +36,19 @@ Graph load_graph(string fname)
         VertIter vi, vi_end;
         uint i = 0;
         for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
-                vert2uint[*vi] = i;
-                uint2vert[i] = *vi;
-		vu_bimap.insert({*vi, i});
+                vmap.vert2uint[*vi] = i;
+                vmap.uint2vert[i] = *vi;
+		vmap.vu_bimap.insert({*vi, i});
                 ++i;
         }
         for( auto& e : edges ){
-                auto src = uint2vert[e.first];
-                auto tar = uint2vert[e.second];
+                auto src = vmap.uint2vert[e.first];
+                auto tar = vmap.uint2vert[e.second];
 		//map<uint, vertex_t> m = vu_bimap.left;
                 add_edge(src, tar, g);
         }
 
-        vert2uint[Graph::null_vertex()] = -1;
+        vmap.vert2uint[Graph::null_vertex()] = -1;
 	//vu_bimap.insert({Graph::null_vertex(), static_cast<uint>(-1)});
         return g;
 }

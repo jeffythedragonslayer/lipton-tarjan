@@ -11,9 +11,9 @@ EmbedStruct::EmbedStruct(Graph* g) : g(g), storage(num_vertices(*g)), em(storage
 	test_planar();
 } 
 
-bool EmbedStruct::test_planar() {return boyer_myrvold_planarity_test(boyer_myrvold_params::graph = *g, boyer_myrvold_params::embedding = em);}
+bool EmbedStruct::test_planar() const {return boyer_myrvold_planarity_test(boyer_myrvold_params::graph = *g, boyer_myrvold_params::embedding = em);}
 
-void EmbedStruct::print()
+void EmbedStruct::print() const
 {
 	cout << "\n************** Embedding ************\n";
 	VertIter vi, vend;

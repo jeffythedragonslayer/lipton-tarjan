@@ -9,6 +9,6 @@ struct EmbedStruct
 
         EmbedStruct(Graph*); 
 
-        bool test_planar(); 
-        void print();
+        bool test_planar() const;
+        void print() const;
 };

@@ -12,7 +12,7 @@
 using namespace std;
 using namespace boost;
 
-Graph load_graph(string fname)
+Graph load_graph(string fname, Vert2UintMap& vmap)
 {
         ifstream in(fname);
         if( !in ){
@@ -64,7 +64,8 @@ int main(int argc, char* argv[])
 
         for( auto& f : fname ){
                 cout << "loading graph\n";
-                auto g = load_graph(f);
+                auto g = load_graph(f, vmap);
+		auto g_copy = load_graph(f, vmap_copy);
                 uint n = num_vertices(g);
 
                 auto m = get(vertex_index, g);
@@ -80,6 +81,6 @@ int main(int argc, char* argv[])
 
                 cout << "starting lipton tarjan...\n";
                 print_graph2(g);
-                auto p = lipton_tarjan(g); 
+                auto p = lipton_tarjan(g, g_copy);
         }
 }

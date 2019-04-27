@@ -23,7 +23,7 @@ void print_cycle(vector<vertex_t> const& cycle)
         cout << '\n';
 }
 
-void print_graph(Graph const& g, bool use_map)
+void print_graph_special(Graph const& g, bool use_map)
 { 
         use_map = true;
         cout << "\n**********************  Graph  **************************\n"; 

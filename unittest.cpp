@@ -66,20 +66,23 @@ void check_partition_is_legal(string graphfile)
 
 	if( num_verts == 0 ) return;
 
-	Graph g;
-	vector<vertex_t> verts(++num_verts);
+	Graph g, g_copy;
+	++num_verts;
+	vector<vertex_t> verts(num_verts), verts_copy(num_verts);
 	for( uint i = 0; i < num_verts; ++i ){
 		verts[i] = add_vertex(g);
+		verts_copy[i] = add_vertex(g_copy);
 	}
 
 	for( uint i = 0; i < edges.size(); ++i ){
 		add_edge(verts[edges[i].first], verts[edges[i].second], g);
+		add_edge(verts_copy[edges[i].first], verts_copy[edges[i].second], g);
 		cout << "added edge " << edges[i].first << ", " << edges[i].second << '\n';
 	}
 
 	cout << "starting lipton tarjan...\n";
 	print_graph2(g);
-	auto partition = lipton_tarjan(g);
+	auto partition = lipton_tarjan(g, g_copy);
 	//partition.print();
 
 

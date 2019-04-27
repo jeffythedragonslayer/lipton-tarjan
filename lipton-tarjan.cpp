@@ -31,7 +31,7 @@ using namespace boost;
 typedef Graph const& GraphCR; 
 typedef graph_traits<Graph>::vertex_descriptor vertex_t;
 
-Vert2UintMap vmap;
+Vert2UintMap vmap, vmap_copy;
 
 Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid_to_component, vector<uint> num_verts_per_component)
 {
@@ -565,15 +565,15 @@ Partition find_connected_components(Graph& g_copy, GraphCR g)
 // Time:   O(n)
 //
 // Find a planar embedding of G and construct a representation for it of the kind described above.
-Partition lipton_tarjan(GraphCR g)
+Partition lipton_tarjan(GraphCR g, Graph g_copy)
 {
-	Graph g_copy(g);
-	copy_graph(g, g_copy);
-	g_copy = g;
+	//Graph g_copy(g);
+	//copy_graph(g, g_copy);
+	//g_copy = g;
 	cout << "@#$original g:\n";
-	print_graph(g, true);
+	print_graph_special(g, true);
 	cout << "@#$g_copy:\n";
-        print_graph(g_copy, true);
+        print_graph_special(g_copy, true);
 
 	cout << "---------------------------- 0 - Printing Edges -------------------\n";
 	cout << "edges of g:\n";

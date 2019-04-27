@@ -21,6 +21,6 @@ typedef std::vector<std::vector<edge_t>>                                        
 typedef boost::iterator_property_map<EmbeddingStorage::iterator, boost::property_map<Graph, boost::vertex_index_t>::type>                                             Embedding; 
 typedef boost::property_map<Graph, boost::edge_index_t>::type                                                                                                         EdgeIndex; 
 
-Partition lipton_tarjan(Graph const& g);
+Partition lipton_tarjan(Graph const& g, Graph g_copy);
 
-extern Vert2UintMap vmap;
+extern Vert2UintMap vmap, vmap_copy;

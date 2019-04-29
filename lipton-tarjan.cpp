@@ -31,7 +31,7 @@ using namespace boost;
 typedef Graph const& GraphCR; 
 typedef graph_traits<Graph>::vertex_descriptor vertex_t;
 
-Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid_to_component, vector<uint> num_verts_per_component)
+Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid_to_component, vector<uint> const& num_verts_per_component)
 {
 	uint num_verts = num_vertices(g);
 	uint num_components = num_verts_per_component.size();

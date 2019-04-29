@@ -22,4 +22,4 @@ typedef boost::property_map<Graph, boost::edge_index_t>::type                   
 
 struct Vert2UintMap;
 
-Partition lipton_tarjan(Graph const& g, Graph g_copy, Vert2UintMap& vmap, Vert2UintMap& vmap_copy);
+Partition lipton_tarjan(Graph const& g, Graph& g_copy, Vert2UintMap&, Vert2UintMap&);

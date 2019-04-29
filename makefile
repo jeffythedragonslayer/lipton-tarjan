@@ -1,7 +1,7 @@
 CXX=clang++
 BOOST=-I/usr/local/boost_1_70_0
 CXXFLAGS=-g -ggdb -O0 -std=c++1z -c
-OBJS := main.o lipton-tarjan.o strutil.o Partition.o BFSVisitorData.o EmbedStruct.o ScanVisitor.o graphutil.o
+OBJS := main.o lipton-tarjan.o strutil.o Partition.o BFSVisitorData.o EmbedStruct.o ScanVisitor.o graphutil.o Vert2UintMap.o
 .DEFAULT_GOAL = all
 
 -include $(OBJS:.o=.d)
@@ -17,8 +17,8 @@ planargen: planargen.o
 straightline: straightline.o
 	$(CXX) straightline.o -o straightline
 
-unittest: unittest.o lipton-tarjan.o strutil.o Partition.o BFSVisitorData.o graphutil.o EmbedStruct.o ScanVisitor.o 
-	$(CXX) unittest.o lipton-tarjan.o strutil.o Partition.o BFSVisitorData.o graphutil.o EmbedStruct.o ScanVisitor.o -o unittest
+unittest: unittest.o lipton-tarjan.o strutil.o Partition.o BFSVisitorData.o graphutil.o EmbedStruct.o ScanVisitor.o Vert2UintMap.o
+	$(CXX) unittest.o lipton-tarjan.o strutil.o Partition.o BFSVisitorData.o graphutil.o EmbedStruct.o ScanVisitor.o Vert2UintMap.o -o unittest
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(BOOST) $*.cpp

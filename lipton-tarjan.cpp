@@ -563,8 +563,11 @@ Partition find_connected_components(Graph& g_copy, GraphCR g, Vert2UintMap& vmap
 // Time:   O(n)
 //
 // Find a planar embedding of G and construct a representation for it of the kind described above.
-Partition lipton_tarjan(GraphCR g, Graph g_copy, Vert2UintMap& vmap, Vert2UintMap& vmap_copy)
+Partition lipton_tarjan(GraphCR g, Graph& g_copy, Vert2UintMap& vmap, Vert2UintMap& vmap_copy)
 {
+	cout << "!!!! vmap_copy !!!!" << '\n';
+	vmap_copy.print();
+
 	//Graph g_copy(g);
 	//copy_graph(g, g_copy);
 	//g_copy = g;
@@ -573,14 +576,16 @@ Partition lipton_tarjan(GraphCR g, Graph g_copy, Vert2UintMap& vmap, Vert2UintMa
 	cout << "@#$g_copy:\n";
         print_graph_special(g_copy, vmap_copy);
 
-	cout << "---------------------------- 0 - Printing Edges -------------------\n";
-	cout << "edges of g:\n";
-	print_edges(g, vmap);
-	cout << "edges of g_copy:\n";
-	print_edges(g_copy, vmap_copy);
+	cout << endl;
+	//cout << "---------------------------- 0 - Printing Edges -------------------\n";
+	//cout << "edges of g:\n";
+	//print_edges(g, vmap);
+	//cout << "edges of g_copy:\n";
+	//print_edges(g_copy, vmap_copy);
 
         cout << "---------------------------- 1 - Check Planarity  ------------\n";
         EmbedStruct em(&g_copy);
+	cout << "about to test planar\n";
         if( !em.test_planar() ) throw NotPlanarException();
         cout << "graph is planar\n";
 

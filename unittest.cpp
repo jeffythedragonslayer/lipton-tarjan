@@ -1,6 +1,7 @@
 #define BOOST_TEST_MODULE LiptonTarjanTest
 #include "lipton-tarjan.h"
 #include "strutil.h"
+#include "Vert2UintMap.h"
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/test/included/unit_test.hpp>
 #include <string> 

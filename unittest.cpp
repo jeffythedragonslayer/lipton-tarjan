@@ -67,6 +67,7 @@ void check_partition_is_legal(string graphfile)
 	if( num_verts == 0 ) return;
 
 	Graph g, g_copy;
+	Vert2UintMap vmap, vmap_copy;
 	++num_verts;
 	vector<vertex_t> verts(num_verts), verts_copy(num_verts);
 	for( uint i = 0; i < num_verts; ++i ){

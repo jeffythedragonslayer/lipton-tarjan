@@ -1,6 +1,7 @@
 #pragma once
 #include "BFSVisitorData.h"
 #include "EmbedStruct.h"
+#include "Vert2UintMap.h"
 #include "typedefs.h"
 
 int levi_civita(uint i, uint j, uint k);
@@ -16,7 +17,7 @@ enum InsideOutOn {INSIDE, OUTSIDE, ON};
 
 InsideOutOn edge_inside_cycle(edge_t, vertex_t common_vert, std::vector<vertex_t> const& cycle, Graph const&, Embedding const&);
 
-edge_t arbitrary_nontree_edge(Graph const&, BFSVisitorData const&);
+edge_t arbitrary_nontree_edge(Graph const&, Vert2UintMap&, BFSVisitorData const&);
 
 struct CycleCost
 {
@@ -31,4 +32,4 @@ void make_max_planar(Graph&);
 void	  reset_vertex_indices(Graph&);
 EdgeIndex reset_edge_index(Graph const&);
 
-void kill_vertex(vertex_t, Graph&);
+void kill_vertex(vertex_t, Graph&, Vert2UintMap&);

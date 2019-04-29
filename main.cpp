@@ -1,4 +1,6 @@
 #include "lipton-tarjan.h"
+#include "strutil.h"
+#include "Vert2UintMap.h"
 #include <iostream> 
 #include <fstream>
 #include <csignal>
@@ -8,7 +10,6 @@
 #include <boost/algorithm/string.hpp> 
 #include <boost/graph/copy.hpp>
 #include <boost/bimap.hpp>
-#include "strutil.h"
 using namespace std;
 using namespace boost;
 
@@ -61,6 +62,8 @@ int main(int argc, char* argv[])
                 return 0;
         } 
         for( uint i = 1; i < argc; ++i ) fname.push_back(argv[i]);
+
+	Vert2UintMap vmap, vmap_copy;
 
         for( auto& f : fname ){
                 cout << "loading graph\n";

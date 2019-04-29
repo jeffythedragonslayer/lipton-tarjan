@@ -31,8 +31,6 @@ using namespace boost;
 typedef Graph const& GraphCR; 
 typedef graph_traits<Graph>::vertex_descriptor vertex_t;
 
-Vert2UintMap vmap, vmap_copy;
-
 Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid_to_component, vector<uint> num_verts_per_component)
 {
 	uint num_verts = num_vertices(g);
@@ -231,8 +229,8 @@ Partition construct_vertex_partition(GraphCR g, uint l[3], BFSVisitorData& vis_d
 Partition improve_separator(GraphCR g_copy, GraphCR g, Vert2UintMap& vmap, Vert2UintMap& vmap_copy, CycleCost& cc, edge_t chosen_edge, BFSVisitorData& vis_data, vector<vertex_t> const& cycle, EmbedStruct const& em, bool cost_swapped, uint l[3])
 {
         cout << "---------------------------- 9 - Improve Separator -----------\n";
-	print_edges(g);
-        print_edges(g_copy);
+	print_edges(g, vmap);
+        print_edges(g_copy, vmap_copy);
 
         while( cc.inside > num_vertices(g_copy)*2./3 ){ 
                 cout << "chosen_edge: " << to_string(chosen_edge, g_copy, vmap_copy) << '\n';
@@ -331,7 +329,7 @@ struct NotPlanarException {};
 Partition locate_cycle(Graph& g_copy, GraphCR g, Vert2UintMap& vmap, Vert2UintMap& vmap_copy, BFSVisitorData& vis_data, uint l[3])
 {
         cout  << "----------------------- 8 - Locate Cycle -----------------\n"; 
-        auto chosen_edge = arbitrary_nontree_edge(g_copy, vis_data);
+        auto chosen_edge = arbitrary_nontree_edge(g_copy, vmap_copy, vis_data);
         auto v1          = source(chosen_edge, g_copy);
         auto w1          = target(chosen_edge, g_copy); 
         cout << "ancestors v1...\n";
@@ -411,7 +409,7 @@ Partition shrinktree(Graph& g_copy, GraphCR g, Vert2UintMap& vmap, Vert2UintMap&
                 ++next;
                 if( vis_data.verts[*vit].level >= l[2] ){
                         cout << "deleting vertex " << *vit << " of level l2 " << vis_data.verts[*vit].level << " >= " << l[2] << '\n';
-                        kill_vertex(*vit, g_copy);
+                        kill_vertex(*vit, g_copy, vmap_copy);
                 }
                 if( vis_data.verts[*vit].level <= l[0] ){
                         cout << "going to replace vertex " << *vit << " of level l0 " << vis_data.verts[*vit].level << " <= " << l[0] << '\n';
@@ -438,11 +436,11 @@ Partition shrinktree(Graph& g_copy, GraphCR g, Vert2UintMap& vmap, Vert2UintMap&
         auto x_gone = Graph::null_vertex();
         if( !degree(x, g_copy) ){
                 cout << "no edges to x found, deleting\n";
-                kill_vertex(x, g_copy);
+                kill_vertex(x, g_copy, vmap_copy);
                 x_gone = *vertices(g_copy).first;
                 cout << "x_gone: " << x_gone << '\n';
         } else {
-                for( auto& v : replaceverts ) kill_vertex(v, g_copy); // delete all vertices x has replaced
+                for( auto& v : replaceverts ) kill_vertex(v, g_copy, vmap_copy); // delete all vertices x has replaced
         }
 
 	return new_bfs_and_make_max_planar(g_copy, g, vmap, vmap_copy, vis_data, x_gone, x, l);
@@ -577,9 +575,9 @@ Partition lipton_tarjan(GraphCR g, Graph g_copy, Vert2UintMap& vmap, Vert2UintMa
 
 	cout << "---------------------------- 0 - Printing Edges -------------------\n";
 	cout << "edges of g:\n";
-	print_edges(g);
+	print_edges(g, vmap);
 	cout << "edges of g_copy:\n";
-	print_edges(g_copy);
+	print_edges(g_copy, vmap_copy);
 
         cout << "---------------------------- 1 - Check Planarity  ------------\n";
         EmbedStruct em(&g_copy);

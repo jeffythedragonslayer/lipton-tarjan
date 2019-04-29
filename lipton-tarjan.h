@@ -1,6 +1,5 @@
 #pragma once
 #include "Partition.h"
-#include "Vert2UintMap.h"
 #include <boost/config.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graph_traits.hpp>
@@ -21,6 +20,6 @@ typedef std::vector<std::vector<edge_t>>                                        
 typedef boost::iterator_property_map<EmbeddingStorage::iterator, boost::property_map<Graph, boost::vertex_index_t>::type>                                             Embedding; 
 typedef boost::property_map<Graph, boost::edge_index_t>::type                                                                                                         EdgeIndex; 
 
-Partition lipton_tarjan(Graph const& g, Graph g_copy, Vert2UintMap& vmap, Vert2UintMap& vmap_copy);
+struct Vert2UintMap;
 
-extern Vert2UintMap vmap, vmap_copy;
+Partition lipton_tarjan(Graph const& g, Graph g_copy, Vert2UintMap& vmap, Vert2UintMap& vmap_copy);

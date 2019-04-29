@@ -1,13 +1,14 @@
 #include "strutil.h"
+#include "Vert2UintMap.h"
 #include <boost/lexical_cast.hpp>
 using namespace std;
 using namespace boost;
 
-ostream& operator<<(ostream& o, vertex_t v)
+/*ostream& operator<<(ostream& o, vertex_t v)
 {
         o << vmap.vert2uint[v];
         return o;
-}
+}*/
 
 string to_string(edge_t e, Graph const& g, Vert2UintMap& vmap)
 {
@@ -67,7 +68,7 @@ void print_graph2(Graph const& g)
         cout << "*********************************************************\n\n";
 }
 
-void print_edges(Graph const& g)
+void print_edges(Graph const& g, Vert2UintMap& vmap)
 {
         cout << "\n**********************  Edges  **************************\n"; 
         EdgeIter ei, ei_end;

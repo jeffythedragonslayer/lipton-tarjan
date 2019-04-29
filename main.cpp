@@ -81,6 +81,6 @@ int main(int argc, char* argv[])
 
                 cout << "starting lipton tarjan...\n";
                 print_graph2(g);
-                auto p = lipton_tarjan(g, g_copy);
+                auto p = lipton_tarjan(g, g_copy, vmap, vmap_copy);
         }
 }

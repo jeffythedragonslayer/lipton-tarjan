@@ -82,7 +82,7 @@ void check_partition_is_legal(string graphfile)
 
 	cout << "starting lipton tarjan...\n";
 	print_graph2(g);
-	auto partition = lipton_tarjan(g, g_copy);
+	auto partition = lipton_tarjan(g, g_copy, vmap, vmap_copy);
 	//partition.print();
 
 

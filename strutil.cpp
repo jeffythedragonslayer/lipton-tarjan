@@ -9,7 +9,7 @@ ostream& operator<<(ostream& o, vertex_t v)
         return o;
 }
 
-string to_string(edge_t e, Graph const& g)
+string to_string(edge_t e, Graph const& g, Vert2UintMap& vmap)
 {
         auto src = lexical_cast<string>(vmap.vert2uint[source(e, g)]);
         auto tar = lexical_cast<string>(vmap.vert2uint[target(e, g)]);
@@ -23,22 +23,19 @@ void print_cycle(vector<vertex_t> const& cycle)
         cout << '\n';
 }
 
-void print_graph_special(Graph const& g, bool use_map)
+void print_graph_special(Graph const& g, Vert2UintMap& vmap)
 { 
-        use_map = true;
         cout << "\n**********************  Graph  **************************\n"; 
         VertIter vi, vi_end;
         for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
-                if( use_map ) cout << "vert " << vmap.vert2uint[*vi];
-                else cout << "vert " << *vi;
+                cout << "vert " << vmap.vert2uint[*vi];
                 OutEdgeIter ei, e_end;
                 cout << "   hos edges ";
                 for( tie(ei, e_end) = out_edges(*vi, g); ei != e_end; ++ei ){
                         auto src = source(*ei, g);
                         auto tar = target(*ei, g);
                         if( tar == *vi ) swap(src, tar);
-                        if( use_map ) cout << vmap.vert2uint[tar] << ' ';
-                        else cout << tar << ' ';
+                        cout << vmap.vert2uint[tar] << ' ';
                 }
                 cout << '\n';
         }

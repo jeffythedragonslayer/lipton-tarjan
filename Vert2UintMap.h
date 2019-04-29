@@ -8,5 +8,3 @@ struct Vert2UintMap
 	std::map<uint, vertex_t>     uint2vert;
 	boost::bimap<vertex_t, uint> vu_bimap; 
 };
-
-extern Vert2UintMap vmap;

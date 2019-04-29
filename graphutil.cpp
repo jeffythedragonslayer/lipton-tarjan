@@ -147,7 +147,7 @@ edge_t arbitrary_nontree_edge(Graph const& g, BFSVisitorData const& vis_data)
         assert(ei != ei_end);
         assert(!vis_data.is_tree_edge(*ei));
         edge_t chosen_edge = *ei;
-        cout << "arbitrarily choosing nontree edge: " << to_string(chosen_edge, g) << '\n';
+        cout << "arbitrarily choosing nontree edge: " << to_string(chosen_edge, g, vmap) << '\n';
         return chosen_edge;
 }
 

@@ -23,4 +23,4 @@ typedef boost::property_map<Graph, boost::edge_index_t>::type                   
 
 Partition lipton_tarjan(Graph const& g);
 
-extern Vert2UintMap vmap;
+extern Vert2UintMap vmap, vmap_copy;

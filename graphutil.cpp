@@ -2,8 +2,11 @@
 #include "BFSVisitorData.h"
 #include "strutil.h"
 #include <iostream>
+#include <fstream>
 #include <boost/graph/make_biconnected_planar.hpp>
 #include <boost/graph/make_maximal_planar.hpp>
+#include <boost/algorithm/string.hpp> 
+#include <boost/lexical_cast.hpp>
 using namespace std;
 using namespace boost;
 
@@ -147,7 +150,7 @@ edge_t arbitrary_nontree_edge(Graph const& g, BFSVisitorData const& vis_data)
         assert(ei != ei_end);
         assert(!vis_data.is_tree_edge(*ei));
         edge_t chosen_edge = *ei;
-        cout << "arbitrarily choosing nontree edge: " << to_string(chosen_edge, g) << '\n';
+        cout << "arbitrarily choosing nontree edge: " << to_string(chosen_edge, vmap, g) << '\n';
         return chosen_edge;
 }
 
@@ -212,4 +215,57 @@ void kill_vertex(vertex_t v, Graph& g)
         vmap.vert2uint.erase(v);
         clear_vertex(v, g);
         remove_vertex(v, g);
+}
+
+void create_vmap_from_graph(Graph const& g, Vert2UintMap& vmap)
+{
+        VertIter vi, vi_end;
+        uint i = 0;
+        for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
+                vmap.vert2uint[*vi] = i;
+                vmap.uint2vert[i] = *vi;
+		vmap.vu_bimap.insert({*vi, i});
+                ++i;
+        }
+}
+
+Graph load_graph(string const& fname, Vert2UintMap& vmap)
+{
+        ifstream in(fname);
+        if( !in ){
+                cerr << "file \"in\" not found!\n";
+                exit(1);
+        }
+
+        string str;
+        vector<pair<uint, uint>> edges;
+        uint max_v = 0;
+        while( getline(in, str) ){
+                uint   colon = str.find(","); 
+                string stra  = str.substr(0, colon); trim(stra);
+                string strb  = str.substr(colon+1 ); trim(strb); 
+                uint   a     = lexical_cast<uint>(stra);
+                uint   b     = lexical_cast<uint>(strb);
+                max_v = max(max(max_v, a), b);
+                edges.push_back(make_pair(a, b));
+        } 
+        Graph g(max_v+1);
+        VertIter vi, vi_end;
+        uint i = 0;
+        for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
+                vmap.vert2uint[*vi] = i;
+                vmap.uint2vert[i] = *vi;
+		vmap.vu_bimap.insert({*vi, i});
+                ++i;
+        }
+        for( auto& e : edges ){
+                auto src = vmap.uint2vert[e.first];
+                auto tar = vmap.uint2vert[e.second];
+		//map<uint, vertex_t> m = vu_bimap.left;
+                add_edge(src, tar, g);
+        }
+
+        vmap.vert2uint[Graph::null_vertex()] = -1;
+	//vu_bimap.insert({Graph::null_vertex(), static_cast<uint>(-1)});
+        return g;
 }

@@ -31,7 +31,7 @@ using namespace boost;
 typedef Graph const& GraphCR; 
 typedef graph_traits<Graph>::vertex_descriptor vertex_t;
 
-Vert2UintMap vmap;
+Vert2UintMap vmap, vmap_copy;
 
 Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid_to_component, vector<uint> num_verts_per_component)
 {
@@ -231,11 +231,11 @@ Partition construct_vertex_partition(GraphCR g, uint l[3], BFSVisitorData& vis_d
 Partition improve_separator(GraphCR g_copy, GraphCR g, CycleCost& cc, edge_t chosen_edge, BFSVisitorData& vis_data, vector<vertex_t> const& cycle, EmbedStruct const& em, bool cost_swapped, uint l[3])
 {
         cout << "---------------------------- 9 - Improve Separator -----------\n";
-	print_edges(g);
-        print_edges(g_copy);
+	print_edges(g, vmap);
+        print_edges(g_copy, vmap_copy);
 
         while( cc.inside > num_vertices(g_copy)*2./3 ){ 
-                cout << "chosen_edge: " << to_string(chosen_edge, g_copy) << '\n';
+                cout << "chosen_edge: " << to_string(chosen_edge, vmap_copy, g_copy) << '\n';
                 cout << "const inside: " << cc.inside  << '\n';
                 cout << "const outide: " << cc.outside << '\n';
                 cout << "looking for a better cycle\n";
@@ -254,7 +254,7 @@ Partition improve_separator(GraphCR g_copy, GraphCR g, CycleCost& cc, edge_t cho
                 cout << "   intersectbegin: " << *intersect.begin() << '\n';
 
                 auto eee = edge(vi, *intersect.begin(), g_copy);
-                cout << "eee: " << to_string(eee.first, g_copy) << '\n';
+                cout << "eee: " << to_string(eee.first, vmap_copy, g_copy) << '\n';
                 assert(eee.second);
 
                 InsideOutOn insideout = edge_inside_cycle(eee.first, *intersect.begin(), cycle, g_copy, em.em);
@@ -570,16 +570,21 @@ Partition lipton_tarjan(GraphCR g)
 	Graph g_copy(g);
 	copy_graph(g, g_copy);
 	g_copy = g;
+
+	create_vmap_from_graph(g_copy, vmap_copy);
+
+
 	cout << "@#$original g:\n";
-	print_graph(g, true);
+	print_graph_special(g, vmap, true);
 	cout << "@#$g_copy:\n";
-        print_graph(g_copy, true);
+        print_graph_special(g_copy, vmap_copy, true);
+	//print_graph2(g_copy);
 
 	cout << "---------------------------- 0 - Printing Edges -------------------\n";
 	cout << "edges of g:\n";
-	print_edges(g);
+	print_edges(g, vmap_copy);
 	cout << "edges of g_copy:\n";
-	print_edges(g_copy);
+	print_edges(g_copy, vmap_copy);
 
         cout << "---------------------------- 1 - Check Planarity  ------------\n";
         EmbedStruct em(&g_copy);

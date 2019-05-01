@@ -1,5 +1,4 @@
 #pragma once
-#include "lipton-tarjan.h" 
 #include <boost/bimap.hpp>
 
 struct Vert2UintMap
@@ -9,4 +8,4 @@ struct Vert2UintMap
 	boost::bimap<vertex_t, uint> vu_bimap; 
 };
 
-extern Vert2UintMap vmap;
+extern Vert2UintMap vmap, vmap_copy;

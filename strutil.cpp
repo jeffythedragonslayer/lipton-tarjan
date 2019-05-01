@@ -3,13 +3,13 @@
 using namespace std;
 using namespace boost;
 
-ostream& operator<<(ostream& o, vertex_t v)
+/*ostream& operator<<(ostream& o, vertex_t v)
 {
         o << vmap.vert2uint[v];
         return o;
-}
+}*/
 
-string to_string(edge_t e, Graph const& g)
+string to_string(edge_t e, Vert2UintMap& vmap, Graph const& g)
 {
         auto src = lexical_cast<string>(vmap.vert2uint[source(e, g)]);
         auto tar = lexical_cast<string>(vmap.vert2uint[target(e, g)]);
@@ -23,10 +23,10 @@ void print_cycle(vector<vertex_t> const& cycle)
         cout << '\n';
 }
 
-void print_graph(Graph const& g, bool use_map)
+void print_graph_special(Graph const& g, Vert2UintMap& vmap, bool use_map)
 { 
         use_map = true;
-        cout << "\n**********************  Graph  **************************\n"; 
+        cout << "\n**********************  Graph  ** print_graph_special ***\n"; 
         VertIter vi, vi_end;
         for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
                 if( use_map ) cout << "vert " << vmap.vert2uint[*vi];
@@ -47,6 +47,7 @@ void print_graph(Graph const& g, bool use_map)
 
 void print_graph2(Graph const& g)
 { 
+        cout << "\n**********************  Graph  ** print_graph2 **********\n"; 
 	map<vertex_t, uint> vmap;
 	VertIter vi, vi_end;
         uint i = 0;
@@ -54,7 +55,6 @@ void print_graph2(Graph const& g)
 		vmap.insert(make_pair(*vi, i));
         } 
 
-        cout << "\n**********************  Graph  **************************\n"; 
 	i = 0;
         for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi, ++i ){ 
                 cout << "vert " << i;
@@ -70,7 +70,7 @@ void print_graph2(Graph const& g)
         cout << "*********************************************************\n\n";
 }
 
-void print_edges(Graph const& g)
+void print_edges(Graph const& g, Vert2UintMap& vmap)
 {
         cout << "\n**********************  Edges  **************************\n"; 
         EdgeIter ei, ei_end;

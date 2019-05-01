@@ -1,6 +1,7 @@
 #pragma once
 #include "BFSVisitorData.h"
 #include "EmbedStruct.h"
+#include "Vert2UintMap.h"
 #include "typedefs.h"
 
 int levi_civita(uint i, uint j, uint k);
@@ -32,3 +33,7 @@ void	  reset_vertex_indices(Graph&);
 EdgeIndex reset_edge_index(Graph const&);
 
 void kill_vertex(vertex_t, Graph&);
+
+Graph load_graph(std::string const& fname, Vert2UintMap& vmap);
+
+void create_vmap_from_graph(Graph const& g, Vert2UintMap& vmap);

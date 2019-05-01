@@ -241,13 +241,13 @@ Graph load_graph(string const& fname, Vert2UintMap& vmap)
 
         string str;
         vector<pair<uint, uint>> edges;
-        uint max_v = 0;
+        int max_v = -1;
         while( getline(in, str) ){
                 uint   colon = str.find(","); 
                 string stra  = str.substr(0, colon); trim(stra);
                 string strb  = str.substr(colon+1 ); trim(strb); 
-                uint   a     = lexical_cast<uint>(stra);
-                uint   b     = lexical_cast<uint>(strb);
+                int   a     = lexical_cast<int>(stra);
+                int   b     = lexical_cast<int>(strb);
                 max_v = max(max(max_v, a), b);
                 edges.push_back(make_pair(a, b));
         } 
@@ -268,6 +268,6 @@ Graph load_graph(string const& fname, Vert2UintMap& vmap)
         }
 
         vmap.vert2uint[Graph::null_vertex()] = -1;
-	//vu_bimap.insert({Graph::null_vertex(), static_cast<uint>(-1)});
+	vmap.vu_bimap.insert({Graph::null_vertex(), static_cast<uint>(-1)});
         return g;
 }

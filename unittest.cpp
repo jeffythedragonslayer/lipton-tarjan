@@ -82,6 +82,8 @@ void check_partition_is_legal(string graphfile, bool legal)
 	cout << "starting lipton tarjan...\n";
 	print_graph2(g);
 
+	BOOST_CHECK(true);
+
 	try { 
 		Vert2UintMap vmap;
 		create_vmap_from_graph(g, vmap);
@@ -145,12 +147,12 @@ BOOST_AUTO_TEST_CASE( in2_test )
 	check_partition_is_legal("graphs/insideout");
 }*/
 
-/*BOOST_AUTO_TEST_CASE( kuratowski33_test )
+BOOST_AUTO_TEST_CASE( kuratowski33_test )
 {
 	check_partition_is_legal("graphs/kuratowski33", false);
 }
 
-BOOST_AUTO_TEST_CASE( kuratowski5_test )
+/*BOOST_AUTO_TEST_CASE( kuratowski5_test )
 {
 	check_partition_is_legal("graphs/kuratowski5", false);
 }*/
@@ -162,10 +164,10 @@ BOOST_AUTO_TEST_CASE( kuratowski5_test )
 
 /*BOOST_AUTO_TEST_CASE( rand_test )
 {
-	check_partition_is_legal("graphs/rand");
-}
+	check_partition_is_legal("graphs/rand", true);
+}*/
 
-BOOST_AUTO_TEST_CASE( rand2_test )
+/*BOOST_AUTO_TEST_CASE( rand2_test )
 {
 	check_partition_is_legal("graphs/rand2");
 }

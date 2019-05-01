@@ -564,6 +564,11 @@ Partition find_connected_components(Graph& g_copy, GraphCR g, Vert2UintMap& vmap
 // Find a planar embedding of G and construct a representation for it of the kind described above.
 Partition lipton_tarjan(GraphCR g, Vert2UintMap& vmap)
 {
+	Vert2UintMap blank;
+	vmap = blank;
+	create_vmap_from_graph(g, vmap);
+
+
 	Graph g_copy(g);
 	copy_graph(g, g_copy);
 	g_copy = g;

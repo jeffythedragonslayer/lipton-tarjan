@@ -40,4 +40,5 @@ int main(int argc, char* argv[])
                 print_graph2(g);
                 auto p = lipton_tarjan(g); 
         }
+	cout << "Finished!\n";
 }

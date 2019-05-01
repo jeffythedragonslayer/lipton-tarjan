@@ -1,6 +1,8 @@
 #define BOOST_TEST_MODULE LiptonTarjanTest
 #include "lipton-tarjan.h"
 #include "strutil.h"
+#include "Vert2UintMap.h"
+#include "graphutil.h"
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/test/included/unit_test.hpp>
 #include <string> 
@@ -37,7 +39,7 @@ void verify_partition_edges(Partition const& p, Graph const& g)
 	}
 }
 
-void check_partition_is_legal(string graphfile)
+void check_partition_is_legal(string graphfile, bool legal)
 {
 	fstream f(graphfile);
 	if( !f.good() ){ 
@@ -79,12 +81,22 @@ void check_partition_is_legal(string graphfile)
 
 	cout << "starting lipton tarjan...\n";
 	print_graph2(g);
-	auto partition = lipton_tarjan(g);
-	//partition.print();
 
+	try {
 
-	verify_partition_sizes(partition);
-	verify_partition_edges(partition, g);
+		create_vmap_from_graph(g, vmap);
+		auto partition = lipton_tarjan(g);
+		//partition.print();
+
+		verify_partition_sizes(partition);
+		verify_partition_edges(partition, g);
+
+		BOOST_CHECK(legal);
+
+	} catch (NotPlanarException e) {
+
+		BOOST_CHECK(!legal);
+	}
 }
 
 /*BOOST_AUTO_TEST_CASE( box2_test )
@@ -99,7 +111,7 @@ void check_partition_is_legal(string graphfile)
 
 BOOST_AUTO_TEST_CASE( empty_test )
 {
-	check_partition_is_legal("graphs/empty");
+	check_partition_is_legal("graphs/empty", false);
 }
 
 /*BOOST_AUTO_TEST_CASE( huge_test )
@@ -134,12 +146,12 @@ BOOST_AUTO_TEST_CASE( in2_test )
 
 /*BOOST_AUTO_TEST_CASE( kuratowski33_test )
 {
-	check_partition_is_legal("graphs/kuratowski33");
-}*/
+	check_partition_is_legal("graphs/kuratowski33", false);
+}
 
-/*BOOST_AUTO_TEST_CASE( kuratowski5_test )
+BOOST_AUTO_TEST_CASE( kuratowski5_test )
 {
-	check_partition_is_legal("graphs/kuratowski5");
+	check_partition_is_legal("graphs/kuratowski5", false);
 }*/
 
 /*BOOST_AUTO_TEST_CASE( notk_test )
@@ -164,25 +176,25 @@ BOOST_AUTO_TEST_CASE( rand3_test )
 
 BOOST_AUTO_TEST_CASE( square_test )
 {
-	check_partition_is_legal("graphs/square");
+	check_partition_is_legal("graphs/square", true);
 }
 
-BOOST_AUTO_TEST_CASE( tie_test )
+/*BOOST_AUTO_TEST_CASE( tie_test )
 {
 	check_partition_is_legal("graphs/tie");
-}
+}*/
 
-BOOST_AUTO_TEST_CASE( tri_test )
+/*BOOST_AUTO_TEST_CASE( tri_test )
 {
 	check_partition_is_legal("graphs/tri");
-}
+}*/
 
 /*BOOST_AUTO_TEST_CASE( two_test )
 {
 	check_partition_is_legal("graphs/two");
 }*/
 
-BOOST_AUTO_TEST_CASE( disconnected_test )
+/*BOOST_AUTO_TEST_CASE( disconnected_test )
 {
-	check_partition_is_legal("graphs/disconnected");
-}
+	check_partition_is_legal("graphs/disconnected", false);
+}*/

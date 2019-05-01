@@ -8,6 +8,7 @@ typedef boost::graph_traits<Graph>::vertex_iterator VertIter;
 
 EmbedStruct::EmbedStruct(Graph* g) : g(g), storage(num_vertices(*g)), em(storage.begin()) 
 {
+	cout << "EmbedStruct ctor\n";
 	test_planar();
 } 
 

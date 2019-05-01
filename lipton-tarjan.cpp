@@ -31,8 +31,6 @@ using namespace boost;
 typedef Graph const& GraphCR; 
 typedef graph_traits<Graph>::vertex_descriptor vertex_t;
 
-Vert2UintMap vmap, vmap_copy;
-
 Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid_to_component, vector<uint> num_verts_per_component)
 {
 	uint num_verts = num_vertices(g);
@@ -318,7 +316,6 @@ Partition improve_separator(GraphCR g_copy, GraphCR g, CycleCost& cc, edge_t cho
 	return construct_vertex_partition(g, l, vis_data);
 }
 
-struct NotPlanarException {}; 
 
 // Step 8: locate_cycle
 // Time: O(n)
@@ -411,7 +408,7 @@ Partition shrinktree(Graph& g_copy, GraphCR g, VertIter vit, VertIter vjt, BFSVi
                 ++next;
                 if( vis_data.verts[*vit].level >= l[2] ){
                         cout << "deleting vertex " << *vit << " of level l2 " << vis_data.verts[*vit].level << " >= " << l[2] << '\n';
-                        kill_vertex(*vit, g_copy);
+                        kill_vertex(*vit, g_copy, vmap_copy);
                 }
                 if( vis_data.verts[*vit].level <= l[0] ){
                         cout << "going to replace vertex " << *vit << " of level l0 " << vis_data.verts[*vit].level << " <= " << l[0] << '\n';
@@ -438,11 +435,11 @@ Partition shrinktree(Graph& g_copy, GraphCR g, VertIter vit, VertIter vjt, BFSVi
         auto x_gone = Graph::null_vertex();
         if( !degree(x, g_copy) ){
                 cout << "no edges to x found, deleting\n";
-                kill_vertex(x, g_copy);
+                kill_vertex(x, g_copy, vmap_copy);
                 x_gone = *vertices(g_copy).first;
                 cout << "x_gone: " << x_gone << '\n';
         } else {
-                for( auto& v : replaceverts ) kill_vertex(v, g_copy); // delete all vertices x has replaced
+                for( auto& v : replaceverts ) kill_vertex(v, g_copy, vmap_copy); // delete all vertices x has replaced
         }
 
 	return new_bfs_and_make_max_planar(g_copy, g, vis_data, x_gone, x, l);
@@ -528,12 +525,12 @@ Partition find_connected_components(Graph& g_copy, GraphCR g)
         VertIter vit, vjt;
         tie(vit, vjt) = vertices(g_copy);
         for( uint i = 0; vit != vjt; ++vit, ++i ){
-		cout << "checking vertex: " << i << '\n';
+		cout << "checking vertex number: " << i << ' ' << *vit << '\n';
 	       	put(vertid_to_component, *vit, i);
 	}
         uint num_components = connected_components(g_copy, vertid_to_component);
 
-        cout << "# of components: " << num_components << '\n';
+        cout << "# of connected components: " << num_components << '\n';
         vector<uint> num_verts_per_component(num_components, 0);
         for( tie(vit, vjt) = vertices(g_copy); vit != vjt; ++vit ){
 	       	++num_verts_per_component[vertid_to_component[*vit]];
@@ -573,16 +570,15 @@ Partition lipton_tarjan(GraphCR g)
 
 	create_vmap_from_graph(g_copy, vmap_copy);
 
-
 	cout << "@#$original g:\n";
-	print_graph_special(g, vmap, true);
+	print_graph_special(g, vmap);
 	cout << "@#$g_copy:\n";
-        print_graph_special(g_copy, vmap_copy, true);
+        print_graph_special(g_copy, vmap_copy);
 	//print_graph2(g_copy);
 
 	cout << "---------------------------- 0 - Printing Edges -------------------\n";
 	cout << "edges of g:\n";
-	print_edges(g, vmap_copy);
+	print_edges(g, vmap);
 	cout << "edges of g_copy:\n";
 	print_edges(g_copy, vmap_copy);
 

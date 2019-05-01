@@ -207,7 +207,7 @@ EdgeIndex reset_edge_index(Graph const& g)
         return edgedesc_to_uint;
 } 
 
-void kill_vertex(vertex_t v, Graph& g)
+void kill_vertex(vertex_t v, Graph& g, Vert2UintMap& vmap)
 {
         cout << "killing vertex " << v << '\n';
         auto i = vmap.vert2uint[v];
@@ -229,12 +229,14 @@ void create_vmap_from_graph(Graph const& g, Vert2UintMap& vmap)
         }
 }
 
+struct FileNotFound {};
+
 Graph load_graph(string const& fname, Vert2UintMap& vmap)
 {
         ifstream in(fname);
         if( !in ){
                 cerr << "file \"in\" not found!\n";
-                exit(1);
+		throw FileNotFound();
         }
 
         string str;

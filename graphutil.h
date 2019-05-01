@@ -32,7 +32,7 @@ void make_max_planar(Graph&);
 void	  reset_vertex_indices(Graph&);
 EdgeIndex reset_edge_index(Graph const&);
 
-void kill_vertex(vertex_t, Graph&);
+void kill_vertex(vertex_t, Graph&, Vert2UintMap& vmap);
 
 Graph load_graph(std::string const& fname, Vert2UintMap& vmap);
 

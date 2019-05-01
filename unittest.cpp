@@ -147,10 +147,10 @@ BOOST_AUTO_TEST_CASE( in2_test )
 	check_partition_is_legal("graphs/insideout");
 }*/
 
-BOOST_AUTO_TEST_CASE( kuratowski33_test )
+/*BOOST_AUTO_TEST_CASE( kuratowski33_test )
 {
 	check_partition_is_legal("graphs/kuratowski33", false);
-}
+}*/
 
 /*BOOST_AUTO_TEST_CASE( kuratowski5_test )
 {

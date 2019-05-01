@@ -152,24 +152,27 @@ Partition construct_vertex_partition(GraphCR g, uint l[3], BFSVisitorData& vis_d
         uint r = vis_data.num_levels;
         cout << "r: " << r << '\n';
 
-	Partition partition;
+	Partition p;
         if( l[1] >= l[2] ){ 
                 cout << "l1 is less than l2\n"; 
                 VertIter vei, vend;
                 for( tie(vei, vend) = vertices(g); vei != vend; ++vei ){ 
                         auto v = *vei;
                         cout << "level of " << v << ": " << vis_data.verts[v].level << "  ";
-                        if( vis_data.verts[v].level <  l[1] )                                  { cout << v << " belongs to first part\n";  partition.a.insert(v); continue; }
-                        if( vis_data.verts[v].level >= l[1]+1 && vis_data.verts[v].level <= r ){ cout << v << " belongs to middle part\n"; partition.b.insert(v); continue; }
-                        if( vis_data.verts[v].level == l[1] )                                  { cout << v << " belongs to last part\n";   partition.c.insert(v); continue; }
+                        if( vis_data.verts[v].level <  l[1] )                                  { cout << v << " belongs to first part\n";  p.a.insert(v); continue; }
+                        if( vis_data.verts[v].level >= l[1]+1 && vis_data.verts[v].level <= r ){ cout << v << " belongs to middle part\n"; p.b.insert(v); continue; }
+                        if( vis_data.verts[v].level == l[1] )                                  { cout << v << " belongs to last part\n";   p.c.insert(v); continue; }
                         assert(0);
                 } 
                 cout << "A = all verts on levels 0    thru l1-1\n";
                 cout << "B = all verts on levels l1+1 thru r\n";
                 cout << "C = all verts on llevel l1\n";
-		partition.print();
-                return partition;
+		p.print();
+                return p;
         } 
+
+	cout << "l1 is greater than or equal to l2\n";
+
 
         set<vertex_t> deleted_part;
         VertIter vei, vend;
@@ -177,32 +180,32 @@ Partition construct_vertex_partition(GraphCR g, uint l[3], BFSVisitorData& vis_d
                 auto v = *vei;
                 cout << "level of " << v << ": " << vis_data.verts[v].level << ", ";
                 if( vis_data.verts[v].level == l[1] || vis_data.verts[v].level == l[2] ){     cout << v << " is deleted\n";             deleted_part.insert(v); continue;}
-                if( vis_data.verts[v].level <  l[1] ){                                        cout << v << " belongs to first part\n";  partition.a.insert(v);  continue;}
-                if( vis_data.verts[v].level >= l[1]+1 && vis_data.verts[v].level <= l[2]-1 ){ cout << v << " belongs to middle part\n"; partition.b.insert(v);  continue;}
-                if( vis_data.verts[v].level >  l[2]  ){                                       cout << v << " belongs to last part\n";   partition.c.insert(v);  continue;}
+                if( vis_data.verts[v].level <  l[1] ){                                        cout << v << " belongs to first part\n";  p.a.insert(v);  continue;}
+                if( vis_data.verts[v].level >= l[1]+1 && vis_data.verts[v].level <= l[2]-1 ){ cout << v << " belongs to middle part\n"; p.b.insert(v);  continue;}
+                if( vis_data.verts[v].level >  l[2]  ){                                       cout << v << " belongs to last part\n";   p.c.insert(v);  continue;}
                 assert(0);
         }
 
         //the only part which can have cost > 2/3 is the middle part
-        cout << "Partition A size: " << partition.a.size() << '\n';
-        cout << "Partition B size: " << partition.b.size() << '\n';
-        cout << "Partition C size: " << partition.c.size() << '\n';
-	partition.print();
+        cout << "Partition A size: " << p.a.size() << '\n';
+        cout << "Partition B size: " << p.b.size() << '\n';
+        cout << "Partition C size: " << p.c.size() << '\n';
+	p.print();
 
-        assert(partition.a.size() <= 2*num_vertices(g)/3);
-        assert(partition.c.size() <= 2*num_vertices(g)/3);
-        if( partition.b.size() <= 2*num_vertices(g)/3 ){
-                cout << "middle part NOT biggest\n";
+        assert(p.a.size() <= 2*num_vertices(g)/3);
+        assert(p.c.size() <= 2*num_vertices(g)/3);
+        if( p.b.size() <= 2*num_vertices(g)/3 ){
+                cout << "middle part is NOT biggest\n";
                 set<vertex_t>* costly_part, * other1, * other2;
 
-		partition.get_most_costly_part(&costly_part, &other1, &other2);
+		p.get_most_costly_part(&costly_part, &other1, &other2);
 
-		partition.print();
+		p.print();
                 cout <<   "A = most costly part of the 3: "; for( auto& a : *costly_part ) cout << a << ' ';
                 cout << "\nB = remaining 2 parts        : "; for( auto& b : *other1      ) cout << b << ' '; for( auto& b : *other2 ) cout << b << ' '; 
                 cout << "\nC =                          : "; for( auto& v : deleted_part ) cout << v << ' '; cout << '\n';
         } else {
-                cout << "middle partition.biggest\n";
+                cout << "middle partition is biggest\n";
                 //delete all verts on level l2 and above
                 //shrink all verts on levels l1 and belowe to a single vertex of cost zero
                 //The new graph has a spanning tree radius of l2 - l1 -1 whose root corresponds to vertices on levels l1 and below in the original graph
@@ -215,7 +218,7 @@ Partition construct_vertex_partition(GraphCR g, uint l[3], BFSVisitorData& vis_d
                 //But A U C* has total cost >= 1/3, so B also has total cost <= 2/3
                 //Futhermore, C contains no more than L[l1] + L[l2] + 2(l2 - l1 - 1)
         }
-        return partition;
+        return p;
 }
 
 // Step 9: Improve Separator
@@ -568,7 +571,6 @@ Partition lipton_tarjan(GraphCR g, Vert2UintMap& vmap)
 	vmap = blank;
 	create_vmap_from_graph(g, vmap);
 
-
 	Graph g_copy(g);
 	copy_graph(g, g_copy);
 	g_copy = g;
@@ -590,7 +592,11 @@ Partition lipton_tarjan(GraphCR g, Vert2UintMap& vmap)
 
         cout << "---------------------------- 1 - Check Planarity  ------------\n";
         EmbedStruct em(&g_copy);
-        if( !em.test_planar() ) throw NotPlanarException();
+        if( !em.test_planar() ){
+		cout << "not planar\n";
+		throw NotPlanarException();
+	}
+
         cout << "graph is planar\n";
 
 	return find_connected_components(g_copy, g, vmap, vmap_copy);

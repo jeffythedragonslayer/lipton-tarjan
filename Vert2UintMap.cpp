@@ -2,8 +2,6 @@
 #include <iostream>
 using namespace std;
 
-Vert2UintMap vmap, vmap_copy;
-
 void Vert2UintMap::print() const
 {
        cout << "Vert2UintMap::print()    this == " << this << '\n';

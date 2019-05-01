@@ -9,7 +9,10 @@ typedef boost::graph_traits<Graph>::vertex_iterator VertIter;
 EmbedStruct::EmbedStruct(Graph* g) : g(g), storage(num_vertices(*g)), em(storage.begin()) 
 {
 	cout << "EmbedStruct ctor\n";
-	test_planar();
+	bool p = test_planar();
+	if (!p){
+		cout << "this graph is not planar\n";
+	}
 } 
 
 bool EmbedStruct::test_planar() const {return boyer_myrvold_planarity_test(boyer_myrvold_params::graph = *g, boyer_myrvold_params::embedding = em);}

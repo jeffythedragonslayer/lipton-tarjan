@@ -22,6 +22,7 @@ int main(int argc, char* argv[])
 
         for( auto& f : fname ){
                 cout << "loading graph\n";
+		Vert2UintMap vmap;
                 auto g = load_graph(f, vmap);
                 uint n = num_vertices(g);
 
@@ -38,7 +39,7 @@ int main(int argc, char* argv[])
 
                 cout << "starting lipton tarjan...\n";
                 print_graph2(g);
-                auto p = lipton_tarjan(g); 
+                auto p = lipton_tarjan(g, vmap);
         }
 	cout << "Finished!\n";
 }

@@ -82,10 +82,10 @@ void check_partition_is_legal(string graphfile, bool legal)
 	cout << "starting lipton tarjan...\n";
 	print_graph2(g);
 
-	try {
-
+	try { 
+		Vert2UintMap vmap;
 		create_vmap_from_graph(g, vmap);
-		auto partition = lipton_tarjan(g);
+		auto partition = lipton_tarjan(g, vmap);
 		//partition.print();
 
 		verify_partition_sizes(partition);
@@ -95,6 +95,7 @@ void check_partition_is_legal(string graphfile, bool legal)
 
 	} catch (NotPlanarException e) {
 
+		cout << "oops not planar exception\n";
 		BOOST_CHECK(!legal);
 	}
 }

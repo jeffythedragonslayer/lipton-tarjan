@@ -10,5 +10,3 @@ struct Vert2UintMap
 
 	void print() const;
 };
-
-extern Vert2UintMap vmap, vmap_copy;

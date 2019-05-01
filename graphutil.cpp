@@ -132,7 +132,7 @@ InsideOutOn edge_inside_cycle(edge_t e, vertex_t common_vert, vector<vertex_t> c
 	       OUTSIDE;
 }
 
-edge_t arbitrary_nontree_edge(Graph const& g, BFSVisitorData const& vis_data)
+edge_t arbitrary_nontree_edge(Graph const& g, Vert2UintMap& vmap, BFSVisitorData const& vis_data)
 { 
 	cout << "starting arbitrary_nontree_edge function\n";
         EdgeIter ei, ei_end;

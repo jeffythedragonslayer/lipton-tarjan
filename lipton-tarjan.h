@@ -21,8 +21,6 @@ typedef std::vector<std::vector<edge_t>>                                        
 typedef boost::iterator_property_map<EmbeddingStorage::iterator, boost::property_map<Graph, boost::vertex_index_t>::type>                                             Embedding; 
 typedef boost::property_map<Graph, boost::edge_index_t>::type                                                                                                         EdgeIndex; 
 
-Partition lipton_tarjan(Graph const& g);
-
-extern Vert2UintMap vmap, vmap_copy;
+Partition lipton_tarjan(Graph const& g, Vert2UintMap& vmap);
 
 struct NotPlanarException {}; 

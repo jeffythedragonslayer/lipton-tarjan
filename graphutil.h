@@ -15,7 +15,7 @@ std::set<vertex_t> 	get_intersection(std::set<vertex_t> const&, std::set<vertex_
 
 enum InsideOutOn {INSIDE, OUTSIDE, ON};
 
-InsideOutOn edge_inside_cycle(edge_t, vertex_t common_vert, std::vector<vertex_t> const& cycle, Graph const&, Embedding const&);
+InsideOutOn edge_inside_outside_cycle(edge_t, vertex_t common_vert, std::vector<vertex_t> const& cycle, Graph const&, Embedding const&);
 
 edge_t arbitrary_nontree_edge(Graph const&, Vert2UintMap& vmap, BFSVisitorData const&);
 

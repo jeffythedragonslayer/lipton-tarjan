@@ -87,16 +87,16 @@ set<vertex_t> get_intersection(set<vertex_t> const& a, set<vertex_t> const& b)
         return c;
 } 
 
-InsideOutOn edge_inside_cycle(edge_t e, vertex_t common_vert, vector<vertex_t> const& cycle, Graph const& g, Embedding const& em)
+InsideOutOn edge_inside_outside_cycle(edge_t e, vertex_t common_vert, vector<vertex_t> const& cycle, Graph const& g, Embedding const& em)
 {
-        //cout << "cycle: ";
-        //for( uint i = 0; i < cycle.size(); ++i ) cout << cycle[i] << ' ';
-        //cout << '\n';
+        cout << "cycle: ";
+        for( uint i = 0; i < cycle.size(); ++i ) cout << cycle[i] << ' ';
+        cout << '\n';
         auto src = source(e, g);
         auto tar = target(e, g);
         if( on_cycle(e, cycle, g) ) return ON;
-        //cout << "      testing if edge " << src << ", " << tar << " is inside the cycle: ";
-        //cout << "      common_vert:    " << common_vert   << '\n';
+        cout << "      testing if edge " << src << ", " << tar << " is inside the cycle: ";
+        cout << "      common_vert:    " << common_vert   << '\n';
         auto it = find(STLALL(cycle), common_vert);
         if( it == cycle.end() ){ cout << "      not here at all!\n"; assert(0); }
         assert(*it == common_vert);
@@ -162,7 +162,7 @@ CycleCost compute_cycle_cost(vector<vertex_t> const& cycle, Graph const& g, BFSV
                 for( auto e = out_edges(v, g); e.first != e.second; ++e.first ) if( vis_data.is_tree_edge(*e.first) && !on_cycle(*e.first, cycle, g) ){
                         uint cost = vis_data.edge_cost(*e.first, cycle, g);
                         //cout << "      scanning incident tree edge " << to_string(*e.first, g) << "   cost: " << cost << '\n';
-                        auto insideout = edge_inside_cycle(*e.first, v, cycle, g, em.em);
+                        auto insideout = edge_inside_outside_cycle(*e.first, v, cycle, g, em.em);
                         assert(insideout != ON);
                         bool is_inside = (insideout == INSIDE);
                         (is_inside ? cc.inside : cc.outside) += cost;

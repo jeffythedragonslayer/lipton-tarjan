@@ -172,15 +172,16 @@ CycleCost compute_cycle_cost(vector<vertex_t> const& cycle, Graph const& g, BFSV
         return cc;
 }
 
+// Make all faces of graph G into triangles by adding scanning the boundary and adding (nontree) edges as necessary
 void make_max_planar(Graph& g)
 { 
         auto index = reset_edge_index(g);
         EmbedStruct em(&g);
-        em.test_planar();
+        assert(em.test_planar());
         make_biconnected_planar(g, em.em, index);
 
         reset_edge_index(g);
-        em.test_planar();
+        assert(em.test_planar());
 
         make_maximal_planar(g, em.em);
 

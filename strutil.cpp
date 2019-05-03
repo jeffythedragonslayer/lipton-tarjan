@@ -17,19 +17,19 @@ void print_cycle(vector<vertex_t> const& cycle)
         cout << '\n';
 }
 
-void print_graph_special(Graph const& g, Vert2UintMap& vmap)
+void print_graph_special(Graph const& g, Vert2UintMap const& vmap)
 { 
         cout << "\n**********************  Graph  ** print_graph_special ***\n"; 
         VertIter vi, vi_end;
         for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
-                cout << "vert " << "( " << vmap.vert2uint[*vi] << ' ' << *vi << " )";
+                cout << "vert " << "( " << vmap.vert2uint.at(*vi) << ' ' << *vi << " )";
                 OutEdgeIter ei, e_end;
                 cout << "   hos edges ";
                 for( tie(ei, e_end) = out_edges(*vi, g); ei != e_end; ++ei ){
                         auto src = source(*ei, g);
                         auto tar = target(*ei, g);
                         if( tar == *vi ) swap(src, tar);
-                        cout << "( " << vmap.vert2uint[tar] << ' ' << tar << " )";
+                        cout << "( " << vmap.vert2uint.at(tar) << ' ' << tar << " )";
                 }
                 cout << '\n';
         }
@@ -61,14 +61,14 @@ void print_graph2(Graph const& g)
         cout << "*********************************************************\n\n";
 }
 
-void print_edges(Graph const& g, Vert2UintMap& vmap)
+void print_edges(Graph const& g, Vert2UintMap const& vmap)
 {
         cout << "\n**********************  Edges  **************************\n"; 
         EdgeIter ei, ei_end;
         for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ){ 
                 auto src = source(*ei, g);
                 auto tar = target(*ei, g);
-                cout << vmap.vert2uint[src] << ", " << vmap.vert2uint[tar] << '\n';
+                cout << vmap.vert2uint.at(src) << ", " << vmap.vert2uint.at(tar) << '\n';
         } 
         cout << "*********************************************************\n\n";
 }

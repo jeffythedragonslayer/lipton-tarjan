@@ -42,11 +42,11 @@ int main(int argc, char* argv[])
 
 		try { 
 			auto p = lipton_tarjan(g, vmap); 
+			cout << "Finished!\n";
 		} catch (NotPlanarException e) {
 			cout << "cannot finish lipton-tarjan because graph is not planar\n";
 		} catch (NoNontreeEdgeException e) {
 			cout << "cannot finish lipton-tarjan because I could not find a nontree edge out of " << e.num_edges << " edges\n";
 		}
         }
-	cout << "Finished!\n";
 }

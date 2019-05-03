@@ -40,9 +40,9 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 {
 	uint n = num_vertices(g);
 	uint num_components = num_verts_per_component.size();
-	bool graph_connected = (num_components == 1);
+	bool is_graph_connected = (num_components == 1);
 
-	if( graph_connected ){
+	if( is_graph_connected ){
 		cout << "graph is connected\n";
 	
 		// Partition the vertices into levels according to their distance from some vertex v.
@@ -532,8 +532,8 @@ Partition find_more_levels(Graph& g_copy, Vert2UintMap& vmap, Vert2UintMap& vmap
         cout << "sq:    " << sq << '\n';
         cout << "snk:   " << snk << '\n';
 
-        l[0] = l[1];     for( ;; ){ float val = L.at(l[0]) + 2*(l[1] - l[0]);     if( val <= sq  ) break; --l[0]; } cout << "l0: " << l[0] << "     highest level <= l1\n";
-        l[2] = l[1] + 1; for( ;; ){ float val = L.at(l[2]) + 2*(l[2] - l[1] - 1); if( val <= snk ) break; ++l[2]; } cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
+        l[0] = l[1];     cout << "l[0]" << l[0] << '\n'; for( ;; ){ float val = L.at(l[0]) + 2*(l[1] - l[0]);     if( val <= sq  ) break; --l[0]; } cout << "l0: " << l[0] << "     highest level <= l1\n";
+        l[2] = l[1] + 1; cout << "l[2]" << l[2] << '\n'; for( ;; ){ float val = L.at(l[2]) + 2*(l[2] - l[1] - 1); if( val <= snk ) break; ++l[2]; } cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
 
 	return shrinktree(g_copy, vmap, vmap_copy, vit, vjt, vis_data, l); // step 6
 }
@@ -553,9 +553,10 @@ Partition l1_and_k(Graph& g_copy, Vert2UintMap& vmap, Vert2UintMap& vmap_copy, V
         while( k <= num_vertices(g_copy)/2 ){
 	       	k += L[++l[1]];
 	}
+
         cout << "k:  " << k    << "      # of verts in levels 0 thru l1\n";
         cout << "l1: " << l[1] << "      total cost of levels 0 thru l1 barely exceeds 1/2\n";
-
+	assert(k <= num_vertices(g_copy)); 
 	return find_more_levels(g_copy, vmap, vmap_copy, vit, vjt, k, l, L, vis_data); // step 5
 }
 
@@ -571,6 +572,7 @@ Partition bfs_and_levels(Graph& g_copy, Vert2UintMap& vmap, Vert2UintMap& vmap_c
         breadth_first_search(g_copy, vis_data.root, visitor(BFSVisitor(vis_data)));
 
         vector<uint> L(vis_data.num_levels + 1, 0);
+	cout << "L levels: " << L.size() << '\n';
         for( auto& d : vis_data.verts ){
 	       	++L[d.second.level];
 	}

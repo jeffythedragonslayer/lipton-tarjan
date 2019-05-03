@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <utility>
 #include <csignal>
+#include <iterator>
 #include <boost/lexical_cast.hpp>
 #include <boost/graph/graph_concepts.hpp>
 #include <boost/graph/planar_canonical_ordering.hpp>
@@ -31,29 +32,26 @@ using namespace boost;
 typedef Graph const& GraphCR; 
 typedef graph_traits<Graph>::vertex_descriptor vertex_t;
 
+/* Theorem 4: Let G be any n-vertex planar graph having nonnegative vertex costs summing to no more than one.
+Then the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex
+in A with a vertex in B, neither A nor B has total cost exceeding 2/3, and C contains no more than
+2sqrt(2)sqrt(n) vertices :*/
 Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid_to_component, vector<uint> const& num_verts_per_component)
 {
 	uint num_verts = num_vertices(g);
 	uint num_components = num_verts_per_component.size();
 	bool graph_connected = (num_components == 1);
 
-        /*
-	Let G be any n-vertex planar graph having nonnegative vertex costs summing to no more than one.
-	Then the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex
-	in A with a vertex in B, neither A nor B has total cost exceeding 2/3, and C contains no more than
-	2sqrt(2)sqrt(n) vertices
-
-	Proof:*/
 	if( graph_connected ){
 		cout << "graph is connected\n";
 	
-		/*Partition the vertices into levels according to their distance from some vertex v.
-		L[l] = # of vertices on level l
-		If r is the maximum distance of any vertex from v, define additional levels -1 and r+1 containing no vertices
-		l1 = the level such that the sum of costs in levels 0 thru l1-1 < 1/2, but the sum of costs in levels 0 thru l1 is >= 1/2
-		(If no such l1 exists, the total cost of all vertices < 1/2, and B = C = {} and return true)
-		k = # of vertices on levels 0 thru l1.
-		Find a level l0 such that l0 <= l1 and |L[l0]| + 2(l1-l0) <= 2sqrt(k)
+		// Partition the vertices into levels according to their distance from some vertex v.
+		/*L[l] = # of vertices on level l
+		If r is the maximum distance of any vertex from v, define additional levels -1 and r+1 containing no vertices*/
+		uint l1;// = the level such that the sum of costs in levels 0 thru l1-1 < 1/2, but the sum of costs in levels 0 thru l1 is >= 1/2
+		//(If no such l1 exists, the total cost of all vertices < 1/2, and B = C = {} and return true) */
+		uint k;// = # of vertices on levels 0 thru l1.
+		/*Find a level l0 such that l0 <= l1 and |L[l0]| + 2(l1-l0) <= 2sqrt(k)
 		Find a level l2 such that l1+1 <= l2 and |L[l2] + 2(l2-l1-1) <= 2sqrt(n-k)
 		If 2 such levels exist, then by Lemma 3 the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex in A with a vertex in B,
 		neither A or C has cost > 2/3, and C contains no more than 2(sqrt(k) + sqrt(n-k)) vertices.
@@ -63,9 +61,7 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 			Since L[0] = 1, this means 1 >= 2sqrt(k) - 2l1 and l1 + 1/2 >= sqrt(k).  Thus l1 = floor(l1 + 1/2) > 
 			Contradiction*/
 	} else {
-		// Now suppose G is not connected
 		cout << "graph is disconnected with " << num_components << " components\n";
-
 
 		vector<vector<VertIter>> vertex_sets; // set of vertex ids, indexed by component number (second vector should be set but compiler did not like call to .insert())
 
@@ -82,10 +78,14 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 
 		// Let G1, G2, ... , Gk be the connected components of G, with vertex sets V1, V2, ... , Vk respectively.
 		bool bigger_than_one_third = false;
+		bool bigger_than_two_thirds = false;
 		uint i = 0;
 		for( ; i < num_components; ++i ){
-			if( num_verts_per_component[i]/3.0 > num_verts ){
+			if( num_verts_per_component[i] > num_verts/3.0 ){
 				bigger_than_one_third = true;
+			}
+			if( num_verts_per_component[i] > num_verts*2.0/3.0 ){
+				bigger_than_two_thirds = true;
 			}
 		}
 
@@ -98,25 +98,50 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 				total_cost += num_verts_per_component[i];
 				if ( total_cost > num_verts/3 ) break;
 			}
-			/*A = V1 U V2 U ... U Vi
-			B = Vi+1 U Vi+2 U ... U Vk
-			C = {}
-			Since i is minimum and the cost of Vi <= 1/3, the cost of A <= 2/3. return true;*/
-			cout << "bigger than one third\n";
+
 			Partition p;
+
+			// populate partition A, should be V1 U V2 U ... U Vi 
+			for( uint j = 0; j < i; ++j ){
+				auto& vec = vertex_sets[j];
+				for (auto& v : vec) p.a.insert(*v);
+			}
+
+			// populate partition B = Vi+1 U Vi+2 U ... U Vk
+			for( uint j = i; j < num_components; ++j ){
+				auto& vec = vertex_sets[j];
+				for (auto& v : vec) p.b.insert(*v);
+			}
+
+			// Since i is minimum and the cost of Vi <= 1/3, the cost of A <= 2/3. return true;
+			cout << "not bigger than one third\n";
 			return p;
 		} else {
-	
+			Partition p; 
+
+			// populate partition A, should be Vi
+			auto& vec = vertex_sets[i];
+			for( auto& v : vec ) p.a.insert(*v); 
+
+			// populate partition B, should be everything except Vi
+			for( uint j = 0; j < num_components; ++j ){
+				if( i != j ){
+					auto& vec = vertex_sets[j];
+					for( auto& v : vec ) p.b.insert(*v);
+				}
+			}
+
+			// partition C should be empty
+
+
 			/*If some connected component (say Gi) has total vertex cost between 1/3 and 2/3,
 			A = Vi
 			B = V1 U ... U Vi-1 U Vi+1 U ... U Vk
 			C = {}
-			return true*/
-			cout << "not bigger than one third\n";
-			Partition p;
-			for(uint j = 0; j < vertex_sets[i].size(); ++j){
+			cout << "bigger than one third but less than two thirds\n";
+			//for(uint j = 0; j < vertex_sets[i].size(); ++j){
 				p.a.insert(*vertex_sets[i][j]);
-			}
+			}*/
 			return p;
 		}
 
@@ -131,14 +156,15 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 		Then A and B have cost <= 2/3, g
 		return true;
 
-        In all cases the separator C is either empty or contained in only one connected component of G
-        */
+        In all cases the separator C is either empty or contained in only one connected component of G */
 	Partition p;
         return p;
 }
 
-void lemma2()
+void lemma2(GraphCR g)
 {
+	uint r = 0; // spanning tree radius
+
 	/* Let G be any planar graph with nonnegative vertex costs summing to no more than one.
 	Suppose G has a spanning tree of radius r.
 	Then the vertices of G can be partitioned into three sets A, B, C, such that no edge joins a vertex A with a vertex in B, neither A nor B has a total cost exceeding 2/3, and C contains no more than 2r+1 vertices, one the root of the tree. */
@@ -149,9 +175,9 @@ void lemma2()
 	Any nontree edge (including each of the added edges) forms a simple cycle with some of the tree edges.
 	This cycle is of length at most 2r+1 if it contains the root of the tree, at most 2r-1 otherwise.
 	The cycle divides teh plane (and the graph) into two parts, the inside and the outside of the cycle.
-	We claim that at least one such cycle separates the graph so that neither the inside nor the outside contains vertices whose total cost exceeds 2/3.  This proves the lemma.
+	We claim that at least one such cycle separates the graph so that neither the inside nor the outside contains vertices whose total cost exceeds 2/3.  This proves the lemma. */
 	
-	Proof of claim.
+	/*Proof of claim.
 	Let (x,z) be the nontree edge whose cycle minimizes the maximum cost either inside or outside the cycle.  Break ties by choosing the nontree edge whose cycle has the smallest number of faces on the same side as the maximum cost.  If ties remain, choose arbitrarily.
 
 	Suppose without loss of generality that the graph is embedded so that the cost inside the cycle (x z) cycle is at least as great as the cost outside the cycle.  If the vertices inside the cycle have total cost not exceeding 2/3, the claim is true.  Suppose the vertices inside the cycle have total cost exceeding 2/3.  We show by case analysis that this contradicts the choice of (x, z).
@@ -266,7 +292,7 @@ Partition construct_vertex_partition(Graph& g_copy, uint l[3], BFSVisitorData& v
                 cout << "C = verts on levels l1 and l2 in the original graph plus verts in C* minus the root\n";
                 cout << "B = remaining verts\n";
 
-		lemma2();
+		lemma2(g_copy);
                 //By Lemma 2, A has total cost <= 2/3
                 //But A U C* has total cost >= 1/3, so B also has total cost <= 2/3
                 //Futhermore, C contains no more than L[l1] + L[l2] + 2(l2 - l1 - 1)

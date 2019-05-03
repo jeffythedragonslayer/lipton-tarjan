@@ -72,7 +72,7 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 		tie(vit, vjt) = vertices(g);
 		for( uint i = 0; vit != vjt; ++vit, ++i ){
 			uint component = vertid_to_component[*vit];
-			auto& vset = vertex_sets[component];
+			vector<VertIter>& vset = vertex_sets[component];
 			vset.push_back(vit);
 		}
 
@@ -103,14 +103,14 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 
 			// populate partition A, should be V1 U V2 U ... U Vi 
 			for( uint j = 0; j < i; ++j ){
-				auto& vec = vertex_sets[j];
-				for (auto& v : vec) p.a.insert(*v);
+				vector<VertIter>& vec = vertex_sets[j];
+				for (VertIter& v : vec) p.a.insert(*v);
 			}
 
 			// populate partition B = Vi+1 U Vi+2 U ... U Vk
 			for( uint j = i; j < num_components; ++j ){
-				auto& vec = vertex_sets[j];
-				for (auto& v : vec) p.b.insert(*v);
+				vector<VertIter>& vec = vertex_sets[j];
+				for (VertIter& v : vec) p.b.insert(*v);
 			}
 
 			// Since i is minimum and the cost of Vi <= 1/3, the cost of A <= 2/3. return true;
@@ -121,14 +121,20 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 			Partition p; 
 
 			// populate partition A
-			auto& vec = vertex_sets[i];
-			for( auto& v : vec ) p.a.insert(*v); 
+			cout << "!!1 populating partition A\n";
+			vector<VertIter>& vset = vertex_sets[i];
+			cout << "vecsize: " << vset.size() << '\n';
+			for( VertIter& v : vset ){
+				cout << "v: " << endl << *v << endl;
+				p.a.insert(*v); 
+			}
+			cout << '\n';
 
 			// populate partition B, should be everything except what's in partition A
 			for( uint j = 0; j < num_components; ++j ){
 				if( i != j ){
-					auto& vec = vertex_sets[j];
-					for( auto& v : vec ) p.b.insert(*v);
+					vector<VertIter>& vset = vertex_sets[j];
+					for( VertIter& v : vset ) p.b.insert(*v);
 				}
 			}
 
@@ -229,7 +235,7 @@ Partition construct_vertex_partition(Graph& g_copy, Vert2UintMap const& vmap_cop
                 cout << "l1 is greater than or equal to l2\n"; 
                 VertIter vei, vend;
                 for( tie(vei, vend) = vertices(g_copy); vei != vend; ++vei ){ 
-                        auto v = *vei;
+                        vertex_t v = *vei;
                         cout << "level of " << v << ": " << vis_data.verts[v].level << "  ";
                         if( vis_data.verts[v].level <  l[1] )                                  { cout << v << " belongs to first part\n";  p.a.insert(v); continue; }
                         if( vis_data.verts[v].level >= l[1]+1 && vis_data.verts[v].level <= r ){ cout << v << " belongs to middle part\n"; p.b.insert(v); continue; }
@@ -248,7 +254,7 @@ Partition construct_vertex_partition(Graph& g_copy, Vert2UintMap const& vmap_cop
         set<vertex_t> deleted_part;
         VertIter vei, vend;
         for( tie(vei, vend) = vertices(g_copy); vei != vend; ++vei ){ 
-                auto v = *vei;
+                vertex_t v = *vei;
                 cout << "level of " << v << ": " << vis_data.verts[v].level << ", ";
                 if( vis_data.verts[v].level == l[1] || vis_data.verts[v].level == l[2] ){     cout << v << " is deleted\n";             deleted_part.insert(v); continue;}
                 if( vis_data.verts[v].level <  l[1] ){                                        cout << v << " belongs to first part\n";  p.a.insert(v);  continue;}
@@ -319,54 +325,60 @@ Partition improve_separator(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMa
         for( uint i = 0; i < cycle.size(); ++i ) cout << vmap_copy.vert2uint[cycle[i]] << ' ';
         cout << '\n';
 
-        while( cc.inside > num_vertices(g_copy)*2./3 ){ 
+        while( cc.inside > num_vertices(g_copy)*2./3 ){
                 cout << "nontree completer candidate edge: " << to_string(completer_candidate_edge, vmap_copy, g_copy) << '\n';
                 cout << "cost inside: " << cc.inside  << '\n';
                 cout << "cost outide: " << cc.outside << '\n';
                 cout << "looking for a better cycle\n";
 
+		// Let (vi, wi) be the nontree edge whose cycle is the current candidate to complete the separator
                 vertex_t vi = source(completer_candidate_edge, g_copy);
-                vertex_t wi = target(completer_candidate_edge, g_copy);
+                vertex_t wi = target(completer_candidate_edge, g_copy); 
                 assert(!vis_data.is_tree_edge(completer_candidate_edge));
                 cout << "   vi: " << vmap_copy.vert2uint[vi] << '\n';
                 cout << "   wi: " << vmap_copy.vert2uint[wi] << '\n';
 
                 set<vertex_t> neighbors_v = get_neighbors(vi, g_copy, vmap_copy);
                 set<vertex_t> neighbors_w = get_neighbors(wi, g_copy, vmap_copy); 
-                set<vertex_t> intersection = get_intersection(neighbors_v, neighbors_w, vmap_copy);
-                assert(intersection.size() == 2);
-                cout << "   intersection begin: " << vmap_copy.vert2uint[*intersection.begin()] << '\n';
-                cout << "   intersection rbegin: " << vmap_copy.vert2uint[*intersection.rbegin()] << '\n';
+                set<vertex_t> neighbors_common_to_v_and_w = get_intersection(neighbors_v, neighbors_w, vmap_copy);
+                assert(neighbors_common_to_v_and_w.size() == 2);
+                cout << "   neighbors_common_to_v_and_w begin : " << vmap_copy.vert2uint[*neighbors_common_to_v_and_w.begin()] << '\n';
+                cout << "   neighbors_common_to_v_and_w rbegin: " << vmap_copy.vert2uint[*neighbors_common_to_v_and_w.rbegin()] << '\n';
 
-                pair<edge_t, bool> eee = edge(vi, *intersection.begin(), g_copy);
-                cout << "eee: " << to_string(eee.first, vmap_copy, g_copy) << '\n';
-                assert(eee.second);
+		// one of the two vertices in the set neighbors_common_to_v_and_w is y.  Maybe it's the first one, so we use is_edge_inside_outside_or_on_cycle to test if it is.
+                pair<edge_t, bool> maybe_y = edge(vi, *neighbors_common_to_v_and_w.begin(), g_copy);
+                cout << "maybe_y: " << to_string(maybe_y.first, vmap_copy, g_copy) << '\n';
+                assert(maybe_y.second);
 
-                InsideOutOn insideout = edge_inside_outside_cycle(eee.first, *intersection.begin(), cycle, g_copy, vmap_copy, em.em);
-                vertex_t y = (insideout == INSIDE) ? *intersection.begin() : *(++intersection.begin());
+		// Locate the triangle (vi, y, wi) which has (vi, wi) as a boundary edge and lies inside the (vi, wi) cycle.  
+                InsideOutOn insideout = is_edge_inside_outside_or_on_cycle(maybe_y.first, *neighbors_common_to_v_and_w.begin(), cycle, g_copy, vmap_copy, em.em);
+		assert(insideout != ON);
+                vertex_t y = (insideout == INSIDE) ? *neighbors_common_to_v_and_w.begin() : *neighbors_common_to_v_and_w.rbegin(); // We now have the (vi, y, wi) triangle
 
                 cout << "   y: " << y << '\n';
-                auto viy_e = edge(vi, y, g_copy); assert(viy_e.second); auto viy = viy_e.first;
-                auto ywi_e = edge(y, wi, g_copy); assert(ywi_e.second); auto ywi = ywi_e.first; 
+                pair<edge_t, bool> viy_e = edge(vi, y, g_copy); assert(viy_e.second); edge_t viy = viy_e.first;
+                pair<edge_t, bool> ywi_e = edge(y, wi, g_copy); assert(ywi_e.second); edge_t ywi = ywi_e.first; 
                 edge_t next_edge;
 
+		// if neither (vi, y) nor (y, wi) is a tree edge, 
                 if ( vis_data.is_tree_edge(viy) || vis_data.is_tree_edge(ywi) ){
+			// determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.
                         cout << "   at least one tree edge\n";
                         next_edge = vis_data.is_tree_edge(viy) ? ywi : viy;
                         assert(!vis_data.is_tree_edge(next_edge));
 
                         // Compute the cost inside the (vi+1 wi+1) cycle from the cost inside the (vi, wi) cycle and the cost of vi, y, and wi.  See Fig 4.
-                        uint cost1 = vis_data.verts[vi].descendant_cost;
-                        uint cost2 = vis_data.verts[y ].descendant_cost;
-                        uint cost3 = vis_data.verts[wi].descendant_cost;
-                        uint cost4 = cc.inside;
-                        auto new_cycle = get_cycle(source(next_edge, g_copy), target(next_edge, g_copy), vis_data);
+                        uint cost[4] = {vis_data.verts[vi].descendant_cost,
+					vis_data.verts[y ].descendant_cost,
+					vis_data.verts[wi].descendant_cost,
+					cc.inside};
+                        vector<vertex_t> new_cycle = get_cycle(source(next_edge, g_copy), target(next_edge, g_copy), vis_data);
                         cc = compute_cycle_cost(new_cycle, g_copy, vmap_copy, vis_data, em); // !! CHEATED !!
                         if( cost_swapped ) swap(cc.outside, cc.inside);
                 } else {
                         // Determine the tree path from y to the (vi, wi) cycle by following parents of y.
                         cout << "   neither are tree edges\n";
-                        auto y_parents = ancestors(y, vis_data);
+                        vector<vertex_t> y_parents = ancestors(y, vis_data);
                         uint i;
                         for( i = 0; !on_cycle(y_parents[i], cycle, g_copy); ++i );
 
@@ -418,18 +430,18 @@ Partition locate_cycle(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vm
 {
         cout  << "----------------------- 8 - Locate Cycle -----------------\n"; 
         edge_t completer_candidate_edge = arbitrary_nontree_edge(g_copy, vmap_copy, vis_data);
-        auto v1          = source(completer_candidate_edge, g_copy);
-        auto w1          = target(completer_candidate_edge, g_copy); 
+        vertex_t v1 = source(completer_candidate_edge, g_copy);
+        vertex_t w1 = target(completer_candidate_edge, g_copy); 
         cout << "ancestors v1...\n";
-        auto parents_v   = ancestors(v1, vis_data);
+        vector<vertex_t> parents_v   = ancestors(v1, vis_data);
         cout << "ancestors v2...\n";
-        auto parents_w   = ancestors(w1, vis_data); 
-        auto ancestor    = common_ancestor(parents_v, parents_w);
-        cout << "common ancestor: " << ancestor << '\n'; 
-        auto cycle = get_cycle(v1, w1, ancestor, vis_data);
+        vector<vertex_t> parents_w   = ancestors(w1, vis_data); 
+        vertex_t common_ancestor    = get_common_ancestor(parents_v, parents_w);
+        cout << "common ancestor: " << common_ancestor << '\n'; 
+        vector<vertex_t> cycle = get_cycle(v1, w1, common_ancestor, vis_data);
 
         EmbedStruct em(&g_copy);
-        auto cc = compute_cycle_cost(cycle, g_copy, vmap_copy, vis_data, em); 
+        CycleCost cc = compute_cycle_cost(cycle, g_copy, vmap_copy, vis_data, em); 
 	bool cost_swapped;
         if( cc.outside > cc.inside ){
                 swap(cc.outside, cc.inside);
@@ -493,7 +505,7 @@ Partition shrinktree(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap
 
         vector<vertex_t> replaceverts;
         tie(vit, vjt) = vertices(g_copy); 
-        for( auto next = vit; vit != vjt; vit = next ){
+        for( VertIter next = vit; vit != vjt; vit = next ){
                 ++next;
                 if( vis_data.verts[*vit].level >= l[2] ){
                         cout << "deleting vertex " << *vit << " of level l2 " << vis_data.verts[*vit].level << " >= " << l[2] << '\n';
@@ -505,7 +517,7 @@ Partition shrinktree(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap
                 }
         }
 
-        auto x = add_vertex(g_copy); vmap_copy.uint2vert[vmap_copy.vert2uint[x] = 999999] = x; 
+        vertex_t x = add_vertex(g_copy); vmap_copy.uint2vert[vmap_copy.vert2uint[x] = 999999] = x; 
         map<vertex_t, bool> t;
         for( tie(vit, vjt) = vertices(g_copy); vit != vjt; ++vit ){
                 t[*vit] = vis_data.verts[*vit].level <= l[0];
@@ -521,14 +533,14 @@ Partition shrinktree(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap
         svis.scan_nonsubtree_edges(*vertices(g_copy).first, g_copy, em.em, vis_data);
         svis.finish();
 
-        auto x_gone = Graph::null_vertex();
+        vertex_t x_gone = Graph::null_vertex();
         if( !degree(x, g_copy) ){
                 cout << "no edges to x found, deleting\n";
                 kill_vertex(x, g_copy, vmap_copy);
                 x_gone = *vertices(g_copy).first;
                 cout << "x_gone: " << x_gone << '\n';
         } else {
-                for( auto& v : replaceverts ) kill_vertex(v, g_copy, vmap_copy); // delete all vertices x has replaced
+                for( vertex_t& v : replaceverts ) kill_vertex(v, g_copy, vmap_copy); // delete all vertices x has replaced
         }
 
 	return new_bfs_and_make_max_planar(g_copy, vmap, vmap_copy, vis_data, x_gone, x, l); // step 7

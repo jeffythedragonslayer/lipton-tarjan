@@ -19,7 +19,7 @@ int levi_civita(uint i, uint j, uint k)
         return -1;
 } 
 
-vertex_t common_ancestor(vector<vertex_t> const& ancestors_v, vector<vertex_t> const& ancestors_w)
+vertex_t get_common_ancestor(vector<vertex_t> const& ancestors_v, vector<vertex_t> const& ancestors_w)
 {
         for( uint i = 0; i < ancestors_v.size(); ++i ){
 		for( uint j = 0; j < ancestors_w.size(); ++j ){
@@ -58,9 +58,9 @@ vector<vertex_t> get_cycle(vertex_t v, vertex_t w, vertex_t ancestor, BFSVisitor
 
 vector<vertex_t> get_cycle(vertex_t v, vertex_t w, BFSVisitorData const& vis_data)
 { 
-        auto parents_v = ancestors(v, vis_data);
-        auto parents_w = ancestors(w, vis_data); 
-        auto ancestor  = common_ancestor(parents_v, parents_w);
+        vector<vertex_t> parents_v = ancestors(v, vis_data);
+        vector<vertex_t> parents_w = ancestors(w, vis_data); 
+        vertex_t ancestor  = get_common_ancestor(parents_v, parents_w);
         cout << "common ancestor: " << ancestor << '\n'; 
         return get_cycle(v, w, ancestor, vis_data);
 }
@@ -88,9 +88,10 @@ set<vertex_t> get_intersection(set<vertex_t> const& a, set<vertex_t> const& b, V
         return c;
 } 
 
-/* Given an edge e and a a cycle of vertices, determine whether e is in inside, outside, or on the cycle.
-An embedding is needed to establish what is inside and outside */
-InsideOutOn edge_inside_outside_cycle(edge_t e, vertex_t common_vert, vector<vertex_t> const& cycle, Graph const& g, Vert2UintMap& vmap, Embedding const& em)
+/* Given an edge e and a cycle of vertices, determine whether e is in inside, outside, or on the cycle.
+An embedding is needed to establish what is inside and outside.  
+common_vert_on_cycle should be an tree vertex that both of e's incident vertices share as an ancestor */
+InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t e, vertex_t common_vert_on_cycle, vector<vertex_t> const& cycle, Graph const& g, Vert2UintMap& vmap, Embedding const& em)
 {
 	cout << "edge: " << vmap.vert2uint[source(e, g)] << ' ' << vmap.vert2uint[target(e, g)] << '\n';
         cout << "cycle: ";
@@ -103,14 +104,14 @@ InsideOutOn edge_inside_outside_cycle(edge_t e, vertex_t common_vert, vector<ver
 		return ON;
 	}
         cout << "      testing if edge " << vmap.vert2uint[src] << ", " << vmap.vert2uint[tar] << " is inside or outside the cycle: ";
-        cout << "      common_vert:    " << vmap.vert2uint[common_vert]   << '\n';
-        auto it = find(STLALL(cycle), common_vert);
-        if( it == cycle.end() ){ cout << "      common_vert not inside cycle\n"; assert(0); }
+        cout << "      common_vert_on_cycle:    " << vmap.vert2uint[common_vert_on_cycle]   << '\n';
+        auto it = find(STLALL(cycle), common_vert_on_cycle);
+        if( it == cycle.end() ){ cout << "      common vert on cycle assert failure\n"; assert(0); }
 	cout << endl;
-        assert(*it == common_vert);
+        assert(*it == common_vert_on_cycle);
         auto before = it   == cycle.begin() ?  cycle.end  ()-1   : it-1;
         auto after  = it+1 == cycle.end  () ?  cycle.begin()     : it+1; 
-        auto other  = source(e, g) == common_vert ? target(e, g) : source(e, g); 
+        auto other  = source(e, g) == common_vert_on_cycle ? target(e, g) : source(e, g); 
         
         //cout << '\n';
         //cout << "      it:     " << *it         << '\n';
@@ -124,8 +125,8 @@ InsideOutOn edge_inside_outside_cycle(edge_t e, vertex_t common_vert, vector<ver
         for( auto& tar_it : em[*it] ){ // why does this contain duplicates?
                 auto src = source(tar_it, g);
                 auto tar = target(tar_it, g);
-                if( src != common_vert ) swap(src, tar);
-                assert(src == common_vert);
+                if( src != common_vert_on_cycle ) swap(src, tar);
+                assert(src == common_vert_on_cycle);
                 if( seenbefore.find(tar) != seenbefore.end() ) continue;
                 seenbefore.insert(tar);
 
@@ -171,7 +172,7 @@ CycleCost compute_cycle_cost(vector<vertex_t> const& cycle, Graph const& g, Vert
                 for( auto e = out_edges(v, g); e.first != e.second; ++e.first ) if( vis_data.is_tree_edge(*e.first) && !on_cycle(*e.first, cycle, g) ){
                         uint cost = vis_data.edge_cost(*e.first, cycle, g);
                         //cout << "      scanning incident tree edge " << to_string(*e.first, g) << "   cost: " << cost << '\n';
-                        auto insideout = edge_inside_outside_cycle(*e.first, v, cycle, g, vmap, em.em);
+                        auto insideout = is_edge_inside_outside_or_on_cycle(*e.first, v, cycle, g, vmap, em.em);
                         assert(insideout != ON);
                         bool is_inside = (insideout == INSIDE);
                         (is_inside ? cc.inside : cc.outside) += cost;

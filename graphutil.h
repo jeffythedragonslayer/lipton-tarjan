@@ -6,7 +6,7 @@
 
 int levi_civita(uint i, uint j, uint k);
 
-vertex_t		common_ancestor(std::vector<vertex_t> const&, std::vector<vertex_t> const&); 
+vertex_t		get_common_ancestor(std::vector<vertex_t> const&, std::vector<vertex_t> const&); 
 std::vector<vertex_t>	ancestors(vertex_t, BFSVisitorData const&);
 std::vector<vertex_t>	get_cycle(vertex_t, vertex_t, vertex_t ancestor, BFSVisitorData const&);
 std::vector<vertex_t>	get_cycle(vertex_t, vertex_t, BFSVisitorData const&); 
@@ -15,7 +15,7 @@ std::set<vertex_t> 	get_intersection(std::set<vertex_t> const&, std::set<vertex_
 
 enum InsideOutOn {INSIDE, OUTSIDE, ON};
 
-InsideOutOn edge_inside_outside_cycle(edge_t, vertex_t common_vert, std::vector<vertex_t> const& cycle, Graph const&, Vert2UintMap& vmap, Embedding const&);
+InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t, vertex_t common_vert, std::vector<vertex_t> const& cycle, Graph const&, Vert2UintMap& vmap, Embedding const&);
 
 struct NoNontreeEdgeException
 {

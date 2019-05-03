@@ -10,12 +10,12 @@ vertex_t		common_ancestor(std::vector<vertex_t> const&, std::vector<vertex_t> co
 std::vector<vertex_t>	ancestors(vertex_t, BFSVisitorData const&);
 std::vector<vertex_t>	get_cycle(vertex_t, vertex_t, vertex_t ancestor, BFSVisitorData const&);
 std::vector<vertex_t>	get_cycle(vertex_t, vertex_t, BFSVisitorData const&); 
-std::set<vertex_t> 	get_neighbors(vertex_t, Graph const&);
-std::set<vertex_t> 	get_intersection(std::set<vertex_t> const&, std::set<vertex_t> const&);
+std::set<vertex_t> 	get_neighbors(vertex_t, Graph const&, Vert2UintMap& vmap);
+std::set<vertex_t> 	get_intersection(std::set<vertex_t> const&, std::set<vertex_t> const&, Vert2UintMap& vmap);
 
 enum InsideOutOn {INSIDE, OUTSIDE, ON};
 
-InsideOutOn edge_inside_outside_cycle(edge_t, vertex_t common_vert, std::vector<vertex_t> const& cycle, Graph const&, Embedding const&);
+InsideOutOn edge_inside_outside_cycle(edge_t, vertex_t common_vert, std::vector<vertex_t> const& cycle, Graph const&, Vert2UintMap& vmap, Embedding const&);
 
 struct NoNontreeEdgeException
 {
@@ -32,7 +32,7 @@ struct CycleCost
 	uint outside = 0;
 };
 
-CycleCost compute_cycle_cost(std::vector<vertex_t> const& cycle, Graph const&, BFSVisitorData const&, EmbedStruct const&);
+CycleCost compute_cycle_cost(std::vector<vertex_t> const& cycle, Graph const&, Vert2UintMap& vmap, BFSVisitorData const&, EmbedStruct const&);
 
 void make_max_planar(Graph&);
 

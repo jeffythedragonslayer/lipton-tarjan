@@ -310,40 +310,46 @@ Partition construct_vertex_partition(Graph& g_copy, Vert2UintMap const& vmap_cop
 // 	Locate the triangle (vi, y, wi) which has (vi, wi) as a boundary edge and lies inside the (vi, wi) cycle.  If either (vi, y) or (y, wi) is a tree edge, let (vi+1, wi+1) be the nontree edge among (vi, y) and (y, wi).  Compute the cost inside the (vi+1, wi+1) cycle from the cost inside the (vi, wi) cycle and the cost of vi, y and wi.
 // 	If neither (vi, y) nor (y, wi) is a tree edge, determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.  Let z be the vertex on the (vi, wi) cycle reached during this search.  Compute the total cost of all vertices except z on this tree path.  Scan the tree edges inside the (y, wi) cycle, alternately scanning an edge in one cycle and an edge in the other cycle.  Stop scanning when all edges inside one of the cycles have been scanned.  Compute the cost inside this cycle by summing the associated costs of all scanned edges.  Use this cost, the cost inside the (vi, wi) cycle, and the cost on the tree path from y to z to compute the cost inside the other cycle.  Let (vi+1, wi+1) be the edge among (vi, y) and (y, wi) whose cycle has more cost inside it.
 // 	Repeat Step 9 until finding a cycle whose inside has cost not exceeding 2/3.
-Partition improve_separator(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_copy, CycleCost& cc, edge_t chosen_edge, BFSVisitorData& vis_data, vector<vertex_t> const& cycle, EmbedStruct const& em, bool cost_swapped, uint l[3])
+Partition improve_separator(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_copy, CycleCost& cc, edge_t completer_candidate_edge, BFSVisitorData& vis_data, vector<vertex_t> const& cycle, EmbedStruct const& em, bool cost_swapped, uint l[3])
 {
         cout << "---------------------------- 9 - Improve Separator -----------\n";
         print_edges(g_copy, vmap_copy);
 
+        cout << "cycle: ";
+        for( uint i = 0; i < cycle.size(); ++i ) cout << vmap_copy.vert2uint[cycle[i]] << ' ';
+        cout << '\n';
+
         while( cc.inside > num_vertices(g_copy)*2./3 ){ 
-                cout << "chosen_edge: " << to_string(chosen_edge, vmap_copy, g_copy) << '\n';
-                cout << "const inside: " << cc.inside  << '\n';
-                cout << "const outide: " << cc.outside << '\n';
+                cout << "nontree completer candidate edge: " << to_string(completer_candidate_edge, vmap_copy, g_copy) << '\n';
+                cout << "cost inside: " << cc.inside  << '\n';
+                cout << "cost outide: " << cc.outside << '\n';
                 cout << "looking for a better cycle\n";
 
-                auto vi = source(chosen_edge, g_copy);
-                auto wi = target(chosen_edge, g_copy);
-                assert(!vis_data.is_tree_edge(chosen_edge));
-                edge_t next_edge;
-                cout << "   vi: " << vi << '\n';
-                cout << "   wi: " << wi << '\n';
+                vertex_t vi = source(completer_candidate_edge, g_copy);
+                vertex_t wi = target(completer_candidate_edge, g_copy);
+                assert(!vis_data.is_tree_edge(completer_candidate_edge));
+                cout << "   vi: " << vmap_copy.vert2uint[vi] << '\n';
+                cout << "   wi: " << vmap_copy.vert2uint[wi] << '\n';
 
-                auto neighbors_v = get_neighbors(vi, g_copy);
-                auto neighbors_w = get_neighbors(wi, g_copy); 
-                auto intersect   = get_intersection(neighbors_v, neighbors_w); 
-                assert(intersect.size() == 2);
-                cout << "   intersectbegin: " << *intersect.begin() << '\n';
+                set<vertex_t> neighbors_v = get_neighbors(vi, g_copy, vmap_copy);
+                set<vertex_t> neighbors_w = get_neighbors(wi, g_copy, vmap_copy); 
+                set<vertex_t> intersection = get_intersection(neighbors_v, neighbors_w, vmap_copy);
+                assert(intersection.size() == 2);
+                cout << "   intersection begin: " << vmap_copy.vert2uint[*intersection.begin()] << '\n';
+                cout << "   intersection rbegin: " << vmap_copy.vert2uint[*intersection.rbegin()] << '\n';
 
-                auto eee = edge(vi, *intersect.begin(), g_copy);
+                pair<edge_t, bool> eee = edge(vi, *intersection.begin(), g_copy);
                 cout << "eee: " << to_string(eee.first, vmap_copy, g_copy) << '\n';
                 assert(eee.second);
 
-                InsideOutOn insideout = edge_inside_outside_cycle(eee.first, *intersect.begin(), cycle, g_copy, em.em);
-                auto y = (insideout == INSIDE) ? *intersect.begin() : *(++intersect.begin());
+                InsideOutOn insideout = edge_inside_outside_cycle(eee.first, *intersection.begin(), cycle, g_copy, vmap_copy, em.em);
+                vertex_t y = (insideout == INSIDE) ? *intersection.begin() : *(++intersection.begin());
 
                 cout << "   y: " << y << '\n';
                 auto viy_e = edge(vi, y, g_copy); assert(viy_e.second); auto viy = viy_e.first;
                 auto ywi_e = edge(y, wi, g_copy); assert(ywi_e.second); auto ywi = ywi_e.first; 
+                edge_t next_edge;
+
                 if ( vis_data.is_tree_edge(viy) || vis_data.is_tree_edge(ywi) ){
                         cout << "   at least one tree edge\n";
                         next_edge = vis_data.is_tree_edge(viy) ? ywi : viy;
@@ -355,33 +361,33 @@ Partition improve_separator(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMa
                         uint cost3 = vis_data.verts[wi].descendant_cost;
                         uint cost4 = cc.inside;
                         auto new_cycle = get_cycle(source(next_edge, g_copy), target(next_edge, g_copy), vis_data);
-                        cc = compute_cycle_cost(new_cycle, g_copy, vis_data, em); // !! CHEATED !!
+                        cc = compute_cycle_cost(new_cycle, g_copy, vmap_copy, vis_data, em); // !! CHEATED !!
                         if( cost_swapped ) swap(cc.outside, cc.inside);
                 } else {
-                        // Determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.
+                        // Determine the tree path from y to the (vi, wi) cycle by following parents of y.
                         cout << "   neither are tree edges\n";
-                        auto path = ancestors(y, vis_data);
+                        auto y_parents = ancestors(y, vis_data);
                         uint i;
-                        for( i = 0; !on_cycle(path[i], cycle, g_copy); ++i );
+                        for( i = 0; !on_cycle(y_parents[i], cycle, g_copy); ++i );
 
                         // Let z be the vertex on the (vi, wi) cycle reached during the search.
-                        auto z = path[i++];
+                        vertex_t z = y_parents[i++];
                         cout << "    z: " << z << '\n';
-                        path.erase(path.begin()+i, path.end());
-                        assert(path.size() == i);
+                        y_parents.erase(y_parents.begin()+i, y_parents.end());
+                        assert(y_parents.size() == i);
 
                         // Compute the total cost af all vertices except z on this tree path.
-                        uint path_cost = path.size() - 1;
+                        uint path_cost = y_parents.size() - 1;
                         cout << "    y-to-z-minus-z cost: " << path_cost << '\n';
 
                         // Scan the tree edges inside the (y, wi) cycle, alternately scanning an edge in one cycle and an edge in the other cycle.
                         // Stop scanning when all edges inside one of the cycles have been scanned.  Compute the cost inside this cycle by summing the associated costs of all scanned edges.
                         // Use this cost, the cost inside the (vi, wi) cycle, and the cost on the tree path from y to z to compute the cost inside the other cycle.
-                        auto cycle1 = get_cycle(vi, y, vis_data);
-                        auto cycle2 = get_cycle(y, wi, vis_data);
+                        vector<vertex_t> cycle1 = get_cycle(vi, y, vis_data);
+                        vector<vertex_t> cycle2 = get_cycle(y, wi, vis_data);
 
-                        auto cost1  = compute_cycle_cost(cycle1, g_copy, vis_data, em);
-                        auto cost2  = compute_cycle_cost(cycle2, g_copy, vis_data, em);
+                        CycleCost cost1 = compute_cycle_cost(cycle1, g_copy, vmap_copy, vis_data, em);
+                        CycleCost cost2 = compute_cycle_cost(cycle2, g_copy, vmap_copy, vis_data, em);
                         if( cost_swapped ){
                                 swap(cost1.inside, cost1.outside);
                                 swap(cost2.inside, cost2.outside);
@@ -391,7 +397,7 @@ Partition improve_separator(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMa
                         if( cost1.inside > cost2.inside ){ next_edge = edge(vi, y, g_copy).first; cc = cost1; }
                         else                             { next_edge = edge(y, wi, g_copy).first; cc = cost2; }
                 } 
-                chosen_edge = next_edge;
+                completer_candidate_edge = next_edge;
         }
         cout << "found cycle with inside cost < 2/3: " << cc.inside << '\n';
         print_cycle(cycle);
@@ -411,9 +417,9 @@ Partition improve_separator(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMa
 Partition locate_cycle(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_copy, BFSVisitorData& vis_data, uint l[3])
 {
         cout  << "----------------------- 8 - Locate Cycle -----------------\n"; 
-        auto chosen_edge = arbitrary_nontree_edge(g_copy, vmap_copy, vis_data);
-        auto v1          = source(chosen_edge, g_copy);
-        auto w1          = target(chosen_edge, g_copy); 
+        edge_t completer_candidate_edge = arbitrary_nontree_edge(g_copy, vmap_copy, vis_data);
+        auto v1          = source(completer_candidate_edge, g_copy);
+        auto w1          = target(completer_candidate_edge, g_copy); 
         cout << "ancestors v1...\n";
         auto parents_v   = ancestors(v1, vis_data);
         cout << "ancestors v2...\n";
@@ -423,7 +429,7 @@ Partition locate_cycle(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vm
         auto cycle = get_cycle(v1, w1, ancestor, vis_data);
 
         EmbedStruct em(&g_copy);
-        auto cc = compute_cycle_cost(cycle, g_copy, vis_data, em); 
+        auto cc = compute_cycle_cost(cycle, g_copy, vmap_copy, vis_data, em); 
 	bool cost_swapped;
         if( cc.outside > cc.inside ){
                 swap(cc.outside, cc.inside);
@@ -433,7 +439,7 @@ Partition locate_cycle(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vm
         cout << "total inside cost:  " << cc.inside  << '\n'; 
         cout << "total outside cost: " << cc.outside << '\n';
 
-	return improve_separator(g_copy, vmap, vmap_copy, cc, chosen_edge, vis_data, cycle, em, cost_swapped, l); // step 9
+	return improve_separator(g_copy, vmap, vmap_copy, cc, completer_candidate_edge, vis_data, cycle, em, cost_swapped, l); // step 9
 }
 
 // Step 7: new_bfs_and_make_max_planar

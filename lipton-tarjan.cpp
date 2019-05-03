@@ -647,10 +647,9 @@ Partition find_connected_components(Graph& g_copy, Vert2UintMap const& vmap, Ver
 // Time:   O(n)
 //
 // Find a planar embedding of G and construct a representation for it of the kind described above.
-Partition lipton_tarjan(GraphCR g_orig, Vert2UintMap& vmap)
+std::tuple<Partition, Vert2UintMap, Vert2UintMap> lipton_tarjan(GraphCR g_orig)
 {
-	Vert2UintMap blank;
-	vmap = blank;
+	Vert2UintMap vmap;
 	create_vmap_from_graph(g_orig, vmap);
 
 	Graph g_copy(g_orig);
@@ -681,5 +680,5 @@ Partition lipton_tarjan(GraphCR g_orig, Vert2UintMap& vmap)
 
         cout << "graph is planar\n";
 
-	return find_connected_components(g_copy, vmap, vmap_copy);
+	return make_tuple(find_connected_components(g_copy, vmap, vmap_copy), vmap, vmap_copy);
 }

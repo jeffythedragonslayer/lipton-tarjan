@@ -34,12 +34,9 @@ void Partition::print(Vert2UintMap const& vmap) const
 	cout << "  size of A: " << a.size() << '\n';
 	cout << "  size of B: " << b.size() << '\n';
 	cout << "  size of C: " << c.size() << '\n'; 
-	/*cout << "  A = "; for( auto& v : a ) cout << vmap.vert2uint[v] << ' '; cout << '\n';
-	cout << "  B = "; for( auto& v : b ) cout << vmap.vert2uint[v] << ' '; cout << '\n'; 
-	cout << "  C = "; for( auto& v : c ) cout << vmap.vert2uint[v] << ' '; cout << '\n'; */
-	cout << "  A = "; for( auto& v : a ) cout << v << ' '; cout << '\n';
-	cout << "  B = "; for( auto& v : b ) cout << v << ' '; cout << '\n'; 
-	cout << "  C = "; for( auto& v : c ) cout << v << ' '; cout << '\n';
+	cout << "  A = "; for( auto& v : a ) cout << vmap.vert2uint.at(v) << ' '; cout << '\n';
+	cout << "  B = "; for( auto& v : b ) cout << vmap.vert2uint.at(v) << ' '; cout << '\n'; 
+	cout << "  C = "; for( auto& v : c ) cout << vmap.vert2uint.at(v) << ' '; cout << '\n';
 }
 
 uint Partition::total_num_verts() const

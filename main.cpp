@@ -22,8 +22,8 @@ int main(int argc, char* argv[])
 
         for( auto& f : fname ){
                 cout << "loading graph\n";
-		Vert2UintMap vmap;
-                auto g = load_graph(f, vmap);
+		Vert2UintMap vblank;
+                auto g = load_graph(f, vblank);
                 uint n = num_vertices(g);
 
                 auto m = get(vertex_index, g);
@@ -41,12 +41,10 @@ int main(int argc, char* argv[])
                 print_graph2(g);
 
 		try { 
-			auto p = lipton_tarjan(g, vmap); 
-			uint num_verts_finished = p.total_num_verts();
+			std::tuple<Partition, Vert2UintMap, Vert2UintMap> t = lipton_tarjan(g);
+			uint num_verts_finished = std::get<0>(t).total_num_verts();
 			cout << "Finished!\n";
-			cout << "vmap: ";
-			vmap.print();
-			p.print(vmap);
+			std::get<0>(t).print(std::get<2>(t));
 			cout << "finished num verts: " << num_verts_finished << '\n';
 		} catch (NotPlanarException e) {
 			cout << "cannot finish lipton-tarjan because graph is not planar\n";

@@ -38,7 +38,7 @@ in A with a vertex in B, neither A nor B has total cost exceeding 2/3, and C con
 2sqrt(2)sqrt(n) vertices :*/
 Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid_to_component, vector<uint> const& num_verts_per_component)
 {
-	uint num_verts = num_vertices(g);
+	uint n = num_vertices(g);
 	uint num_components = num_verts_per_component.size();
 	bool graph_connected = (num_components == 1);
 
@@ -81,10 +81,10 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 		bool bigger_than_two_thirds = false;
 		uint i = 0;
 		for( ; i < num_components; ++i ){
-			if( num_verts_per_component[i] > num_verts/3.0 ){
+			if( num_verts_per_component[i] > n/3.0 ){
 				bigger_than_one_third = true;
 			}
-			if( num_verts_per_component[i] > num_verts*2.0/3.0 ){
+			if( num_verts_per_component[i] > n*2.0/3.0 ){
 				bigger_than_two_thirds = true;
 			}
 		}
@@ -96,7 +96,7 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 			uint i = 0;
 			for( ; i < num_components; ++i ){
 				total_cost += num_verts_per_component[i];
-				if ( total_cost > num_verts/3 ) break;
+				if ( total_cost > n/3 ) break;
 			}
 
 			Partition p;
@@ -117,13 +117,14 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 			cout << "not bigger than one third\n";
 			return p;
 		} else {
+			// If some connected component (say Gi) has total vertex cost between 1/3 and 2/3,
 			Partition p; 
 
-			// populate partition A, should be Vi
+			// populate partition A
 			auto& vec = vertex_sets[i];
 			for( auto& v : vec ) p.a.insert(*v); 
 
-			// populate partition B, should be everything except Vi
+			// populate partition B, should be everything except what's in partition A
 			for( uint j = 0; j < num_components; ++j ){
 				if( i != j ){
 					auto& vec = vertex_sets[j];
@@ -131,17 +132,9 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 				}
 			}
 
-			// partition C should be empty
+			// partition C should be empty 
 
-
-			/*If some connected component (say Gi) has total vertex cost between 1/3 and 2/3,
-			A = Vi
-			B = V1 U ... U Vi-1 U Vi+1 U ... U Vk
-			C = {}
 			cout << "bigger than one third but less than two thirds\n";
-			//for(uint j = 0; j < vertex_sets[i].size(); ++j){
-				p.a.insert(*vertex_sets[i][j]);
-			}*/
 			return p;
 		}
 

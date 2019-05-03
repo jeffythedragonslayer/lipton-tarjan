@@ -147,7 +147,8 @@ edge_t arbitrary_nontree_edge(Graph const& g, Vert2UintMap& vmap, BFSVisitorData
 		++i;
         }
 	cout << "total edges: " << i << '\n';
-        assert(ei != ei_end);
+        if( ei == ei_end ) throw NoNontreeEdgeException(i);
+
         assert(!vis_data.is_tree_edge(*ei));
         edge_t chosen_edge = *ei;
         cout << "arbitrarily choosing nontree edge: " << to_string(chosen_edge, vmap, g) << '\n';

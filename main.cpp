@@ -39,7 +39,14 @@ int main(int argc, char* argv[])
 
                 cout << "starting lipton tarjan...\n";
                 print_graph2(g);
-                auto p = lipton_tarjan(g, vmap);
+
+		try { 
+			auto p = lipton_tarjan(g, vmap); 
+		} catch (NotPlanarException e) {
+			cout << "cannot finish lipton-tarjan because graph is not planar\n";
+		} catch (NoNontreeEdgeException e) {
+			cout << "cannot finish lipton-tarjan because I could not find a nontree edge out of " << e.num_edges << " edges\n";
+		}
         }
 	cout << "Finished!\n";
 }

@@ -17,6 +17,13 @@ enum InsideOutOn {INSIDE, OUTSIDE, ON};
 
 InsideOutOn edge_inside_outside_cycle(edge_t, vertex_t common_vert, std::vector<vertex_t> const& cycle, Graph const&, Embedding const&);
 
+struct NoNontreeEdgeException
+{
+	NoNontreeEdgeException(uint num_edges) : num_edges(num_edges) {}
+
+	uint num_edges;
+};
+
 edge_t arbitrary_nontree_edge(Graph const&, Vert2UintMap& vmap, BFSVisitorData const&);
 
 struct CycleCost

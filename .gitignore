@@ -43,5 +43,3 @@ unittest
 
 #text file temporaries
 *.swp
-
-.vscode

@@ -267,7 +267,7 @@ Partition construct_vertex_partition(Graph& g_copy, Vert2UintMap const& vmap_cop
         cout << "Partition A size: " << p.a.size() << '\n';
         cout << "Partition B size: " << p.b.size() << '\n';
         cout << "Partition C size: " << p.c.size() << '\n';
-	p.print(vmap_copy);
+	//p.print(vmap_copy);
 
         assert(p.a.size() <= 2*num_vertices(g_copy)/3);
         assert(p.c.size() <= 2*num_vertices(g_copy)/3);
@@ -351,7 +351,9 @@ Partition improve_separator(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMa
                 assert(maybe_y.second);
 
 		// Locate the triangle (vi, y, wi) which has (vi, wi) as a boundary edge and lies inside the (vi, wi) cycle.  
-                InsideOutOn insideout = is_edge_inside_outside_or_on_cycle(maybe_y.first, *neighbors_common_to_v_and_w.begin(), cycle, g_copy, vmap_copy, em.em);
+                vertex_t common_vert_on_cycle = *neighbors_common_to_v_and_w.begin();
+                cout << "common vert on cycle: " << vmap_copy.vert2uint[common_vert_on_cycle] << '\n';
+                InsideOutOn insideout = is_edge_inside_outside_or_on_cycle(maybe_y.first, common_vert_on_cycle, cycle, g_copy, vmap_copy, em.em);
 		assert(insideout != ON);
                 vertex_t y = (insideout == INSIDE) ? *neighbors_common_to_v_and_w.begin() : *neighbors_common_to_v_and_w.rbegin(); // We now have the (vi, y, wi) triangle
 

@@ -90,7 +90,7 @@ set<vertex_t> get_intersection(set<vertex_t> const& a, set<vertex_t> const& b, V
 
 /* Given an edge e and a cycle of vertices, determine whether e is in inside, outside, or on the cycle.
 An embedding is needed to establish what is inside and outside.  
-common_vert_on_cycle should be an tree vertex that both of e's incident vertices share as an ancestor */
+common_vert_on_cycle should be a tree vertex that both of e's incident vertices share as an ancestor */
 InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t e, vertex_t common_vert_on_cycle, vector<vertex_t> const& cycle, Graph const& g, Vert2UintMap& vmap, Embedding const& em)
 {
 	cout << "edge: " << vmap.vert2uint[source(e, g)] << ' ' << vmap.vert2uint[target(e, g)] << '\n';
@@ -103,10 +103,10 @@ InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t e, vertex_t common_vert_on
 		cout << "edge is on cycle\n";
 		return ON;
 	}
-        cout << "      testing if edge " << vmap.vert2uint[src] << ", " << vmap.vert2uint[tar] << " is inside or outside the cycle: ";
+        cout << "      testing if edge " << vmap.vert2uint[src] << ", " << vmap.vert2uint[tar] << " is inside or outside the cycle\n";
         cout << "      common_vert_on_cycle:    " << vmap.vert2uint[common_vert_on_cycle]   << '\n';
         auto it = find(STLALL(cycle), common_vert_on_cycle);
-        if( it == cycle.end() ){ cout << "      common vert on cycle assert failure\n"; assert(0); }
+        if( it == cycle.end() ){ cout << "      common_vert_on_cycle needs to appear in cycle\n"; assert(0); }
 	cout << endl;
         assert(*it == common_vert_on_cycle);
         auto before = it   == cycle.begin() ?  cycle.end  ()-1   : it-1;

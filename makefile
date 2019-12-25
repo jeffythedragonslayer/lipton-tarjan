@@ -1,4 +1,4 @@
-CXX=clang++
+CXX=g++
 BOOST=-I/usr/local/boost_1_70_0
 CXXFLAGS=-g -ggdb -O0 -std=c++17 -c
 OBJS := main.o lipton-tarjan.o strutil.o Partition.o BFSVisitorData.o EmbedStruct.o ScanVisitor.o Vert2UintMap.o graphutil.o

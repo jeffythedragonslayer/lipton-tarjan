@@ -556,11 +556,27 @@ Partition find_more_levels(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap
         cout  << "---------------------------- 5 - Find More Levels -------\n";
         float sq  = 2 * sqrt(k); 
         float snk = 2 * sqrt(num_vertices(g_copy) - k); 
-        cout << "sq:    " << sq << '\n';
-        cout << "snk:   " << snk << '\n';
+        cout << "sq:     " << sq << '\n';
+        cout << "snk:    " << snk << '\n';
+        cout << "L size: " << L.size() << '\n';
 
-        l[0] = l[1];     cout << "l[0]" << l[0] << '\n'; for( ;; ){ float val = L.at(l[0]) + 2*(l[1] - l[0]);     if( val <= sq  ) break; --l[0]; } cout << "l0: " << l[0] << "     highest level <= l1\n";
-        l[2] = l[1] + 1; cout << "l[2]" << l[2] << '\n'; for( ;; ){ float val = L.at(l[2]) + 2*(l[2] - l[1] - 1); if( val <= snk ) break; ++l[2]; } cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
+        l[0] = l[1];
+        cout << "l[0]:   " << l[0] << '\n';
+        while( l[0] < L.size() ){
+                float val = L.at(l[0]) + 2*(l[1] - l[0]);
+                if( val <= sq ) break;
+                --l[0];
+        }
+        cout << "l0: " << l[0] << "     highest level <= l1\n";
+
+        l[2] = l[1] + 1;
+        cout << "l[2]" << l[2] << '\n';
+        while( l[2] <= L.size() ){
+                float val = L.at(l[2]) + 2*(l[2] - l[1] - 1);
+                if( val <= snk ) break;
+                ++l[2];
+        }
+        cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
 
 	return shrinktree(g_copy, vmap, vmap_copy, vit, vjt, vis_data, l); // step 6
 }
@@ -576,14 +592,18 @@ Partition l1_and_k(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_c
         cout  << "---------------------------- 4 - l1 and k  ------------\n";
         uint k = L[0]; 
         uint l[3];
+        uint n = num_vertices(g_copy);
         l[1] = 0;
-        while( k <= num_vertices(g_copy)/2 ){
-	       	k += L[++l[1]];
+        while( k <= n/2 ){
+                uint indx = ++l[1];
+                uint lsize = L.size();
+                if (indx >= lsize ) break;
+	       	k += L.at(indx);
 	}
 
         cout << "k:  " << k    << "      # of verts in levels 0 thru l1\n";
         cout << "l1: " << l[1] << "      total cost of levels 0 thru l1 barely exceeds 1/2\n";
-	assert(k <= num_vertices(g_copy)); 
+	assert(k <= n); 
 	return find_more_levels(g_copy, vmap, vmap_copy, vit, vjt, k, l, L, vis_data); // step 5
 }
 
@@ -686,7 +706,7 @@ std::tuple<Partition, Vert2UintMap, Vert2UintMap> lipton_tarjan(GraphCR g_orig)
 	cout << "---------------------------- 0 - Printing Edges -------------------\n";
 	cout << "edges of g:\n";
 	print_edges(g_orig, vmap);
-	cout << "edges of g_copy:\n";
+	cout << "edges of g_copy:\n" << std::endl;
 	print_edges(g_copy, vmap_copy);
 
         cout << "---------------------------- 1 - Check Planarity  ------------\n";

@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/lt",
-            "args": ["graphs/disconnected"],
+            "args": ["graphs/rand"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

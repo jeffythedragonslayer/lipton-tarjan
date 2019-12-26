@@ -56,6 +56,19 @@ Partition theorem4_connected()
         return p; 
 }
 
+// may be able to inline this and hoist it out of the if blocks of theorem4_disconnected if we're able to get rid of bigger_than_two_thirds
+uint lowest_i(uint n, uint num_components, vector<uint> const& num_verts_per_component)
+{
+        uint total_cost = 0;
+        uint i = 0;
+        for( ; i < num_components; ++i ){
+                total_cost += num_verts_per_component[i];
+                if ( total_cost > n/3 ) return i;
+        } 
+
+        return i;
+}
+
 Partition theorem4_disconnected(GraphCR g, uint n, uint num_components, associative_property_map<vertex_map> const& vertid_to_component, vector<uint> const& num_verts_per_component)
 { 
         vector<vector<VertIter>> vertex_sets; // set of vertex ids, indexed by component number (second vector should be set but compiler did not like call to .insert())
@@ -74,29 +87,19 @@ Partition theorem4_disconnected(GraphCR g, uint n, uint num_components, associat
         // Let G1, G2, ... , Gk be the connected components of G, with vertex sets V1, V2, ... , Vk respectively.
         bool bigger_than_one_third = false;
         bool bigger_than_two_thirds = false;
-        uint i = 0;
-        for( ; i < num_components; ++i ){
-                if( num_verts_per_component[i] > n/3.0 ){
-                        bigger_than_one_third = true;
-                }
-                if( num_verts_per_component[i] > n*2.0/3.0 ){
-                        bigger_than_two_thirds = true;
-                }
+        for( uint i = 0; i < num_components; ++i ){
+                if( num_verts_per_component[i] > n    /3.0 ) bigger_than_one_third  = true;
+                if( num_verts_per_component[i] > n*2.0/3.0 ) bigger_than_two_thirds = true;
         }
 
         if( !bigger_than_one_third ){ 
 
-                //If no connected component has total vertex cost > 1/3, let i be the minimum index such that the total cost of V1 U V2 U ... U Vi > 1/3
-                uint total_cost = 0;
-                uint i = 0;
-                for( ; i < num_components; ++i ){
-                        total_cost += num_verts_per_component[i];
-                        if ( total_cost > n/3 ) break;
-                }
+                // If no connected component has total vertex cost > 1/3, let i be the minimum index such that the total cost of V1 U V2 U ... U Vi > 1/3
+                uint i = lowest_i(n, num_components, num_verts_per_component);
 
                 Partition p;
 
-                // populate partition A, should be V1 U V2 U ... U Vi 
+                // populate partition A = V1 U V2 U ... U Vi 
                 for( uint j = 0; j < i; ++j ){
                         vector<VertIter>& vec = vertex_sets[j];
                         for (VertIter& v : vec) p.a.insert(*v);
@@ -111,9 +114,11 @@ Partition theorem4_disconnected(GraphCR g, uint n, uint num_components, associat
                 // Since i is minimum and the cost of Vi <= 1/3, the cost of A <= 2/3. return true;
                 cout << "not bigger than one third\n";
                 return p;
-        } else {
+        } else if( !bigger_than_two_thirds ){
                 // If some connected component (say Gi) has total vertex cost between 1/3 and 2/3,
                 Partition p; 
+
+                uint i = lowest_i(n, num_components, num_verts_per_component);
 
                 // populate partition A
                 cout << "!!1 populating partition A\n";
@@ -287,9 +292,11 @@ Partition construct_vertex_partition(Graph& g_copy, Vert2UintMap const& vmap_cop
         cout << "Partition C size: " << p.c.size() << '\n';
 	//p.print(vmap_copy);
 
-        assert(p.a.size() <= 2*num_vertices(g_copy)/3);
-        assert(p.c.size() <= 2*num_vertices(g_copy)/3);
-        if( p.b.size() <= 2*num_vertices(g_copy)/3 ){
+        uint n = num_vertices(g_copy);
+
+        assert(p.a.size() <= 2*n/3);
+        assert(p.c.size() <= 2*n/3);
+        if( p.b.size() <= 2*n/3 ){
                 cout << "middle part is NOT biggest\n";
                 set<vertex_t>* costly_part, * other1, * other2;
 

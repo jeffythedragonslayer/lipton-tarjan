@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/lt",
-            "args": ["graphs/rand"],
+            "args": ["graphs/insideout"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

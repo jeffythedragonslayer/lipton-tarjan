@@ -377,6 +377,11 @@ Partition improve_separator(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMa
 
 		// Locate the triangle (vi, y, wi) which has (vi, wi) as a boundary edge and lies inside the (vi, wi) cycle.  
                 vertex_t common_vert_on_cycle = *neighbors_common_to_v_and_w.begin();
+
+                if (find(STLALL(cycle), common_vert_on_cycle) == cycle.end()){
+                        common_vert_on_cycle = *neighbors_common_to_v_and_w.rbegin(); 
+                }
+
                 cout << "common vert on cycle: " << vmap_copy.vert2uint[common_vert_on_cycle] << '\n';
                 InsideOutOn insideout = is_edge_inside_outside_or_on_cycle(maybe_y.first, common_vert_on_cycle, cycle, g_copy, vmap_copy, em.em);
 		assert(insideout != ON);
@@ -490,15 +495,15 @@ Partition locate_cycle(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vm
 // Make all faces of the new graph into triangles by scanning the boundary of each face and adding (nontree) edges as necessary.
 Partition new_bfs_and_make_max_planar(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_copy, BFSVisitorData& vis_data, vertex_t x_gone, vertex_t x, uint l[3])
 {
-        cout  << "-------------------- 7 - New BFS and Make Max Planar -----\n";
+        //cout  << "-------------------- 7 - New BFS and Make Max Planar -----\n";
         reset_vertex_indices(g_copy);
         reset_edge_index(g_copy);
         vis_data.reset(&g_copy);
         vis_data.root = (x_gone != Graph::null_vertex()) ? x_gone : x;
         ++vis_data.verts[vis_data.root].descendant_cost;
 
-        cout << "root: " << vis_data.root << '\n'; 
-        cout << "n:    " << num_vertices(g_copy) << '\n';
+        //cout << "root: " << vis_data.root << '\n'; 
+        //cout << "n:    " << num_vertices(g_copy) << '\n';
 
         breadth_first_search(g_copy, x_gone != Graph::null_vertex() ? x_gone: x, visitor(BFSVisitor(vis_data))); 
         make_max_planar(g_copy);
@@ -527,19 +532,19 @@ Partition new_bfs_and_make_max_planar(Graph& g_copy, Vert2UintMap const& vmap, V
 // The result of this step is a planar representation of the shrunken graph to which Lemma 2 is to be applied.
 Partition shrinktree(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_copy, VertIter vit, VertIter vjt, BFSVisitorData& vis_data, uint l[3])
 {
-        cout << "---------------------------- 6 - Shrinktree -------------\n";
-        cout << "n: " << num_vertices(g_copy) << '\n'; 
+        //cout << "---------------------------- 6 - Shrinktree -------------\n";
+        //cout << "n: " << num_vertices(g_copy) << '\n'; 
 
         vector<vertex_t> replaceverts;
         tie(vit, vjt) = vertices(g_copy); 
         for( VertIter next = vit; vit != vjt; vit = next ){
                 ++next;
                 if( vis_data.verts[*vit].level >= l[2] ){
-                        cout << "deleting vertex " << *vit << " of level l2 " << vis_data.verts[*vit].level << " >= " << l[2] << '\n';
+                        //cout << "deleting vertex " << *vit << " of level l2 " << vis_data.verts[*vit].level << " >= " << l[2] << '\n';
                         kill_vertex(*vit, g_copy, vmap_copy);
                 }
                 if( vis_data.verts[*vit].level <= l[0] ){
-                        cout << "going to replace vertex " << *vit << " of level l0 " << vis_data.verts[*vit].level << " <= " << l[0] << '\n';
+                        //cout << "going to replace vertex " << *vit << " of level l0 " << vis_data.verts[*vit].level << " <= " << l[0] << '\n';
                         replaceverts.push_back(*vit);
                 }
         }
@@ -548,7 +553,7 @@ Partition shrinktree(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap
         map<vertex_t, bool> t;
         for( tie(vit, vjt) = vertices(g_copy); vit != vjt; ++vit ){
                 t[*vit] = vis_data.verts[*vit].level <= l[0];
-                cout << "vertex " << *vit << " at level " << vis_data.verts[*vit].level << " is " << (t[*vit] ? "TRUE" : "FALSE") << '\n';
+                //cout << "vertex " << *vit << " at level " << vis_data.verts[*vit].level << " is " << (t[*vit] ? "TRUE" : "FALSE") << '\n';
         }
 
         reset_vertex_indices(g_copy);
@@ -562,10 +567,10 @@ Partition shrinktree(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap
 
         vertex_t x_gone = Graph::null_vertex();
         if( !degree(x, g_copy) ){
-                cout << "no edges to x found, deleting\n";
+                //cout << "no edges to x found, deleting\n";
                 kill_vertex(x, g_copy, vmap_copy);
                 x_gone = *vertices(g_copy).first;
-                cout << "x_gone: " << x_gone << '\n';
+                //cout << "x_gone: " << x_gone << '\n';
         } else {
                 for( vertex_t& v : replaceverts ) kill_vertex(v, g_copy, vmap_copy); // delete all vertices x has replaced
         }
@@ -580,30 +585,30 @@ Partition shrinktree(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap
 // Find the lowest level l2 >= l1 + 1 such that L(l2) + 2(l2-l1-1) <= 2*sqrt(n-k)
 Partition find_more_levels(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_copy, VertIter vit, VertIter vjt, uint k, uint l[3], vector<uint> const& L, BFSVisitorData& vis_data)
 {
-        cout  << "---------------------------- 5 - Find More Levels -------\n";
+        //cout  << "---------------------------- 5 - Find More Levels -------\n";
         float sq  = 2 * sqrt(k); 
         float snk = 2 * sqrt(num_vertices(g_copy) - k); 
-        cout << "sq:     " << sq << '\n';
-        cout << "snk:    " << snk << '\n';
-        cout << "L size: " << L.size() << '\n';
+        //cout << "sq:     " << sq << '\n';
+        //cout << "snk:    " << snk << '\n';
+        //cout << "L size: " << L.size() << '\n';
 
         l[0] = l[1];
-        cout << "l[0]:   " << l[0] << '\n';
+        //cout << "l[0]:   " << l[0] << '\n';
         while( l[0] < L.size() ){
                 float val = L.at(l[0]) + 2*(l[1] - l[0]);
                 if( val <= sq ) break;
                 --l[0];
         }
-        cout << "l0: " << l[0] << "     highest level <= l1\n";
+        //cout << "l0: " << l[0] << "     highest level <= l1\n";
 
         l[2] = l[1] + 1;
-        cout << "l[2]" << l[2] << '\n';
+        //cout << "l[2]" << l[2] << '\n';
         while( l[2] <= L.size() ){
                 float val = L.at(l[2]) + 2*(l[2] - l[1] - 1);
                 if( val <= snk ) break;
                 ++l[2];
         }
-        cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
+        //cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
 
 	return shrinktree(g_copy, vmap, vmap_copy, vit, vjt, vis_data, l); // step 6
 }
@@ -616,7 +621,7 @@ Partition find_more_levels(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap
 // Let k be the number of vertices in levels 0 through l1
 Partition l1_and_k(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_copy, VertIter vit, VertIter vjt, vector<uint> const& L, BFSVisitorData& vis_data)
 {
-        cout  << "---------------------------- 4 - l1 and k  ------------\n";
+        //cout  << "---------------------------- 4 - l1 and k  ------------\n";
         uint k = L[0]; 
         uint l[3];
         uint n = num_vertices(g_copy);
@@ -628,8 +633,8 @@ Partition l1_and_k(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_c
 	       	k += L.at(indx);
 	}
 
-        cout << "k:  " << k    << "      # of verts in levels 0 thru l1\n";
-        cout << "l1: " << l[1] << "      total cost of levels 0 thru l1 barely exceeds 1/2\n";
+        //cout << "k:  " << k    << "      # of verts in levels 0 thru l1\n";
+        //cout << "l1: " << l[1] << "      total cost of levels 0 thru l1 barely exceeds 1/2\n";
 	assert(k <= n); 
 	return find_more_levels(g_copy, vmap, vmap_copy, vit, vjt, k, l, L, vis_data); // step 5
 }
@@ -641,22 +646,22 @@ Partition l1_and_k(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_c
 // Compute the level of each vertex and the number of vertices L(l) in each level l.
 Partition bfs_and_levels(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_copy, VertIter vit, VertIter vjt)
 {
-        cout << "---------------------------- 3 - BFS and Levels ------------\n";
+        //cout << "---------------------------- 3 - BFS and Levels ------------\n";
         BFSVisitorData vis_data(&g_copy, *vertices(g_copy).first);
         breadth_first_search(g_copy, vis_data.root, visitor(BFSVisitor(vis_data)));
 
         vector<uint> L(vis_data.num_levels + 1, 0);
-	cout << "L levels: " << L.size() << '\n';
+	//cout << "L levels: " << L.size() << '\n';
         for( auto& d : vis_data.verts ){
 	       	++L[d.second.level];
 	}
 
-        for( tie(vit, vjt) = vertices(g_copy); vit != vjt; ++vit ){
+        /*for( tie(vit, vjt) = vertices(g_copy); vit != vjt; ++vit ){
 		cout << "level/cost of vert " << *vit << ": " << vis_data.verts[*vit].level << '\n';
 	}
         for( uint i = 0; i < L.size(); ++i ){
 		cout << "L[" << i << "]: " << L[i] << '\n';
-	}
+	}*/
 
 	return l1_and_k(g_copy, vmap, vmap_copy, vit, vjt, L, vis_data); // step 4
 }
@@ -669,18 +674,18 @@ Partition bfs_and_levels(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& 
 // If some component has cost exceeding 2/3, go to Step 3.
 Partition find_connected_components(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_copy)
 {
-        cout << "---------------------------- 2 - Find Connected Components --------\n";
+        //cout << "---------------------------- 2 - Find Connected Components --------\n";
         vertex_map idx; 
         associative_property_map<vertex_map> vertid_to_component(idx);
         VertIter vit, vjt;
         tie(vit, vjt) = vertices(g_copy);
         for( uint i = 0; vit != vjt; ++vit, ++i ){
-		cout << "checking vertex number: " << i << ' ' << *vit << '\n';
+		//cout << "checking vertex number: " << i << ' ' << *vit << '\n';
 	       	put(vertid_to_component, *vit, i);
 	}
         uint num_components = connected_components(g_copy, vertid_to_component);
 
-        cout << "# of connected components: " << num_components << '\n';
+        //cout << "# of connected components: " << num_components << '\n';
         vector<uint> num_verts_per_component(num_components, 0);
         for( tie(vit, vjt) = vertices(g_copy); vit != vjt; ++vit ){
 	       	++num_verts_per_component[vertid_to_component[*vit]];
@@ -690,7 +695,7 @@ Partition find_connected_components(Graph& g_copy, Vert2UintMap const& vmap, Ver
         bool bigger_than_two_thirds  = false;
         for( uint i = 0; i < num_components; ++i ){
                 if( 3*num_verts_per_component[i] > 2*num_vertices(g_copy) ){
-                        cout << "component " << i << " is bigger than two thirds of the entire graph\n";
+                        //cout << "component " << i << " is bigger than two thirds of the entire graph\n";
                         bigger_than_two_thirds = true;
                 }
                 if( num_verts_per_component[i] > biggest_size ){
@@ -700,10 +705,10 @@ Partition find_connected_components(Graph& g_copy, Vert2UintMap const& vmap, Ver
         }
 
         if( !bigger_than_two_thirds ){
-		cout << "exiting early through theorem 4 - no component has cost exceeding two thirds\n";
+		//cout << "exiting early through theorem 4 - no component has cost exceeding two thirds\n";
                 return theorem4(g_copy, vertid_to_component, num_verts_per_component);
         }
-        cout << "index of biggest component: " << biggest_component_index << '\n';
+        //cout << "index of biggest component: " << biggest_component_index << '\n';
 
 	return bfs_and_levels(g_copy, vmap, vmap_copy, vit, vjt); // step 3
 }
@@ -739,11 +744,11 @@ std::tuple<Partition, Vert2UintMap, Vert2UintMap> lipton_tarjan(GraphCR g_orig)
         cout << "---------------------------- 1 - Check Planarity  ------------\n";
         EmbedStruct em(&g_copy);
         if( !em.test_planar() ){
-		cout << "not planar\n";
+		//cout << "not planar\n";
 		throw NotPlanarException();
 	}
 
-        cout << "graph is planar\n";
+        //cout << "graph is planar\n";
 
 	return make_tuple(find_connected_components(g_copy, vmap, vmap_copy), vmap, vmap_copy);
 }

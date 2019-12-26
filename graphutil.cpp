@@ -143,23 +143,23 @@ InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t e, vertex_t common_vert_on
 
 edge_t arbitrary_nontree_edge(Graph const& g, Vert2UintMap& vmap, BFSVisitorData const& vis_data)
 { 
-	cout << "starting arbitrary_nontree_edge function\n";
+	//cout << "starting arbitrary_nontree_edge function\n";
         EdgeIter ei, ei_end;
 	uint i = 0;
         for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ){
                 auto src = source(*ei, g);
                 auto tar = target(*ei, g);
-		cout << "candidate edge: " << src << ' ' << tar << '\n';
+		//cout << "candidate edge: " << src << ' ' << tar << '\n';
                 assert(edge(src, tar, g).second); // exists
                 if( src == tar ) throw FoundCircularNode(src);
                 if( !vis_data.is_tree_edge(*ei) ) break;
 		++i;
         }
-	cout << "total edges: " << i << '\n';
+	//cout << "total edges: " << i << '\n';
         if( ei == ei_end ) throw NoNontreeEdgeException(i);
 
         assert(!vis_data.is_tree_edge(*ei));
-        cout << "arbitrarily choosing nontree edge: " << to_string(*ei, vmap, g) << '\n';
+        //cout << "arbitrarily choosing nontree edge: " << to_string(*ei, vmap, g) << '\n';
         return *ei;
 }
 
@@ -171,7 +171,8 @@ CycleCost compute_cycle_cost(vector<vertex_t> const& cycle, Graph const& g, Vert
                 //cout << "   scanning cycle vert " << v << '\n';
                 for( auto e = out_edges(v, g); e.first != e.second; ++e.first ) if( vis_data.is_tree_edge(*e.first) && !on_cycle(*e.first, cycle, g) ){
                         uint cost = vis_data.edge_cost(*e.first, cycle, g);
-                        //cout << "      scanning incident tree edge " << to_string(*e.first, g) << "   cost: " << cost << '\n';
+                        uint vert_id = vmap.vert2uint[v];
+                        //cout << "      scanning incident tree edge " << vert_id << "   cost: " << cost << '\n';
                         auto insideout = is_edge_inside_outside_or_on_cycle(*e.first, v, cycle, g, vmap, em.em);
                         assert(insideout != ON);
                         bool is_inside = (insideout == INSIDE);

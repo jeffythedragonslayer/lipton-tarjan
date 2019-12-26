@@ -9,7 +9,11 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/lt",
+<<<<<<< HEAD
             "args": ["graphs/insideout"],
+=======
+            "args": ["graphs/one"],
+>>>>>>> f90eb73c7962a713c2f7fa35d5993c98b631508e
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

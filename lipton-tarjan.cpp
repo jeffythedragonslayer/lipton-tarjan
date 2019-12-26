@@ -35,8 +35,10 @@ typedef graph_traits<Graph>::vertex_descriptor vertex_t;
 Partition theorem4_connected()
 {
         // Partition the vertices into levels according to their distance from some vertex v.
-        /*L[l] = # of vertices on level l
-        If r is the maximum distance of any vertex from v, define additional levels -1 and r+1 containing no vertices*/
+        vector<uint> L;
+        // L[l] = # of vertices on level l
+        uint r;
+        /*If r is the maximum distance of any vertex from v, define additional levels -1 and r+1 containing no vertices*/
         uint l1;// = the level such that the sum of costs in levels 0 thru l1-1 < 1/2, but the sum of costs in levels 0 thru l1 is >= 1/2
         //(If no such l1 exists, the total cost of all vertices < 1/2, and B = C = {} and return true) */
         uint k;// = # of vertices on levels 0 thru l1.
@@ -170,6 +172,10 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 	}
 }
 
+/* Let G be any planar graph with nonnegative vertex costs summing to no more than one.
+Suppose G has a spanning tree of radius r.
+Then the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex in A with a vertex in B, neither A nor B has total cost exceeding 2/3,
+and C contains no more than 2r+1 vertices, one the root of the tree */
 void lemma2(GraphCR g)
 {
 	uint r = 0; // spanning tree radius
@@ -177,6 +183,8 @@ void lemma2(GraphCR g)
 	/* Let G be any planar graph with nonnegative vertex costs summing to no more than one.
 	Suppose G has a spanning tree of radius r.
 	Then the vertices of G can be partitioned into three sets A, B, C, such that no edge joins a vertex A with a vertex in B, neither A nor B has a total cost exceeding 2/3, and C contains no more than 2r+1 vertices, one the root of the tree. */
+
+        Partition p;
 
 
 	/* Proof.  Assume no vertex has cost exceeding 1/3; otherwise the lemma is true.

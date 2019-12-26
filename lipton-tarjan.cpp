@@ -60,6 +60,9 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 			Suppose a suitable level l0 does not exist.  Then, for i <= l1, L[i] >= 2sqrt(k) - 2(l1-i)
 			Since L[0] = 1, this means 1 >= 2sqrt(k) - 2l1 and l1 + 1/2 >= sqrt(k).  Thus l1 = floor(l1 + 1/2) > 
 			Contradiction*/
+
+                Partition p;
+                return p;
 	} else {
 		cout << "graph is disconnected with " << num_components << " components\n";
 
@@ -144,20 +147,19 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 			return p;
 		}
 
+                /*Finally, if some connected component (say Gi) has total vertex cost exceeding 2/3,
+                apply the above argument to Gi
+                        Let A*, B*, C* be the resulting partition.
+                        A = set among A* and B* with greater cost
+                        C = C*
+                        B = remanining vertices of G
+                        Then A and B have cost <= 2/3, g
+                        return true;
+
+                In all cases the separator C is either empty or contained in only one connected component of G */
+                Partition p;
+                return p;
 	}
-
-        /*Finally, if some connected component (say Gi) has total vertex cost exceeding 2/3,
-        apply the above argument to Gi
-		Let A*, B*, C* be the resulting partition.
-		A = set among A* and B* with greater cost
-		C = C*
-		B = remanining vertices of G
-		Then A and B have cost <= 2/3, g
-		return true;
-
-        In all cases the separator C is either empty or contained in only one connected component of G */
-	Partition p;
-        return p;
 }
 
 void lemma2(GraphCR g)

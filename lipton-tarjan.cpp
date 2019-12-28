@@ -330,8 +330,8 @@ Partition lemma3(Graph& g_copy, uint l[3], uint r, BFSVisitorData& vis_data, Ver
 Partition construct_vertex_partition(Graph& g_copy, Vert2UintMap& vmap_copy, uint l[3], BFSVisitorData& vis_data)
 {
         cout  << "\n------------ 10  - Construct Vertex Partition --------------\n";
-        print_graph(g_copy);
-	//print_graph_special(g_copy, vmap_copy);
+        //print_graph(g_copy);
+	///rint_graph_special(g_copy, vmap_copy);
         cout << "l0: " << l[0] << '\n';
         cout << "l1: " << l[1] << '\n';
         cout << "l2: " << l[2] << '\n';
@@ -353,7 +353,7 @@ Partition construct_vertex_partition(Graph& g_copy, Vert2UintMap& vmap_copy, uin
 Partition improve_separator(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_copy, CycleCost& cc, edge_t completer_candidate_edge, BFSVisitorData& vis_data, vector<vertex_t> const& cycle, EmbedStruct const& em, bool cost_swapped, uint l[3])
 {
         cout << "---------------------------- 9 - Improve Separator -----------\n";
-        print_graph(g_copy);
+        //print_graph(g_copy);
         print_edges(g_copy, vmap_copy);
 
         cout << "cycle: ";
@@ -477,12 +477,12 @@ Partition locate_cycle(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vm
         edge_t completer_candidate_edge = arbitrary_nontree_edge(g_copy, vmap_copy, vis_data);
         vertex_t v1 = source(completer_candidate_edge, g_copy);
         vertex_t w1 = target(completer_candidate_edge, g_copy); 
-        //cout << "ancestors v1...\n";
+        cout << "ancestors v1...\n";
         vector<vertex_t> parents_v   = ancestors(v1, vis_data);
-        //cout << "ancestors v2...\n";
+        cout << "ancestors v2...\n";
         vector<vertex_t> parents_w   = ancestors(w1, vis_data); 
         vertex_t common_ancestor    = get_common_ancestor(parents_v, parents_w);
-        //cout << "common ancestor: " << common_ancestor << '\n'; 
+        cout << "common ancestor: " << common_ancestor << '\n'; 
         vector<vertex_t> cycle = get_cycle(v1, w1, common_ancestor, vis_data);
 
         EmbedStruct em(&g_copy);
@@ -491,10 +491,10 @@ Partition locate_cycle(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vm
         if( cc.outside > cc.inside ){
                 swap(cc.outside, cc.inside);
                 cost_swapped = true;
-                //cout << "!!!!!! cost swapped !!!!!!!!\n";
+                cout << "!!!!!! cost swapped !!!!!!!!\n";
         } else cost_swapped = false;
-        /*cout << "total inside cost:  " << cc.inside  << '\n'; 
-        cout << "total outside cost: " << cc.outside << '\n';*/
+        cout << "total inside cost:  " << cc.inside  << '\n'; 
+        cout << "total outside cost: " << cc.outside << '\n';
 
 	return improve_separator(g_copy, vmap, vmap_copy, cc, completer_candidate_edge, vis_data, cycle, em, cost_swapped, l); // step 9
 }
@@ -509,7 +509,7 @@ Partition locate_cycle(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vm
 Partition new_bfs_and_make_max_planar(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_copy, BFSVisitorData& vis_data, vertex_t x_gone, vertex_t x, uint l[3])
 {
         cout  << "-------------------- 7 - New BFS and Make Max Planar -----\n";
-        print_graph(g_copy);
+        //print_graph(g_copy);
         reset_vertex_indices(g_copy);
         reset_edge_index(g_copy);
         vis_data.reset(&g_copy);
@@ -524,7 +524,7 @@ Partition new_bfs_and_make_max_planar(Graph& g_copy, Vert2UintMap const& vmap, V
         reset_vertex_indices(g_copy);
         reset_edge_index(g_copy);
 
-        print_graph(g_copy);
+        //print_graph(g_copy);
 
 	return locate_cycle(g_copy, vmap, vmap_copy, vis_data, l);  // step 8
 }
@@ -550,7 +550,7 @@ const uint X_VERT_UINT = 999999;
 Partition shrinktree(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_copy, VertIter vit, VertIter vjt, BFSVisitorData& vis_data, uint l[3])
 {
         cout << "---------------------------- 6 - Shrinktree -------------\n";
-        print_graph(g_copy);
+        //print_graph(g_copy);
         cout << "n: " << num_vertices(g_copy) << '\n';
 
         vector<vertex_t> replaceverts;
@@ -591,6 +591,7 @@ Partition shrinktree(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap
                 x_gone = *vertices(g_copy).first;
                 cout << "x_gone: " << x_gone << '\n';
         } else {
+                cout << "deleting all vertices x has replaced\n";
                 for( vertex_t& v : replaceverts ) kill_vertex(v, g_copy, vmap_copy); // delete all vertices x has replaced
         }
 
@@ -605,7 +606,7 @@ Partition shrinktree(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap
 Partition find_more_levels(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_copy, VertIter vit, VertIter vjt, uint k, uint l[3], vector<uint> const& L, BFSVisitorData& vis_data)
 {
         cout  << "---------------------------- 5 - Find More Levels -------\n";
-        print_graph(g_copy);
+        //print_graph(g_copy);
         float sq  = 2 * sqrt(k); 
         float snk = 2 * sqrt(num_vertices(g_copy) - k); 
         /*cout << "sq:     " << sq << '\n';
@@ -750,10 +751,10 @@ std::tuple<Partition, Vert2UintMap, Vert2UintMap> lipton_tarjan(GraphCR g_orig)
 	Vert2UintMap vmap_copy;
 	create_vmap_from_graph(g_copy, vmap_copy);
 
-	/*cout << "@#$original g:\n";
-	print_graph_special(g_orig, vmap);
-	cout << "@#$g_copy:\n";
-        print_graph_special(g_copy, vmap_copy);*/
+	//cout << "@#$original g:\n";
+	//print_graph(g_orig);
+	//cout << "@#$g_copy:\n";
+        //print_graph_special(g_copy, vmap_copy);
 	//print_graph2(g_copy);
 
 	/*cout << "---------------------------- 0 - Printing Edges -------------------\n";

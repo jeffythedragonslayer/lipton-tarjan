@@ -160,10 +160,11 @@ edge_t arbitrary_nontree_edge(Graph const& g, Vert2UintMap& vmap, BFSVisitorData
 		cout << "candidate edge: " << vmap.vert2uint[src] << ' ' << vmap.vert2uint[tar] << '\n';
                 if( src == tar ) throw FoundCircularNode(src);
                 if( !vis_data.is_tree_edge(*ei, &vmap) ){
+                        cout << "found nontree edge\n";
                         cout << "total edges examined: " << num_edges << '\n';
                         cout << "arbitrarily choosing nontree edge: " << to_string(*ei, vmap, g) << '\n';
                         return *ei; 
-                }
+                } else cout << "is a tree edge\n";
 		++num_edges;
         }
         throw NoNontreeEdgeException(num_edges); 
@@ -228,7 +229,7 @@ EdgeIndex reset_edge_index(Graph const& g)
 void kill_vertex(vertex_t v, Graph& g, Vert2UintMap& vmap)
 {
         auto i = vmap.vert2uint[v];
-        cout << "killing vertex " << i << '\n';
+        //cout << "killing vertex " << i << '\n';
         vmap.uint2vert.erase(i);
         vmap.vert2uint.erase(v);
         clear_vertex(v, g);

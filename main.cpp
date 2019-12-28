@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
                 uint e = num_edges(g);
 
                 cout << "starting lipton tarjan...\n";
-                print_graph(g);
+                //print_graph(g);
 
 		try { 
 			std::tuple<Partition, Vert2UintMap, Vert2UintMap> t = lipton_tarjan(g);

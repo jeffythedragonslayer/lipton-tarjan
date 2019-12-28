@@ -26,7 +26,7 @@ struct BFSVisitor : boost::default_bfs_visitor
 	{
 		auto parent = source(e, g);
 		auto child  = target(e, g);
-		std::cout << "  tree edge " << parent << ", " << child << '\n';
+		//std::cout << "  tree edge " << parent << ", " << child << '\n';
 		data.verts[child].parent = parent;
 		data.verts[child].level  = data.verts[parent].level + 1;
 		data.num_levels = std::max(data.num_levels, data.verts[child].level + 1);

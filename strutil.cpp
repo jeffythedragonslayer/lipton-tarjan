@@ -38,7 +38,7 @@ void print_graph_special(Graph const& g, Vert2UintMap const& vmap)
 
 void print_graph_nonboost(Graph const& g)
 { 
-        cout << "\n**********************  Graph  ** print_graph2 **********\n"; 
+        cout << "\n**********************  Graph  ** print_graph_nonboost **********\n"; 
 	map<vertex_t, uint> vmap;
 	VertIter vi, vi_end;
         uint i = 0;

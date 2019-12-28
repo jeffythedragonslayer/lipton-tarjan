@@ -60,7 +60,7 @@ vector<vertex_t> get_cycle(vertex_t v, vertex_t w, BFSVisitorData const& vis_dat
         vector<vertex_t> parents_v = ancestors(v, vis_data);
         vector<vertex_t> parents_w = ancestors(w, vis_data); 
         vertex_t ancestor  = get_common_ancestor(parents_v, parents_w);
-        cout << "common ancestor: " << ancestor << '\n'; 
+        //cout << "common ancestor: " << ancestor << '\n'; 
         return get_cycle(v, w, ancestor, vis_data);
 }
 
@@ -72,19 +72,19 @@ set<vertex_t> get_neighbors(vertex_t v, Graph const& g, Vert2UintMap& vmap)
         for( tie(e_cur, e_end) = out_edges(v, g); e_cur != e_end; ++e_cur ){
 		auto n = target(*e_cur, g);
 		neighbors.insert(n);
-		cout << "      vertex " << vmap.vert2uint[v] << " has neighbor " << vmap.vert2uint[n] << '\n';
+		//cout << "      vertex " << vmap.vert2uint[v] << " has neighbor " << vmap.vert2uint[n] << '\n';
 	}
         return neighbors;
 }
 
 // get set intersection of a and b
-set<vertex_t> get_intersection(set<vertex_t> const& a, set<vertex_t> const& b, Vert2UintMap& vmap)
+pair<vertex_t, vertex_t> get_intersection(set<vertex_t> const& a, set<vertex_t> const& b, Vert2UintMap& vmap)
 {
         set<vertex_t> c;
         set_intersection(STLALL(a), STLALL(b), inserter(c, c.begin())); 
-        for( auto& i : c ) cout << "      set intersection: " << vmap.vert2uint[i] << '\n'; 
+        //for( auto& i : c ) cout << "      set intersection: " << vmap.vert2uint[i] << '\n'; 
         assert(c.size() == 2);
-        return c;
+        return make_pair(*c.begin(), *c.rbegin());
 } 
 
 /* Given an edge e and a cycle of vertices, determine whether e is in inside, outside, or on the cycle.
@@ -93,20 +93,20 @@ e may be anywhere on the graph.
 common_vert_on_cycle should be a tree vertex that both of e's incident vertices share as an ancestor */
 InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t e, vertex_t common_vert_on_cycle, vector<vertex_t> const& cycle, Graph const& g, Vert2UintMap& vmap, Embedding const& em)
 {
-        cout << "------------------ is edge inside outside or on cycle -----------------\n";
-	cout << "edge: " << vmap.vert2uint[source(e, g)] << ' ' << vmap.vert2uint[target(e, g)] << '\n';
-        cout << "cycle: ";
-        for( uint i = 0; i < cycle.size(); ++i ) cout << vmap.vert2uint[cycle[i]] << ' ';
-        cout << '\n';
+        //cout << "------------------ is edge inside outside or on cycle -----------------\n";
+	//cout << "edge: " << vmap.vert2uint[source(e, g)] << ' ' << vmap.vert2uint[target(e, g)] << '\n';
+        //cout << "cycle: ";
+        //for( uint i = 0; i < cycle.size(); ++i ) cout << vmap.vert2uint[cycle[i]] << ' ';
+        //cout << '\n';
 
         auto src = source(e, g);
         auto tar = target(e, g);
         if( on_cycle(e, cycle, g) ){
-		cout << "edge is on cycle\n";
+		//cout << "edge is on cycle\n";
 		return ON;
 	}
-        cout << "      testing if edge " << vmap.vert2uint[src] << ", " << vmap.vert2uint[tar] << " is inside or outside the cycle\n";
-        cout << "      common_vert_on_cycle:    " << vmap.vert2uint[common_vert_on_cycle]   << '\n';
+        //cout << "      testing if edge " << vmap.vert2uint[src] << ", " << vmap.vert2uint[tar] << " is inside or outside the cycle\n";
+        //cout << "      common_vert_on_cycle:    " << vmap.vert2uint[common_vert_on_cycle]   << '\n';
         auto it = find(STLALL(cycle), common_vert_on_cycle);
         if( it == cycle.end() ){ cout << "      common_vert_on_cycle needs to appear in cycle\n"; assert(0); }
 	cout << endl;
@@ -115,12 +115,12 @@ InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t e, vertex_t common_vert_on
         auto after_common        = it+1 == cycle.end  () ?  cycle.begin()     : it+1; 
         auto other_end_of_common = source(e, g) == common_vert_on_cycle ? target(e, g) : source(e, g); 
         
-        cout << '\n';
+        /*cout << '\n';
         cout << "      it:     " << vmap.vert2uint[*it]                  << '\n';
         cout << "      v:      " << vmap.vert2uint[common_vert_on_cycle] << '\n';
         cout << "      before: " << vmap.vert2uint[*before_common]       << '\n';
         cout << "      after:  " << vmap.vert2uint[*after_common]        << '\n';
-        cout << "      other:  " << vmap.vert2uint[other_end_of_common]  << '\n';
+        cout << "      other:  " << vmap.vert2uint[other_end_of_common]  << '\n';*/
 
         vector<uint> permu;
         set<vertex_t> seenbefore;
@@ -130,15 +130,15 @@ InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t e, vertex_t common_vert_on
                 if( src != common_vert_on_cycle ) swap(src, tar);
                 assert(src == common_vert_on_cycle);
 
-                cout << "    tar: " << vmap.vert2uint[tar] << '\n';
+                //cout << "    tar: " << vmap.vert2uint[tar] << '\n';
 
                 if( seenbefore.find(tar) != seenbefore.end() ) continue;
                 seenbefore.insert(tar);
 
                 // this can't be an if-else ladder because sometimes other, before, and after equal each other and we wouldn't have 3 permutations
-                if( tar == other_end_of_common ) {permu.push_back(1); cout << "push 1\n";}
-                if( tar == *before_common      ) {permu.push_back(2); cout << "push 2\n";}
-                if( tar == *after_common       ) {permu.push_back(3); cout << "push 3\n";}
+                if( tar == other_end_of_common ) permu.push_back(1);
+                if( tar == *before_common      ) permu.push_back(2);
+                if( tar == *after_common       ) permu.push_back(3);
         } 
         assert(permu.size() == 3);
 
@@ -227,7 +227,7 @@ EdgeIndex reset_edge_index(Graph const& g)
 
 void kill_vertex(vertex_t v, Graph& g, Vert2UintMap& vmap)
 {
-        cout << "killing vertex " << v << '\n';
+        //cout << "killing vertex " << v << '\n';
         auto i = vmap.vert2uint[v];
         vmap.uint2vert.erase(i);
         vmap.vert2uint.erase(v);

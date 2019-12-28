@@ -11,7 +11,7 @@ std::vector<vertex_t>	ancestors(vertex_t, BFSVisitorData const&);
 std::vector<vertex_t>	get_cycle(vertex_t, vertex_t, vertex_t ancestor, BFSVisitorData const&);
 std::vector<vertex_t>	get_cycle(vertex_t, vertex_t, BFSVisitorData const&); 
 std::set<vertex_t> 	    get_neighbors(vertex_t, Graph const&, Vert2UintMap& vmap);
-std::set<vertex_t> 	    get_intersection(std::set<vertex_t> const&, std::set<vertex_t> const&, Vert2UintMap& vmap);
+std::pair<vertex_t, vertex_t> get_intersection(std::set<vertex_t> const&, std::set<vertex_t> const&, Vert2UintMap& vmap);
 
 enum InsideOutOn {INSIDE, OUTSIDE, ON};
 

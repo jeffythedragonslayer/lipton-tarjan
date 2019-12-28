@@ -237,22 +237,13 @@ void lemma2(GraphCR g)
 	Thus all cases are impossible, and the (x, z) cycle satisfies the claim. */
 }
 
-// Step 10: construct_vertex_partition
-// Time:    O(n)
-//
-// Use the cycle found in Step 9 and the levels found in Step 4 to construct a satisfactory vertex partition as described in the proof of Lemma 3.  Extend this partition from the connected component chosen in Step 2 to the entire graph as described in the proof of Theorem 4.
-Partition construct_vertex_partition(Graph& g_copy, Vert2UintMap const& vmap_copy, uint l[3], BFSVisitorData& vis_data)
+/* Let G be any n-vertex connected planar graph having nonegative vertex consts summing to no more than one.
+Suppose that the vertices of G are partitioned into levels according to their distance from some vertex v, and that L(l) denotes the number of vertices on level l.
+If r is the maximum distance of any vertex from v, let r+1 be an additional level containing no vertices.
+Given any two levels l1 and l2 such that levels 0 through l1-1 have total cost not exceeding 2/3 and levels l2+1 through r+1 have total cost not exceeding 2/3,
+it is possible to find a partition A, B, C of the vertices of G such that no edge joins a vertex in A with a vertex in B, neither A nor B has total cost exceeding 2/3, and C contains no more than L(l1)+L(l2)+max{0,2(l2-l1-1)} vertices. */
+Partition lemma3(Graph& g_copy, uint l[3], uint r, BFSVisitorData& vis_data, Vert2UintMap const& vmap_copy)
 {
-        cout  << "\n------------ 10  - Construct Vertex Partition --------------\n";
-	print_graph_special(g_copy, vmap_copy);
-        print_graph2(g_copy);
-        cout << "l0: " << l[0] << '\n';
-        cout << "l1: " << l[1] << '\n';
-        cout << "l2: " << l[2] << '\n';
-
-        uint r = vis_data.num_levels;
-        cout << "r: " << r << '\n';
-
 	Partition p;
         if( l[1] >= l[2] ){ 
                 cout << "l1 is greater than or equal to l2\n"; 
@@ -312,8 +303,7 @@ Partition construct_vertex_partition(Graph& g_copy, Vert2UintMap const& vmap_cop
 		p2.c = deleted_part;
 		p2.b = *other1;
 		p2.b.insert(other2->begin(), other2->end());
-		return p2;
-
+		return p2; 
         } else {
                 cout << "middle partition is biggest\n";
                 //delete all verts on level l2 and above
@@ -331,6 +321,26 @@ Partition construct_vertex_partition(Graph& g_copy, Vert2UintMap const& vmap_cop
                 //Futhermore, C contains no more than L[l1] + L[l2] + 2(l2 - l1 - 1)
         }
         return p;
+}
+
+// Step 10: construct_vertex_partition
+// Time:    O(n)
+//
+// Use the cycle found in Step 9 and the levels found in Step 4 (uint l[3]) to construct a satisfactory vertex partition as described in the proof of Lemma 3.
+// Extend this partition from the connected component chosen in Step 2 to the entire graph as described in the proof of Theorem 4.
+Partition construct_vertex_partition(Graph& g_copy, Vert2UintMap const& vmap_copy, uint l[3], BFSVisitorData& vis_data)
+{
+        cout  << "\n------------ 10  - Construct Vertex Partition --------------\n";
+	print_graph_special(g_copy, vmap_copy);
+        print_graph2(g_copy);
+        cout << "l0: " << l[0] << '\n';
+        cout << "l1: " << l[1] << '\n';
+        cout << "l2: " << l[2] << '\n';
+
+        uint r = vis_data.num_levels;
+        cout << "r: " << r << '\n';
+
+        return lemma3(g_copy, l, r, vis_data, vmap_copy);
 }
 
 // Step 9: Improve Separator

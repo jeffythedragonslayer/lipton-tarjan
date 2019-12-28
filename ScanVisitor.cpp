@@ -12,16 +12,16 @@ void ScanVisitor::foundedge(vertex_t V, edge_t e)
 		auto w = target(e, *g);
 		if( V != v ) swap(v, w);
 		assert(V == v);
-		cout << "foundedge " << v << ", " << w;
+		//cout << "foundedge " << v << ", " << w;
 		if ( !(*table)[w] ){
 				(*table)[w] = true;
 				assert(x != w); 
-				cout << "   !!!!!!!going to add " << x << ", " << w;
+				//cout << "   !!!!!!!going to add " << x << ", " << w;
 				edges_to_add.insert(make_pair(x, w));
 		}
-		cout << "     going to delete " << v << ", " << w;
+		//cout << "     going to delete " << v << ", " << w;
 		edges_to_delete.insert(make_pair(v, w)); 
-		cout << '\n';
+		//cout << '\n';
 }
 
 void ScanVisitor::finish()

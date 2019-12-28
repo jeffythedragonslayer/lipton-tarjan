@@ -227,7 +227,7 @@ EdgeIndex reset_edge_index(Graph const& g)
 
 void kill_vertex(vertex_t v, Graph& g, Vert2UintMap& vmap)
 {
-        //cout << "killing vertex " << v << '\n';
+        cout << "killing vertex " << v << '\n';
         auto i = vmap.vert2uint[v];
         vmap.uint2vert.erase(i);
         vmap.vert2uint.erase(v);

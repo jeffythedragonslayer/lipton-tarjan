@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/lt",
-            "args": ["graphs/huge4"],
+            "args": ["graphs/huge5"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

@@ -1,6 +1,7 @@
 #pragma once
 #include "typedefs.h"
 #include "BFSVert.h"
+#include "Vert2UintMap.h"
 
 struct BFSVisitorData
 {
@@ -13,7 +14,7 @@ struct BFSVisitorData
 		BFSVisitorData(Graph* g, vertex_t root);
 
 		void reset(Graph*); 
-		bool is_tree_edge(edge_t) const; 
+		bool is_tree_edge(edge_t, Vert2UintMap* = nullptr) const; 
 		uint edge_cost(edge_t, std::vector<vertex_t> const& cycle, Graph const&) const; 
 		void print_costs  () const;
 		void print_parents() const;

@@ -259,7 +259,7 @@ Partition lemma3(Graph& g_copy, uint l[3], uint r, BFSVisitorData& vis_data, Ver
                 cout << "A = all verts on levels 0    thru l1-1\n";
                 cout << "B = all verts on levels l1+1 thru r\n";
                 cout << "C = all verts on llevel l1\n";
-		p.print(vmap_copy);
+		//p.print(vmap_copy);
                 return p;
         }
 
@@ -281,7 +281,7 @@ Partition lemma3(Graph& g_copy, uint l[3], uint r, BFSVisitorData& vis_data, Ver
         cout << "Partition A size: " << p.a.size() << '\n';
         cout << "Partition B size: " << p.b.size() << '\n';
         cout << "Partition C size: " << p.c.size() << '\n';
-	p.print(vmap_copy);
+	//p.print(vmap_copy);
 
         uint n = num_vertices(g_copy);
         assert(p.a.size() <= 2*n/3);
@@ -292,7 +292,7 @@ Partition lemma3(Graph& g_copy, uint l[3], uint r, BFSVisitorData& vis_data, Ver
 
 		p.get_most_costly_part(&costly_part, &other1, &other2);
 
-		p.print(vmap_copy);
+		//p.print(vmap_copy);
                 cout <<   "A = most costly part of the 3 : "; for( auto& a : *costly_part ) cout << a << ' ';
                 cout << "\nB = remaining 2 parts         : "; for( auto& b : *other1      ) cout << b << ' '; for( auto& b : *other2 ) cout << b << ' '; 
                 cout << "\nC = deleted verts on l1 and l2: "; for( auto& v : deleted_part ) cout << v << ' '; cout << '\n';
@@ -369,7 +369,7 @@ Partition improve_separator(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMa
 		// Let (vi, wi) be the nontree edge whose cycle is the current candidate to complete the separator
                 vertex_t vi = source(completer_candidate_edge, g_copy);
                 vertex_t wi = target(completer_candidate_edge, g_copy); 
-                assert(!vis_data.is_tree_edge(completer_candidate_edge));
+                assert(!vis_data.is_tree_edge(completer_candidate_edge, &vmap_copy));
                 cout << "   vi: " << vmap_copy.vert2uint[vi] << '\n';
                 cout << "   wi: " << vmap_copy.vert2uint[wi] << '\n';
 
@@ -385,10 +385,16 @@ Partition improve_separator(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMa
                 assert(maybe_y.second); // I'm assuming the bool means that the edge_t exists?  Boost Graph docs don't say
                 cout << "maybe_y: " << to_string(maybe_y.first, vmap_copy, g_copy) << '\n';
 
-                vertex_t common_vert_on_cycle = find(STLALL(cycle), neighbors_vw.first) == cycle.end() ? neighbors_vw.second : neighbors_vw.first;
+                vertex_t common_vert_on_cycle; 
+
+                if( find(STLALL(cycle), neighbors_vw.first) == cycle.end()){
+                        common_vert_on_cycle = neighbors_vw.second;
+                } else {
+                        common_vert_on_cycle = neighbors_vw.first;
+                }
+                cout << "common vert on cycle: " << vmap_copy.vert2uint[common_vert_on_cycle] << '\n';
                 assert(find(STLALL(cycle), common_vert_on_cycle) != cycle.end());
 
-                cout << "common vert on cycle: " << vmap_copy.vert2uint[common_vert_on_cycle] << '\n';
                 InsideOutOn insideout = is_edge_inside_outside_or_on_cycle(maybe_y.first, common_vert_on_cycle, cycle, g_copy, vmap_copy, em.em);
 		assert(insideout != ON);
                 vertex_t y = (insideout == INSIDE) ? neighbors_vw.first : neighbors_vw.second; // We now have the (vi, y, wi) triangle
@@ -399,11 +405,11 @@ Partition improve_separator(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMa
                 edge_t next_edge;
 
 		// if either (vi, y) or (y, wi) is a tree edge, 
-                if ( vis_data.is_tree_edge(viy) || vis_data.is_tree_edge(ywi) ){
+                if ( vis_data.is_tree_edge(viy, &vmap_copy) || vis_data.is_tree_edge(ywi, &vmap_copy) ){
 			// determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.
                         cout << "   at least one tree edge\n";
-                        next_edge = vis_data.is_tree_edge(viy) ? ywi : viy;
-                        assert(!vis_data.is_tree_edge(next_edge));
+                        next_edge = vis_data.is_tree_edge(viy, &vmap_copy) ? ywi : viy;
+                        assert(!vis_data.is_tree_edge(next_edge, &vmap_copy));
 
                         // Compute the cost inside the (vi+1 wi+1) cycle from the cost inside the (vi, wi) cycle and the cost of vi, y, and wi.  See Fig 4.
                         uint cost[4] = {vis_data.verts[vi].descendant_cost,

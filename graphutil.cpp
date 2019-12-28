@@ -147,26 +147,26 @@ InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t e, vertex_t common_vert_on
 	       OUTSIDE;
 }
 
+// returns the first nontree edge we find
 edge_t arbitrary_nontree_edge(Graph const& g, Vert2UintMap& vmap, BFSVisitorData const& vis_data)
 { 
-	//cout << "starting arbitrary_nontree_edge function\n";
+	cout << "starting arbitrary_nontree_edge function\n";
         EdgeIter ei, ei_end;
-	uint i = 0;
-        for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ){
+	uint num_edges = 0;
+        for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei, ++num_edges ){
                 auto src = source(*ei, g);
                 auto tar = target(*ei, g);
-		//cout << "candidate edge: " << src << ' ' << tar << '\n';
-                assert(edge(src, tar, g).second); // exists
+                assert(edge(src, tar, g).second); // edge exists
+		cout << "candidate edge: " << vmap.vert2uint[src] << ' ' << vmap.vert2uint[tar] << '\n';
                 if( src == tar ) throw FoundCircularNode(src);
-                if( !vis_data.is_tree_edge(*ei) ) break;
-		++i;
+                if( !vis_data.is_tree_edge(*ei, &vmap) ){
+                        cout << "total edges examined: " << num_edges << '\n';
+                        cout << "arbitrarily choosing nontree edge: " << to_string(*ei, vmap, g) << '\n';
+                        return *ei; 
+                }
+		++num_edges;
         }
-	//cout << "total edges: " << i << '\n';
-        if( ei == ei_end ) throw NoNontreeEdgeException(i);
-
-        assert(!vis_data.is_tree_edge(*ei));
-        //cout << "arbitrarily choosing nontree edge: " << to_string(*ei, vmap, g) << '\n';
-        return *ei;
+        throw NoNontreeEdgeException(num_edges); 
 }
 
 // scan edges around all vertices of cycle and add up edge costs

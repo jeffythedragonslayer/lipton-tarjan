@@ -27,18 +27,17 @@ void BFSVisitorData::reset(Graph* g)
 		root = Graph::null_vertex();
 }
 
-bool BFSVisitorData::is_tree_edge(edge_t e) const
+bool BFSVisitorData::is_tree_edge(edge_t e, Vert2UintMap* vmap) const
 { 
-		//cout << "testing is tree edge " << to_string(e, *g) << '\n';
-		auto src = source(e, *g);
-		auto tar = target(e, *g); 
+		vertex_t src = source(e, *g);
+		vertex_t tar = target(e, *g); 
 		auto src_it = verts.find(src);
 		auto tar_it = verts.find(tar);
-		//cout << "src: " << src << '\n';
-		//cout << "tar: " << tar << '\n';
+		if (vmap) cout << "testing is tree edge: (" << vmap->vert2uint[src] << ", " << vmap->vert2uint[tar] << ")\n";
+		else cout << "oops\n";
 		assert(src_it != verts.end());
 		assert(tar_it != verts.end());
-		return src_it->second.parent == tar || tar_it->second.parent == src;
+		return src_it->second.parent == tar || tar_it->second.parent == src; // tree edges will have a parent-child relationship among their source and target but we're not sure which is which
 }
 
 uint BFSVisitorData::edge_cost(edge_t e, vector<vertex_t> const& cycle, Graph const& g) const

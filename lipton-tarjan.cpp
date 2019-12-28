@@ -270,14 +270,14 @@ Partition lemma3(Graph& g_copy, uint l[3], uint r, BFSVisitorData& vis_data, Ver
         for( tie(vei, vend) = vertices(g_copy); vei != vend; ++vei ){ 
                 vertex_t v = *vei;
                 cout << "level of " << v << ": " << vis_data.verts[v].level << ", ";
-                if( vis_data.verts[v].level == l[1] || vis_data.verts[v].level == l[2] ){     cout << v << " is deleted\n";             deleted_part.insert(v); continue;}
-                if( vis_data.verts[v].level <  l[1] ){                                        cout << v << " belongs to first part\n";  p.a.insert(v);  continue;}
-                if( vis_data.verts[v].level >= l[1]+1 && vis_data.verts[v].level <= l[2]-1 ){ cout << v << " belongs to middle part\n"; p.b.insert(v);  continue;}
-                if( vis_data.verts[v].level >  l[2]  ){                                       cout << v << " belongs to last part\n";   p.c.insert(v);  continue;}
+                if( vis_data.verts[v].level == l[1] || vis_data.verts[v].level == l[2] ){     cout << v << " is deleted\n";                 deleted_part.insert(v); continue;}
+                if( vis_data.verts[v].level <  l[1] ){                                        cout << v << " belongs to first part (A)\n";  p.a.insert(v);  continue;}
+                if( vis_data.verts[v].level >= l[1]+1 && vis_data.verts[v].level <= l[2]-1 ){ cout << v << " belongs to middle part (B)\n"; p.b.insert(v);  continue;}
+                if( vis_data.verts[v].level >  l[2]  ){                                       cout << v << " belongs to last part (C)\n";   p.c.insert(v);  continue;}
                 assert(0);
         }
 
-        //the only part which can have cost > 2/3 is the middle part
+        //the only part which can have cost > 2/3 is the middle part (B)
         cout << "Partition A size: " << p.a.size() << '\n';
         cout << "Partition B size: " << p.b.size() << '\n';
         cout << "Partition C size: " << p.c.size() << '\n';
@@ -338,7 +338,7 @@ Partition construct_vertex_partition(Graph& g_copy, Vert2UintMap const& vmap_cop
         cout << "l2: " << l[2] << '\n';
 
         uint r = vis_data.num_levels;
-        cout << "r: " << r << '\n';
+        cout << "r max distance: " << r << '\n';
 
         return lemma3(g_copy, l, r, vis_data, vmap_copy);
 }
@@ -656,22 +656,23 @@ Partition l1_and_k(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_c
 // Compute the level of each vertex and the number of vertices L(l) in each level l.
 Partition bfs_and_levels(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_copy, VertIter vit, VertIter vjt)
 {
-        //cout << "---------------------------- 3 - BFS and Levels ------------\n";
+        cout << "---------------------------- 3 - BFS and Levels ------------\n";
         BFSVisitorData vis_data(&g_copy, *vertices(g_copy).first);
         breadth_first_search(g_copy, vis_data.root, visitor(BFSVisitor(vis_data)));
 
         vector<uint> L(vis_data.num_levels + 1, 0);
-	//cout << "L levels: " << L.size() << '\n';
+	cout << "L levels: " << L.size() << '\n';
         for( auto& d : vis_data.verts ){
+                cout << "level: " << d.second.level << '\n';
 	       	++L[d.second.level];
 	}
 
-        /*for( tie(vit, vjt) = vertices(g_copy); vit != vjt; ++vit ){
+        for( tie(vit, vjt) = vertices(g_copy); vit != vjt; ++vit ){
 		cout << "level/cost of vert " << *vit << ": " << vis_data.verts[*vit].level << '\n';
 	}
         for( uint i = 0; i < L.size(); ++i ){
 		cout << "L[" << i << "]: " << L[i] << '\n';
-	}*/
+	}
 
 	return l1_and_k(g_copy, vmap, vmap_copy, vit, vjt, L, vis_data); // step 4
 }

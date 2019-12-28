@@ -375,34 +375,31 @@ Partition improve_separator(Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMa
 
                 set<vertex_t> neighbors_v = get_neighbors(vi, g_copy, vmap_copy);
                 set<vertex_t> neighbors_w = get_neighbors(wi, g_copy, vmap_copy); 
-                set<vertex_t> neighbors_common_to_v_and_w = get_intersection(neighbors_v, neighbors_w, vmap_copy);
-                assert(neighbors_common_to_v_and_w.size() == 2);
-                cout << "   neighbors_common_to_v_and_w begin : " << vmap_copy.vert2uint[*neighbors_common_to_v_and_w.begin()] << '\n';
-                cout << "   neighbors_common_to_v_and_w rbegin: " << vmap_copy.vert2uint[*neighbors_common_to_v_and_w.rbegin()] << '\n';
-
-		// one of the two vertices in the set neighbors_common_to_v_and_w is y.  Maybe it's the first one, so we use is_edge_inside_outside_or_on_cycle to test if it is.
-                pair<edge_t, bool> maybe_y = edge(vi, *neighbors_common_to_v_and_w.begin(), g_copy);
-                cout << "maybe_y: " << to_string(maybe_y.first, vmap_copy, g_copy) << '\n';
-                assert(maybe_y.second);
+                set<vertex_t> neighbors_vw = get_intersection(neighbors_v, neighbors_w, vmap_copy);
+                assert(neighbors_vw.size() == 2);
+                cout << "   neighbors_vw_begin : " << vmap_copy.vert2uint[*neighbors_vw.begin()] << '\n';
+                cout << "   neighbors_vw_rbegin: " << vmap_copy.vert2uint[*neighbors_vw.rbegin()] << '\n';
 
 		// Locate the triangle (vi, y, wi) which has (vi, wi) as a boundary edge and lies inside the (vi, wi) cycle.  
-                vertex_t common_vert_on_cycle = *neighbors_common_to_v_and_w.begin();
+		// one of the two vertices in the set neighbors_vw is y.  Maybe it's .begin(), so we use is_edge_inside_outside_or_on_cycle to test if it is.
+                pair<edge_t, bool> maybe_y = edge(vi, *neighbors_vw.begin(), g_copy);
+                assert(maybe_y.second); // I'm assuming the bool means that the edge_t exists?  Boost Graph docs don't say
+                cout << "maybe_y: " << to_string(maybe_y.first, vmap_copy, g_copy) << '\n';
 
-                if (find(STLALL(cycle), common_vert_on_cycle) == cycle.end()){
-                        common_vert_on_cycle = *neighbors_common_to_v_and_w.rbegin(); 
-                }
+                vertex_t common_vert_on_cycle = find(STLALL(cycle), *neighbors_vw.begin()) == cycle.end() ? *neighbors_vw.rbegin() : *neighbors_vw.begin();
+                assert(find(STLALL(cycle), common_vert_on_cycle) != cycle.end());
 
                 cout << "common vert on cycle: " << vmap_copy.vert2uint[common_vert_on_cycle] << '\n';
                 InsideOutOn insideout = is_edge_inside_outside_or_on_cycle(maybe_y.first, common_vert_on_cycle, cycle, g_copy, vmap_copy, em.em);
 		assert(insideout != ON);
-                vertex_t y = (insideout == INSIDE) ? *neighbors_common_to_v_and_w.begin() : *neighbors_common_to_v_and_w.rbegin(); // We now have the (vi, y, wi) triangle
+                vertex_t y = (insideout == INSIDE) ? *neighbors_vw.begin() : *neighbors_vw.rbegin(); // We now have the (vi, y, wi) triangle
 
                 cout << "   y: " << y << '\n';
                 pair<edge_t, bool> viy_e = edge(vi, y, g_copy); assert(viy_e.second); edge_t viy = viy_e.first;
                 pair<edge_t, bool> ywi_e = edge(y, wi, g_copy); assert(ywi_e.second); edge_t ywi = ywi_e.first; 
                 edge_t next_edge;
 
-		// if neither (vi, y) nor (y, wi) is a tree edge, 
+		// if either (vi, y) or (y, wi) is a tree edge, 
                 if ( vis_data.is_tree_edge(viy) || vis_data.is_tree_edge(ywi) ){
 			// determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.
                         cout << "   at least one tree edge\n";

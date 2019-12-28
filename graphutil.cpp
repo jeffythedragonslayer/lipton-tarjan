@@ -27,7 +27,6 @@ vertex_t get_common_ancestor(vector<vertex_t> const& ancestors_v, vector<vertex_
 		}
 	}
 	assert(0);
-        return vertex_t();
 }
 
 vector<vertex_t> ancestors(vertex_t v, BFSVisitorData const& vis)
@@ -90,13 +89,16 @@ set<vertex_t> get_intersection(set<vertex_t> const& a, set<vertex_t> const& b, V
 
 /* Given an edge e and a cycle of vertices, determine whether e is in inside, outside, or on the cycle.
 An embedding is needed to establish what is inside and outside.  
+e may be anywhere on the graph.
 common_vert_on_cycle should be a tree vertex that both of e's incident vertices share as an ancestor */
 InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t e, vertex_t common_vert_on_cycle, vector<vertex_t> const& cycle, Graph const& g, Vert2UintMap& vmap, Embedding const& em)
 {
+        cout << "------------------ is edge inside outside or on cycle -----------------\n";
 	cout << "edge: " << vmap.vert2uint[source(e, g)] << ' ' << vmap.vert2uint[target(e, g)] << '\n';
         cout << "cycle: ";
         for( uint i = 0; i < cycle.size(); ++i ) cout << vmap.vert2uint[cycle[i]] << ' ';
         cout << '\n';
+
         auto src = source(e, g);
         auto tar = target(e, g);
         if( on_cycle(e, cycle, g) ){
@@ -109,35 +111,39 @@ InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t e, vertex_t common_vert_on
         if( it == cycle.end() ){ cout << "      common_vert_on_cycle needs to appear in cycle\n"; assert(0); }
 	cout << endl;
         assert(*it == common_vert_on_cycle);
-        auto before = it   == cycle.begin() ?  cycle.end  ()-1   : it-1;
-        auto after  = it+1 == cycle.end  () ?  cycle.begin()     : it+1; 
-        auto other  = source(e, g) == common_vert_on_cycle ? target(e, g) : source(e, g); 
+        auto before_common = it   == cycle.begin() ?  cycle.end  ()-1   : it-1;
+        auto after_common        = it+1 == cycle.end  () ?  cycle.begin()     : it+1; 
+        auto other_end_of_common = source(e, g) == common_vert_on_cycle ? target(e, g) : source(e, g); 
         
-        //cout << '\n';
-        //cout << "      it:     " << *it         << '\n';
-        //cout << "      v:      " << common_vert << '\n';
-        //cout << "      before: " << *before     << '\n';
-        //cout << "      after:  " << *after      << '\n';
-        //cout << "      other:  " << other       << '\n';
+        cout << '\n';
+        cout << "      it:     " << vmap.vert2uint[*it]                  << '\n';
+        cout << "      v:      " << vmap.vert2uint[common_vert_on_cycle] << '\n';
+        cout << "      before: " << vmap.vert2uint[*before_common]       << '\n';
+        cout << "      after:  " << vmap.vert2uint[*after_common]        << '\n';
+        cout << "      other:  " << vmap.vert2uint[other_end_of_common]  << '\n';
 
-        vector<uint> perm;
+        vector<uint> permu;
         set<vertex_t> seenbefore;
-        for( auto& tar_it : em[*it] ){ // why does this contain duplicates?
-                auto src = source(tar_it, g);
-                auto tar = target(tar_it, g);
+        for( auto& edge : em[*it] ){ // why does this contain duplicates?
+                auto src = source(edge, g);
+                auto tar = target(edge, g);
                 if( src != common_vert_on_cycle ) swap(src, tar);
                 assert(src == common_vert_on_cycle);
+
+                cout << "    tar: " << vmap.vert2uint[tar] << '\n';
+
                 if( seenbefore.find(tar) != seenbefore.end() ) continue;
                 seenbefore.insert(tar);
 
-                if(      tar == other   ) perm.push_back(1);
-                else if( tar == *before ) perm.push_back(2);
-                else if( tar == *after  ) perm.push_back(3);
+                // this can't be an if-else ladder because sometimes other, before, and after equal each other and we wouldn't have 3 permutations
+                if( tar == other_end_of_common ) {permu.push_back(1); cout << "push 1\n";}
+                if( tar == *before_common      ) {permu.push_back(2); cout << "push 2\n";}
+                if( tar == *after_common       ) {permu.push_back(3); cout << "push 3\n";}
         } 
-        assert(perm.size() == 3);
+        assert(permu.size() == 3);
 
-	return levi_civita(perm[0], perm[1], perm[2]) == 1 ?
-	       INSIDE					   :
+	return levi_civita(permu[0], permu[1], permu[2]) == 1 ?
+	       INSIDE					      :
 	       OUTSIDE;
 }
 

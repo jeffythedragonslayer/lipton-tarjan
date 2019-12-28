@@ -26,7 +26,7 @@ struct face_counter : planar_face_traversal_visitor
 {
         face_counter() : count(0) {}
         void begin_face() { ++count; }
-        int count;
+        uint count;
 };
 
 struct coord_t

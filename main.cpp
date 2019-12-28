@@ -7,6 +7,7 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/copy.hpp>
+#include <boost/graph/graph_utility.hpp>
 #include <boost/bimap.hpp>
 using namespace std;
 using namespace boost;
@@ -38,7 +39,7 @@ int main(int argc, char* argv[])
                 uint e = num_edges(g);
 
                 cout << "starting lipton tarjan...\n";
-                print_graph2(g);
+                print_graph(g);
 
 		try { 
 			std::tuple<Partition, Vert2UintMap, Vert2UintMap> t = lipton_tarjan(g);

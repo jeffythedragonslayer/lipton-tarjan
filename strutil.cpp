@@ -36,7 +36,7 @@ void print_graph_special(Graph const& g, Vert2UintMap const& vmap)
         cout << "*********************************************************\n\n";
 }
 
-void print_graph2(Graph const& g)
+void print_graph_nonboost(Graph const& g)
 { 
         cout << "\n**********************  Graph  ** print_graph2 **********\n"; 
 	map<vertex_t, uint> vmap;
@@ -50,7 +50,7 @@ void print_graph2(Graph const& g)
         for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi, ++i ){ 
                 cout << "vert " << i;
                 OutEdgeIter ei, e_end;
-                cout << "   hos edges ";
+                cout << "   has edges ";
                 for( tie(ei, e_end) = out_edges(*vi, g); ei != e_end; ++ei ){
                         auto src = source(*ei, g);
                         auto tar = target(*ei, g);
@@ -68,7 +68,8 @@ void print_edges(Graph const& g, Vert2UintMap const& vmap)
         for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ){ 
                 auto src = source(*ei, g);
                 auto tar = target(*ei, g);
-                cout << vmap.vert2uint.at(src) << ", " << vmap.vert2uint.at(tar) << '\n';
+                cout << '(' << vmap.vert2uint.at(src) << ", " << vmap.vert2uint.at(tar) << ')';
+		if( ei != ei_end ) cout << ", ";
         } 
-        cout << "*********************************************************\n\n";
+        cout << "\n*********************************************************\n\n";
 }

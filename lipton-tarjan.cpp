@@ -332,7 +332,7 @@ Partition construct_vertex_partition(Graph& g_copy, Vert2UintMap const& vmap_cop
 {
         cout  << "\n------------ 10  - Construct Vertex Partition --------------\n";
 	print_graph_special(g_copy, vmap_copy);
-        print_graph2(g_copy);
+        print_graph(g_copy);
         cout << "l0: " << l[0] << '\n';
         cout << "l1: " << l[1] << '\n';
         cout << "l2: " << l[2] << '\n';
@@ -517,7 +517,7 @@ Partition new_bfs_and_make_max_planar(Graph& g_copy, Vert2UintMap const& vmap, V
         reset_vertex_indices(g_copy);
         reset_edge_index(g_copy);
 
-        print_graph2(g_copy);
+        print_graph_nonboost(g_copy);
 
 	return locate_cycle(g_copy, vmap, vmap_copy, vis_data, l);  // step 8
 }

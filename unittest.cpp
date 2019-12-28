@@ -5,6 +5,7 @@
 #include "graphutil.h"
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/test/included/unit_test.hpp>
+#include <boost/graph/graph_utility.hpp>
 #include <string> 
 #include <fstream>
 #include <algorithm>
@@ -32,7 +33,7 @@ void check_graph_is_nonplanar(string graphfile)
 	uint e = num_edges(g);
 
 	cout << "starting lipton tarjan...\n";
-	print_graph2(g);
+	print_graph(g);
 
 	try {
 		auto p = lipton_tarjan(g);//, vmap);
@@ -58,7 +59,7 @@ void check_partition_is_legal(string graphfile)
 	auto g = load_graph(graphfile, vmap);
 
 	cout << "starting lipton tarjan...\n";
-	print_graph2(g);
+	print_graph(g);
 
 	auto t = lipton_tarjan(g);
 

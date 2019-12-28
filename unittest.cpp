@@ -113,9 +113,9 @@ BOOST_AUTO_TEST_CASE( empty_test )
 	check_partition_is_legal("graphs/box3");
 }*/
 
-/*BOOST_AUTO_TEST_CASE( in_test )
+/*BOOST_AUTO_TEST_CASE( delaunay_test )
 {
-	check_partition_is_legal("graphs/in");
+	check_partition_is_legal("graphs/delaunay");
 }*/
 
 /*BOOST_AUTO_TEST_CASE( in2_test )
@@ -128,9 +128,9 @@ BOOST_AUTO_TEST_CASE( in3_test )
 	check_partition_is_legal("graphs/in3");
 }
 
-BOOST_AUTO_TEST_CASE( in4_test )
+BOOST_AUTO_TEST_CASE( fourfingered_test )
 {
-	check_partition_is_legal("graphs/in4");
+	check_partition_is_legal("graphs/fourfingered");
 }*/
 
 /*BOOST_AUTO_TEST_CASE( insideout_test )

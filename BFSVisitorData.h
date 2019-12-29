@@ -20,5 +20,13 @@ struct BFSVisitorData
 		void print_parents() const;
 };
 
+struct EdgeNotInVisitorData : std::exception
+{
+		edge_t e;
+		Vert2UintMap* vmap;
+
+		EdgeNotInVisitorData(edge_t e, Vert2UintMap* vmap) : e(e), vmap(vmap) {}
+};
+
 bool on_cycle(vertex_t, std::vector<vertex_t> const& cycle, Graph const&);
 bool on_cycle(edge_t, std::vector<vertex_t> const& cycle, Graph const&);

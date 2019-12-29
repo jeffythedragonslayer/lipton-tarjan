@@ -31,15 +31,15 @@ vertex_t get_common_ancestor(vector<vertex_t> const& ancestors_v, vector<vertex_
 
 vector<vertex_t> ancestors(vertex_t v, BFSVisitorData const& vis)
 {
-        //cout << "first v: " << v << '\n';
-        //cout << "root: " << vis.root << '\n';
+        cout << "first v: " << v << '\n';
+        cout << "root: " << vis.root << '\n';
         vector<vertex_t> ans = {v};
         while( v != vis.root ){
                 auto v_it = vis.verts.find(v);
                 assert(v_it != vis.verts.end());
                 v = v_it->second.parent;
+                cout << "pushing back v: " << v << '\n';
                 ans.push_back(v);
-                //cout << "pushing back v: " << v << '\n';
         }
         return ans;
 }
@@ -159,12 +159,19 @@ edge_t arbitrary_nontree_edge(Graph const& g, Vert2UintMap& vmap, BFSVisitorData
                 assert(edge(src, tar, g).second); // edge exists
 		cout << "candidate edge: " << vmap.vert2uint[src] << ' ' << vmap.vert2uint[tar] << '\n';
                 if( src == tar ) throw FoundCircularNode(src);
-                if( !vis_data.is_tree_edge(*ei, &vmap) ){
-                        cout << "found nontree edge\n";
-                        cout << "total edges examined: " << num_edges << '\n';
-                        cout << "arbitrarily choosing nontree edge: " << to_string(*ei, vmap, g) << '\n';
-                        return *ei; 
-                } else cout << "is a tree edge\n";
+
+                try {
+
+                        if( !vis_data.is_tree_edge(*ei, &vmap) ){
+                                cout << "found nontree edge\n";
+                                cout << "total edges examined: " << num_edges << '\n';
+                                cout << "arbitrarily choosing nontree edge: " << to_string(*ei, vmap, g) << '\n';
+                                return *ei; 
+                        } else cout << "is a tree edge\n";
+
+                } catch (EdgeNotInVisitorData& e){
+                        cout << "edge not in visitor data\n";
+                }
 		++num_edges;
         }
         throw NoNontreeEdgeException(num_edges); 

@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/lt",
-            "args": ["graphs/smallline"],
+            "args": ["graphs/in2"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

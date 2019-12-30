@@ -292,7 +292,6 @@ Partition lemma3_cllmax(GraphCR g_orig, Graph& g, uint l[3], uint r, BFSVisitorD
                 assert(0);
         }
 
-
         assert(p.total_num_verts() == n_orig);
 
         //the only part which can have cost > 2/3 is the middle part (B)
@@ -592,21 +591,22 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, Vert2Uint
         print_graph(g_shrunk);
         reset_vertex_indices(g_shrunk);
         reset_edge_index(g_shrunk);
-        vis_data.reset(&g_shrunk);
-        vis_data.root = (x_gone != Graph::null_vertex()) ? x_gone : x;
-        ++vis_data.verts[vis_data.root].descendant_cost;
+        BFSVisitorData shrunken_vis_data(vis_data);
+        //vis_data.reset(&g_shrunk);
+        shrunken_vis_data.root = (x_gone != Graph::null_vertex()) ? x_gone : x;
+        ++shrunken_vis_data.verts[shrunken_vis_data.root].descendant_cost;
 
-        cout << "root: " << vmap_shrunk.vert2uint[vis_data.root] << '\n'; 
+        cout << "root: " << vmap_shrunk.vert2uint[shrunken_vis_data.root] << '\n'; 
         cout << "n:    " << num_vertices(g_shrunk) << '\n';
 
-        breadth_first_search(g_shrunk, x_gone != Graph::null_vertex() ? x_gone : x, visitor(BFSVisitor(vis_data))); 
+        breadth_first_search(g_shrunk, x_gone != Graph::null_vertex() ? x_gone : x, visitor(BFSVisitor(shrunken_vis_data))); 
         make_max_planar(g_shrunk);
         reset_vertex_indices(g_shrunk);
         reset_edge_index(g_shrunk);
 
         print_graph(g_shrunk);
 
-	return locate_cycle(g_orig, g_shrunk, vmap, vmap_shrunk, vis_data, l);  // step 8
+	return locate_cycle(g_orig, g_shrunk, vmap, vmap_shrunk, shrunken_vis_data, l);  // step 8
 }
 
 // Step 6: Shrinktree

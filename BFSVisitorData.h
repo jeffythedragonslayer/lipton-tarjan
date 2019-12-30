@@ -12,6 +12,7 @@ struct BFSVisitorData
 		vertex_t			       			   root; 
 
 		BFSVisitorData(Graph* g, vertex_t root);
+		BFSVisitorData(BFSVisitorData const&) = default;
 
 		void reset(Graph*); 
 		bool is_tree_edge(edge_t, Vert2UintMap* = nullptr) const; 

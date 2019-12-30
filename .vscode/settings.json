@@ -12,6 +12,9 @@
         "unordered_map": "cpp",
         "unordered_set": "cpp",
         "rope": "cpp",
-        "functional": "cpp"
+        "functional": "cpp",
+        "memory": "cpp",
+        "random": "cpp",
+        "optional": "cpp"
     }
 }

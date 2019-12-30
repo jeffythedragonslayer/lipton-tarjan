@@ -33,14 +33,15 @@ using namespace boost;
 typedef Graph const& GraphCR; 
 typedef graph_traits<Graph>::vertex_descriptor vertex_t;
 
-Partition theorem4_connected()
+Partition theorem4_connected(GraphCR g)
 {
+        vertex_t v;
         // Partition the vertices into levels according to their distance from some vertex v.
         vector<uint> L;
         // L[l] = # of vertices on level l
         uint r;
         /*If r is the maximum distance of any vertex from v, define additional levels -1 and r+1 containing no vertices*/
-        uint l1;// = the level such that the sum of costs in levels 0 thru l1-1 < 1/2, but the sum of costs in levels 0 thru l1 is >= 1/2
+        uint l[3];// l1 = the level such that the sum of costs in levels 0 thru l1-1 < 1/2, but the sum of costs in levels 0 thru l1 is >= 1/2
         //(If no such l1 exists, the total cost of all vertices < 1/2, and B = C = {} and return true) */
         uint k;// = # of vertices on levels 0 thru l1.
         /*Find a level l0 such that l0 <= l1 and |L[l0]| + 2(l1-l0) <= 2sqrt(k)
@@ -154,7 +155,20 @@ Partition theorem4_disconnected(GraphCR g, uint n, uint num_components, associat
                 return true;
 
         In all cases the separator C is either empty or contained in only one connected component of G */
+
+        Graph g_comp; // connected component
+        Partition star_p = theorem4_connected(g_comp);
+        // ????
+
+        set<vertex_t> const* costly_part;
+        set<vertex_t> const* other1;
+        set<vertex_t> const* other2;
+        star_p.get_most_costly_part(&costly_part, &other1, &other2);
+
         Partition p;
+        p.a = *costly_part;
+        p.c = star_p.c;
+        // set p.b to remaining vertices of G
         return p;
 }
 
@@ -170,7 +184,7 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 
 	if( is_graph_connected ){
 		cout << "graph is connected\n";
-                return theorem4_connected(); 
+                return theorem4_connected(g); 
 	} else {
                 cout << "graph is disconnected with " << num_components << " components\n";
                 return theorem4_disconnected(g, n, num_components, vertid_to_component, num_verts_per_component);

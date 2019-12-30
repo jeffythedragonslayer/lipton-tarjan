@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/lt",
-            "args": ["graphs/insideoutfail"],
+            "args": ["graphs/smallline"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

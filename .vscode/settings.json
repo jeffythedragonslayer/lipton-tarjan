@@ -11,6 +11,7 @@
         "string": "cpp",
         "unordered_map": "cpp",
         "unordered_set": "cpp",
-        "rope": "cpp"
+        "rope": "cpp",
+        "functional": "cpp"
     }
 }

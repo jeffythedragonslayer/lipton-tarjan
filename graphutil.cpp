@@ -233,6 +233,13 @@ EdgeIndex reset_edge_index(Graph const& g)
         return edgedesc_to_uint;
 } 
 
+void contract_vertices(vertex_t b, vertex_t a, Graph& g)
+{
+    auto be = adjacent_vertices(b, g);
+    for (auto beit = be.first; beit != be.second; ++beit) add_edge(a, *beit, g);
+    remove_vertex(b, g);
+}
+
 void kill_vertex(vertex_t v, Graph& g, Vert2UintMap& vmap)
 {
         auto i = vmap.vert2uint[v];

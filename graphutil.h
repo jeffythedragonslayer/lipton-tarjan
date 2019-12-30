@@ -51,3 +51,4 @@ void kill_vertex(vertex_t, Graph&, Vert2UintMap&);
 Graph load_graph(std::string const& fname, Vert2UintMap&);
 
 void create_vmap_from_graph(Graph const&, Vert2UintMap&);
+void contract_vertices(vertex_t b, vertex_t a, Graph& g);

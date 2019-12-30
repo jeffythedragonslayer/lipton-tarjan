@@ -180,9 +180,10 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 Suppose G has a spanning tree of radius r.
 Then the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex in A with a vertex in B, neither A nor B has total cost exceeding 2/3,
 and C contains no more than 2r+1 vertices, one the root of the tree */
-void lemma2(GraphCR g)
+// r is spanning tree radius
+void lemma2(GraphCR g, uint r)
 {
-	uint r = 0; // spanning tree radius
+	//uint r = 0; // spanning tree radius
 
 	/* Let G be any planar graph with nonnegative vertex costs summing to no more than one.
 	Suppose G has a spanning tree of radius r.
@@ -195,7 +196,7 @@ void lemma2(GraphCR g)
 	Embed G in the plane.  Make each face a triangle by adding a suitable number of additional edges.
 	Any nontree edge (including each of the added edges) forms a simple cycle with some of the tree edges.
 	This cycle is of length at most 2r+1 if it contains the root of the tree, at most 2r-1 otherwise.
-	The cycle divides teh plane (and the graph) into two parts, the inside and the outside of the cycle.
+	The cycle divides the plane (and the graph) into two parts, the inside and the outside of the cycle.
 	We claim that at least one such cycle separates the graph so that neither the inside nor the outside contains vertices whose total cost exceeds 2/3.  This proves the lemma. */
 	
 	/*Proof of claim.
@@ -305,8 +306,28 @@ Partition lemma3(Graph& g, uint l[3], uint r, BFSVisitorData& vis_data, Vert2Uin
 		return p2; 
         } else {
                 cout << "middle partition is biggest\n";
-                //delete all verts on level l2 and above
-                //shrink all verts on levels l1 and belowe to a single vertex of cost zero
+
+                //delete all verts on level l2 and above 
+                VertIter vit, vjt;
+                tie(vit, vjt) = vertices(g); 
+                for( VertIter next = vit; vit != vjt; vit = next ){
+                        ++next;
+                        if( vis_data.verts[*vit].level >= l[2] ){
+                                cout << "killing vertex " << vmap.vert2uint[*vit] << " of level l2 or above: " << vis_data.verts[*vit].level << " >= " << l[2] << '\n';
+                                kill_vertex(*vit, g, vmap);
+                        }
+                }
+
+                //shrink all verts on levels l1 and below to a single vertex of cost zero
+                VertIter v_cost_zero;
+                tie(v_cost_zero, vjt) = vertices(g);
+                vit = ++v_cost_zero;
+
+                while( vit != vjt ){
+                        contract_vertices(*v_cost_zero, *vit, g);
+                        ++vit;
+                } 
+
                 //The new graph has a spanning tree radius of l2 - l1 -1 whose root corresponds to vertices on levels l1 and below in the original graph
                 r = l[2] - l[1] - 1;
                 //Apply Lemma 2 to the new graph, A* B* C*
@@ -314,7 +335,7 @@ Partition lemma3(Graph& g, uint l[3], uint r, BFSVisitorData& vis_data, Vert2Uin
                 cout << "C = verts on levels l1 and l2 in the original graph plus verts in C* minus the root\n";
                 cout << "B = remaining verts\n";
 
-		lemma2(g);
+		lemma2(g, r);
                 //By Lemma 2, A has total cost <= 2/3
                 //But A U C* has total cost >= 1/3, so B also has total cost <= 2/3
                 //Futhermore, C contains no more than L[l1] + L[l2] + 2(l2 - l1 - 1)
@@ -325,7 +346,7 @@ Partition lemma3(Graph& g, uint l[3], uint r, BFSVisitorData& vis_data, Vert2Uin
 // Step 10: construct_vertex_partition
 // Time:    O(n)
 //
-// Use the cycle found in Step 9 and the levels found in Step 4 (l1_and_k) to construct a satisfactory vertex partition as described in the proof of Lemma 3.
+// Use the cycle found in Step 9 and the levels found in Step 4 (l1_and_k) to construct a satisfactory vertex partition as described in the proof of Lemma 3
 // Extend this partition from the connected component chosen in Step 2 to the entire graph as described in the proof of Theorem 4.
 Partition construct_vertex_partition(Graph& g_shrunk, Vert2UintMap& vmap_copy, uint l[3], BFSVisitorData& vis_data)
 {

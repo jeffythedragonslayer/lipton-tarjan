@@ -26,6 +26,7 @@
 #include <utility>
 #include <csignal>
 #include <iterator>
+#include <cassert>
 using namespace std;
 using namespace boost; 
 
@@ -242,53 +243,116 @@ Partition lemma2_c2r1(Graph& g, uint r, vector<vertex_t> const& cycle)
         return p;
 }
 
+// called when the middle part exceeds 2/3
+Partition lemma3_exceeds23(Graph& g_shrink2, Vert2UintMap& vmap_shrunk, BFSVisitorData& vis_data_orig, uint l[3], vector<vertex_t> cycle)
+{ 
+        cout << "middle partition has cost exceeding 2/3\n";
+
+        //delete all verts on level l2 and above 
+        VertIter vit, vjt;
+        tie(vit, vjt) = vertices(g_shrink2); 
+        for( VertIter next = vit; vit != vjt; vit = next ){
+                ++next;
+                if( vis_data_orig.verts[*vit].level >= l[2] ){
+                        cout << "killing vertex " << vmap_shrunk.vert2uint[*vit] << " of level l2 or above: " << vis_data_orig.verts[*vit].level << " >= " << l[2] << '\n';
+                        kill_vertex(*vit, g_shrink2, vmap_shrunk);
+                }
+        }
+
+        //shrink all verts on levels l1 and below to a single vertex of cost zero
+        VertIter v_cost_zero;
+        tie(v_cost_zero, vjt) = vertices(g_shrink2);
+        vit = ++v_cost_zero;
+
+        while( vit != vjt ){
+                contract_vertices(*v_cost_zero, *vit, g_shrink2);
+                ++vit;
+        } 
+
+        //The new graph has a spanning tree radius of l2 - l1 -1 whose root corresponds to vertices on levels l1 and below in the original graph
+        uint r = l[2] - l[1] - 1;
+        //Apply Lemma 2 to the new graph, A* B* C*
+        Partition star_p = lemma2_c2r1(g_shrink2, r, cycle);
+        vertex_t star_root;
+
+        Partition p;
+        p.a = star_p.a.size() > star_p.b.size() ? star_p.a : star_p.b; 
+
+        p.c = star_p.c; 
+        p.c.erase(star_root);
+        // add verts on levels l1 and l2 in the original graph 
+        tie(vit, vjt) = vertices(g_shrink2); 
+        for( VertIter next = vit; vit != vjt; vit = next ){
+                ++next;
+                if( vis_data_orig.verts[*vit].level == l[2] ||
+                        vis_data_orig.verts[*vit].level == l[1] ){
+                                p.c.insert(*vit);
+                }
+        } 
+
+        // all verts not already in A or C go in B
+        tie(vit, vjt) = vertices(g_shrink2); 
+        for( VertIter next = vit; vit != vjt; vit = next ){
+                ++next;
+                if( p.a.find(*vit) == p.a.end() &&
+                        p.c.find(*vit) == p.c.end() ){
+                                p.b.insert(*vit);
+
+                        }
+        }
+        return p; 
+        /* By Lemma 2, A has total cost <= 2/3
+        But A U C* has total cost >= 1/3, so B also has total cost <= 2/3
+        Futhermore, C contains no more than L[l1] + L[l2] + 2(l2 - l1 - 1) */
+}
+
 /* Let G be any n-vertex connected planar graph having nonegative vertex consts summing to no more than one.
 Suppose that the vertices of G are partitioned into levels according to their distance from some vertex v, and that L(l) denotes the number of vertices on level l.
 If r is the maximum distance of any vertex from v, let r+1 be an additional level containing no vertices.
 Given any two levels l1 and l2 such that levels 0 through l1-1 have total cost not exceeding 2/3 and levels l2+1 through r+1 have total cost not exceeding 2/3,
 it is possible to find a partition A, B, C of the vertices of G such that no edge joins a vertex in A with a vertex in B, neither A nor B has total cost exceeding 2/3, and C contains no more than L(l1)+L(l2)+max{0,2(l2-l1-1)} vertices. */
-Partition lemma3_cllmax(GraphCR g_orig, Graph& g, uint l[3], uint r, BFSVisitorData& vis_data, Vert2UintMap const& vmap, Vert2UintMap& vmap_shrunk, vector<vertex_t> cycle)
+Partition lemma3_cllmax(GraphCR g_orig, Graph& g, uint l[3], uint r, BFSVisitorData& vis_data_orig, BFSVisitorData& vis_data, Vert2UintMap& vmap, Vert2UintMap& vmap_shrunk, vector<vertex_t> cycle)
 {
         uint n = num_vertices(g);
         uint n_orig = num_vertices(g_orig); 
         cout << "n_orig: " << n_orig << ", n: " << n << '\n';
 
-        Graph g_shrink2;
-        //copy_graph(g_shrink2, g_orig);
+        Graph g_shrink2(g_orig);
+        copy_graph(g_orig, g_shrink2);
         g_shrink2 = g_orig;
-
 
 	Partition p;
         if( l[1] >= l[2] ){ 
-                cout << "l1 is greater than or equal to l2\n"; 
+                //cout << "l1 is greater than or equal to l2\n"; 
                 VertIter vei, vend;
                 for( tie(vei, vend) = vertices(g_shrink2); vei != vend; ++vei ){ 
                         vertex_t v = *vei;
-                        uint ii = vmap_shrunk.vert2uint[v];
-                        cout << "level of " << ii << ": " << vis_data.verts[v].level << "  ";
-                        if( vis_data.verts[v].level <  l[1] )                                  { cout << " belongs to first part\n";  p.a.insert(v); continue; }
-                        if( vis_data.verts[v].level >= l[1]+1 && vis_data.verts[v].level <= r ){ cout << " belongs to middle part\n"; p.b.insert(v); continue; }
-                        if( vis_data.verts[v].level == l[1] )                                  { cout << " belongs to last part\n";   p.c.insert(v); continue; }
+                        uint ii = vmap.vert2uint[v];
+                        cout << "level of " << ii << ": " << vis_data_orig.verts[v].level << "  ";
+                        if( vis_data_orig.verts[v].level <  l[1] )                                       { cout << " belongs to first part\n";  p.a.insert(v); continue; }
+                        if( vis_data_orig.verts[v].level >= l[1]+1 && vis_data_orig.verts[v].level <= r ){ cout << " belongs to middle part\n"; p.b.insert(v); continue; }
+                        if( vis_data_orig.verts[v].level == l[1] )                                       { cout << " belongs to last part\n";   p.c.insert(v); continue; }
                         assert(0);
                 } 
-                cout << "A = all verts on levels 0    thru l1-1\n";
+                /*cout << "A = all verts on levels 0    thru l1-1\n";
                 cout << "B = all verts on levels l1+1 thru r\n";
-                cout << "C = all verts on llevel l1\n";
+                cout << "C = all verts on level l1\n";*/
 		//p.print(vmap_shrunk);
                 return p;
         }
 
-	cout << "l1 is less than l2\n";
+	//cout << "l1 is less than l2\n";
 
         set<vertex_t> deleted_part;
         VertIter vei, vend;
         for( tie(vei, vend) = vertices(g_shrink2); vei != vend; ++vei ){ 
                 vertex_t v = *vei;
-                cout << "level of " << v << ": " << vis_data.verts[v].level << ", ";
-                if( vis_data.verts[v].level == l[1] || vis_data.verts[v].level == l[2] ){     cout << v << " is deleted\n";                 deleted_part.insert(v); continue;}
-                if( vis_data.verts[v].level <  l[1] ){                                        cout << v << " belongs to first part (A)\n";  p.a.insert(v);  continue;}
-                if( vis_data.verts[v].level >= l[1]+1 && vis_data.verts[v].level <= l[2]-1 ){ cout << v << " belongs to middle part (B)\n"; p.b.insert(v);  continue;}
-                if( vis_data.verts[v].level >  l[2]  ){                                       cout << v << " belongs to last part (C)\n";   p.c.insert(v);  continue;}
+                cout << "level of " << v << ": " << vis_data_orig.verts[v].level << ", ";
+                fflush(stdout);
+                if( vis_data_orig.verts[v].level == l[1] || vis_data_orig.verts[v].level == l[2] ){     cout << v << " is deleted\n";                 deleted_part.insert(v); continue;}
+                if( vis_data_orig.verts[v].level <  l[1] ){                                             cout << v << " belongs to first part (A)\n";  p.a.insert(v);  continue;}
+                if( vis_data_orig.verts[v].level >= l[1]+1 && vis_data_orig.verts[v].level <= l[2]-1 ){ cout << v << " belongs to middle part (B)\n"; p.b.insert(v);  continue;}
+                if( vis_data_orig.verts[v].level >  l[2]   ){                                           cout << v << " belongs to last part (C)\n";   p.c.insert(v);  continue;}
                 assert(0);
         }
 
@@ -323,64 +387,7 @@ Partition lemma3_cllmax(GraphCR g_orig, Graph& g, uint l[3], uint r, BFSVisitorD
 		p2.b.insert(other2->begin(), other2->end());
 		return p2; 
         } else {
-                cout << "middle partition has cost exceeding 2/3\n";
-
-                //delete all verts on level l2 and above 
-                VertIter vit, vjt;
-                tie(vit, vjt) = vertices(g_shrink2); 
-                for( VertIter next = vit; vit != vjt; vit = next ){
-                        ++next;
-                        if( vis_data.verts[*vit].level >= l[2] ){
-                                cout << "killing vertex " << vmap_shrunk.vert2uint[*vit] << " of level l2 or above: " << vis_data.verts[*vit].level << " >= " << l[2] << '\n';
-                                kill_vertex(*vit, g_shrink2, vmap_shrunk);
-                        }
-                }
-
-                //shrink all verts on levels l1 and below to a single vertex of cost zero
-                VertIter v_cost_zero;
-                tie(v_cost_zero, vjt) = vertices(g_shrink2);
-                vit = ++v_cost_zero;
-
-                while( vit != vjt ){
-                        contract_vertices(*v_cost_zero, *vit, g_shrink2);
-                        ++vit;
-                } 
-
-                //The new graph has a spanning tree radius of l2 - l1 -1 whose root corresponds to vertices on levels l1 and below in the original graph
-                r = l[2] - l[1] - 1;
-                //Apply Lemma 2 to the new graph, A* B* C*
-		Partition star_p = lemma2_c2r1(g_shrink2, r, cycle);
-                vertex_t star_root;
-
-                Partition p;
-                p.a = star_p.a.size() > star_p.b.size() ? star_p.a : star_p.b; 
-
-                p.c = star_p.c; 
-                p.c.erase(star_root);
-                // add verts on levels l1 and l2 in the original graph 
-                tie(vit, vjt) = vertices(g_shrink2); 
-                for( VertIter next = vit; vit != vjt; vit = next ){
-                        ++next;
-                        if( vis_data.verts[*vit].level == l[2] ||
-                            vis_data.verts[*vit].level == l[1] ){
-                                    p.c.insert(*vit);
-                        }
-                } 
-
-                // all verts not already in A or C go in B
-                tie(vit, vjt) = vertices(g_shrink2); 
-                for( VertIter next = vit; vit != vjt; vit = next ){
-                        ++next;
-                        if( p.a.find(*vit) == p.a.end() &&
-                            p.c.find(*vit) == p.c.end() ){
-                                    p.b.insert(*vit);
-
-                            }
-                }
-                return p; 
-                /* By Lemma 2, A has total cost <= 2/3
-                But A U C* has total cost >= 1/3, so B also has total cost <= 2/3
-                Futhermore, C contains no more than L[l1] + L[l2] + 2(l2 - l1 - 1) */
+                return lemma3_exceeds23(g_shrink2, vmap, vis_data_orig, l, cycle);
         }
 }
 
@@ -389,7 +396,7 @@ Partition lemma3_cllmax(GraphCR g_orig, Graph& g, uint l[3], uint r, BFSVisitorD
 //
 // Use the cycle found in Step 9 and the levels found in Step 4 (l1_and_k) to construct a satisfactory vertex partition as described in the proof of Lemma 3
 // Extend this partition from the connected component chosen in Step 2 to the entire graph as described in the proof of Theorem 4.
-Partition construct_vertex_partition(GraphCR g_orig, Graph& g_shrunk, Vert2UintMap const& vmap, Vert2UintMap& vmap_shrunk, uint l[3], BFSVisitorData& vis_data, vector<vertex_t> cycle)
+Partition construct_vertex_partition(GraphCR g_orig, Graph& g_shrunk, Vert2UintMap& vmap, Vert2UintMap& vmap_shrunk, uint l[3], BFSVisitorData& vis_data_orig, BFSVisitorData& vis_data, vector<vertex_t> cycle)
 {
         uint n = num_vertices(g_shrunk);
         uint n_orig = num_vertices(g_orig);
@@ -406,7 +413,7 @@ Partition construct_vertex_partition(GraphCR g_orig, Graph& g_shrunk, Vert2UintM
         uint r = vis_data.num_levels;
         cout << "r max distance: " << r << '\n';
 
-        return lemma3_cllmax(g_orig, g_shrunk, l, r, vis_data, vmap, vmap_shrunk, cycle);
+        return lemma3_cllmax(g_orig, g_shrunk, l, r, vis_data_orig, vis_data, vmap, vmap_shrunk, cycle);
 }
 
 // Step 9: Improve Separator
@@ -424,8 +431,8 @@ Partition construct_vertex_partition(GraphCR g_orig, Graph& g_shrunk, Vert2UintM
 //      Use this cost, the cost inside the (vi, wi) cycle, and the cost on the tree path from y to z to compute the cost inside the other cycle.
 //      Let (vi+1, wi+1) be the edge among (vi, y) and (y, wi) whose cycle has more cost inside it.
 // 	Repeat Step 9 until finding a cycle whose inside has cost not exceeding 2/3.
-Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, Vert2UintMap const& vmap, Vert2UintMap& vmap_shrunk, CycleCost& cc, edge_t completer_candidate_edge, BFSVisitorData& vis_data, vector<vertex_t> const& cycle, EmbedStruct const& em, bool cost_swapped, uint l[3])
-{ 
+Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, Vert2UintMap& vmap, Vert2UintMap& vmap_shrunk, CycleCost& cc, edge_t completer_candidate_edge, BFSVisitorData& vis_data_orig, BFSVisitorData& vis_data, vector<vertex_t> const& cycle, EmbedStruct const& em, bool cost_swapped, uint l[3])
+{
         cout << "---------------------------- 9 - Improve Separator -----------\n";
         //print_graph(g_shrunk);
         print_edges(g_shrunk, vmap_shrunk);
@@ -536,7 +543,7 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, Vert2UintMap const&
         cout << "found cycle with inside cost " << cc.inside << " which is less than 2/3\n";
         print_cycle(cycle);
 
-	return construct_vertex_partition(g_orig, g_shrunk, vmap, vmap_shrunk, l, vis_data, cycle); // step 10
+	return construct_vertex_partition(g_orig, g_shrunk, vmap, vmap_shrunk, l, vis_data_orig, vis_data, cycle); // step 10
 }
 
 
@@ -548,19 +555,19 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, Vert2UintMap const&
 // Compute the cost on each side of this cycle by scanning the tree edges incident on either side of the cycle and summing their associated costs.
 // If (v, w) is a tree edge with v on the cycle and w not on the cycle, the cost associated with (v,w) is the descendant cost of w if v is the parent of w, and the cost of all vertices minus the descendant cost of v if w is the parent of v.
 // Determine which side of the cycle has greater cost and call it the "inside"
-Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, Vert2UintMap const& vmap, Vert2UintMap& vmap_shrunk, BFSVisitorData& vis_data, uint l[3])
+Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, Vert2UintMap& vmap, Vert2UintMap& vmap_shrunk, BFSVisitorData& vis_data_orig, BFSVisitorData& vis_data, uint l[3])
 {
         cout  << "----------------------- 8 - Locate Cycle -----------------\n"; 
         print_graph(g_shrunk);
         edge_t completer_candidate_edge = arbitrary_nontree_edge(g_shrunk, vmap_shrunk, vis_data);
         vertex_t v1 = source(completer_candidate_edge, g_shrunk);
         vertex_t w1 = target(completer_candidate_edge, g_shrunk); 
-        cout << "ancestors v1...\n";
+        //cout << "ancestors v1...\n";
         vector<vertex_t> parents_v   = ancestors(v1, vis_data);
-        cout << "ancestors v2...\n";
+        //cout << "ancestors v2...\n";
         vector<vertex_t> parents_w   = ancestors(w1, vis_data); 
         vertex_t common_ancestor    = get_common_ancestor(parents_v, parents_w);
-        cout << "common ancestor: " << common_ancestor << '\n'; 
+        //cout << "common ancestor: " << common_ancestor << '\n'; 
         vector<vertex_t> cycle = get_cycle(v1, w1, common_ancestor, vis_data);
 
         EmbedStruct em(&g_shrunk);
@@ -569,12 +576,12 @@ Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, Vert2UintMap const& vmap
         if( cc.outside > cc.inside ){
                 swap(cc.outside, cc.inside);
                 cost_swapped = true;
-                cout << "!!!!!! cost swapped !!!!!!!!\n";
+                //cout << "!!!!!! cost swapped !!!!!!!!\n";
         } else cost_swapped = false;
-        cout << "total inside cost:  " << cc.inside  << '\n'; 
-        cout << "total outside cost: " << cc.outside << '\n';
+        //cout << "total inside cost:  " << cc.inside  << '\n'; 
+        //cout << "total outside cost: " << cc.outside << '\n';
 
-	return improve_separator(g_orig, g_shrunk, vmap, vmap_shrunk, cc, completer_candidate_edge, vis_data, cycle, em, cost_swapped, l); // step 9
+	return improve_separator(g_orig, g_shrunk, vmap, vmap_shrunk, cc, completer_candidate_edge, vis_data_orig, vis_data, cycle, em, cost_swapped, l); // step 9
 }
 
 // Step 7: new_bfs_and_make_max_planar
@@ -584,7 +591,7 @@ Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, Vert2UintMap const& vmap
 // (This can be done by modifying the breadth-first spanning tree constructed in Step 3 bfs_and_levels.)
 // Record, for each vertex v, the parent of v in the tree, and the total cost of all descendants of v includiing v itself.
 // Make all faces of the new graph into triangles by scanning the boundary of each face and adding (nontree) edges as necessary.
-Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, Vert2UintMap const& vmap, Vert2UintMap& vmap_shrunk, BFSVisitorData& vis_data, vertex_t x_gone, vertex_t x, uint l[3])
+Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, Vert2UintMap& vmap, Vert2UintMap& vmap_shrunk, BFSVisitorData& vis_data, vertex_t x_gone, vertex_t x, uint l[3])
 {
         cout  << "-------------------- 7 - New BFS and Make Max Planar -----\n";
         print_graph(g_orig);
@@ -596,8 +603,8 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, Vert2Uint
         shrunken_vis_data.root = (x_gone != Graph::null_vertex()) ? x_gone : x;
         ++shrunken_vis_data.verts[shrunken_vis_data.root].descendant_cost;
 
-        cout << "root: " << vmap_shrunk.vert2uint[shrunken_vis_data.root] << '\n'; 
-        cout << "n:    " << num_vertices(g_shrunk) << '\n';
+        //cout << "root: " << vmap_shrunk.vert2uint[shrunken_vis_data.root] << '\n'; 
+        //cout << "n:    " << num_vertices(g_shrunk) << '\n';
 
         breadth_first_search(g_shrunk, x_gone != Graph::null_vertex() ? x_gone : x, visitor(BFSVisitor(shrunken_vis_data))); 
         make_max_planar(g_shrunk);
@@ -606,7 +613,7 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, Vert2Uint
 
         print_graph(g_shrunk);
 
-	return locate_cycle(g_orig, g_shrunk, vmap, vmap_shrunk, shrunken_vis_data, l);  // step 8
+	return locate_cycle(g_orig, g_shrunk, vmap, vmap_shrunk, vis_data, shrunken_vis_data, l);  // step 8
 }
 
 // Step 6: Shrinktree
@@ -627,7 +634,7 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, Vert2Uint
 
 const uint X_VERT_UINT = 999999;
 
-Partition shrinktree(GraphCR g_orig, Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_copy, VertIter vit, VertIter vjt, BFSVisitorData& vis_data, uint l[3])
+Partition shrinktree(GraphCR g_orig, Graph& g_copy, Vert2UintMap& vmap, Vert2UintMap& vmap_copy, VertIter vit, VertIter vjt, BFSVisitorData& vis_data, uint l[3])
 {
         Graph& g_shrunk = g_copy;
         Vert2UintMap& vmap_shrunk = vmap_copy;
@@ -685,7 +692,7 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, Vert2UintMap const& vmap, Ve
 //
 // Find the highest level l0 <= l1 such that L(l0) + 2(l1 - l0) <= 2*sqrt(k).
 // Find the lowest level l2 >= l1 + 1 such that L(l2) + 2(l2-l1-1) <= 2*sqrt(n-k)
-Partition find_more_levels(GraphCR g_orig, Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_copy, VertIter vit, VertIter vjt, uint k, uint l[3], vector<uint> const& L, BFSVisitorData& vis_data)
+Partition find_more_levels(GraphCR g_orig, Graph& g_copy, Vert2UintMap& vmap, Vert2UintMap& vmap_copy, VertIter vit, VertIter vjt, uint k, uint l[3], vector<uint> const& L, BFSVisitorData& vis_data)
 {
         cout  << "---------------------------- 5 - Find More Levels -------\n";
         //print_graph(g_copy);
@@ -722,7 +729,7 @@ Partition find_more_levels(GraphCR g_orig, Graph& g_copy, Vert2UintMap const& vm
 // Find the level l1 such that the total cost of levels 0 through l1 - 1 does not exceed 1/2,
 // but the total cost of levels 0 through l1 does exceed 1/2.
 // Let k be the number of vertices in levels 0 through l1
-Partition l1_and_k(GraphCR g_orig, Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_copy, VertIter vit, VertIter vjt, vector<uint> const& L, BFSVisitorData& vis_data)
+Partition l1_and_k(GraphCR g_orig, Graph& g_copy, Vert2UintMap& vmap, Vert2UintMap& vmap_copy, VertIter vit, VertIter vjt, vector<uint> const& L, BFSVisitorData& vis_data)
 {
         cout  << "---------------------------- 4 - l1 and k  ------------\n";
         uint k = L[0]; 
@@ -747,7 +754,7 @@ Partition l1_and_k(GraphCR g_orig, Graph& g_copy, Vert2UintMap const& vmap, Vert
 //
 // Find a breadth-first spanning tree of the most costly component.
 // Compute the level of each vertex and the number of vertices L(l) in each level l.
-Partition bfs_and_levels(GraphCR g_orig, Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_copy, VertIter vit, VertIter vjt)
+Partition bfs_and_levels(GraphCR g_orig, Graph& g_copy, Vert2UintMap& vmap, Vert2UintMap& vmap_copy, VertIter vit, VertIter vjt)
 {
         cout << "---------------------------- 3 - BFS and Levels ------------\n";
         BFSVisitorData vis_data(&g_copy, *vertices(g_copy).first);
@@ -776,7 +783,7 @@ Partition bfs_and_levels(GraphCR g_orig, Graph& g_copy, Vert2UintMap const& vmap
 // Find the connected components of G and determine the cost of each one.
 // If none has cost exceeding 2/3, construct the partition as described in the proof of Theorem 4.
 // If some component has cost exceeding 2/3, go to Step 3.
-Partition find_connected_components(GraphCR g_orig, Graph& g_copy, Vert2UintMap const& vmap, Vert2UintMap& vmap_copy)
+Partition find_connected_components(GraphCR g_orig, Graph& g_copy, Vert2UintMap& vmap, Vert2UintMap& vmap_copy)
 {
         cout << "---------------------------- 2 - Find Connected Components --------\n";
         vertex_map idx; 

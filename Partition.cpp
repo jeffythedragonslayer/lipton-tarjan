@@ -2,9 +2,9 @@
 #include <iostream>
 using namespace std;
 
-void Partition::get_most_costly_part(set<vertex_t>** most_costly,
-				     set<vertex_t>** other1,
-				     set<vertex_t>** other2)
+void Partition::get_most_costly_part(set<vertex_t> const** most_costly,
+									set<vertex_t> const** other1,
+									set<vertex_t> const** other2) const
 {
 	if( a.size() > b.size() && a.size() > c.size() ){
 		*most_costly = &a;

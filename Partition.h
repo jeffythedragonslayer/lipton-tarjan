@@ -9,9 +9,8 @@ struct Partition
 		uint total_num_verts() const;
 
 		void print(Vert2UintMap const& vmap) const;
-		void get_most_costly_part(std::set<vertex_t>** most_costly,
-									std::set<vertex_t>** other1,
-									std::set<vertex_t>** other2); 
-
+		void get_most_costly_part(std::set<vertex_t> const** most_costly,
+									std::set<vertex_t> const** other1,
+									std::set<vertex_t> const** other2) const; 
 }; 
 

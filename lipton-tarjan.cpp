@@ -306,6 +306,50 @@ Partition lemma3_exceeds23(Graph& g_shrink2, Vert2UintMap& vmap_shrunk, BFSVisit
         Futhermore, C contains no more than L[l1] + L[l2] + 2(l2 - l1 - 1) */
 }
 
+Partition lemma3_l1greaterequall2(Graph& g_shrink2, Vert2UintMap& vmap, BFSVisitorData& vis_data_orig, uint l[3], uint r)
+{
+        cout << "l1 is greater than or equal to l2\n"; 
+
+        Partition p;
+        VertIter vei, vend;
+        for( tie(vei, vend) = vertices(g_shrink2); vei != vend; ++vei ){ 
+                vertex_t v = *vei;
+                uint ii = vmap.vert2uint[v];
+                cout << "level of " << ii << ": " << vis_data_orig.verts[v].level << "  ";
+                if( vis_data_orig.verts[v].level <  l[1] )                                       { cout << " belongs to first part\n";  p.a.insert(v); continue; }
+                if( vis_data_orig.verts[v].level >= l[1]+1 && vis_data_orig.verts[v].level <= r ){ cout << " belongs to middle part\n"; p.b.insert(v); continue; }
+                if( vis_data_orig.verts[v].level == l[1] )                                       { cout << " belongs to last part\n";   p.c.insert(v); continue; }
+                assert(0);
+        } 
+        /*cout << "A = all verts on levels 0    thru l1-1\n";
+        cout << "B = all verts on levels l1+1 thru r\n";
+        cout << "C = all verts on level l1\n";*/
+        //p.print(vmap_shrunk);
+        return p;
+}
+
+Partition lemma3_lessequal23(Partition const& p, set<vertex_t>& deleted_part)
+{
+        cout << "middle partition has cost less than or equal to 2/3\n";
+
+        set<vertex_t> const* costly_part;
+        set<vertex_t> const* other1;
+        set<vertex_t> const* other2;
+        p.get_most_costly_part(&costly_part, &other1, &other2);
+
+        //p.print(vmap_shrunk);
+        cout <<   "A = most costly part of the 3 : "; for( auto& a : *costly_part ) cout << a << ' ';
+        cout << "\nB = remaining 2 parts         : "; for( auto& b : *other1      ) cout << b << ' '; for( auto& b : *other2 ) cout << b << ' '; 
+        cout << "\nC = deleted verts on l1 and l2: "; for( auto& v : deleted_part ) cout << v << ' '; cout << '\n';
+
+        Partition p2;
+        p2.a = *costly_part;
+        p2.c = deleted_part;
+        p2.b = *other1;
+        p2.b.insert(other2->begin(), other2->end());
+        return p2; 
+}
+
 /* Let G be any n-vertex connected planar graph having nonegative vertex consts summing to no more than one.
 Suppose that the vertices of G are partitioned into levels according to their distance from some vertex v, and that L(l) denotes the number of vertices on level l.
 If r is the maximum distance of any vertex from v, let r+1 be an additional level containing no vertices.
@@ -321,26 +365,9 @@ Partition lemma3_cllmax(GraphCR g_orig, Graph& g, uint l[3], uint r, BFSVisitorD
         copy_graph(g_orig, g_shrink2);
         g_shrink2 = g_orig;
 
-	Partition p;
-        if( l[1] >= l[2] ){ 
-                //cout << "l1 is greater than or equal to l2\n"; 
-                VertIter vei, vend;
-                for( tie(vei, vend) = vertices(g_shrink2); vei != vend; ++vei ){ 
-                        vertex_t v = *vei;
-                        uint ii = vmap.vert2uint[v];
-                        cout << "level of " << ii << ": " << vis_data_orig.verts[v].level << "  ";
-                        if( vis_data_orig.verts[v].level <  l[1] )                                       { cout << " belongs to first part\n";  p.a.insert(v); continue; }
-                        if( vis_data_orig.verts[v].level >= l[1]+1 && vis_data_orig.verts[v].level <= r ){ cout << " belongs to middle part\n"; p.b.insert(v); continue; }
-                        if( vis_data_orig.verts[v].level == l[1] )                                       { cout << " belongs to last part\n";   p.c.insert(v); continue; }
-                        assert(0);
-                } 
-                /*cout << "A = all verts on levels 0    thru l1-1\n";
-                cout << "B = all verts on levels l1+1 thru r\n";
-                cout << "C = all verts on level l1\n";*/
-		//p.print(vmap_shrunk);
-                return p;
-        }
+        if( l[1] >= l[2] ) return lemma3_l1greaterequall2(g_shrink2, vmap, vis_data_orig, l, r);
 
+	Partition p;
 	//cout << "l1 is less than l2\n";
 
         set<vertex_t> deleted_part;
@@ -369,26 +396,8 @@ Partition lemma3_cllmax(GraphCR g_orig, Graph& g, uint l[3], uint r, BFSVisitorD
         cout << "n_orig: " << n_orig << ", n: " << n << '\n';
         assert(p.a.size() <= 2*n/3);
         assert(p.c.size() <= 2*n/3);
-        set<vertex_t>* costly_part, * other1, * other2;
-        if( p.b.size() <= 2*n/3 ){
-                cout << "middle partition has cost less than or equal to 2/3\n";
-
-		p.get_most_costly_part(&costly_part, &other1, &other2);
-
-		//p.print(vmap_shrunk);
-                cout <<   "A = most costly part of the 3 : "; for( auto& a : *costly_part ) cout << a << ' ';
-                cout << "\nB = remaining 2 parts         : "; for( auto& b : *other1      ) cout << b << ' '; for( auto& b : *other2 ) cout << b << ' '; 
-                cout << "\nC = deleted verts on l1 and l2: "; for( auto& v : deleted_part ) cout << v << ' '; cout << '\n';
-
-		Partition p2;
-		p2.a = *costly_part;
-		p2.c = deleted_part;
-		p2.b = *other1;
-		p2.b.insert(other2->begin(), other2->end());
-		return p2; 
-        } else {
-                return lemma3_exceeds23(g_shrink2, vmap, vis_data_orig, l, cycle);
-        }
+        if( p.b.size() <= 2*n/3 ) return lemma3_lessequal23(p, deleted_part);
+        else return lemma3_exceeds23(g_shrink2, vmap, vis_data_orig, l, cycle);
 }
 
 // Step 10: construct_vertex_partition

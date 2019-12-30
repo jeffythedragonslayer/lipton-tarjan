@@ -199,10 +199,10 @@ CycleCost compute_cycle_cost(vector<vertex_t> const& cycle, Graph const& g, Vert
 // Make all faces of graph G into triangles by adding scanning the boundary and adding (nontree) edges as necessary
 void make_max_planar(Graph& g)
 { 
-        auto index = reset_edge_index(g);
+        EdgeIndex i = reset_edge_index(g);
         EmbedStruct em(&g);
         assert(em.test_planar());
-        make_biconnected_planar(g, em.em, index);
+        make_biconnected_planar(g, em.em, i);
 
         reset_edge_index(g);
         assert(em.test_planar());
@@ -235,9 +235,9 @@ EdgeIndex reset_edge_index(Graph const& g)
 
 void contract_vertices(vertex_t b, vertex_t a, Graph& g)
 {
-    auto be = adjacent_vertices(b, g);
-    for (auto beit = be.first; beit != be.second; ++beit) add_edge(a, *beit, g);
-    remove_vertex(b, g);
+        auto be = adjacent_vertices(b, g);
+        for (auto beit = be.first; beit != be.second; ++beit) add_edge(a, *beit, g);
+        remove_vertex(b, g);
 }
 
 void kill_vertex(vertex_t v, Graph& g, Vert2UintMap& vmap)

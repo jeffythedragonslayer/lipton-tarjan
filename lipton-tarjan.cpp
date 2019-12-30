@@ -181,7 +181,7 @@ Suppose G has a spanning tree of radius r.
 Then the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex in A with a vertex in B, neither A nor B has total cost exceeding 2/3,
 and C contains no more than 2r+1 vertices, one the root of the tree */
 // r is spanning tree radius
-void lemma2(GraphCR g, uint r)
+Partition lemma2(Graph& g, uint r)
 {
 	//uint r = 0; // spanning tree radius
 
@@ -190,6 +190,8 @@ void lemma2(GraphCR g, uint r)
 	Then the vertices of G can be partitioned into three sets A, B, C, such that no edge joins a vertex A with a vertex in B, neither A nor B has a total cost exceeding 2/3, and C contains no more than 2r+1 vertices, one the root of the tree. */
 
         Partition p;
+
+        make_max_planar(g);
 
 
 	/* Proof.  Assume no vertex has cost exceeding 1/3; otherwise the lemma is true.
@@ -235,6 +237,7 @@ void lemma2(GraphCR g, uint r)
 	Since the inside of the (x, z) cycle has cost exceeding 2/3, the (x, y) cycle and its inside together have cost exceeding 1/3, and the outside of the (x, y) cycle has cost less than 2/3.
 	Thus (x, y) would have been chosen in place of (x, z).
 	Thus all cases are impossible, and the (x, z) cycle satisfies the claim. */
+        return p;
 }
 
 /* Let G be any n-vertex connected planar graph having nonegative vertex consts summing to no more than one.
@@ -287,9 +290,9 @@ Partition lemma3(Graph& g, uint l[3], uint r, BFSVisitorData& vis_data, Vert2Uin
         uint n = num_vertices(g);
         assert(p.a.size() <= 2*n/3);
         assert(p.c.size() <= 2*n/3);
+        set<vertex_t>* costly_part, * other1, * other2;
         if( p.b.size() <= 2*n/3 ){
-                cout << "middle part is NOT biggest\n";
-                set<vertex_t>* costly_part, * other1, * other2;
+                cout << "middle partition has cost less than or equal to 2/3\n";
 
 		p.get_most_costly_part(&costly_part, &other1, &other2);
 
@@ -305,7 +308,7 @@ Partition lemma3(Graph& g, uint l[3], uint r, BFSVisitorData& vis_data, Vert2Uin
 		p2.b.insert(other2->begin(), other2->end());
 		return p2; 
         } else {
-                cout << "middle partition is biggest\n";
+                cout << "middle partition has cost exceeding 2/3\n";
 
                 //delete all verts on level l2 and above 
                 VertIter vit, vjt;
@@ -331,14 +334,16 @@ Partition lemma3(Graph& g, uint l[3], uint r, BFSVisitorData& vis_data, Vert2Uin
                 //The new graph has a spanning tree radius of l2 - l1 -1 whose root corresponds to vertices on levels l1 and below in the original graph
                 r = l[2] - l[1] - 1;
                 //Apply Lemma 2 to the new graph, A* B* C*
-                cout << "A = set among A* and B* with greater cost\n";
-                cout << "C = verts on levels l1 and l2 in the original graph plus verts in C* minus the root\n";
+		Partition newgraph_p = lemma2(g, r);
+
+                Partition p;
+                p.a = newgraph_p.a.size() > newgraph_p.b.size() ? newgraph_p.a : newgraph_p.b; 
+                p.b = newgraph_p.c; // TODO remove root and add verts on levels l1 and l2 in the original graph 
                 cout << "B = remaining verts\n";
 
-		lemma2(g, r);
-                //By Lemma 2, A has total cost <= 2/3
-                //But A U C* has total cost >= 1/3, so B also has total cost <= 2/3
-                //Futhermore, C contains no more than L[l1] + L[l2] + 2(l2 - l1 - 1)
+                /* By Lemma 2, A has total cost <= 2/3
+                But A U C* has total cost >= 1/3, so B also has total cost <= 2/3
+                Futhermore, C contains no more than L[l1] + L[l2] + 2(l2 - l1 - 1) */
         }
         return p;
 }

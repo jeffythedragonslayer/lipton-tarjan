@@ -33,9 +33,9 @@ bool BFSVisitorData::is_tree_edge(edge_t e, Vert2UintMap* vmap) const
 		vertex_t tar = target(e, *g); 
 		auto src_it = this->verts.find(src);
 		auto tar_it = this->verts.find(tar);
-		if (vmap) cout << "testing is tree edge: (" << vmap->vert2uint[src] << ", " << vmap->vert2uint[tar] << ")\n";
+		//if (vmap) cout << "testing is tree edge: (" << vmap->vert2uint[src] << ", " << vmap->vert2uint[tar] << ")\n";
 		if( src_it == verts.end() || tar_it == verts.end() ){
-				cout << "edge has src or tar not appearing in BFSVisitorData verts: (" << vmap->vert2uint[src] << ", " << vmap->vert2uint[tar] << ")\n";
+				//cout << "edge has src or tar not appearing in BFSVisitorData verts: (" << vmap->vert2uint[src] << ", " << vmap->vert2uint[tar] << ")\n";
 				return false;
 		}
 		return src_it->second.parent == tar || tar_it->second.parent == src; // tree edges will have a parent-child relationship among their source and target but we're not sure which is which

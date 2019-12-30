@@ -31,14 +31,14 @@ vertex_t get_common_ancestor(vector<vertex_t> const& ancestors_v, vector<vertex_
 
 vector<vertex_t> ancestors(vertex_t v, BFSVisitorData const& vis)
 {
-        cout << "first v: " << v << '\n';
-        cout << "root: " << vis.root << '\n';
+        //cout << "first v: " << v << '\n';
+        //cout << "root: " << vis.root << '\n';
         vector<vertex_t> ans = {v};
         while( v != vis.root ){
                 auto v_it = vis.verts.find(v);
                 assert(v_it != vis.verts.end());
                 v = v_it->second.parent;
-                cout << "pushing back v: " << v << '\n';
+                //cout << "pushing back v: " << v << '\n';
                 ans.push_back(v);
         }
         return ans;
@@ -109,7 +109,6 @@ InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t e, vertex_t common_vert_on
         //cout << "      common_vert_on_cycle:    " << vmap.vert2uint[common_vert_on_cycle]   << '\n';
         auto it = find(STLALL(cycle), common_vert_on_cycle);
         if( it == cycle.end() ){ cout << "      common_vert_on_cycle needs to appear in cycle\n"; assert(0); }
-	cout << endl;
         assert(*it == common_vert_on_cycle);
         auto before_common = it   == cycle.begin() ?  cycle.end  ()-1   : it-1;
         auto after_common        = it+1 == cycle.end  () ?  cycle.begin()     : it+1; 
@@ -182,11 +181,11 @@ CycleCost compute_cycle_cost(vector<vertex_t> const& cycle, Graph const& g, Vert
 {
         CycleCost cc;
         for( auto& v : cycle ){
-                //cout << "   scanning cycle vert " << v << '\n';
+                cout << "   scanning cycle vert " << v << '\n';
                 for( auto e = out_edges(v, g); e.first != e.second; ++e.first ) if( vis_data.is_tree_edge(*e.first) && !on_cycle(*e.first, cycle, g) ){
                         uint cost = vis_data.edge_cost(*e.first, cycle, g);
                         uint vert_id = vmap.vert2uint[v];
-                        //cout << "      scanning incident tree edge " << vert_id << "   cost: " << cost << '\n';
+                        cout << "      scanning incident tree edge " << vert_id << "   cost: " << cost << '\n';
                         auto insideout = is_edge_inside_outside_or_on_cycle(*e.first, v, cycle, g, vmap, em.em);
                         assert(insideout != ON);
                         bool is_inside = (insideout == INSIDE);

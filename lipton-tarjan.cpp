@@ -181,7 +181,7 @@ Suppose G has a spanning tree of radius r.
 Then the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex in A with a vertex in B, neither A nor B has total cost exceeding 2/3,
 and C contains no more than 2r+1 vertices, one the root of the tree */
 // r is spanning tree radius
-Partition lemma2(Graph& g, uint r)
+Partition lemma2_c2r1(Graph& g, uint r)
 {
 	//uint r = 0; // spanning tree radius
 
@@ -245,7 +245,7 @@ Suppose that the vertices of G are partitioned into levels according to their di
 If r is the maximum distance of any vertex from v, let r+1 be an additional level containing no vertices.
 Given any two levels l1 and l2 such that levels 0 through l1-1 have total cost not exceeding 2/3 and levels l2+1 through r+1 have total cost not exceeding 2/3,
 it is possible to find a partition A, B, C of the vertices of G such that no edge joins a vertex in A with a vertex in B, neither A nor B has total cost exceeding 2/3, and C contains no more than L(l1)+L(l2)+max{0,2(l2-l1-1)} vertices. */
-Partition lemma3(Graph& g, uint l[3], uint r, BFSVisitorData& vis_data, Vert2UintMap& vmap)
+Partition lemma3_cllmax(Graph& g, uint l[3], uint r, BFSVisitorData& vis_data, Vert2UintMap& vmap)
 {
 	Partition p;
         if( l[1] >= l[2] ){ 
@@ -334,18 +334,39 @@ Partition lemma3(Graph& g, uint l[3], uint r, BFSVisitorData& vis_data, Vert2Uin
                 //The new graph has a spanning tree radius of l2 - l1 -1 whose root corresponds to vertices on levels l1 and below in the original graph
                 r = l[2] - l[1] - 1;
                 //Apply Lemma 2 to the new graph, A* B* C*
-		Partition newgraph_p = lemma2(g, r);
+		Partition star_p = lemma2_c2r1(g, r);
+                vertex_t star_root;
 
                 Partition p;
-                p.a = newgraph_p.a.size() > newgraph_p.b.size() ? newgraph_p.a : newgraph_p.b; 
-                p.b = newgraph_p.c; // TODO remove root and add verts on levels l1 and l2 in the original graph 
-                cout << "B = remaining verts\n";
+                p.a = star_p.a.size() > star_p.b.size() ? star_p.a : star_p.b; 
 
+                p.c = star_p.c; 
+                p.c.erase(star_root);
+                // add verts on levels l1 and l2 in the original graph 
+                tie(vit, vjt) = vertices(g); 
+                for( VertIter next = vit; vit != vjt; vit = next ){
+                        ++next;
+                        if( vis_data.verts[*vit].level == l[2] ||
+                            vis_data.verts[*vit].level == l[1] ){
+                                    p.c.insert(*vit);
+                        }
+                } 
+
+                // all verts not already in A or C go in B
+                tie(vit, vjt) = vertices(g); 
+                for( VertIter next = vit; vit != vjt; vit = next ){
+                        ++next;
+                        if( p.a.find(*vit) == p.a.end() &&
+                            p.c.find(*vit) == p.c.end() ){
+                                    p.b.insert(*vit);
+
+                            }
+                }
+                return p; 
                 /* By Lemma 2, A has total cost <= 2/3
                 But A U C* has total cost >= 1/3, so B also has total cost <= 2/3
                 Futhermore, C contains no more than L[l1] + L[l2] + 2(l2 - l1 - 1) */
         }
-        return p;
 }
 
 // Step 10: construct_vertex_partition
@@ -365,7 +386,7 @@ Partition construct_vertex_partition(Graph& g_shrunk, Vert2UintMap& vmap_copy, u
         uint r = vis_data.num_levels;
         cout << "r max distance: " << r << '\n';
 
-        return lemma3(g_shrunk, l, r, vis_data, vmap_copy);
+        return lemma3_cllmax(g_shrunk, l, r, vis_data, vmap_copy);
 }
 
 // Step 9: Improve Separator
@@ -556,7 +577,7 @@ Partition new_bfs_and_make_max_planar(Graph& g_shrunk, Vert2UintMap const& vmap,
 }
 
 // Step 6: Shrinktree
-// Time:   O(n)
+// Time:   big-theta(n)
 //
 // Delete all vertices on level l2 and above.
 // Construct a new vertex x to represent all vertices on levels 0 through l0.
@@ -763,7 +784,7 @@ Partition find_connected_components(Graph& g_copy, Vert2UintMap const& vmap, Ver
 }
 
 // Step 1: check_planarity
-// Time:   O(n)
+// Time:   big-theta(n)
 //
 // Find a planar embedding of G and construct a representation for it of the kind described above.
 std::tuple<Partition, Vert2UintMap, Vert2UintMap> lipton_tarjan(GraphCR g_orig)

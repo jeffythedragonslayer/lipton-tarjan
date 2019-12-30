@@ -181,13 +181,15 @@ Suppose G has a spanning tree of radius r.
 Then the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex in A with a vertex in B, neither A nor B has total cost exceeding 2/3,
 and C contains no more than 2r+1 vertices, one the root of the tree */
 // r is spanning tree radius
-Partition lemma2_c2r1(Graph& g, uint r)
+Partition lemma2_c2r1(Graph& g, uint r, vector<vertex_t> const& cycle)
 {
 	//uint r = 0; // spanning tree radius
 
 	/* Let G be any planar graph with nonnegative vertex costs summing to no more than one.
 	Suppose G has a spanning tree of radius r.
 	Then the vertices of G can be partitioned into three sets A, B, C, such that no edge joins a vertex A with a vertex in B, neither A nor B has a total cost exceeding 2/3, and C contains no more than 2r+1 vertices, one the root of the tree. */
+
+        // if g contains only two vertices then return trivially
 
         Partition p;
 
@@ -245,7 +247,7 @@ Suppose that the vertices of G are partitioned into levels according to their di
 If r is the maximum distance of any vertex from v, let r+1 be an additional level containing no vertices.
 Given any two levels l1 and l2 such that levels 0 through l1-1 have total cost not exceeding 2/3 and levels l2+1 through r+1 have total cost not exceeding 2/3,
 it is possible to find a partition A, B, C of the vertices of G such that no edge joins a vertex in A with a vertex in B, neither A nor B has total cost exceeding 2/3, and C contains no more than L(l1)+L(l2)+max{0,2(l2-l1-1)} vertices. */
-Partition lemma3_cllmax(Graph& g, uint l[3], uint r, BFSVisitorData& vis_data, Vert2UintMap& vmap)
+Partition lemma3_cllmax(Graph& g, uint l[3], uint r, BFSVisitorData& vis_data, Vert2UintMap& vmap, vector<vertex_t> cycle)
 {
 	Partition p;
         if( l[1] >= l[2] ){ 
@@ -334,7 +336,7 @@ Partition lemma3_cllmax(Graph& g, uint l[3], uint r, BFSVisitorData& vis_data, V
                 //The new graph has a spanning tree radius of l2 - l1 -1 whose root corresponds to vertices on levels l1 and below in the original graph
                 r = l[2] - l[1] - 1;
                 //Apply Lemma 2 to the new graph, A* B* C*
-		Partition star_p = lemma2_c2r1(g, r);
+		Partition star_p = lemma2_c2r1(g, r, cycle);
                 vertex_t star_root;
 
                 Partition p;
@@ -374,7 +376,7 @@ Partition lemma3_cllmax(Graph& g, uint l[3], uint r, BFSVisitorData& vis_data, V
 //
 // Use the cycle found in Step 9 and the levels found in Step 4 (l1_and_k) to construct a satisfactory vertex partition as described in the proof of Lemma 3
 // Extend this partition from the connected component chosen in Step 2 to the entire graph as described in the proof of Theorem 4.
-Partition construct_vertex_partition(Graph& g_shrunk, Vert2UintMap& vmap_copy, uint l[3], BFSVisitorData& vis_data)
+Partition construct_vertex_partition(Graph& g_shrunk, Vert2UintMap& vmap_copy, uint l[3], BFSVisitorData& vis_data, vector<vertex_t> cycle)
 {
         cout  << "\n------------ 10  - Construct Vertex Partition --------------\n";
         print_graph(g_shrunk);
@@ -386,7 +388,7 @@ Partition construct_vertex_partition(Graph& g_shrunk, Vert2UintMap& vmap_copy, u
         uint r = vis_data.num_levels;
         cout << "r max distance: " << r << '\n';
 
-        return lemma3_cllmax(g_shrunk, l, r, vis_data, vmap_copy);
+        return lemma3_cllmax(g_shrunk, l, r, vis_data, vmap_copy, cycle);
 }
 
 // Step 9: Improve Separator
@@ -394,8 +396,15 @@ Partition construct_vertex_partition(Graph& g_shrunk, Vert2UintMap& vmap_copy, u
 //
 // Let (vi, wi) be the nontree edge whose cycle is the current candidate to complete the separator.
 // If the cost inside the cycle exceeds 2/3, find a better cycle by the following method.
-// 	Locate the triangle (vi, y, wi) which has (vi, wi) as a boundary edge and lies inside the (vi, wi) cycle.  If either (vi, y) or (y, wi) is a tree edge, let (vi+1, wi+1) be the nontree edge among (vi, y) and (y, wi).  Compute the cost inside the (vi+1, wi+1) cycle from the cost inside the (vi, wi) cycle and the cost of vi, y and wi.
-// 	If neither (vi, y) nor (y, wi) is a tree edge, determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.  Let z be the vertex on the (vi, wi) cycle reached during this search.  Compute the total cost of all vertices except z on this tree path.  Scan the tree edges inside the (y, wi) cycle, alternately scanning an edge in one cycle and an edge in the other cycle.  Stop scanning when all edges inside one of the cycles have been scanned.  Compute the cost inside this cycle by summing the associated costs of all scanned edges.  Use this cost, the cost inside the (vi, wi) cycle, and the cost on the tree path from y to z to compute the cost inside the other cycle.  Let (vi+1, wi+1) be the edge among (vi, y) and (y, wi) whose cycle has more cost inside it.
+// 	Locate the triangle (vi, y, wi) which has (vi, wi) as a boundary edge and lies inside the (vi, wi) cycle.
+//      If either (vi, y) or (y, wi) is a tree edge, let (vi+1, wi+1) be the nontree edge among (vi, y) and (y, wi).
+//      Compute the cost inside the (vi+1, wi+1) cycle from the cost inside the (vi, wi) cycle and the cost of vi, y and wi.
+// 	If neither (vi, y) nor (y, wi) is a tree edge, determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.
+//      Let z be the vertex on the (vi, wi) cycle reached during this search.  Compute the total cost of all vertices except z on this tree path.
+//      Scan the tree edges inside the (y, wi) cycle, alternately scanning an edge in one cycle and an edge in the other cycle.
+//      Stop scanning when all edges inside one of the cycles have been scanned.  Compute the cost inside this cycle by summing the associated costs of all scanned edges.
+//      Use this cost, the cost inside the (vi, wi) cycle, and the cost on the tree path from y to z to compute the cost inside the other cycle.
+//      Let (vi+1, wi+1) be the edge among (vi, y) and (y, wi) whose cycle has more cost inside it.
 // 	Repeat Step 9 until finding a cycle whose inside has cost not exceeding 2/3.
 Partition improve_separator(Graph& g_shrunk, Vert2UintMap const& vmap, Vert2UintMap& vmap_copy, CycleCost& cc, edge_t completer_candidate_edge, BFSVisitorData& vis_data, vector<vertex_t> const& cycle, EmbedStruct const& em, bool cost_swapped, uint l[3])
 {
@@ -505,7 +514,7 @@ Partition improve_separator(Graph& g_shrunk, Vert2UintMap const& vmap, Vert2Uint
         cout << "found cycle with inside cost " << cc.inside << " which is less than 2/3\n";
         print_cycle(cycle);
 
-	return construct_vertex_partition(g_shrunk, vmap_copy, l, vis_data); // step 10
+	return construct_vertex_partition(g_shrunk, vmap_copy, l, vis_data, cycle); // step 10
 }
 
 

@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
         } 
         for( uint i = 1; i < argc; ++i ) fname.push_back(argv[i]);
 
-        for( auto& f : fname ){
+        for( string& f : fname ){
                 cout << "loading graph\n";
 		Vert2UintMap vblank;
                 auto g = load_graph(f, vblank);
@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
                 uint e = num_edges(g);
 
                 cout << "starting lipton tarjan...\n";
-                //print_graph(g);
+                print_graph(g);
 
 		try { 
 			std::tuple<Partition, Vert2UintMap, Vert2UintMap> t = lipton_tarjan(g);

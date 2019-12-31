@@ -249,18 +249,6 @@ void kill_vertex(vertex_t v, Graph& g, Vert2UintMap& vmap)
         remove_vertex(v, g);
 }
 
-void create_vmap_from_graph(Graph const& g, Vert2UintMap& vmap)
-{
-        VertIter vi, vi_end;
-        uint i = 0;
-        for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
-                vmap.vert2uint[*vi] = i;
-                vmap.uint2vert[i] = *vi;
-		vmap.vu_bimap.insert({*vi, i});
-                ++i;
-        }
-}
-
 struct FileNotFound {};
 
 Graph load_graph(string const& fname, Vert2UintMap& vmap)

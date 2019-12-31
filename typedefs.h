@@ -7,6 +7,7 @@
 #define STLALL(x) (x).begin(), (x).end()
 
 typedef boost::adjacency_list<boost::listS, boost::listS, boost::undirectedS, boost::property<boost::vertex_index_t, int>, boost::property<boost::edge_index_t, int>> Graph;
+typedef Graph const&                                                                                                                                                  GraphCR; 
 typedef boost::graph_traits<Graph>::vertex_descriptor                                                                                                                 vertex_t;
 typedef boost::graph_traits<Graph>::vertex_iterator                                                                                                                   VertIter;
 typedef std::map<vertex_t, size_t>                                                                                                                                    vertex_tMap;

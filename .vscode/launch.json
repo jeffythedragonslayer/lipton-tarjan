@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/lt",
-            "args": ["graphs/getintersec_failed"],
+            "args": ["graphs/two"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

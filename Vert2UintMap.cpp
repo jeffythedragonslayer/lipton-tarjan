@@ -2,6 +2,18 @@
 #include <iostream>
 using namespace std;
 
+Vert2UintMap::Vert2UintMap(Graph const& g)
+{
+        VertIter vi, vi_end;
+        uint i = 0;
+        for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
+                vert2uint[*vi] = i;
+                uint2vert[i] = *vi;
+		vu_bimap.insert({*vi, i});
+                ++i;
+        }
+}
+
 void Vert2UintMap::print() const
 {
        cout << "Vert2UintMap::print()    this == " << this << '\n';

@@ -43,9 +43,14 @@ int main(int argc, char* argv[])
 
 		try { 
 			std::tuple<Partition, Vert2UintMap, Vert2UintMap> t = lipton_tarjan(g);
-			uint num_verts_finished = std::get<0>(t).total_num_verts();
+                        Partition p = std::get<0>(t);
+			uint num_verts_finished = p.total_num_verts();
 			cout << "Finished!\n";
-			std::get<0>(t).print(std::get<2>(t));
+
+                        Vert2UintMap vmap2 = std::get<1>(t);
+
+			p.print(vmap2);
+
 			cout << "finished num verts: " << num_verts_finished << '\n';
 		} catch (NotPlanarException e) {
 			cout << "cannot finish lipton-tarjan because graph is not planar\n";

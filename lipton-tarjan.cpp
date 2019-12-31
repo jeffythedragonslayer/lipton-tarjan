@@ -330,7 +330,7 @@ Partition lemma3_exceeds23(Graph& g_shrink2, Vert2UintMap& vmap_shrunk, BFSVisit
         Futhermore, C contains no more than L[l1] + L[l2] + 2(l2 - l1 - 1) */
 }
 
-Partition lemma3_l1greaterequall2(Graph& g_shrink2, Vert2UintMap& vmap, BFSVisitorData& vis_data_orig, uint l[3], uint r)
+Partition lemma3_l1greaterequall2(GraphCR g_shrink2, Vert2UintMap& vmap, BFSVisitorData& vis_data_orig, uint l[3], uint r)
 {
         cout << "l1 is greater than or equal to l2\n"; 
 
@@ -447,7 +447,6 @@ Partition construct_vertex_partition(GraphCR g_orig, Graph& g_shrunk, Vert2UintM
         uint r = vis_data.num_levels;
         cout << "r max distance: " << r << '\n';
 
-        //return lemma2_c2r1(g_orig, r, cycle);
         return lemma3_cllmax(g_orig, g_shrunk, l, r, vis_data_orig, vis_data, vmap, vmap_shrunk, cycle);
 }
 

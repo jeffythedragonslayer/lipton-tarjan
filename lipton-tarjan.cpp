@@ -193,8 +193,14 @@ Suppose G has a spanning tree of radius r.
 Then the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex in A with a vertex in B, neither A nor B has total cost exceeding 2/3,
 and C contains no more than 2r+1 vertices, one the root of the tree */
 // r is spanning tree radius
-Partition lemma2_c2r1(Graph& g, uint r, vector<vertex_t> const& cycle)
+Partition lemma2_c2r1(GraphCR g_orig, uint r, vector<vertex_t> const& cycle)
 {
+        uint n = num_vertices(g_orig);
+
+        Graph g_shrink2;
+        copy_graph(g_orig, g_shrink2);
+        g_shrink2 = g_orig;
+
 	//uint r = 0; // spanning tree radius
 
 	/* Let G be any planar graph with nonnegative vertex costs summing to no more than one.
@@ -202,10 +208,18 @@ Partition lemma2_c2r1(Graph& g, uint r, vector<vertex_t> const& cycle)
 	Then the vertices of G can be partitioned into three sets A, B, C, such that no edge joins a vertex A with a vertex in B, neither A nor B has a total cost exceeding 2/3, and C contains no more than 2r+1 vertices, one the root of the tree. */
 
         // if g contains only two vertices then return trivially
+        if( n <= 2 ){ 
+                VertIter vit, vjt;
+                tie(vit, vjt) = vertices(g_shrink2); 
+                Partition p;
+                p.a.insert(*vit);
+                if( ++vit != vjt ) p.b.insert(*vit);
+                return p; 
+        }
 
         Partition p;
 
-        make_max_planar(g);
+        make_max_planar(g_shrink2);
 
 
 	/* Proof.  Assume no vertex has cost exceeding 1/3; otherwise the lemma is true.
@@ -434,7 +448,8 @@ Partition construct_vertex_partition(GraphCR g_orig, Graph& g_shrunk, Vert2UintM
         uint r = vis_data.num_levels;
         cout << "r max distance: " << r << '\n';
 
-        return lemma3_cllmax(g_orig, g_shrunk, l, r, vis_data_orig, vis_data, vmap, vmap_shrunk, cycle);
+        return lemma2_c2r1(g_orig, r, cycle);
+        //return lemma3_cllmax(g_orig, g_shrunk, l, r, vis_data_orig, vis_data, vmap, vmap_shrunk, cycle); // lemma3 probably a typo in 1979 paper
 }
 
 // Step 9: Improve Separator

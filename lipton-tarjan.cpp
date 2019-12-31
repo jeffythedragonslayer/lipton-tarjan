@@ -247,7 +247,7 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
         print_graph(g_orig);
         cout << "g_shrunk:\n";
         print_graph(g_shrunk);*/
-        reset_vertex_indices(g_shrunk);
+        //reset_vertex_indices(g_shrunk);
         reset_edge_index(g_shrunk);
         BFSVisitorData shrunken_vis_data(vis_data_orig);
         //vis_data.reset(&g_shrunk);
@@ -259,7 +259,7 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
 
         breadth_first_search(g_shrunk, x_gone != Graph::null_vertex() ? x_gone : x, visitor(BFSVisitor(shrunken_vis_data))); 
         make_max_planar(g_shrunk);
-        reset_vertex_indices(g_shrunk);
+        //reset_vertex_indices(g_shrunk);
         reset_edge_index(g_shrunk);
 
         print_graph(g_shrunk);
@@ -310,7 +310,7 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, VertIter vit, VertIter vjt, 
 
         vertex_t x = add_vertex(g_shrunk);
         auto prop_map = get(vertex_index, g_shrunk);
-        prop_map[x] = X_VERT_UINT;
+        //prop_map[x] = X_VERT_UINT;
 
         //vmap_shrunk.uint2vert[vmap_shrunk.vert2uint[x] = X_VERT_UINT] = x; 
         map<vertex_t, bool> table;
@@ -320,7 +320,7 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, VertIter vit, VertIter vjt, 
                 //cout << "vertex " << vmap_shrunk.vert2uint[*vit] << " at level " << vis_data_orig.verts.find(*vit)->second.level << " is " << (table[*vit] ? "TRUE" : "FALSE") << '\n';
         }
 
-        reset_vertex_indices(g_shrunk);
+        //reset_vertex_indices(g_shrunk);
         reset_edge_index(g_shrunk);
         EmbedStruct em(&g_shrunk);
         assert(em.test_planar());

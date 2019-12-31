@@ -212,14 +212,14 @@ void make_max_planar(Graph& g)
         assert(em.test_planar());
 } 
 
-void reset_vertex_indices(Graph& g)
+/*void reset_vertex_indices(Graph& g)
 {
         VertIter vi, vend;
         uint i = 0;
         for( tie(vi, vend) = vertices(g); vi != vend; ++vi, ++i ){
 		put(vertex_index, g, *vi, i); 
 	}
-}
+}*/
 
 EdgeIndex reset_edge_index(Graph const& g)
 {
@@ -269,23 +269,23 @@ Graph load_graph(string const& fname)
                 file_edges.push_back({a, b});
         } 
         Graph g(max_v+1);
-        //Vert2UintMap vmap;
-        VertIter vi, vi_end;
-        uint i = 0;
-        for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
-                /*vmap.vert2uint[*vi] = i;
-                vmap.uint2vert[i] = *vi;
-		vmap.vu_bimap.insert({*vi, i});*/
-                ++i;
-        }
-        for( auto& e : file_edges ){
-                //auto src = vmap.uint2vert[e.first];
-                //auto tar = vmap.uint2vert[e.second];
-		//map<uint, vertex_t> m = vu_bimap.left;
-                //add_edge(src, tar, g);
+
+	map<uint, vertex_t> uint_to_vert;
+
+	VertIter vi, vi_end;
+	uint i = 0;
+	for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
+		//put(vertex_index, g, *vi, i); 
+		uint_to_vert[i] = *vi;
+		++i;
+	}
+
+
+        for( pair<uint, uint>& e : file_edges ){
+                auto src = uint_to_vert[e.first];
+                auto tar = uint_to_vert[e.second];
+                add_edge(src, tar, g);
         }
 
-        //vmap.vert2uint[Graph::null_vertex()] = -1;
-	//vmap.vu_bimap.insert({Graph::null_vertex(), static_cast<uint>(-1)});
         return g;
 }

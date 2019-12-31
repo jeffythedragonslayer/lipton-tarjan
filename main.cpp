@@ -27,15 +27,17 @@ int main(int argc, char* argv[])
 
                 Graph g = load_graph(f);
 
-                uint n = num_vertices(g);
-
-                auto prop_map = get(vertex_index, g); // writing to this property map has side effects in the graph
+                /*auto prop_map = get(vertex_index, g); // writing to this property map has side effects in the graph
                 VertIter vi, vend;
                 uint i = 0;
                 for( tie(vi, vend) = vertices(g); vi != vend; ++vi ){
-                        prop_map[*vi] = i;
+                        //prop_map[*vi] = i;
+			cout << "prop map " << *vi << " == " << i << '\n';
                         ++i;
-                }
+                }*/
+
+                uint n = num_vertices(g);
+
 
                 cout << "n: " << n << '\n';
                 uint e = num_edges(g);

@@ -19,14 +19,6 @@ void check_graph_is_nonplanar(string graphfile)
 
 	uint n = num_vertices(g);
 
-	auto m = get(vertex_index, g);
-	VertIter vi, vend;
-	uint i = 0;
-	for( tie(vi, vend) = vertices(g); vi != vend; ++vi ){
-		m[*vi] = i;
-		++i;
-	} 
-
 	cout << "n: " << n << '\n';
 	uint e = num_edges(g);
 

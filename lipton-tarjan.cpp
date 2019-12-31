@@ -285,7 +285,7 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
 
 const uint X_VERT_UINT = 999999;
 
-Partition shrinktree(GraphCR g_orig, Graph& g_copy, VertIter vit, VertIter vjt, BFSVisitorData const& vis_data_orig, uint l[3])
+Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_data_orig, uint l[3])
 {
         Graph& g_shrunk = g_copy;
         //cout << "---------------------------- 6 - Shrinktree -------------\n";
@@ -294,6 +294,7 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, VertIter vit, VertIter vjt, 
 
         // delete all vertices on level l2 and above
         vector<vertex_t> replaceverts;
+	VertIter vit, vjt;
         tie(vit, vjt) = vertices(g_shrunk); 
         for( VertIter next = vit; vit != vjt; vit = next ){
                 ++next;
@@ -348,7 +349,7 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, VertIter vit, VertIter vjt, 
 //
 // Find the highest level l0 <= l1 such that L(l0) + 2(l1 - l0) <= 2*sqrt(k).
 // Find the lowest level l2 >= l1 + 1 such that L(l2) + 2(l2-l1-1) <= 2*sqrt(n-k)
-Partition find_more_levels(GraphCR g_orig, Graph& g_copy, VertIter vit, VertIter vjt, uint k, uint l[3], vector<uint> const& L, BFSVisitorData const& vis_data_orig)
+Partition find_more_levels(GraphCR g_orig, Graph& g_copy, uint k, uint l[3], vector<uint> const& L, BFSVisitorData const& vis_data_orig)
 {
         //cout  << "---------------------------- 5 - Find More Levels -------\n";
         //print_graph(g_copy);
@@ -376,7 +377,7 @@ Partition find_more_levels(GraphCR g_orig, Graph& g_copy, VertIter vit, VertIter
         }
         //cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
 
-	return shrinktree(g_orig, g_copy, vit, vjt, vis_data_orig, l); // step 6
+	return shrinktree(g_orig, g_copy, vis_data_orig, l); // step 6
 }
 
 // Step 4: l1_and_k
@@ -385,7 +386,7 @@ Partition find_more_levels(GraphCR g_orig, Graph& g_copy, VertIter vit, VertIter
 // Find the level l1 such that the total cost of levels 0 through l1 - 1 does not exceed 1/2,
 // but the total cost of levels 0 through l1 does exceed 1/2.
 // Let k be the number of vertices in levels 0 through l1
-Partition l1_and_k(GraphCR g_orig, Graph& g_copy, VertIter vit, VertIter vjt, vector<uint> const& L, BFSVisitorData const& vis_data_orig)
+Partition l1_and_k(GraphCR g_orig, Graph& g_copy, vector<uint> const& L, BFSVisitorData const& vis_data_orig)
 {
         //cout  << "---------------------------- 4 - l1 and k  ------------\n";
         uint k = L[0]; 
@@ -402,7 +403,7 @@ Partition l1_and_k(GraphCR g_orig, Graph& g_copy, VertIter vit, VertIter vjt, ve
         /*cout << "k:  " << k    << "      # of verts in levels 0 thru l1\n";
         cout << "l1: " << l[1] << "      total cost of levels 0 thru l1 barely exceeds 1/2\n";*/
 	assert(k <= n); 
-	return find_more_levels(g_orig, g_copy, vit, vjt, k, l, L, vis_data_orig); // step 5
+	return find_more_levels(g_orig, g_copy, k, l, L, vis_data_orig); // step 5
 }
 
 // Step 3: bfs_and_levels
@@ -410,7 +411,7 @@ Partition l1_and_k(GraphCR g_orig, Graph& g_copy, VertIter vit, VertIter vjt, ve
 //
 // Find a breadth-first spanning tree of the most costly component.
 // Compute the level of each vertex and the number of vertices L(l) in each level l.
-Partition bfs_and_levels(GraphCR g_orig, Graph& g_copy, VertIter vit, VertIter vjt)
+Partition bfs_and_levels(GraphCR g_orig, Graph& g_copy)
 {
         //cout << "---------------------------- 3 - BFS and Levels ------------\n";
         BFSVisitorData vis_data(&g_copy, *vertices(g_copy).first);
@@ -423,6 +424,7 @@ Partition bfs_and_levels(GraphCR g_orig, Graph& g_copy, VertIter vit, VertIter v
 	       	++L[d.second.level];
 	}
 
+	VertIter vit, vjt;
         for( tie(vit, vjt) = vertices(g_copy); vit != vjt; ++vit ){
                 assert(vis_data.verts.contains(*vit));
 		//cout << "level/cost of vert " << *vit << ": " << vis_data.verts[*vit].level << '\n';
@@ -431,7 +433,7 @@ Partition bfs_and_levels(GraphCR g_orig, Graph& g_copy, VertIter vit, VertIter v
 		//cout << "L[" << i << "]: " << L[i] << '\n';
 	}
 
-	return l1_and_k(g_orig, g_copy, vit, vjt, L, vis_data); // step 4
+	return l1_and_k(g_orig, g_copy, L, vis_data); // step 4
 }
 
 // Step 2: find_connected_components
@@ -478,7 +480,7 @@ Partition find_connected_components(GraphCR g_orig, Graph& g_copy)
         }
         //cout << "index of biggest component: " << biggest_component_index << '\n';
 
-	return bfs_and_levels(g_orig, g_copy, vit, vjt); // step 3
+	return bfs_and_levels(g_orig, g_copy); // step 3
 }
 
 // Step 1: check_planarity

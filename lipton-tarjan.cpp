@@ -152,7 +152,7 @@ Partition theorem4_disconnected(GraphCR g, uint n, uint num_components, associat
                 C = C*
                 B = remanining vertices of G
                 Then A and B have cost <= 2/3, g
-                return true;
+                return true
 
         In all cases the separator C is either empty or contained in only one connected component of G */
 
@@ -454,7 +454,7 @@ Partition construct_vertex_partition(GraphCR g_orig, Graph& g_shrunk, Vert2UintM
 //      Use this cost, the cost inside the (vi, wi) cycle, and the cost on the tree path from y to z to compute the cost inside the other cycle.
 //      Let (vi+1, wi+1) be the edge among (vi, y) and (y, wi) whose cycle has more cost inside it.
 // 	Repeat Step 9 until finding a cycle whose inside has cost not exceeding 2/3.
-Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, Vert2UintMap& vmap, Vert2UintMap& vmap_shrunk, CycleCost& cc, edge_t completer_candidate_edge, BFSVisitorData& vis_data_orig, BFSVisitorData& vis_data, vector<vertex_t> const& cycle, EmbedStruct const& em, bool cost_swapped, uint l[3])
+Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, Vert2UintMap& vmap, Vert2UintMap& vmap_shrunk, CycleCost& cc, edge_t completer_candidate_edge, BFSVisitorData& vis_data_orig, BFSVisitorData& vis_data, vector<vertex_t> cycle, EmbedStruct const& em, bool cost_swapped, uint l[3])
 {
         cout << "---------------------------- 9 - Improve Separator -----------\n";
         //print_graph(g_shrunk);
@@ -493,13 +493,9 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, Vert2UintMap& vmap,
                 assert(maybe_y.second); // I'm assuming the bool means that the edge_t exists?  Boost Graph docs don't say
                 cout << "maybe_y: " << to_string(maybe_y.first, vmap_shrunk, g_shrunk) << '\n';
 
-                vertex_t common_vert_on_cycle; 
-
-                if( find(STLALL(cycle), neighbors_vw.first) == cycle.end()){
-                        common_vert_on_cycle = neighbors_vw.second;
-                } else {
-                        common_vert_on_cycle = neighbors_vw.first;
-                }
+                vertex_t common_vert_on_cycle = find(STLALL(cycle), neighbors_vw.first) == cycle.end() ?
+                                                neighbors_vw.second :
+                                                neighbors_vw.first;
                 cout << "common vert on cycle: " << vmap_shrunk.vert2uint[common_vert_on_cycle] << '\n';
                 assert(find(STLALL(cycle), common_vert_on_cycle) != cycle.end());
 
@@ -558,8 +554,8 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, Vert2UintMap& vmap,
                         }
 
                         // Let (vi+1, wi+1) be the edge among (vi, y) and (i, wi) whose cycle has more cost inside it.
-                        if( cost1.inside > cost2.inside ){ next_edge = edge(vi, y, g_shrunk).first; cc = cost1; }
-                        else                             { next_edge = edge(y, wi, g_shrunk).first; cc = cost2; }
+                        if( cost1.inside > cost2.inside ){ next_edge = edge(vi, y, g_shrunk).first; cc = cost1; cycle = cycle1;}
+                        else                             { next_edge = edge(y, wi, g_shrunk).first; cc = cost2; cycle = cycle2;}
                 } 
                 completer_candidate_edge = next_edge;
         }

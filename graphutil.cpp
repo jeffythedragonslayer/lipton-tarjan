@@ -65,7 +65,7 @@ vector<vertex_t> get_cycle(vertex_t v, vertex_t w, BFSVisitorData const& vis_dat
 }
 
 // return set of vertices neighboring v in graph g
-set<vertex_t> get_neighbors(vertex_t v, Graph const& g, Vert2UintMap& vmap)
+set<vertex_t> get_neighbors(vertex_t v, Graph const& g)
 { 
         set<vertex_t> neighbors;
         OutEdgeIter e_cur, e_end;
@@ -78,11 +78,11 @@ set<vertex_t> get_neighbors(vertex_t v, Graph const& g, Vert2UintMap& vmap)
 }
 
 // get set intersection of a and b
-pair<vertex_t, vertex_t> get_intersection(set<vertex_t> const& a, set<vertex_t> const& b, Vert2UintMap& vmap)
+pair<vertex_t, vertex_t> get_intersection(set<vertex_t> const& a, set<vertex_t> const& b)
 {
         set<vertex_t> c;
         set_intersection(STLALL(a), STLALL(b), inserter(c, c.begin())); 
-        for( auto& i : c ) cout << "      set intersection: " << vmap.vert2uint[i] << '\n'; 
+        //for( auto& i : c ) cout << "      set intersection: " << vmap.vert2uint[i] << '\n'; 
         assert(c.size() == 2);
         return make_pair(*c.begin(), *c.rbegin());
 } 
@@ -91,7 +91,7 @@ pair<vertex_t, vertex_t> get_intersection(set<vertex_t> const& a, set<vertex_t> 
 An embedding is needed to establish what is inside and outside.  
 e may be anywhere on the graph.
 common_vert_on_cycle should be a tree vertex that both of e's incident vertices share as an ancestor */
-InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t e, vertex_t common_vert_on_cycle, vector<vertex_t> const& cycle, Graph const& g, Vert2UintMap& vmap, Embedding const& em)
+InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t e, vertex_t common_vert_on_cycle, vector<vertex_t> const& cycle, Graph const& g, Embedding const& em)
 {
         //cout << "------------------ is edge inside outside or on cycle -----------------\n";
 	//cout << "edge: " << vmap.vert2uint[source(e, g)] << ' ' << vmap.vert2uint[target(e, g)] << '\n';
@@ -147,7 +147,7 @@ InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t e, vertex_t common_vert_on
 }
 
 // returns the first nontree edge we find
-edge_t arbitrary_nontree_edge(Graph const& g, Vert2UintMap& vmap, BFSVisitorData const& vis_data)
+edge_t arbitrary_nontree_edge(Graph const& g, BFSVisitorData const& vis_data)
 { 
 	cout << "starting arbitrary_nontree_edge function\n";
         EdgeIter ei, ei_end;
@@ -156,15 +156,15 @@ edge_t arbitrary_nontree_edge(Graph const& g, Vert2UintMap& vmap, BFSVisitorData
                 auto src = source(*ei, g);
                 auto tar = target(*ei, g);
                 assert(edge(src, tar, g).second); // edge exists
-		cout << "candidate edge: " << vmap.vert2uint[src] << ' ' << vmap.vert2uint[tar] << '\n';
+		//cout << "candidate edge: " << vmap.vert2uint[src] << ' ' << vmap.vert2uint[tar] << '\n';
                 if( src == tar ) throw FoundCircularNode(src);
 
                 try {
 
-                        if( !vis_data.is_tree_edge(*ei, &vmap) ){
+                        if( !vis_data.is_tree_edge(*ei) ){
                                 cout << "found nontree edge\n";
                                 cout << "total edges examined: " << num_edges << '\n';
-                                cout << "arbitrarily choosing nontree edge: " << to_string(*ei, vmap, g) << '\n';
+                                //cout << "arbitrarily choosing nontree edge: " << to_string(*ei, vmap, g) << '\n';
                                 return *ei; 
                         } else cout << "is a tree edge\n";
 
@@ -177,16 +177,16 @@ edge_t arbitrary_nontree_edge(Graph const& g, Vert2UintMap& vmap, BFSVisitorData
 }
 
 // scan edges around all vertices of cycle and add up edge costs
-CycleCost compute_cycle_cost(vector<vertex_t> const& cycle, Graph const& g, Vert2UintMap& vmap, BFSVisitorData const& vis_data, EmbedStruct const& em)
+CycleCost compute_cycle_cost(vector<vertex_t> const& cycle, Graph const& g, BFSVisitorData const& vis_data, EmbedStruct const& em)
 {
         CycleCost cc;
         for( auto& v : cycle ){
                 cout << "   scanning cycle vert " << v << '\n';
                 for( auto e = out_edges(v, g); e.first != e.second; ++e.first ) if( vis_data.is_tree_edge(*e.first) && !on_cycle(*e.first, cycle, g) ){
                         uint cost = vis_data.edge_cost(*e.first, cycle, g);
-                        uint vert_id = vmap.vert2uint[v];
-                        cout << "      scanning incident tree edge " << vert_id << "   cost: " << cost << '\n';
-                        auto insideout = is_edge_inside_outside_or_on_cycle(*e.first, v, cycle, g, vmap, em.em);
+                        //uint vert_id = vmap.vert2uint[v];
+                        //cout << "      scanning incident tree edge " << vert_id << "   cost: " << cost << '\n';
+                        auto insideout = is_edge_inside_outside_or_on_cycle(*e.first, v, cycle, g, em.em);
                         assert(insideout != ON);
                         bool is_inside = (insideout == INSIDE);
                         (is_inside ? cc.inside : cc.outside) += cost;
@@ -239,19 +239,16 @@ void contract_vertices(vertex_t b, vertex_t a, Graph& g)
         remove_vertex(b, g);
 }
 
-void kill_vertex(vertex_t v, Graph& g, Vert2UintMap& vmap)
+void kill_vertex(vertex_t v, Graph& g)
 {
-        auto i = vmap.vert2uint[v];
         //cout << "killing vertex " << i << '\n';
-        vmap.uint2vert.erase(i);
-        vmap.vert2uint.erase(v);
         clear_vertex(v, g);
         remove_vertex(v, g);
 }
 
 struct FileNotFound {};
 
-pair<Graph, Vert2UintMap> load_graph(string const& fname)
+Graph load_graph(string const& fname)
 {
         ifstream in(fname);
         if( !in ){
@@ -272,23 +269,15 @@ pair<Graph, Vert2UintMap> load_graph(string const& fname)
                 file_edges.push_back({a, b});
         } 
         Graph g(max_v+1);
-        Vert2UintMap vmap;
         VertIter vi, vi_end;
         uint i = 0;
         for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
-                vmap.vert2uint[*vi] = i;
-                vmap.uint2vert[i] = *vi;
-		vmap.vu_bimap.insert({*vi, i});
                 ++i;
         }
         for( auto& e : file_edges ){
-                auto src = vmap.uint2vert[e.first];
-                auto tar = vmap.uint2vert[e.second];
 		//map<uint, vertex_t> m = vu_bimap.left;
+		vertex_t src, tar;
                 add_edge(src, tar, g);
         }
 
-        vmap.vert2uint[Graph::null_vertex()] = -1;
-	vmap.vu_bimap.insert({Graph::null_vertex(), static_cast<uint>(-1)});
-        return make_pair(g, vmap);
 }

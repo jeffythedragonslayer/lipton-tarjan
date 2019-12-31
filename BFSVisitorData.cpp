@@ -27,7 +27,7 @@ void BFSVisitorData::reset(Graph* g)
 		root = Graph::null_vertex();
 }
 
-bool BFSVisitorData::is_tree_edge(edge_t e, Vert2UintMap* vmap) const
+bool BFSVisitorData::is_tree_edge(edge_t e) const
 { 
 		vertex_t src = source(e, *g);
 		vertex_t tar = target(e, *g); 

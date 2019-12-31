@@ -3,12 +3,12 @@
 using namespace std;
 using namespace boost;
 
-string to_string(edge_t e, Vert2UintMap& vmap, Graph const& g)
+/*string to_string(edge_t e, Vert2UintMap& vmap, Graph const& g)
 {
         auto src = lexical_cast<string>(vmap.vert2uint[source(e, g)]);
         auto tar = lexical_cast<string>(vmap.vert2uint[target(e, g)]);
         return src + ", " + tar;
-}
+}*/
 
 void print_cycle(vector<vertex_t> const& cycle)
 {
@@ -17,7 +17,7 @@ void print_cycle(vector<vertex_t> const& cycle)
         cout << '\n';
 }
 
-void print_graph_special(Graph const& g, Vert2UintMap const& vmap)
+/*void print_graph_special(Graph const& g, Vert2UintMap const& vmap)
 { 
         cout << "\n**********************  Graph  ** print_graph_special ***\n"; 
         VertIter vi, vi_end;
@@ -34,9 +34,9 @@ void print_graph_special(Graph const& g, Vert2UintMap const& vmap)
                 cout << '\n';
         }
         cout << "*********************************************************\n\n";
-}
+}*/
 
-void print_graph_nonboost(Graph const& g)
+/*void print_graph_nonboost(Graph const& g)
 { 
         cout << "\n**********************  Graph  ** print_graph_nonboost **********\n"; 
 	map<vertex_t, uint> vmap;
@@ -72,4 +72,4 @@ void print_edges(Graph const& g, Vert2UintMap const& vmap)
 		if( ei != ei_end ) cout << ", ";
         } 
         cout << "\n*********************************************************\n\n";
-}
+}*/

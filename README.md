@@ -30,3 +30,9 @@ planargen n e
 unittest
 
 	Run the suite of unit tests
+	
+Installation
+
+	Install boost in /usr/local/ and create a symbolic link to the directory,
+	
+	ln -s boost_1_72_0 boost

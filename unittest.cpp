@@ -17,8 +17,10 @@ typedef adjacency_list<listS, listS, undirectedS, property<vertex_index_t, int>,
 void check_graph_is_nonplanar(string graphfile)
 { 
 	cout << "loading graph\n";
-	Vert2UintMap vmap;
-	auto g = load_graph(graphfile, vmap);
+	pair<Graph, Vert2UintMap > graph_packet = load_graph(graphfile);
+	Graph& g = graph_packet.first;
+	Vert2UintMap& vmap = graph_packet.second;
+
 	uint n = num_vertices(g);
 
 	auto m = get(vertex_index, g);
@@ -36,7 +38,7 @@ void check_graph_is_nonplanar(string graphfile)
 	print_graph(g);
 
 	try {
-		auto p = lipton_tarjan(g);//, vmap);
+		auto p = lipton_tarjan(g);
 		BOOST_CHECK(false);
 	} catch (NotPlanarException e){
 		BOOST_CHECK(true);
@@ -55,8 +57,9 @@ void check_partition_is_legal(string graphfile)
 	cout << "Checking graph " << graphfile << "...\n";
 
 
-	Vert2UintMap vmap;
-	auto g = load_graph(graphfile, vmap);
+	pair<Graph, Vert2UintMap > graph_packet = load_graph(graphfile);
+	Graph& g = graph_packet.first;
+	Vert2UintMap& vmap = graph_packet.second;
 
 	cout << "starting lipton tarjan...\n";
 	print_graph(g);
@@ -90,13 +93,13 @@ void check_partition_is_legal(string graphfile)
 
 BOOST_AUTO_TEST_CASE( kuratowski )
 {
-	check_graph_is_nonplanar("graphs/kuratowski33");
-	check_graph_is_nonplanar("graphs/kuratowski5");
+		check_graph_is_nonplanar("graphs/kuratowski33");
+		check_graph_is_nonplanar("graphs/kuratowski5");
 }
 
 BOOST_AUTO_TEST_CASE( empty_test )
 {
-	check_partition_is_legal("graphs/empty");
+		check_partition_is_legal("graphs/empty");
 }
 
 /*BOOST_AUTO_TEST_CASE( box2_test )

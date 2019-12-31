@@ -1,12 +1,12 @@
 #include "graphutil.h"
 #include "BFSVisitorData.h"
 #include "strutil.h"
-#include <iostream>
-#include <fstream>
 #include <boost/graph/make_biconnected_planar.hpp>
 #include <boost/graph/make_maximal_planar.hpp>
 #include <boost/algorithm/string.hpp> 
 #include <boost/lexical_cast.hpp>
+#include <iostream>
+#include <fstream>
 using namespace std;
 using namespace boost;
 
@@ -251,7 +251,7 @@ void kill_vertex(vertex_t v, Graph& g, Vert2UintMap& vmap)
 
 struct FileNotFound {};
 
-Graph load_graph(string const& fname, Vert2UintMap& vmap)
+pair<Graph, Vert2UintMap> load_graph(string const& fname)
 {
         ifstream in(fname);
         if( !in ){
@@ -260,7 +260,7 @@ Graph load_graph(string const& fname, Vert2UintMap& vmap)
         }
 
         string str;
-        vector<pair<uint, uint>> edges;
+        vector<pair<uint, uint>> file_edges;
         int max_v = -1;
         while( getline(in, str) ){
                 uint   colon = str.find(","); 
@@ -269,9 +269,10 @@ Graph load_graph(string const& fname, Vert2UintMap& vmap)
                 int   a     = lexical_cast<int>(stra);
                 int   b     = lexical_cast<int>(strb);
                 max_v = max(max(max_v, a), b);
-                edges.push_back(make_pair(a, b));
+                file_edges.push_back({a, b});
         } 
         Graph g(max_v+1);
+        Vert2UintMap vmap;
         VertIter vi, vi_end;
         uint i = 0;
         for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
@@ -280,7 +281,7 @@ Graph load_graph(string const& fname, Vert2UintMap& vmap)
 		vmap.vu_bimap.insert({*vi, i});
                 ++i;
         }
-        for( auto& e : edges ){
+        for( auto& e : file_edges ){
                 auto src = vmap.uint2vert[e.first];
                 auto tar = vmap.uint2vert[e.second];
 		//map<uint, vertex_t> m = vu_bimap.left;
@@ -289,5 +290,5 @@ Graph load_graph(string const& fname, Vert2UintMap& vmap)
 
         vmap.vert2uint[Graph::null_vertex()] = -1;
 	vmap.vu_bimap.insert({Graph::null_vertex(), static_cast<uint>(-1)});
-        return g;
+        return make_pair(g, vmap);
 }

@@ -2,6 +2,7 @@
 #include "typedefs.h"
 #include <boost/bimap.hpp>
 
+// induces a canonical numbering on graph vertices
 struct Vert2UintMap
 { 
 		std::map<vertex_t, uint>     vert2uint;

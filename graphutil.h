@@ -3,6 +3,7 @@
 #include "EmbedStruct.h"
 #include "Vert2UintMap.h"
 #include "typedefs.h"
+#include <utility>
 
 int levi_civita(uint i, uint j, uint k);
 
@@ -48,6 +49,6 @@ EdgeIndex reset_edge_index(Graph const&);
 
 void kill_vertex(vertex_t, Graph&, Vert2UintMap&);
 
-Graph load_graph(std::string const& fname, Vert2UintMap&);
+std::pair<Graph, Vert2UintMap> load_graph(std::string const& fname);
 
 void contract_vertices(vertex_t b, vertex_t a, Graph& g);

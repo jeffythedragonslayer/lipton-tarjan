@@ -589,9 +589,22 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, Vert2UintMap& vmap,
 // Determine which side of the cycle has greater cost and call it the "inside"
 Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, Vert2UintMap& vmap, Vert2UintMap& vmap_shrunk, BFSVisitorData& vis_data_orig, BFSVisitorData& vis_data, uint l[3])
 {
+        uint n = num_vertices(g_orig);
         cout  << "----------------------- 8 - Locate Cycle -----------------\n"; 
         print_graph(g_shrunk);
-        edge_t completer_candidate_edge = arbitrary_nontree_edge(g_shrunk, vmap_shrunk, vis_data);
+        edge_t completer_candidate_edge;
+        
+        try {
+                completer_candidate_edge = arbitrary_nontree_edge(g_shrunk, vmap_shrunk, vis_data);
+        } catch (NoNontreeEdgeException const& e){
+                vector<vertex_t> cycle;
+                CycleCost cc;
+                cc.inside = 0;
+                cc.outside = n; // force Step 9 to exit without going through any iterations
+                bool cost_swapped = false;
+                EmbedStruct em(&g_shrunk);
+                return improve_separator(g_orig, g_shrunk, vmap, vmap_shrunk, cc, completer_candidate_edge, vis_data_orig, vis_data, cycle, em, cost_swapped, l); // step 9 
+        }
         vertex_t v1 = source(completer_candidate_edge, g_shrunk);
         vertex_t w1 = target(completer_candidate_edge, g_shrunk); 
         cout << "ancestors v1...\n";

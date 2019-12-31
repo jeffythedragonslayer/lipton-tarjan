@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/lt",
-            "args": ["graphs/tri"],
+            "args": ["graphs/two"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

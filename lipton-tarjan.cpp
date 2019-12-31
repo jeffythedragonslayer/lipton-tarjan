@@ -448,13 +448,8 @@ Partition construct_vertex_partition(GraphCR g_orig, Graph& g_shrunk, Vert2UintM
         uint r = vis_data.num_levels;
         cout << "r max distance: " << r << '\n';
 
-<<<<<<< HEAD
         return lemma2_c2r1(g_orig, r, cycle);
         //return lemma3_cllmax(g_orig, g_shrunk, l, r, vis_data_orig, vis_data, vmap, vmap_shrunk, cycle); // lemma3 probably a typo in 1979 paper
-=======
-        //return lemma2_c2r1(g_orig, r, cycle);
-        return lemma3_cllmax(g_orig, g_shrunk, l, r, vis_data_orig, vis_data, vmap, vmap_shrunk, cycle); // lemma3 probably a typo in 1979 paper
->>>>>>> bd9f485976e661d57f5424a565da3d94c10a75e6
 }
 
 // Step 9: Improve Separator

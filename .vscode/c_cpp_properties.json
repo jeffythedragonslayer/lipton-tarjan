@@ -4,7 +4,7 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/usr/local/boost_1_70_0/"
+                "/usr/local/boost/"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",

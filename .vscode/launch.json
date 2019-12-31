@@ -10,6 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/lt",
             "args": ["graphs/tri"],
+            "includePath": ["/usr/local/boost/"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

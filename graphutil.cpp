@@ -82,7 +82,7 @@ pair<vertex_t, vertex_t> get_intersection(set<vertex_t> const& a, set<vertex_t> 
 {
         set<vertex_t> c;
         set_intersection(STLALL(a), STLALL(b), inserter(c, c.begin())); 
-        //for( auto& i : c ) cout << "      set intersection: " << vmap.vert2uint[i] << '\n'; 
+        for( auto& i : c ) cout << "      set intersection: " << vmap.vert2uint[i] << '\n'; 
         assert(c.size() == 2);
         return make_pair(*c.begin(), *c.rbegin());
 } 

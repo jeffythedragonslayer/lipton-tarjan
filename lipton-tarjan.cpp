@@ -391,9 +391,9 @@ Partition lemma3_cllmax(GraphCR g_orig, Graph& g, uint l[3], uint r, BFSVisitorD
                 cout << "level of " << v << ": " << vis_data_orig.verts[v].level << ", ";
                 fflush(stdout);
                 if( vis_data_orig.verts[v].level == l[1] || vis_data_orig.verts[v].level == l[2] ){     cout << v << " is deleted\n";                 deleted_part.insert(v); continue;}
-                if( vis_data_orig.verts[v].level <  l[1] ){                                             cout << v << " belongs to first part (A)\n";  p.a.insert(v);  continue;}
-                if( vis_data_orig.verts[v].level >= l[1]+1 && vis_data_orig.verts[v].level <= l[2]-1 ){ cout << v << " belongs to middle part (B)\n"; p.b.insert(v);  continue;}
-                if( vis_data_orig.verts[v].level >  l[2]   ){                                           cout << v << " belongs to last part (C)\n";   p.c.insert(v);  continue;}
+                if( vis_data_orig.verts[v].level <  l[1] ){                                             cout << v << " belongs to first part (A)\n";  p.a.insert(v);          continue;}
+                if( vis_data_orig.verts[v].level >= l[1]+1 && vis_data_orig.verts[v].level <= l[2]-1 ){ cout << v << " belongs to middle part (B)\n"; p.b.insert(v);          continue;}
+                if( vis_data_orig.verts[v].level >  l[2]   ){                                           cout << v << " belongs to last part (C)\n";   p.c.insert(v);          continue;}
                 assert(0);
         }
 
@@ -410,8 +410,9 @@ Partition lemma3_cllmax(GraphCR g_orig, Graph& g, uint l[3], uint r, BFSVisitorD
         cout << "n_orig: " << n_orig << ", n: " << n << '\n';
         assert(p.a.size() <= 2*n/3);
         assert(p.c.size() <= 2*n/3);
-        if( p.b.size() <= 2*n/3 ) return lemma3_lessequal23(p, deleted_part);
-        else return lemma3_exceeds23(g_shrink2, vmap, vis_data_orig, l, cycle);
+        return p.b.size() <= 2*n/3                  ? 
+                lemma3_lessequal23(p, deleted_part) :
+                lemma3_exceeds23(g_shrink2, vmap, vis_data_orig, l, cycle);
 }
 
 // Step 10: construct_vertex_partition
@@ -545,7 +546,6 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, Vert2UintMap& vmap,
                         // Use this cost, the cost inside the (vi, wi) cycle, and the cost on the tree path from y to z to compute the cost inside the other cycle.
                         vector<vertex_t> cycle1 = get_cycle(vi, y, vis_data);
                         vector<vertex_t> cycle2 = get_cycle(y, wi, vis_data);
-
                         CycleCost cost1 = compute_cycle_cost(cycle1, g_shrunk, vmap_shrunk, vis_data, em);
                         CycleCost cost2 = compute_cycle_cost(cycle2, g_shrunk, vmap_shrunk, vis_data, em);
                         if( cost_swapped ){

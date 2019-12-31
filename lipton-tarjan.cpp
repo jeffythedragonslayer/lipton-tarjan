@@ -221,7 +221,6 @@ Partition lemma2_c2r1(GraphCR g_orig, uint r, vector<vertex_t> const& cycle)
 
         make_max_planar(g_shrink2);
 
-
 	/* Proof.  Assume no vertex has cost exceeding 1/3; otherwise the lemma is true.
 	Embed G in the plane.  Make each face a triangle by adding a suitable number of additional edges.
 	Any nontree edge (including each of the added edges) forms a simple cycle with some of the tree edges.
@@ -269,8 +268,8 @@ Partition lemma2_c2r1(GraphCR g_orig, uint r, vector<vertex_t> const& cycle)
 }
 
 // called when the middle part exceeds 2/3
-Partition lemma3_exceeds23(Graph& g_shrink2, Vert2UintMap& vmap_shrunk, BFSVisitorData& vis_data_orig, uint l[3], vector<vertex_t> cycle)
-{ 
+Partition lemma3_exceeds23(Graph& g_shrink2, Vert2UintMap& vmap_shrunk, BFSVisitorData& vis_data_orig, uint l[3], vector<vertex_t> const& cycle)
+{
         cout << "middle partition has cost exceeding 2/3\n";
 
         //delete all verts on level l2 and above 
@@ -380,7 +379,7 @@ Suppose that the vertices of G are partitioned into levels according to their di
 If r is the maximum distance of any vertex from v, let r+1 be an additional level containing no vertices.
 Given any two levels l1 and l2 such that levels 0 through l1-1 have total cost not exceeding 2/3 and levels l2+1 through r+1 have total cost not exceeding 2/3,
 it is possible to find a partition A, B, C of the vertices of G such that no edge joins a vertex in A with a vertex in B, neither A nor B has total cost exceeding 2/3, and C contains no more than L(l1)+L(l2)+max{0,2(l2-l1-1)} vertices. */
-Partition lemma3_cllmax(GraphCR g_orig, Graph& g, uint l[3], uint r, BFSVisitorData& vis_data_orig, BFSVisitorData& vis_data, Vert2UintMap& vmap, Vert2UintMap& vmap_shrunk, vector<vertex_t> cycle)
+Partition lemma3_cllmax(GraphCR g_orig, Graph& g, uint l[3], uint r, BFSVisitorData& vis_data_orig, BFSVisitorData& vis_data, Vert2UintMap& vmap, Vert2UintMap& vmap_shrunk, vector<vertex_t> const& cycle)
 {
         uint n = num_vertices(g);
         uint n_orig = num_vertices(g_orig); 
@@ -431,7 +430,7 @@ Partition lemma3_cllmax(GraphCR g_orig, Graph& g, uint l[3], uint r, BFSVisitorD
 //
 // Use the cycle found in Step 9 and the levels found in Step 4 (l1_and_k) to construct a satisfactory vertex partition as described in the proof of Lemma 3
 // Extend this partition from the connected component chosen in Step 2 to the entire graph as described in the proof of Theorem 4.
-Partition construct_vertex_partition(GraphCR g_orig, Graph& g_shrunk, Vert2UintMap& vmap, Vert2UintMap& vmap_shrunk, uint l[3], BFSVisitorData& vis_data_orig, BFSVisitorData& vis_data, vector<vertex_t> cycle)
+Partition construct_vertex_partition(GraphCR g_orig, Graph& g_shrunk, Vert2UintMap& vmap, Vert2UintMap& vmap_shrunk, uint l[3], BFSVisitorData& vis_data_orig, BFSVisitorData& vis_data, vector<vertex_t> const& cycle)
 {
         uint n = num_vertices(g_shrunk);
         uint n_orig = num_vertices(g_orig);
@@ -448,8 +447,8 @@ Partition construct_vertex_partition(GraphCR g_orig, Graph& g_shrunk, Vert2UintM
         uint r = vis_data.num_levels;
         cout << "r max distance: " << r << '\n';
 
-        return lemma2_c2r1(g_orig, r, cycle);
-        //return lemma3_cllmax(g_orig, g_shrunk, l, r, vis_data_orig, vis_data, vmap, vmap_shrunk, cycle); // lemma3 probably a typo in 1979 paper
+        //return lemma2_c2r1(g_orig, r, cycle);
+        return lemma3_cllmax(g_orig, g_shrunk, l, r, vis_data_orig, vis_data, vmap, vmap_shrunk, cycle);
 }
 
 // Step 9: Improve Separator

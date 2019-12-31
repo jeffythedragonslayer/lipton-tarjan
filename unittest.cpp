@@ -1,4 +1,5 @@
 #define BOOST_TEST_MODULE LiptonTarjanTest
+#include "typedefs.h"
 #include "lipton-tarjan.h"
 #include "strutil.h"
 #include "Vert2UintMap.h"
@@ -11,8 +12,6 @@
 #include <algorithm>
 using namespace std;
 using namespace boost;
-
-typedef adjacency_list<listS, listS, undirectedS, property<vertex_index_t, int>, property<edge_index_t, int>> Graph;
 
 void check_graph_is_nonplanar(string graphfile)
 { 

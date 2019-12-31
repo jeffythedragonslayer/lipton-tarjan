@@ -25,9 +25,7 @@ int main(int argc, char* argv[])
         for( string& f : fname ){
                 cout << "loading graph\n";
 
-                pair<Graph, Vert2UintMap> graph_packet = load_graph(f);
-                Graph& g = graph_packet.first;
-                Vert2UintMap& vmap = graph_packet.second;
+                Graph g = load_graph(f);
 
                 uint n = num_vertices(g);
 
@@ -46,12 +44,9 @@ int main(int argc, char* argv[])
                 print_graph(g);
 
 		try { 
-			std::tuple<Partition, Vert2UintMap, Vert2UintMap> t = lipton_tarjan(g);
-                        Partition p = std::get<0>(t);
+			Partition p = lipton_tarjan(g);
 			uint num_verts_finished = p.total_num_verts();
 			cout << "Finished!\n";
-
-                        Vert2UintMap vmap2 = std::get<1>(t);
 
 			//p.print(vmap2);
 

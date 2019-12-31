@@ -3,11 +3,12 @@
 using namespace std;
 using namespace boost;
 
-string to_string(edge_t e, Vert2UintMap& vmap, Graph const& g)
+string to_string(edge_t e, Graph const& g)
 {
-        auto src = lexical_cast<string>(vmap.vert2uint[source(e, g)]);
+	return "unimplemented";
+        /*auto src = lexical_cast<string>(vmap.vert2uint[source(e, g)]);
         auto tar = lexical_cast<string>(vmap.vert2uint[target(e, g)]);
-        return src + ", " + tar;
+        return src + ", " + tar;*/
 }
 
 void print_cycle(vector<vertex_t> const& cycle)
@@ -17,6 +18,7 @@ void print_cycle(vector<vertex_t> const& cycle)
         cout << '\n';
 }
 
+#if 0
 void print_graph_special(Graph const& g, Vert2UintMap const& vmap)
 { 
         cout << "\n**********************  Graph  ** print_graph_special ***\n"; 
@@ -35,7 +37,9 @@ void print_graph_special(Graph const& g, Vert2UintMap const& vmap)
         }
         cout << "*********************************************************\n\n";
 }
+#endif
 
+#if 0
 void print_graph_nonboost(Graph const& g)
 { 
         cout << "\n**********************  Graph  ** print_graph_nonboost **********\n"; 
@@ -60,7 +64,9 @@ void print_graph_nonboost(Graph const& g)
         }
         cout << "*********************************************************\n\n";
 }
+#endif
 
+#if 0
 void print_edges(Graph const& g, Vert2UintMap const& vmap)
 {
         cout << "\n**********************  Edges  **************************\n"; 
@@ -73,3 +79,4 @@ void print_edges(Graph const& g, Vert2UintMap const& vmap)
         } 
         cout << "\n*********************************************************\n\n";
 }
+#endif

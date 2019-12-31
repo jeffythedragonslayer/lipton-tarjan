@@ -2,7 +2,6 @@
 #include "typedefs.h"
 #include "lipton-tarjan.h"
 #include "strutil.h"
-#include "Vert2UintMap.h"
 #include "graphutil.h"
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/test/included/unit_test.hpp>
@@ -16,9 +15,7 @@ using namespace boost;
 void check_graph_is_nonplanar(string graphfile)
 { 
 	cout << "loading graph\n";
-	pair<Graph, Vert2UintMap > graph_packet = load_graph(graphfile);
-	Graph& g = graph_packet.first;
-	Vert2UintMap& vmap = graph_packet.second;
+	Graph g = load_graph(graphfile);
 
 	uint n = num_vertices(g);
 
@@ -37,7 +34,7 @@ void check_graph_is_nonplanar(string graphfile)
 	print_graph(g);
 
 	try {
-		auto p = lipton_tarjan(g);
+		Partition p = lipton_tarjan(g);
 		BOOST_CHECK(false);
 	} catch (NotPlanarException e){
 		BOOST_CHECK(true);
@@ -56,20 +53,18 @@ void check_partition_is_legal(string graphfile)
 	cout << "Checking graph " << graphfile << "...\n";
 
 
-	pair<Graph, Vert2UintMap > graph_packet = load_graph(graphfile);
-	Graph& g = graph_packet.first;
-	Vert2UintMap& vmap = graph_packet.second;
+	Graph g = load_graph(graphfile);
 
 	cout << "starting lipton tarjan...\n";
 	print_graph(g);
 
-	auto t = lipton_tarjan(g);
+	Partition p = lipton_tarjan(g);
 
 	// verify that neither a nor b is bigger than two thirds of the total and c is no bigger than 2*sqrt(2)*sqrt(n)
 	cout << "verifying partition sizes\n";
-	uint a_verts = std::get<0>(t).a.size();
-	uint b_verts = std::get<0>(t).b.size();
-	uint c_verts = std::get<0>(t).c.size();
+	uint a_verts = p.a.size();
+	uint b_verts = p.b.size();
+	uint c_verts = p.c.size();
 	uint n       = a_verts + b_verts + c_verts;
 	cout << "n = " << n << '\n';
 
@@ -83,8 +78,8 @@ void check_partition_is_legal(string graphfile)
 	for (tie(ei, ei_end) = edges(g); ei != ei_end; ++ei){
 		auto v1 = source(*ei, g);
 		auto v2 = target(*ei, g);
-		bool v1_in_part_c = (find(STLALL(std::get<0>(t).c), v1) != std::get<0>(t).c.end());
-		bool v2_in_part_c = (find(STLALL(std::get<0>(t).c), v2) != std::get<0>(t).c.end());
+		bool v1_in_part_c = (find(STLALL(p.c), v1) != p.c.end());
+		bool v2_in_part_c = (find(STLALL(p.c), v2) != p.c.end());
 		BOOST_CHECK(!v1_in_part_c && !v2_in_part_c);
 
 	}

@@ -84,7 +84,7 @@ Partition lemma2_c2r1(GraphCR g_orig, uint r, vector<vertex_t> const& cycle)
 }
 
 // called when the middle part exceeds 2/3
-Partition lemma3_exceeds23(GraphCR g_orig, Vert2UintMap& vmap, Vert2UintMap& vmap_shrunk, BFSVisitorData const& vis_data_orig, uint l[3], vector<vertex_t> const& cycle)
+Partition lemma3_exceeds23(GraphCR g_orig, BFSVisitorData const& vis_data_orig, uint l[3], vector<vertex_t> const& cycle)
 {
         Graph g_shrink2(g_orig);
         copy_graph(g_orig, g_shrink2);
@@ -100,7 +100,7 @@ Partition lemma3_exceeds23(GraphCR g_orig, Vert2UintMap& vmap, Vert2UintMap& vma
                 assert(vis_data_orig.verts.contains(*vit));
                 if( vis_data_orig.verts.find(*vit)->second.level >= l[2] ){
                         //cout << "killing vertex " << vmap_shrunk.vert2uint[*vit] << " of level l2 or above: " << vis_data_orig.verts.find(*vit)->second.level << " >= " << l[2] << '\n';
-                        kill_vertex(*vit, g_shrink2, vmap_shrunk);
+                        kill_vertex(*vit, g_shrink2);
                 }
         }
 
@@ -152,7 +152,7 @@ Partition lemma3_exceeds23(GraphCR g_orig, Vert2UintMap& vmap, Vert2UintMap& vma
         Futhermore, C contains no more than L[l1] + L[l2] + 2(l2 - l1 - 1) */
 }
 
-Partition lemma3_l1greaterequall2(GraphCR g_shrink2, Vert2UintMap& vmap, BFSVisitorData const& vis_data_orig, uint l[3], uint r)
+Partition lemma3_l1greaterequall2(GraphCR g_shrink2, BFSVisitorData const& vis_data_orig, uint l[3], uint r)
 {
         //cout << "l1 is greater than or equal to l2\n"; 
 
@@ -160,7 +160,6 @@ Partition lemma3_l1greaterequall2(GraphCR g_shrink2, Vert2UintMap& vmap, BFSVisi
         VertIter vei, vend;
         for( tie(vei, vend) = vertices(g_shrink2); vei != vend; ++vei ){ 
                 vertex_t v = *vei;
-                uint ii = vmap.vert2uint[v];
                 assert(vis_data_orig.verts.contains(v));
                 //cout << "level of " << ii << ": " << vis_data_orig.verts.find(v)->second.level << "  ";
                 if( vis_data_orig.verts.find(v)->second.level <  l[1] )                                       { cout << " belongs to first part\n";  p.a.insert(v); continue; }
@@ -171,7 +170,6 @@ Partition lemma3_l1greaterequall2(GraphCR g_shrink2, Vert2UintMap& vmap, BFSVisi
         /*cout << "A = all verts on levels 0    thru l1-1\n";
         cout << "B = all verts on levels l1+1 thru r\n";
         cout << "C = all verts on level l1\n";*/
-        p.print(vmap);
         return p;
 }
 
@@ -202,12 +200,12 @@ Suppose that the vertices of G are partitioned into levels according to their di
 If r is the maximum distance of any vertex from v, let r+1 be an additional level containing no vertices.
 Given any two levels l1 and l2 such that levels 0 through l1-1 have total cost not exceeding 2/3 and levels l2+1 through r+1 have total cost not exceeding 2/3,
 it is possible to find a partition A, B, C of the vertices of G such that no edge joins a vertex in A with a vertex in B, neither A nor B has total cost exceeding 2/3, and C contains no more than L(l1)+L(l2)+max{0,2(l2-l1-1)} vertices. */
-Partition lemma3_cllmax(GraphCR g_orig, uint l[3], uint r, BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data, Vert2UintMap& vmap, Vert2UintMap& vmap_shrunk, vector<vertex_t> const& cycle)
+Partition lemma3_cllmax(GraphCR g_orig, uint l[3], uint r, BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data, vector<vertex_t> const& cycle)
 {
         uint n = num_vertices(g_orig); 
         //cout << "n: " << n << '\n';
 
-        if( l[1] >= l[2] ) return lemma3_l1greaterequall2(g_orig, vmap, vis_data_orig, l, r);
+        if( l[1] >= l[2] ) return lemma3_l1greaterequall2(g_orig, vis_data_orig, l, r);
 
 	Partition p;
 	//cout << "l1 is less than l2\n";
@@ -240,6 +238,6 @@ Partition lemma3_cllmax(GraphCR g_orig, uint l[3], uint r, BFSVisitorData const&
         assert(p.c.size() <= 2*n/3);
         return p.b.size() <= 2*n/3                  ? 
                 lemma3_lessequal23(p, deleted_part) :
-                lemma3_exceeds23(g_orig, vmap, vmap_shrunk, vis_data_orig, l, cycle);
+                lemma3_exceeds23(g_orig, vis_data_orig, l, cycle);
 }
 

@@ -23,3 +23,4 @@ typedef boost::graph_traits<Graph>::edges_size_type                             
 typedef std::vector<std::vector<edge_t>>                                                                                                                              EmbeddingStorage;
 typedef boost::iterator_property_map<EmbeddingStorage::iterator, boost::property_map<Graph, boost::vertex_index_t>::type>                                             Embedding; 
 typedef boost::property_map<Graph, boost::edge_index_t>::type                                                                                                         EdgeIndex; 
+typedef std::map<vertex_t, size_t>                                                                                                                                    vertex_map;

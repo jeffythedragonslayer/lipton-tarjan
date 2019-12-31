@@ -1,3 +1,4 @@
+#pragma once
 #include <vector>
 #include "Vert2UintMap.h"
 #include "typedefs.h"

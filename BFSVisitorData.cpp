@@ -16,7 +16,11 @@ bool on_cycle(edge_t e, vector<vertex_t> const& cycle, Graph const& g)
 	           on_cycle(tar, cycle, g);
 }
 
-BFSVisitorData::BFSVisitorData(Graph* g, vertex_t root) : g(g), num_levels(0), root(root) {}
+BFSVisitorData::BFSVisitorData(Graph* g, vertex_t root) : g(g), num_levels(0), root(root)
+{
+	verts[root] = BFSVert();
+	children[root] = set<vertex_t>(); 
+}
 
 void BFSVisitorData::reset(Graph* g)
 {

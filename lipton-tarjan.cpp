@@ -257,7 +257,7 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
         //cout << "root: " << vmap_shrunk.vert2uint[shrunken_vis_data.root] << '\n'; 
         //cout << "n:    " << num_vertices(g_shrunk) << '\n';
 
-        breadth_first_search(g_shrunk, x_gone != Graph::null_vertex() ? x_gone : x, visitor(BFSVisitor(shrunken_vis_data))); 
+        breadth_first_search(g_shrunk, x_gone != Graph::null_vertex() ? x_gone : x, visitor(BFSVisitor<Graph>(shrunken_vis_data))); 
         make_max_planar(g_shrunk);
         //reset_vertex_indices(g_shrunk);
         reset_edge_index(g_shrunk);
@@ -355,9 +355,9 @@ Partition find_more_levels(GraphCR g_orig, Graph& g_copy, uint k, uint l[3], vec
         //print_graph(g_copy);
         float sq  = 2 * sqrt(k); 
         float snk = 2 * sqrt(num_vertices(g_copy) - k); 
-        /*cout << "sq:     " << sq << '\n';
+        cout << "sq:     " << sq << '\n';
         cout << "snk:    " << snk << '\n';
-        cout << "L size: " << L.size() << '\n';*/
+        cout << "L size: " << L.size() << '\n';
 
         l[0] = l[1];
         //cout << "l[0]:   " << l[0] << '\n';
@@ -369,8 +369,8 @@ Partition find_more_levels(GraphCR g_orig, Graph& g_copy, uint k, uint l[3], vec
         //cout << "l0: " << l[0] << "     highest level <= l1\n";
 
         l[2] = l[1] + 1;
-        //cout << "l[2]" << l[2] << '\n';
-        while( l[2] <= L.size() ){
+        cout << "l[2]" << l[2] << '\n';
+        while( l[2] < L.size() ){
                 float val = L.at(l[2]) + 2*(l[2] - l[1] - 1);
                 if( val <= snk ) break;
                 ++l[2];
@@ -413,12 +413,12 @@ Partition l1_and_k(GraphCR g_orig, Graph& g_copy, vector<uint> const& L, BFSVisi
 // Compute the level of each vertex and the number of vertices L(l) in each level l.
 Partition bfs_and_levels(GraphCR g_orig, Graph& g_copy)
 {
-        //cout << "---------------------------- 3 - BFS and Levels ------------\n";
+        cout << "---------------------------- 3 - BFS and Levels ------------\n";
         BFSVisitorData vis_data(&g_copy, *vertices(g_copy).first);
-        breadth_first_search(g_copy, vis_data.root, visitor(BFSVisitor(vis_data)));
+        breadth_first_search(g_copy, vis_data.root, visitor(BFSVisitor<Graph>(vis_data)));
 
         vector<uint> L(vis_data.num_levels + 1, 0);
-	//cout << "L levels: " << L.size() << '\n';
+	cout << "L levels: " << L.size() << '\n';
         for( auto& d : vis_data.verts ){
                 //cout << "level: " << d.second.level << '\n';
 	       	++L[d.second.level];
@@ -427,10 +427,10 @@ Partition bfs_and_levels(GraphCR g_orig, Graph& g_copy)
 	VertIter vit, vjt;
         for( tie(vit, vjt) = vertices(g_copy); vit != vjt; ++vit ){
                 assert(vis_data.verts.contains(*vit));
-		//cout << "level/cost of vert " << *vit << ": " << vis_data.verts[*vit].level << '\n';
+		cout << "level/cost of vert " << *vit << ": " << vis_data.verts[*vit].level << '\n';
 	}
         for( uint i = 0; i < L.size(); ++i ){
-		//cout << "L[" << i << "]: " << L[i] << '\n';
+		cout << "L[" << i << "]: " << L[i] << '\n';
 	}
 
 	return l1_and_k(g_orig, g_copy, L, vis_data); // step 4

@@ -49,6 +49,7 @@ void check_partition_is_legal(string graphfile)
 
 	cout << "starting lipton tarjan...\n";
 	print_graph(g);
+	uint n = num_vertices(g);
 
 	Partition p = lipton_tarjan(g);
 
@@ -57,23 +58,26 @@ void check_partition_is_legal(string graphfile)
 	uint a_verts = p.a.size();
 	uint b_verts = p.b.size();
 	uint c_verts = p.c.size();
-	uint n       = a_verts + b_verts + c_verts;
+	uint total  = a_verts + b_verts + c_verts;
 	cout << "n = " << n << '\n';
+	cout << "total = " << total << '\n';
+	assert(n == total);
 
 	BOOST_CHECK(a_verts <= 2*n/3);
 	BOOST_CHECK(b_verts <= 2*n/3);
 	BOOST_CHECK(c_verts <= 2*sqrt(2)*sqrt(n));
 
 	// verify that no edge joins a vertex in partition A with a vertex in partition B
-	pair<EdgeIter, EdgeIter> ep;
 	EdgeIter ei, ei_end;
 	for (tie(ei, ei_end) = edges(g); ei != ei_end; ++ei){
 		auto v1 = source(*ei, g);
 		auto v2 = target(*ei, g);
-		bool v1_in_part_c = (find(STLALL(p.c), v1) != p.c.end());
-		bool v2_in_part_c = (find(STLALL(p.c), v2) != p.c.end());
-		BOOST_CHECK(!v1_in_part_c && !v2_in_part_c);
 
+		if( find(STLALL(p.a), v1) != p.a.end()){ // if v1 is in a
+			BOOST_CHECK(find(STLALL(p.b), v2) == p.b.end()); // v2 should not be in b
+		} else if( find(STLALL(p.b), v1) != p.b.end() ){ // if v1 is in b
+			BOOST_CHECK(find(STLALL(p.a), v2) == p.b.end()); // v2 should not be in a
+		}
 	}
 }
 
@@ -111,9 +115,9 @@ BOOST_AUTO_TEST_CASE( empty_test )
 /*BOOST_AUTO_TEST_CASE( in2_test )
 {
 	check_partition_is_legal("graphs/in2");
-}
+}*/
 
-BOOST_AUTO_TEST_CASE( in3_test )
+/*BOOST_AUTO_TEST_CASE( in3_test )
 {
 	check_partition_is_legal("graphs/in3");
 }
@@ -126,16 +130,6 @@ BOOST_AUTO_TEST_CASE( fourfingered_test )
 /*BOOST_AUTO_TEST_CASE( insideout_test )
 {
 	check_partition_is_legal("graphs/insideout");
-}*/
-
-/*BOOST_AUTO_TEST_CASE( kuratowski33_test )
-{
-	check_graph_is_nonplanar("graphs/kuratowski33");
-}
-
-BOOST_AUTO_TEST_CASE( kuratowski5_test )
-{
-	check_graph_is_nonplanar("graphs/kuratowski5");
 }*/
 
 /*BOOST_AUTO_TEST_CASE( notk_test )
@@ -161,24 +155,39 @@ BOOST_AUTO_TEST_CASE( rand3_test )
 BOOST_AUTO_TEST_CASE( square_test )
 {
 	check_partition_is_legal("graphs/square", true);
-}
+}*/
 
 BOOST_AUTO_TEST_CASE( tie_test )
 {
-	check_partition_is_legal("graphs/tie", true);
+	check_partition_is_legal("graphs/tie");
 }
 
 BOOST_AUTO_TEST_CASE( tri_test )
 {
-	check_partition_is_legal("graphs/tri", true);
+	check_partition_is_legal("graphs/tri");
 }
 
 BOOST_AUTO_TEST_CASE( two_test )
 {
-	check_partition_is_legal("graphs/two", true);
+	check_partition_is_legal("graphs/two");
 }
 
-BOOST_AUTO_TEST_CASE( disconnected_test )
+BOOST_AUTO_TEST_CASE( aoeu_test )
 {
-	check_partition_is_legal("graphs/disconnected", false);
+	check_partition_is_legal("graphs/aoeu");
+}
+
+BOOST_AUTO_TEST_CASE( circular_node )
+{
+	try {
+		check_partition_is_legal("graphs/one");
+		BOOST_CHECK(false);
+	} catch( FoundCircularNode const& e){
+		BOOST_CHECK(true);
+	}
+}
+
+/*BOOST_AUTO_TEST_CASE( disconnected_test )
+{
+	check_partition_is_legal("graphs/disconnected");
 }*/

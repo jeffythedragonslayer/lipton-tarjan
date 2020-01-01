@@ -309,7 +309,7 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
 {
         Graph& g_shrunk = g_copy;
         cout << "---------------------------- 6 - Shrinktree -------------\n";
-        //print_graph(g_copy);
+        print_graph(g_copy);
         cout << "n: " << num_vertices(g_shrunk) << '\n';
 
         // delete all vertices on level l2 and above
@@ -320,9 +320,10 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
         //prop_map[x] = X_VERT_UINT;
 
         //vmap_shrunk.uint2vert[vmap_shrunk.vert2uint[x] = X_VERT_UINT] = x; 
-        map<vertex_t, bool> table;
+        map<vertex_t, bool> table; // x will not be in this table
 	VertIter vit, vjt;
         for( tie(vit, vjt) = vertices(g_shrunk); vit != vjt; ++vit ){
+                if( *vit == x ) continue; // the new x isn't in visdata
                 assert(vis_data_orig.verts.contains(*vit));
                 table[*vit] = vis_data_orig.verts.find(*vit)->second.level <= l[0];
                 //cout << "vertex " << vmap_shrunk.vert2uint[*vit] << " at level " << vis_data_orig.verts.find(*vit)->second.level << " is " << (table[*vit] ? "TRUE" : "FALSE") << '\n';

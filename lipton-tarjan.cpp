@@ -242,20 +242,22 @@ Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vi
 // Make all faces of the new graph into triangles by scanning the boundary of each face and adding (nontree) edges as necessary.
 Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vis_data_orig, vertex_t x_gone, vertex_t x, uint l[3])
 {
-        /*cout  << "-------------------- 7 - New BFS and Make Max Planar -----\n";
+        cout  << "-------------------- 7 - New BFS and Make Max Planar -----\n";
         cout << "g_orig:\n";
         print_graph(g_orig);
         cout << "g_shrunk:\n";
-        print_graph(g_shrunk);*/
+        print_graph(g_shrunk);
         //reset_vertex_indices(g_shrunk);
         reset_edge_index(g_shrunk);
-        BFSVisitorData shrunken_vis_data(vis_data_orig);
+        BFSVisitorData shrunken_vis_data(&g_shrunk, x);
         //vis_data.reset(&g_shrunk);
         shrunken_vis_data.root = (x_gone != Graph::null_vertex()) ? x_gone : x;
         ++shrunken_vis_data.verts[shrunken_vis_data.root].descendant_cost;
 
         //cout << "root: " << vmap_shrunk.vert2uint[shrunken_vis_data.root] << '\n'; 
-        //cout << "n:    " << num_vertices(g_shrunk) << '\n';
+        cout << "n:    " << num_vertices(g_shrunk) << '\n';
+
+        cout << "null vertex: " << Graph::null_vertex() << '\n';
 
         breadth_first_search(g_shrunk, x_gone != Graph::null_vertex() ? x_gone : x, visitor(BFSVisitor<Graph>(shrunken_vis_data))); 
         make_max_planar(g_shrunk);

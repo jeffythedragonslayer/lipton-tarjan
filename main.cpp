@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 
 			//p.print(vmap2);
 
-			//cout << "finished num verts: " << num_verts_finished << '\n';
+			cout << "finished num verts: " << num_verts_finished << '\n';
 		} catch (NotPlanarException e) {
 			cout << "cannot finish lipton-tarjan because graph is not planar\n";
 		} catch (NoNontreeEdgeException e) {

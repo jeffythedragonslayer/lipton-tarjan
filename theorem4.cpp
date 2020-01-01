@@ -1,4 +1,5 @@
 #include "theorem4.h"
+#include <iostream>
 using namespace std;
 using namespace boost;
 
@@ -92,14 +93,14 @@ Partition theorem4_disconnected(GraphCR g, uint n, uint num_components, associat
                 uint i = lowest_i(n, num_components, num_verts_per_component);
 
                 // populate partition A
-                //cout << "!!1 populating partition A\n";
+                cout << "!!1 populating partition A\n";
                 vector<VertIter>& vset = vertex_sets[i];
-                //cout << "vecsize: " << vset.size() << '\n';
+                cout << "vecsize: " << vset.size() << '\n';
                 for( VertIter& v : vset ){
-                        //cout << "v: " << endl << *v << endl;
+                        cout << "v: " << endl << *v << endl;
                         p.a.insert(*v); 
                 }
-                //cout << '\n';
+                cout << '\n';
 
                 // populate partition B, should be everything except what's in partition A
                 for( uint j = 0; j < num_components; ++j ){
@@ -110,7 +111,11 @@ Partition theorem4_disconnected(GraphCR g, uint n, uint num_components, associat
                 }
 
                 // partition C should be empty 
-                //cout << "bigger than one third but less than two thirds\n";
+                assert(p.c.empty());
+
+                p.print();
+
+                cout << "bigger than one third but less than two thirds\n";
                 return p;
         }
 

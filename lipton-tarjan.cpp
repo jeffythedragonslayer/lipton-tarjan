@@ -283,31 +283,37 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
 // If it is false, change it to true, construct an edge(x,w) and delete edge(v,w).
 // The result of this step is a planar representation of the shrunken graph to which Lemma 2 is to be applied.
 
-const uint X_VERT_UINT = 999999;
+//const uint X_VERT_UINT = 999999;
 
-Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_data_orig, uint l[3])
+vector<vertex_t> shrinktree_deletel2andabove(Graph& g, uint l[3], BFSVisitorData const& vis_data_orig)
 {
-        Graph& g_shrunk = g_copy;
-        //cout << "---------------------------- 6 - Shrinktree -------------\n";
-        //print_graph(g_copy);
-        //cout << "n: " << num_vertices(g_shrunk) << '\n';
-
-        // delete all vertices on level l2 and above
-        vector<vertex_t> replaceverts;
+        vector<vertex_t> replaced_verts;
 	VertIter vit, vjt;
-        tie(vit, vjt) = vertices(g_shrunk); 
+        tie(vit, vjt) = vertices(g); 
         for( VertIter next = vit; vit != vjt; vit = next ){
                 ++next;
                 assert(vis_data_orig.verts.contains(*vit));
                 if( vis_data_orig.verts.find(*vit)->second.level >= l[2] ){
                         //cout << "killing vertex " << vmap_shrunk.vert2uint[*vit] << " of level l2 " << vis_data_orig.verts.find(*vit)->second.level << " >= " << l[2] << '\n';
-                        kill_vertex(*vit, g_shrunk); 
+                        kill_vertex(*vit, g); 
                 }
                 if( vis_data_orig.verts.find(*vit)->second.level <= l[0] ){
                         //cout << "going to replace vertex " << vmap_shrunk.vert2uint[*vit] << " of level l0 " << vis_data_orig.verts.find(*vit)->second.level << " <= " << l[0] << '\n';
-                        replaceverts.push_back(*vit);
+                        replaced_verts.push_back(*vit);
                 }
         }
+        return replaced_verts;
+}
+
+Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_data_orig, uint l[3])
+{
+        Graph& g_shrunk = g_copy;
+        cout << "---------------------------- 6 - Shrinktree -------------\n";
+        //print_graph(g_copy);
+        cout << "n: " << num_vertices(g_shrunk) << '\n';
+
+        // delete all vertices on level l2 and above
+        vector<vertex_t> replaced_verts = shrinktree_deletel2andabove(g_shrunk, l, vis_data_orig);
 
         vertex_t x = add_vertex(g_shrunk);
         auto prop_map = get(vertex_index, g_shrunk);
@@ -315,6 +321,7 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
 
         //vmap_shrunk.uint2vert[vmap_shrunk.vert2uint[x] = X_VERT_UINT] = x; 
         map<vertex_t, bool> table;
+	VertIter vit, vjt;
         for( tie(vit, vjt) = vertices(g_shrunk); vit != vjt; ++vit ){
                 assert(vis_data_orig.verts.contains(*vit));
                 table[*vit] = vis_data_orig.verts.find(*vit)->second.level <= l[0];
@@ -338,7 +345,7 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
                 //cout << "x_gone: " << x_gone << '\n';
         } else {
                 //cout << "deleting all vertices x has replaced\n";
-                for( vertex_t& v : replaceverts ) kill_vertex(v, g_shrunk); // delete all vertices x has replaced
+                for( vertex_t& v : replaced_verts ) kill_vertex(v, g_shrunk); // delete all vertices x has replaced
         }
 
 	return new_bfs_and_make_max_planar(g_orig, g_shrunk, vis_data_orig, x_gone, x, l); // step 7

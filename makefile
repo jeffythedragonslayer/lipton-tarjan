@@ -1,4 +1,4 @@
-CXX=clang++
+CXX=g++
 BOOST=-I/usr/local/boost
 CXXFLAGS=-g -ggdb -O0 -std=c++2a -c
 OBJS := main.o lipton-tarjan.o theorem4.o lemmas.o strutil.o Partition.o BFSVisitorData.o EmbedStruct.o ScanVisitor.o graphutil.o
@@ -16,6 +16,9 @@ planargen: planargen.o
 
 straightline: straightline.o
 	$(CXX) straightline.o -o straightline
+
+boostbug: boostbug.o
+	$(CXX) boostbug.o -o boostbug
 
 unittest: unittest.o lipton-tarjan.o theorem4.o lemmas.o strutil.o Partition.o BFSVisitorData.o graphutil.o EmbedStruct.o ScanVisitor.o
 	$(CXX) unittest.o lipton-tarjan.o theorem4.o lemmas.o strutil.o Partition.o BFSVisitorData.o graphutil.o EmbedStruct.o ScanVisitor.o -o unittest

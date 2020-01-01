@@ -16,7 +16,6 @@
 #include <boost/graph/copy.hpp>
 #include <iostream>
 
-template<typename Graph>
 struct BFSVisitor : boost::default_bfs_visitor
 {
         BFSVisitorData& data;
@@ -45,13 +44,4 @@ struct BFSVisitor : boost::default_bfs_visitor
 		} 
 		std::cout << '\n';
 	} 
-
-	//template void examine_edge(vertex_t e, Graph const& g)
-	//{
-		//std::cout << "examine edge" << e << '\n';
-
-		//auto src = source(e);
-		//auto tar = target(e);
-
-	//}
 };

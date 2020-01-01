@@ -37,6 +37,7 @@ planargen
 lt
 straightline
 unittest
+boostbug
 
 #header dependency information
 *.d

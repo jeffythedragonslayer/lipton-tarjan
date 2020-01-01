@@ -250,16 +250,25 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
         //reset_vertex_indices(g_shrunk);
         reset_edge_index(g_shrunk);
         BFSVisitorData shrunken_vis_data(&g_shrunk, x);
+
         //vis_data.reset(&g_shrunk);
         shrunken_vis_data.root = (x_gone != Graph::null_vertex()) ? x_gone : x;
         ++shrunken_vis_data.verts[shrunken_vis_data.root].descendant_cost;
 
         //cout << "root: " << vmap_shrunk.vert2uint[shrunken_vis_data.root] << '\n'; 
-        cout << "n:    " << num_vertices(g_shrunk) << '\n';
-
+        cout << "n:    " << num_vertices(g_shrunk) << '\n'; 
         cout << "null vertex: " << Graph::null_vertex() << '\n';
 
-        breadth_first_search(g_shrunk, x_gone != Graph::null_vertex() ? x_gone : x, visitor(BFSVisitor<Graph>(shrunken_vis_data))); 
+        BFSVisitor visit = BFSVisitor(shrunken_vis_data);
+
+        auto bvs = boost::visitor(visit);
+
+        print_graph(g_shrunk);
+
+        //add_edge(x, x, g_shrunk);
+
+        breadth_first_search(g_shrunk, shrunken_vis_data.root, bvs);
+
         make_max_planar(g_shrunk);
         //reset_vertex_indices(g_shrunk);
         reset_edge_index(g_shrunk);
@@ -342,13 +351,17 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
 
         vertex_t x_gone = Graph::null_vertex();
         if( !degree(x, g_shrunk) ){
-                //cout << "no edges to x found, deleting x\n";
+                cout << "no edges to x found, deleting x\n";
                 kill_vertex(x, g_shrunk);
                 x_gone = *vertices(g_shrunk).first;
-                //cout << "x_gone: " << x_gone << '\n';
+                x = Graph::null_vertex();
+                cout << "x_gone: " << x_gone << '\n';
         } else {
-                //cout << "deleting all vertices x has replaced\n";
-                for( vertex_t& v : replaced_verts ) kill_vertex(v, g_shrunk); // delete all vertices x has replaced
+                cout << "deleting all vertices x has replaced\n";
+                for( vertex_t& v : replaced_verts ) {cout << "killing " << v << '\n'; kill_vertex(v, g_shrunk); }// delete all vertices x has replaced
+
+                uint n2 = num_vertices(g_shrunk);
+                cout << "shrunken size: " << n2 << '\n';
         }
 
 	return new_bfs_and_make_max_planar(g_orig, g_shrunk, vis_data_orig, x_gone, x, l); // step 7
@@ -425,7 +438,7 @@ Partition bfs_and_levels(GraphCR g_orig, Graph& g_copy)
 {
         cout << "---------------------------- 3 - BFS and Levels ------------\n";
         BFSVisitorData vis_data(&g_copy, *vertices(g_copy).first);
-        breadth_first_search(g_copy, vis_data.root, visitor(BFSVisitor<Graph>(vis_data)));
+        breadth_first_search(g_copy, vis_data.root, boost::visitor(BFSVisitor(vis_data)));
 
         vector<uint> L(vis_data.num_levels + 1, 0);
 	cout << "L levels: " << L.size() << '\n';

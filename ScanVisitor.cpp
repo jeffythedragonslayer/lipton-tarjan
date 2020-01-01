@@ -63,12 +63,12 @@ void ScanVisitor::scan_nonsubtree_edges(vertex_t v, Graph const& g, Embedding co
 				auto tar_it = bfs.verts.find(tar);
 				if( tar_it->second.level > l0 ) foundedge(v, e);
 		}
-		//cout << "looking for children of " << v << '\n';
+		cout << "looking for children of " << v << '\n';
 		auto vvv   = bfs.children.find(v);
 		if( vvv == bfs.children.end() ) return; // no children
-		//cout << "from " << v << " looking for children\n";
+		cout << "from " << v << " looking for children\n";
 		for( auto& c : vvv->second ){
-				//cout << "child: " << c << '\n'; 
+				cout << "child: " << c << '\n'; 
 				scan_nonsubtree_edges(c, g, em, bfs);
 		}
 }

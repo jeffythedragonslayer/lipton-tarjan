@@ -256,7 +256,8 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
         ++shrunken_vis_data.verts[shrunken_vis_data.root].descendant_cost;
 
         //cout << "root: " << vmap_shrunk.vert2uint[shrunken_vis_data.root] << '\n'; 
-        cout << "n:    " << num_vertices(g_shrunk) << '\n'; 
+        uint n = num_vertices(g_shrunk);
+        cout << "n:    " << n << '\n'; 
         cout << "null vertex: " << Graph::null_vertex() << '\n';
 
         BFSVisitor visit = BFSVisitor(shrunken_vis_data);
@@ -265,7 +266,7 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
 
         print_graph(g_shrunk);
 
-        add_edge(shrunken_vis_data.root, shrunken_vis_data.root, g_shrunk); // workaround for https://github.com/boostorg/graph/issues/195
+        if( n == 1 ) add_edge(shrunken_vis_data.root, shrunken_vis_data.root, g_shrunk); // workaround for https://github.com/boostorg/graph/issues/195
 
         breadth_first_search(g_shrunk, shrunken_vis_data.root, bvs);
 

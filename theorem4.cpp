@@ -61,7 +61,7 @@ Partition theorem4_disconnected(GraphCR g, uint n, uint num_components, associat
         bool bigger_than_two_thirds = false;
         for( uint i = 0; i < num_components; ++i ){
                 if( num_verts_per_component[i] > n    /3.0 ) bigger_than_one_third  = true;
-                if( num_verts_per_component[i] > n*2.0/3.0 ) bigger_than_two_thirds = true;
+                if( num_verts_per_component[i] > n*2.0/3.0 ){ bigger_than_two_thirds = true; break;}
         }
 
         if( !bigger_than_one_third ){ 
@@ -91,22 +91,27 @@ Partition theorem4_disconnected(GraphCR g, uint n, uint num_components, associat
                 Partition p; 
 
                 uint i = lowest_i(n, num_components, num_verts_per_component);
+                assert(num_verts_per_component[i] >= n/3 && num_verts_per_component[i] <= 2*n/3);
 
                 // populate partition A
-                cout << "!!1 populating partition A\n";
+                cout << "!! populating partition A\n";
                 vector<VertIter>& vset = vertex_sets[i];
                 cout << "vecsize: " << vset.size() << '\n';
                 for( VertIter& v : vset ){
-                        cout << "v: " << endl << *v << endl;
+                        cout << "v: " << *v << endl;
                         p.a.insert(*v); 
                 }
                 cout << '\n';
 
                 // populate partition B, should be everything except what's in partition A
+                cout << "!! populating partition B\n";
                 for( uint j = 0; j < num_components; ++j ){
                         if( i != j ){
                                 vector<VertIter>& vset = vertex_sets[j];
-                                for( VertIter& v : vset ) p.b.insert(*v);
+                                for( VertIter& v : vset ){
+                                        p.b.insert(*v);
+                                        cout << "v: " << *v << endl;
+                                }
                         }
                 }
 

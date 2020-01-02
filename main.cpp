@@ -50,6 +50,7 @@ int main(int argc, char* argv[])
 			uint num_verts_finished = p.total_num_verts();
 			cout << "Finished!\n";
 
+                        p.print();
 			//p.print(vmap2);
 
 			cout << "finished num verts: " << num_verts_finished << '\n';

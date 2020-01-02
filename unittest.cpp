@@ -76,7 +76,7 @@ void check_partition_is_legal(string graphfile)
 		if( find(STLALL(p.a), v1) != p.a.end()){ // if v1 is in a
 			BOOST_CHECK(find(STLALL(p.b), v2) == p.b.end()); // v2 should not be in b
 		} else if( find(STLALL(p.b), v1) != p.b.end() ){ // if v1 is in b
-			BOOST_CHECK(find(STLALL(p.a), v2) == p.b.end()); // v2 should not be in a
+			BOOST_CHECK(find(STLALL(p.a), v2) == p.a.end()); // v2 should not be in a
 		}
 	}
 }
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE( circular_node )
 	check_partition_is_legal("graphs/one");
 }
 
-/*BOOST_AUTO_TEST_CASE( disconnected_test )
+BOOST_AUTO_TEST_CASE( disconnected_test )
 {
 	check_partition_is_legal("graphs/disconnected");
-}*/
+}

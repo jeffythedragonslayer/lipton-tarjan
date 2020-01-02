@@ -54,7 +54,10 @@ void ScanVisitor::scan_nonsubtree_edges(vertex_t v, Graph const& g, Embedding co
 		for( auto e : em ){ 
 				auto src = source(e, g);
 				auto tar = target(e, g);
-				if( src == tar ) throw FoundCircularNode(src);
+				if( src == tar ){
+					cout << "ignoring circular node\n";
+					continue;//throw FoundCircularNode(src);
+				}
 
 				if( !bfs.is_tree_edge(e) ){
 						foundedge(v, e);

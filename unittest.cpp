@@ -179,12 +179,7 @@ BOOST_AUTO_TEST_CASE( aoeu_test )
 
 BOOST_AUTO_TEST_CASE( circular_node )
 {
-	try {
-		check_partition_is_legal("graphs/one");
-		BOOST_CHECK(false);
-	} catch( FoundCircularNode const& e){
-		BOOST_CHECK(true);
-	}
+	check_partition_is_legal("graphs/one");
 }
 
 /*BOOST_AUTO_TEST_CASE( disconnected_test )

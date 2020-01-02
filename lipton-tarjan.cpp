@@ -266,7 +266,14 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
 
         print_graph(g_shrunk);
 
-        if( n == 1 ) add_edge(shrunken_vis_data.root, shrunken_vis_data.root, g_shrunk); // workaround for https://github.com/boostorg/graph/issues/195
+        // workaround for https://github.com/boostorg/graph/issues/195 
+        VertIter vit, vjt;
+        tie(vit, vjt) = vertices(g_shrunk);
+        for( VertIter next = vit; vit != vjt; ++vit){
+                if( 0 == in_degree(*vit, g_shrunk) + out_degree(*vit, g_shrunk) ){
+                        add_edge(*vit, *vit, g_shrunk);
+                }
+        }
 
         breadth_first_search(g_shrunk, shrunken_vis_data.root, bvs);
 
@@ -304,7 +311,8 @@ vector<vertex_t> shrinktree_deletel2andabove(Graph& g, uint l[3], BFSVisitorData
         tie(vit, vjt) = vertices(g); 
         for( VertIter next = vit; vit != vjt; vit = next ){
                 ++next;
-                assert(vis_data_orig.verts.contains(*vit));
+                if( !vis_data_orig.verts.contains(*vit) ) continue; // *vit is in a different connected component
+
                 if( vis_data_orig.verts.find(*vit)->second.level >= l[2] ){
                         //cout << "killing vertex " << vmap_shrunk.vert2uint[*vit] << " of level l2 " << vis_data_orig.verts.find(*vit)->second.level << " >= " << l[2] << '\n';
                         kill_vertex(*vit, g); 
@@ -335,8 +343,8 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
         map<vertex_t, bool> table; // x will not be in this table
 	VertIter vit, vjt;
         for( tie(vit, vjt) = vertices(g_shrunk); vit != vjt; ++vit ){
-                if( *vit == x ) continue; // the new x isn't in visdata
-                assert(vis_data_orig.verts.contains(*vit));
+                if( *vit == x ) continue; // the new x isn't in visdata, std::map::find() will fail
+                if( !vis_data_orig.verts.contains(*vit) ) continue; // *vit may be in a different connected component
                 table[*vit] = vis_data_orig.verts.find(*vit)->second.level <= l[0];
                 //cout << "vertex " << vmap_shrunk.vert2uint[*vit] << " at level " << vis_data_orig.verts.find(*vit)->second.level << " is " << (table[*vit] ? "TRUE" : "FALSE") << '\n';
         }
@@ -444,14 +452,13 @@ Partition bfs_and_levels(GraphCR g_orig, Graph& g_copy)
         vector<uint> L(vis_data.num_levels + 1, 0);
 	cout << "L levels: " << L.size() << '\n';
         for( auto& d : vis_data.verts ){
-                //cout << "level: " << d.second.level << '\n';
+                cout << "level: " << d.second.level << '\n';
 	       	++L[d.second.level];
 	}
 
 	VertIter vit, vjt;
         for( tie(vit, vjt) = vertices(g_copy); vit != vjt; ++vit ){
-                assert(vis_data.verts.contains(*vit));
-		cout << "level/cost of vert " << *vit << ": " << vis_data.verts[*vit].level << '\n';
+                if( vis_data.verts.contains(*vit) ) cout << "level/cost of vert " << *vit << ": " << vis_data.verts[*vit].level << '\n';
 	}
         for( uint i = 0; i < L.size(); ++i ){
 		cout << "L[" << i << "]: " << L[i] << '\n';

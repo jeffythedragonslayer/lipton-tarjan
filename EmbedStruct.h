@@ -5,9 +5,9 @@ struct EmbedStruct
 {
         EmbeddingStorage storage;
         Embedding        em;
-        Graph*           g;
+        Graph const*     g;
 
-        EmbedStruct(Graph*); 
+        EmbedStruct(Graph const*); 
 
         bool test_planar() const;
         void print() const;

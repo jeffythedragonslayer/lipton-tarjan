@@ -7,10 +7,10 @@ struct BFSVisitorData
 	std::map<vertex_t, std::set<vertex_t>> children;
 	std::map<vertex_t, BFSVert>	       	   verts;
 	uint				       			   num_levels;
-	Graph*				       			   g;
+	Graph const*				       		   g;
 	vertex_t			       			   root; 
 
-	BFSVisitorData(Graph* g, vertex_t root);
+	BFSVisitorData(Graph const* g, vertex_t root);
 	BFSVisitorData(BFSVisitorData const&) = default;
 
 	void reset(Graph*); 
@@ -23,9 +23,9 @@ struct BFSVisitorData
 struct EdgeNotInVisitorData : std::exception
 {
 		edge_t e;
-		Graph* g;
+		Graph const* g;
 
-		EdgeNotInVisitorData(edge_t e, Graph* g) : e(e), g(g) {}
+		EdgeNotInVisitorData(edge_t e, Graph const* g) : e(e), g(g) {}
 };
 
 bool on_cycle(vertex_t, std::vector<vertex_t> const& cycle, Graph const&);

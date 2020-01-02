@@ -298,7 +298,7 @@ bool vertex_exists(vertex_t x, Graph const& g)
 { 
         VertIter vi, vi_end;
         for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi) {
-                if( *vi == x) return true;
+                if( *vi == x ) return true;
         }
         return false; 
 }
@@ -309,7 +309,7 @@ bool assert_verts(GraphCR g, BFSVisitorData const& vis_data)
         for( tie(vei, vend) = vertices(g); vei != vend; ++vei ){ 
                 vertex_t v = *vei;
                 if( !vis_data.verts.contains(v) ){
-                        cout << "ignoring bad vertex : " << v << '\n';
+                        cout << "graphutils.cpp: ignoring bad vertex : " << v << '\n';
                         return false;
                 }
         } 

@@ -196,6 +196,9 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
 // Determine which side of the cycle has greater cost and call it the "inside"
 Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vis_data_copy, BFSVisitorData const& vis_data_shrunken, uint l[3])
 {
+        assert(vis_data_copy.assert_data());
+        assert(vis_data_shrunken.assert_data());
+
         uint n = num_vertices(g_orig);
         //cout  << "----------------------- 8 - Locate Cycle -----------------\n"; 
         //print_graph(g_shrunk);
@@ -243,7 +246,7 @@ Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vi
 // (This can be done by modifying the breadth-first spanning tree constructed in Step 3 bfs_and_levels.)
 // Record, for each vertex v, the parent of v in the tree, and the total cost of all descendants of v includiing v itself.
 // Make all faces of the new graph into triangles by scanning the boundary of each face and adding (nontree) edges as necessary.
-Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vis_data_copy, vertex_t x_gone, vertex_t x, uint l[3])
+Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vis_data_copy, vertex_t x, uint l[3])
 {
         cout  << "-------------------- 7 - New BFS and Make Max Planar -----\n";
         cout << "g_orig:\n";
@@ -255,7 +258,7 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
         BFSVisitorData shrunken_vis_data(&g_shrunk, x);
 
         //vis_data.reset(&g_shrunk);
-        shrunken_vis_data.root = (x_gone != Graph::null_vertex()) ? x_gone : x;
+        shrunken_vis_data.root = x;
         ++shrunken_vis_data.verts[shrunken_vis_data.root].descendant_cost;
 
         //cout << "root: " << vmap_shrunk.vert2uint[shrunken_vis_data.root] << '\n'; 
@@ -277,6 +280,8 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
                         add_edge(*vit, *vit, g_shrunk);
                 }
         }
+
+        assert(vertex_exists(shrunken_vis_data.root, g_shrunk));
 
         breadth_first_search(g_shrunk, shrunken_vis_data.root, bvs);
 
@@ -384,7 +389,7 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
         for( tie(vei, vend) = vertices(g_orig); vei != vend; ++vei ){ 
                 vertex_t v = *vei;
                 if( !vis_data_orig.verts.contains(v) ){
-                        cout << "ignoring bad vertex : " << v << '\n';
+                        cout << "lipton-tarjan.cpp: ignoring bad vertex : " << v << '\n';
                         continue; 
                 }
         }*/
@@ -395,26 +400,28 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
 
         assert(vertex_exists(x, g_shrunk));
 
-        vertex_t x_gone = Graph::null_vertex();
-        if( !degree(x, g_shrunk) ){
+        //vertex_t x_gone = Graph::null_vertex();
+        /*if( !degree(x, g_shrunk) ){
                 cout << "no edges to x found, deleting x\n";
                 kill_vertex(x, g_shrunk);
-                x_gone = *vertices(g_shrunk).first;
+                vis_data_addx.verts.erase(x);
+                vis_data_addx.root = vis_data_copy.root;
+                x_gone = x;
                 x = Graph::null_vertex();
                 cout << "x_gone: " << x_gone << '\n';
-        } else {
-                cout << "deleting all vertices x has replaced\n";
-                for( vertex_t& v : replaced_verts ) {cout << "killing " << v << '\n'; kill_vertex(v, g_shrunk); }// delete all vertices x has replaced
+        } else {*/
+        cout << "deleting all vertices x has replaced\n";
+        for( vertex_t& v : replaced_verts ) {cout << "killing " << v << '\n'; kill_vertex(v, g_shrunk); }// delete all vertices x has replaced
 
-                assert(vertex_exists(x, g_shrunk));
+        assert(vertex_exists(x, g_shrunk));
 
-                uint n2 = num_vertices(g_shrunk);
-                cout << "shrunken size: " << n2 << '\n';
-        }
+        uint n2 = num_vertices(g_shrunk);
+        cout << "shrunken size: " << n2 << '\n';
 
-        if( x ) cout << "x: " << prop_map[x] << '\n';
+        cout << "x prop_map: " << prop_map[x] << '\n';
+        cout << "x : " << x << '\n';
 
-	return new_bfs_and_make_max_planar(g_orig, g_shrunk, vis_data_addx, x_gone, x, l); // step 7
+	return new_bfs_and_make_max_planar(g_orig, g_shrunk, vis_data_addx, x, l); // step 7
 }
 
 // Step 5: find_more_levels

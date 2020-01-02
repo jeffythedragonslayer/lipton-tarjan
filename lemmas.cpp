@@ -200,9 +200,9 @@ Suppose that the vertices of G are partitioned into levels according to their di
 If r is the maximum distance of any vertex from v, let r+1 be an additional level containing no vertices.
 Given any two levels l1 and l2 such that levels 0 through l1-1 have total cost not exceeding 2/3 and levels l2+1 through r+1 have total cost not exceeding 2/3,
 it is possible to find a partition A, B, C of the vertices of G such that no edge joins a vertex in A with a vertex in B, neither A nor B has total cost exceeding 2/3, and C contains no more than L(l1)+L(l2)+max{0,2(l2-l1-1)} vertices. */
-Partition lemma3_cllmax(GraphCR g_orig, uint l[3], uint r, BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data, vector<vertex_t> const& cycle)
+Partition lemma3_cllmax(GraphCR g_orig, uint l[3], uint r, BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_shrunken, vector<vertex_t> const& cycle)
 {
-        assert(vis_data.assert_data());
+        assert(vis_data_shrunken.assert_data());
         assert(vis_data_orig.assert_data()); 
 
         uint n = num_vertices(g_orig); 
@@ -218,7 +218,7 @@ Partition lemma3_cllmax(GraphCR g_orig, uint l[3], uint r, BFSVisitorData const&
         for( tie(vei, vend) = vertices(g_orig); vei != vend; ++vei ){ 
                 vertex_t v = *vei;
                 if( !vis_data_orig.verts.contains(v) ){
-                        cout << "ignoring bad vertex : " << v << '\n';
+                        cout << "lemmas.cpp: ignoring bad vertex : " << v << '\n';
                         continue; 
                 }
 

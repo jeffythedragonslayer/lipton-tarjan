@@ -303,6 +303,15 @@ bool vertex_exists(vertex_t x, Graph const& g)
         return false; 
 }
 
+bool edge_exists(edge_t e, Graph const& g)
+{
+        EdgeIter ei, ei_end;
+        for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ){
+                if( *ei == e ) return true; 
+        }
+        return false; 
+}
+
 bool assert_verts(GraphCR g, BFSVisitorData const& vis_data)
 {
         VertIter vei, vend;

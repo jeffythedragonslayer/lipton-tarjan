@@ -60,10 +60,12 @@ void ScanVisitor::scan_nonsubtree_edges_clockwise(vertex_t current_node, Graph c
 					continue;//throw FoundCircularNode(src);
 				}
 
+				cout << "checking edge: " << src << ", " << tar << "\n";
+
 #ifdef GRAPH_TYPE_VEC
 				if( !edge(src, tar, g).second ){
 #else
-				if( nullptr == src || tar == nullptr || !edge(src, tar, g).second ){
+				if( nullptr == src || tar == nullptr || edge_exists(e, g) /*!edge(src, tar, g).second*/ ){
 #endif
 					cout << "ignoring bad edge: " << src << ", " << tar << "\n";
 					continue;

@@ -12,10 +12,23 @@
 using namespace std;
 using namespace boost;
 
+void init_vert_propmap(Graph& g)
+{
+	auto prop_map = get(vertex_index, g); // writing to this property map has side effects in the graph
+	VertIter vi, vend;
+	uint i = 0;
+	for( tie(vi, vend) = vertices(g); vi != vend; ++vi ){
+		prop_map[*vi] = i;
+		cout << "prop map " << *vi << " == " << i << '\n';
+		++i;
+	} 
+}
+
 void check_graph_is_nonplanar(string graphfile)
 { 
 	cout << "loading graph\n";
 	Graph g = load_graph(graphfile);
+	init_vert_propmap(g);
 
 	uint n = num_vertices(g);
 
@@ -46,6 +59,7 @@ void check_partition_is_legal(string graphfile)
 
 
 	Graph g = load_graph(graphfile);
+	init_vert_propmap(g);
 
 	cout << "starting lipton tarjan...\n";
 	print_graph(g);
@@ -81,11 +95,11 @@ void check_partition_is_legal(string graphfile)
 	}
 }
 
-BOOST_AUTO_TEST_CASE( kuratowski )
+/*BOOST_AUTO_TEST_CASE( kuratowski )
 {
 		check_graph_is_nonplanar("graphs/kuratowski33");
 		check_graph_is_nonplanar("graphs/kuratowski5");
-}
+}*/
 
 BOOST_AUTO_TEST_CASE( empty_test )
 {
@@ -102,21 +116,6 @@ BOOST_AUTO_TEST_CASE( empty_test )
 	check_partition_is_legal("graphs/huge");
 }*/
 
-/*BOOST_AUTO_TEST_CASE( box3_test )
-{
-	check_partition_is_legal("graphs/box3");
-}*/
-
-/*BOOST_AUTO_TEST_CASE( delaunay_test )
-{
-	check_partition_is_legal("graphs/delaunay");
-}*/
-
-/*BOOST_AUTO_TEST_CASE( in2_test )
-{
-	check_partition_is_legal("graphs/in2");
-}*/
-
 /*BOOST_AUTO_TEST_CASE( in3_test )
 {
 	check_partition_is_legal("graphs/in3");
@@ -125,11 +124,6 @@ BOOST_AUTO_TEST_CASE( empty_test )
 BOOST_AUTO_TEST_CASE( fourfingered_test )
 {
 	check_partition_is_legal("graphs/fourfingered");
-}*/
-
-/*BOOST_AUTO_TEST_CASE( insideout_test )
-{
-	check_partition_is_legal("graphs/insideout");
 }*/
 
 /*BOOST_AUTO_TEST_CASE( notk_test )
@@ -150,12 +144,32 @@ BOOST_AUTO_TEST_CASE( rand2_test )
 BOOST_AUTO_TEST_CASE( rand3_test )
 {
 	check_partition_is_legal("graphs/rand3", true);
+}*/
+
+/*BOOST_AUTO_TEST_CASE( box3_test )
+{
+	check_partition_is_legal("graphs/box3");
+}*/
+
+/*BOOST_AUTO_TEST_CASE( delaunay_test )
+{
+	check_partition_is_legal("graphs/delaunay");
+}*/
+
+BOOST_AUTO_TEST_CASE( in2_test )
+{
+	check_partition_is_legal("graphs/in2");
+}
+
+BOOST_AUTO_TEST_CASE( insideout_test )
+{
+	check_partition_is_legal("graphs/insideout");
 }
 
 BOOST_AUTO_TEST_CASE( square_test )
 {
-	check_partition_is_legal("graphs/square", true);
-}*/
+	check_partition_is_legal("graphs/square");
+}
 
 BOOST_AUTO_TEST_CASE( tie_test )
 {

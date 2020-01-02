@@ -387,14 +387,14 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
 
         assert(assert_verts(g_copy, vis_data_addx));
 
-        /*VertIter vei, vend;
+        VertIter vei, vend;
         for( tie(vei, vend) = vertices(g_orig); vei != vend; ++vei ){ 
                 vertex_t v = *vei;
                 if( !vis_data_orig.verts.contains(v) ){
                         cout << "lipton-tarjan.cpp: ignoring bad vertex : " << v << '\n';
                         continue; 
                 }
-        }*/
+        }
 
         ScanVisitor svis(&table, &g_shrunk, x, l[0]);
         svis.scan_nonsubtree_edges_clockwise(*vertices(g_shrunk).first, g_shrunk, em.em, vis_data_addx);
@@ -505,6 +505,7 @@ Partition bfs_and_levels(GraphCR g_orig, Graph& g_copy)
         BFSVisitorData vis_data_orig(&g_orig, *vertices(g_orig).first);
         breadth_first_search(g_orig, vis_data_orig.root, boost::visitor(BFSVisitor(vis_data_orig)));
 
+        assert(assert_verts(g_orig, vis_data_orig));
         assert(assert_verts(g_copy, vis_data_copy));
 
         vector<uint> L(vis_data_copy.num_levels + 1, 0);

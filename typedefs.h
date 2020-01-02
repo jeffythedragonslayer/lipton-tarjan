@@ -12,7 +12,15 @@ struct vertex_info
     uint vert_id;
 };
 
-typedef boost::adjacency_list<boost::listS, boost::listS, boost::undirectedS, boost::property<boost::vertex_index_t, uint>, boost::property<boost::edge_index_t, uint>> Graph;
+#define GRAPH_TYPE_VEC
+
+#ifdef GRAPH_TYPE_VEC
+    #define GRAPH_INTERNAL_TYPE boost::vecS
+#else
+    #define GRAPH_INTERNAL_TYPE boost::listS
+#endif
+
+typedef boost::adjacency_list<GRAPH_INTERNAL_TYPE, GRAPH_INTERNAL_TYPE, boost::undirectedS, boost::property<boost::vertex_index_t, uint>, boost::property<boost::edge_index_t, uint>> Graph;
 typedef Graph const&                                                                                                                                                  GraphCR; 
 typedef boost::graph_traits<Graph>::vertex_descriptor                                                                                                                 vertex_t;
 typedef boost::graph_traits<Graph>::vertex_iterator                                                                                                                   VertIter;

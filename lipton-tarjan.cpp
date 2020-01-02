@@ -438,7 +438,7 @@ Partition find_more_levels(GraphCR g_orig, Graph& g_copy, uint k, uint l[3], vec
 // Let k be the number of vertices in levels 0 through l1
 Partition l1_and_k(GraphCR g_orig, Graph& g_copy, vector<uint> const& L, BFSVisitorData const& vis_data_orig)
 {
-        //cout  << "---------------------------- 4 - l1 and k  ------------\n";
+        cout  << "---------------------------- 4 - l1 and k  ------------\n";
         uint k = L[0]; 
         uint l[3];
         uint n = num_vertices(g_copy);
@@ -450,8 +450,8 @@ Partition l1_and_k(GraphCR g_orig, Graph& g_copy, vector<uint> const& L, BFSVisi
 	       	k += L.at(indx);
 	}
 
-        /*cout << "k:  " << k    << "      # of verts in levels 0 thru l1\n";
-        cout << "l1: " << l[1] << "      total cost of levels 0 thru l1 barely exceeds 1/2\n";*/
+        cout << "k:  " << k    << "      # of verts in levels 0 thru l1\n";
+        cout << "l1: " << l[1] << "      total cost of levels 0 thru l1 barely exceeds 1/2\n";
 	assert(k <= n); 
 	return find_more_levels(g_orig, g_copy, k, l, L, vis_data_orig); // step 5
 }

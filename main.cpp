@@ -27,6 +27,7 @@ int main(int argc, char* argv[])
 
                 Graph g = load_graph(f);
 
+#ifdef GRAPH_TYPE_LIST
                 auto prop_map = get(vertex_index, g); // writing to this property map has side effects in the graph
                 VertIter vi, vend;
                 uint i = 0;
@@ -35,6 +36,7 @@ int main(int argc, char* argv[])
 			cout << "prop map " << *vi << " == " << i << '\n';
                         ++i;
                 }
+#endif
 
                 uint n = num_vertices(g);
 

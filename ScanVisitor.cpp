@@ -10,9 +10,9 @@ void ScanVisitor::found_edge(vertex_t current_node, edge_t e)
 {
 		auto v = source(e, *g);
 		auto w = target(e, *g);
+		cout << "foundedge " << v << ", " << w << endl;
 		assert(edge(v, w, *g).second); // edge exists
 		if( current_node != v ) swap(v, w);
-		cout << "foundedge " << v << ", " << w << endl;
 		assert(current_node == v);
 		if ( !(*table)[w] ){
 				(*table)[w] = true;
@@ -58,6 +58,11 @@ void ScanVisitor::scan_nonsubtree_edges_clockwise(vertex_t current_node, Graph c
 				if( src == tar ){
 					cout << "ignoring circular node\n";
 					continue;//throw FoundCircularNode(src);
+				}
+
+				if( nullptr == src || tar == nullptr || !edge(src, tar, g).second ){
+					cout << "ignoring bad edge: " << src << ", " << tar << "\n";
+					continue;
 				}
 
 				if( !bfs.is_tree_edge(e) ){

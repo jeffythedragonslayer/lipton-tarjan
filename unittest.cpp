@@ -95,11 +95,11 @@ void check_partition_is_legal(string graphfile)
 	}
 }
 
-/*BOOST_AUTO_TEST_CASE( kuratowski )
+BOOST_AUTO_TEST_CASE( kuratowski )
 {
 		check_graph_is_nonplanar("graphs/kuratowski33");
 		check_graph_is_nonplanar("graphs/kuratowski5");
-}*/
+}
 
 BOOST_AUTO_TEST_CASE( empty_test )
 {
@@ -146,15 +146,15 @@ BOOST_AUTO_TEST_CASE( rand3_test )
 	check_partition_is_legal("graphs/rand3", true);
 }*/
 
-/*BOOST_AUTO_TEST_CASE( box3_test )
+BOOST_AUTO_TEST_CASE( box3_test )
 {
 	check_partition_is_legal("graphs/box3");
-}*/
+}
 
-/*BOOST_AUTO_TEST_CASE( delaunay_test )
+BOOST_AUTO_TEST_CASE( delaunay_test )
 {
 	check_partition_is_legal("graphs/delaunay");
-}*/
+}
 
 BOOST_AUTO_TEST_CASE( in2_test )
 {

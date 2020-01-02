@@ -11,7 +11,7 @@ void ScanVisitor::found_edge(vertex_t current_node, edge_t e)
 		auto v = source(e, *g);
 		auto w = target(e, *g);
 		cout << "foundedge " << v << ", " << w << endl;
-		assert(edge(v, w, *g).second); // edge exists
+		assert(edge_exists(e, *g)); // edge exists
 		if( current_node != v ) swap(v, w);
 		assert(current_node == v);
 		if ( !(*table)[w] ){
@@ -65,7 +65,7 @@ void ScanVisitor::scan_nonsubtree_edges_clockwise(vertex_t current_node, Graph c
 #ifdef GRAPH_TYPE_VEC
 				if( !edge(src, tar, g).second ){
 #else
-				if( nullptr == src || tar == nullptr || edge_exists(e, g) /*!edge(src, tar, g).second*/ ){
+				if( nullptr == src || tar == nullptr || !edge_exists(e, g) /*!edge(src, tar, g).second*/ ){
 #endif
 					cout << "ignoring bad edge: " << src << ", " << tar << "\n";
 					continue;

@@ -344,10 +344,18 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
 
         // delete all vertices on level l2 and above
         vertex_t x = add_vertex(g_shrunk);
-        assert(vertex_exists(x, g_shrunk));
-        vector<vertex_t> replaced_verts = shrinktree_deletel2andabove(g_shrunk, l, vis_data_copy, x);
+        BFSVisitorData vis_data_addx = vis_data_copy;
+        vis_data_addx.root = x;
+        vis_data_addx.verts[x].level = 0;
+        vis_data_addx.verts[x].parent = Graph::null_vertex();
+        vis_data_addx.verts[x].descendant_cost = -1;
 
         assert(vertex_exists(x, g_shrunk));
+        assert(assert_verts(g_copy, vis_data_addx));
+        vector<vertex_t> replaced_verts = shrinktree_deletel2andabove(g_shrunk, l, vis_data_addx, x);
+
+        assert(vertex_exists(x, g_shrunk));
+        assert(assert_verts(g_copy, vis_data_addx));
         auto prop_map = get(vertex_index, g_shrunk);
         //prop_map[x] = X_VERT_UINT;
 
@@ -356,20 +364,21 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
 	VertIter vit, vjt;
         for( tie(vit, vjt) = vertices(g_shrunk); vit != vjt; ++vit ){
                 if( *vit == x ) continue; // the new x isn't in visdata, std::map::find() will fail
-                if( !vis_data_copy.verts.contains(*vit) ) continue; // *vit may be in a different connected component
-                uint level = vis_data_copy.verts.find(*vit)->second.level;
+                if( !vis_data_addx.verts.contains(*vit) ) continue; // *vit may be in a different connected component
+                uint level = vis_data_addx.verts.find(*vit)->second.level;
                 table[*vit] = level <= l[0];
                 //cout << "vertex " << vmap_shrunk.vert2uint[*vit] << " at level " << vis_data_orig.verts.find(*vit)->second.level << " is " << (table[*vit] ? "TRUE" : "FALSE") << '\n';
         }
 
-        assert(vertex_exists(x, g_shrunk));
+        assert(vertex_exists(x, g_shrunk)); 
+        assert(assert_verts(g_copy, vis_data_addx)); 
 
         //reset_vertex_indices(g_shrunk);
         //reset_edge_index(g_shrunk);
         EmbedStruct em(&g_shrunk);
         assert(em.test_planar());
 
-        assert(assert_verts(g_copy, vis_data_copy));
+        assert(assert_verts(g_copy, vis_data_addx));
 
         /*VertIter vei, vend;
         for( tie(vei, vend) = vertices(g_orig); vei != vend; ++vei ){ 
@@ -381,7 +390,7 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
         }*/
 
         ScanVisitor svis(&table, &g_shrunk, x, l[0]);
-        svis.scan_nonsubtree_edges_clockwise(*vertices(g_shrunk).first, g_shrunk, em.em, vis_data_copy);
+        svis.scan_nonsubtree_edges_clockwise(*vertices(g_shrunk).first, g_shrunk, em.em, vis_data_addx);
         svis.finish();
 
         assert(vertex_exists(x, g_shrunk));
@@ -405,7 +414,7 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
 
         if( x ) cout << "x: " << prop_map[x] << '\n';
 
-	return new_bfs_and_make_max_planar(g_orig, g_shrunk, vis_data_copy, x_gone, x, l); // step 7
+	return new_bfs_and_make_max_planar(g_orig, g_shrunk, vis_data_addx, x_gone, x, l); // step 7
 }
 
 // Step 5: find_more_levels

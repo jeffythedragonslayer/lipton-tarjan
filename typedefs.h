@@ -12,7 +12,7 @@ struct vertex_info
     uint vert_id;
 };
 
-#define GRAPH_TYPE_VEC
+//#define GRAPH_TYPE_VEC
 
 #ifdef GRAPH_TYPE_VEC
     #define GRAPH_INTERNAL_TYPE boost::vecS

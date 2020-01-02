@@ -389,7 +389,7 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
                 cout << "shrunken size: " << n2 << '\n';
         }
 
-        cout << "x: " << prop_map[x] << '\n';
+        if( x ) cout << "x: " << prop_map[x] << '\n';
 
 	return new_bfs_and_make_max_planar(g_orig, g_shrunk, vis_data_orig, x_gone, x, l); // step 7
 }

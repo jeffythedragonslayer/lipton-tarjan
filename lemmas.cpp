@@ -203,18 +203,22 @@ it is possible to find a partition A, B, C of the vertices of G such that no edg
 Partition lemma3_cllmax(GraphCR g_orig, uint l[3], uint r, BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data, vector<vertex_t> const& cycle)
 {
         uint n = num_vertices(g_orig); 
-        //cout << "n: " << n << '\n';
+        cout << "n: " << n << '\n';
 
         if( l[1] >= l[2] ) return lemma3_l1greaterequall2(g_orig, vis_data_orig, l, r);
 
 	Partition p;
-	//cout << "l1 is less than l2\n";
+	cout << "l1 is less than l2\n";
 
         set<vertex_t> deleted_part;
         VertIter vei, vend;
         for( tie(vei, vend) = vertices(g_orig); vei != vend; ++vei ){ 
                 vertex_t v = *vei;
-                assert(vis_data_orig.verts.contains(v));
+                if( !vis_data_orig.verts.contains(v) ){
+                        cout << "ignoring bad vertex : " << v << '\n';
+                        continue; 
+                }
+
                 //cout << "level of " << v << ": " << vis_data_orig.verts.find(v)->second.level << ", ";
                 fflush(stdout);
                 if( vis_data_orig.verts.find(v)->second.level == l[1] || vis_data_orig.verts.find(v)->second.level == l[2] ){     cout << v << " is deleted\n";                 deleted_part.insert(v); continue;}
@@ -225,7 +229,7 @@ Partition lemma3_cllmax(GraphCR g_orig, uint l[3], uint r, BFSVisitorData const&
         }
 
         uint ptotal = p.total_num_verts() + deleted_part.size();
-        //cout << "ptotal: " << ptotal << '\n';
+        cout << "ptotal: " << ptotal << '\n';
         assert(ptotal == n);
 
         //the only part which can have cost > 2/3 is the middle part (B)

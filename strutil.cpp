@@ -18,26 +18,24 @@ void print_cycle(vector<vertex_t> const& cycle)
         cout << '\n';
 }
 
-#if 0
-void print_graph_special(Graph const& g, Vert2UintMap const& vmap)
+void print_graph_addresses(Graph const& g)
 { 
-        cout << "\n**********************  Graph  ** print_graph_special ***\n"; 
+        cout << "\n**********************  Graph  ** print_graph_addresses ***\n"; 
         VertIter vi, vi_end;
         for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi ){
-                cout << "vert " << "( " << vmap.vert2uint.at(*vi) << ' ' << *vi << " )";
+                cout << "vert " << *vi << '\n';
                 OutEdgeIter ei, e_end;
                 cout << "   hos edges ";
                 for( tie(ei, e_end) = out_edges(*vi, g); ei != e_end; ++ei ){
                         auto src = source(*ei, g);
                         auto tar = target(*ei, g);
                         if( tar == *vi ) swap(src, tar);
-                        cout << "( " << vmap.vert2uint.at(tar) << ' ' << tar << " )";
+                        cout << "( " << src << ' ' << tar << " )";
                 }
                 cout << '\n';
         }
         cout << "*********************************************************\n\n";
 }
-#endif
 
 #if 0
 void print_graph_nonboost(Graph const& g)

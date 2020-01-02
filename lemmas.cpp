@@ -202,6 +202,9 @@ Given any two levels l1 and l2 such that levels 0 through l1-1 have total cost n
 it is possible to find a partition A, B, C of the vertices of G such that no edge joins a vertex in A with a vertex in B, neither A nor B has total cost exceeding 2/3, and C contains no more than L(l1)+L(l2)+max{0,2(l2-l1-1)} vertices. */
 Partition lemma3_cllmax(GraphCR g_orig, uint l[3], uint r, BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data, vector<vertex_t> const& cycle)
 {
+        assert(vis_data.assert_data());
+        assert(vis_data_orig.assert_data()); 
+
         uint n = num_vertices(g_orig); 
         cout << "n: " << n << '\n';
 

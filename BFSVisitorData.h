@@ -18,6 +18,7 @@ struct BFSVisitorData
 	uint edge_cost(edge_t, std::vector<vertex_t> const& cycle, Graph const&) const; 
 	void print_costs  () const;
 	void print_parents() const;
+	bool assert_data() const;
 };
 
 struct EdgeNotInVisitorData : std::exception

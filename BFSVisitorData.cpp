@@ -66,3 +66,18 @@ uint BFSVisitorData::edge_cost(edge_t e, vector<vertex_t> const& cycle, Graph co
 
 void BFSVisitorData::print_costs  () const {for( auto& v : verts ) cout << "descendant cost of vertex " << v.first << " is " << v.second.descendant_cost << '\n';}
 void BFSVisitorData::print_parents() const {for( auto& v : verts ) cout << "parent of " << v.first << " is " << v.second.parent << '\n';}
+
+
+// make sure all verts appear in the graph
+bool BFSVisitorData::assert_data() const
+{
+        VertIter vei, vend;
+        for( tie(vei, vend) = vertices(*g); vei != vend; ++vei ){ 
+                vertex_t v = *vei;
+                if( !this->verts.contains(v) ){
+                        cout << "found bad vertex : " << v << '\n';
+						return false;
+                }
+        }
+		return true;
+}

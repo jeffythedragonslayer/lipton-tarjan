@@ -50,6 +50,7 @@ void kill_vertex(vertex_t, Graph&);
 
 Graph load_graph(std::string const& fname);
 
-void contract_vertices(vertex_t b, vertex_t a, Graph& g);
+void contract_vertices(vertex_t b, vertex_t a, Graph&);
 
-bool vertex_exists(vertex_t x, Graph const& g);
+bool vertex_exists(vertex_t x, Graph const&);
+bool assert_verts(GraphCR, BFSVisitorData const&);

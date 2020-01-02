@@ -302,3 +302,16 @@ bool vertex_exists(vertex_t x, Graph const& g)
         }
         return false; 
 }
+
+bool assert_verts(GraphCR g, BFSVisitorData const& vis_data)
+{
+        VertIter vei, vend;
+        for( tie(vei, vend) = vertices(g); vei != vend; ++vei ){ 
+                vertex_t v = *vei;
+                if( !vis_data.verts.contains(v) ){
+                        cout << "ignoring bad vertex : " << v << '\n';
+                        return false;
+                }
+        } 
+        return true;
+}

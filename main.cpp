@@ -1,4 +1,5 @@
 #include "lipton-tarjan.h"
+#include "typedefs.h"
 #include "strutil.h"
 #include "graphutil.h"
 #include <boost/graph/adjacency_list.hpp>

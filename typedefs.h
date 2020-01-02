@@ -12,12 +12,13 @@ struct vertex_info
     uint vert_id;
 };
 
-#define GRAPH_TYPE_VEC
+//#define GRAPH_TYPE_VEC
 
 #ifdef GRAPH_TYPE_VEC
     #define GRAPH_INTERNAL_TYPE boost::vecS
 #else
     #define GRAPH_INTERNAL_TYPE boost::listS
+    #define GRAPH_TYPE_LIST
 #endif
 
 typedef boost::adjacency_list<GRAPH_INTERNAL_TYPE, GRAPH_INTERNAL_TYPE, boost::undirectedS, boost::property<boost::vertex_index_t, uint>, boost::property<boost::edge_index_t, uint>> Graph;

@@ -542,9 +542,9 @@ Partition lipton_tarjan(GraphCR g_orig)
 	copy_graph(g_orig, g_copy);
 	g_copy = g_orig;
 
-	//cout << "@#$original g:\n";
-	//print_graph(g_orig);
-	//cout << "@#$g_copy:\n";
+	cout << "@#$original g:\n";
+	print_graph(g_orig);
+	cout << "@#$g_copy:\n";
         //print_graph_special(g_copy, vmap_copy);
 	//print_graph2(g_copy);
 
@@ -560,7 +560,7 @@ Partition lipton_tarjan(GraphCR g_orig)
 	//cout << "edges of g_copy:\n" << std::endl;
 	//print_edges(g_copy, vmap_copy);
 
-        //cout << "---------------------------- 1 - Check Planarity  ------------\n";
+        cout << "---------------------------- 1 - Check Planarity  ------------\n";
         EmbedStruct em(&g_copy);
         if( !em.test_planar() ) throw NotPlanarException();
 

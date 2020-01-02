@@ -10,9 +10,10 @@ void ScanVisitor::found_edge(vertex_t current_node, edge_t e)
 {
 		auto v = source(e, *g);
 		auto w = target(e, *g);
+		assert(edge(v, w, *g).second); // edge exists
 		if( current_node != v ) swap(v, w);
+		cout << "foundedge " << v << ", " << w << endl;
 		assert(current_node == v);
-		cout << "foundedge " << v << ", " << w;
 		if ( !(*table)[w] ){
 				(*table)[w] = true;
 				assert(x != w); 

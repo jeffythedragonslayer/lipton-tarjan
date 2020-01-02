@@ -304,20 +304,27 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
 
 //const uint X_VERT_UINT = 999999;
 
-vector<vertex_t> shrinktree_deletel2andabove(Graph& g, uint l[3], BFSVisitorData const& vis_data_orig)
+vector<vertex_t> shrinktree_deletel2andabove(Graph& g, uint l[3], BFSVisitorData const& vis_data_orig, vertex_t x)
 {
+        cout << "l[0]: " << l[0] << '\n';
+        cout << "l[1]: " << l[1] << '\n';
+        cout << "l[2]: " << l[2] << '\n';
+
         vector<vertex_t> replaced_verts;
 	VertIter vit, vjt;
         tie(vit, vjt) = vertices(g); 
         for( VertIter next = vit; vit != vjt; vit = next ){
                 ++next;
+                if( *vit == x ) continue; // don't delete x
                 if( !vis_data_orig.verts.contains(*vit) ) continue; // *vit is in a different connected component
 
-                if( vis_data_orig.verts.find(*vit)->second.level >= l[2] ){
+                uint level = vis_data_orig.verts.find(*vit)->second.level;
+
+                if( level >= l[2] ){
                         //cout << "killing vertex " << vmap_shrunk.vert2uint[*vit] << " of level l2 " << vis_data_orig.verts.find(*vit)->second.level << " >= " << l[2] << '\n';
                         kill_vertex(*vit, g); 
                 }
-                if( vis_data_orig.verts.find(*vit)->second.level <= l[0] ){
+                if( level <= l[0] ){
                         //cout << "going to replace vertex " << vmap_shrunk.vert2uint[*vit] << " of level l0 " << vis_data_orig.verts.find(*vit)->second.level << " <= " << l[0] << '\n';
                         replaced_verts.push_back(*vit);
                 }
@@ -333,9 +340,11 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
         cout << "n: " << num_vertices(g_shrunk) << '\n';
 
         // delete all vertices on level l2 and above
-        vector<vertex_t> replaced_verts = shrinktree_deletel2andabove(g_shrunk, l, vis_data_orig);
-
         vertex_t x = add_vertex(g_shrunk);
+        assert(vertex_exists(x, g_shrunk));
+        vector<vertex_t> replaced_verts = shrinktree_deletel2andabove(g_shrunk, l, vis_data_orig, x);
+
+        assert(vertex_exists(x, g_shrunk));
         auto prop_map = get(vertex_index, g_shrunk);
         //prop_map[x] = X_VERT_UINT;
 
@@ -350,6 +359,8 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
                 //cout << "vertex " << vmap_shrunk.vert2uint[*vit] << " at level " << vis_data_orig.verts.find(*vit)->second.level << " is " << (table[*vit] ? "TRUE" : "FALSE") << '\n';
         }
 
+        assert(vertex_exists(x, g_shrunk));
+
         //reset_vertex_indices(g_shrunk);
         //reset_edge_index(g_shrunk);
         EmbedStruct em(&g_shrunk);
@@ -358,6 +369,8 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
         ScanVisitor svis(&table, &g_shrunk, x, l[0]);
         svis.scan_nonsubtree_edges_clockwise(*vertices(g_shrunk).first, g_shrunk, em.em, vis_data_orig);
         svis.finish();
+
+        assert(vertex_exists(x, g_shrunk));
 
         vertex_t x_gone = Graph::null_vertex();
         if( !degree(x, g_shrunk) ){

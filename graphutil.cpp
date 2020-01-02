@@ -157,7 +157,11 @@ edge_t arbitrary_nontree_edge(Graph const& g, BFSVisitorData const& vis_data)
                 auto tar = target(*ei, g);
                 assert(edge(src, tar, g).second); // edge exists
 		//cout << "candidate edge: " << vmap.vert2uint[src] << ' ' << vmap.vert2uint[tar] << '\n';
-                if( src == tar ) throw FoundCircularNode(src);
+                if( src == tar ){
+                        cout << "ignoring circular edge\n";
+                        continue;
+                        //kthrow FoundCircularNode(src);
+                } 
 
                 try {
 

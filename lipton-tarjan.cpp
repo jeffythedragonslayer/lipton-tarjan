@@ -265,7 +265,7 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
 
         print_graph(g_shrunk);
 
-        //add_edge(x, x, g_shrunk);
+        add_edge(shrunken_vis_data.root, shrunken_vis_data.root, g_shrunk); // workaround for https://github.com/boostorg/graph/issues/195
 
         breadth_first_search(g_shrunk, shrunken_vis_data.root, bvs);
 

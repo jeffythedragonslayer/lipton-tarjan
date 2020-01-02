@@ -51,3 +51,5 @@ void kill_vertex(vertex_t, Graph&);
 Graph load_graph(std::string const& fname);
 
 void contract_vertices(vertex_t b, vertex_t a, Graph& g);
+
+bool vertex_exists(vertex_t x, Graph const& g);

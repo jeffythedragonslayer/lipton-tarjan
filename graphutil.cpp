@@ -293,3 +293,12 @@ Graph load_graph(string const& fname)
 
         return g;
 }
+
+bool vertex_exists(vertex_t x, Graph const& g)
+{ 
+        VertIter vi, vi_end;
+        for( tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi) {
+                if( *vi == x) return true;
+        }
+        return false; 
+}

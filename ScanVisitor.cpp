@@ -6,12 +6,12 @@ using namespace boost;
 
 ScanVisitor::ScanVisitor(map<vertex_t, bool>* table, Graph* g, vertex_t x, uint l0) : table(table), g(g), x(x), l0(l0) {}
 
-void ScanVisitor::foundedge(vertex_t V, edge_t e)
+void ScanVisitor::found_edge(vertex_t current_node, edge_t e)
 {
 		auto v = source(e, *g);
 		auto w = target(e, *g);
-		if( V != v ) swap(v, w);
-		assert(V == v);
+		if( current_node != v ) swap(v, w);
+		assert(current_node == v);
 		cout << "foundedge " << v << ", " << w;
 		if ( !(*table)[w] ){
 				(*table)[w] = true;
@@ -44,13 +44,13 @@ void ScanVisitor::finish()
 		cout << '\n';
 }
 
-void ScanVisitor::scan_nonsubtree_edges(vertex_t v, Graph const& g, Embedding const& embedding, BFSVisitorData const& bfs)
+void ScanVisitor::scan_nonsubtree_edges_clockwise(vertex_t current_node, Graph const& g, Embedding const& embedding, BFSVisitorData const& bfs)
 {
-		auto v_it = bfs.verts.find(v);
+		auto v_it = bfs.verts.find(current_node);
 		assert(v_it != bfs.verts.end());
 		if( v_it->second.level > l0 ) return;
 
-		auto em = embedding[v];
+		auto em = embedding[current_node];
 		for( auto e : em ){ 
 				auto src = source(e, g);
 				auto tar = target(e, g);
@@ -60,20 +60,20 @@ void ScanVisitor::scan_nonsubtree_edges(vertex_t v, Graph const& g, Embedding co
 				}
 
 				if( !bfs.is_tree_edge(e) ){
-						foundedge(v, e);
+						found_edge(current_node, e);
 						continue;
 				}
-				if( src != v ) swap(src, tar);
-				assert(src == v); 
+				if( src != current_node ) swap(src, tar);
+				assert(src == current_node); 
 				auto tar_it = bfs.verts.find(tar);
-				if( tar_it->second.level > l0 ) foundedge(v, e);
+				if( tar_it->second.level > l0 ) found_edge(current_node, e);
 		}
-		cout << "looking for children of " << v << '\n';
-		auto vvv   = bfs.children.find(v);
+		cout << "looking for children of " << current_node << '\n';
+		auto vvv   = bfs.children.find(current_node);
 		if( vvv == bfs.children.end() ) return; // no children
-		cout << "from " << v << " looking for children\n";
+		cout << "from " << current_node << " looking for children\n";
 		for( auto& c : vvv->second ){
 				cout << "child: " << c << '\n'; 
-				scan_nonsubtree_edges(c, g, embedding, bfs);
+				scan_nonsubtree_edges_clockwise(c, g, embedding, bfs);
 		}
 }

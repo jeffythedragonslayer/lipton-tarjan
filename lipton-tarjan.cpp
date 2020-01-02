@@ -248,7 +248,7 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
         cout << "g_shrunk:\n";
         print_graph(g_shrunk);
         //reset_vertex_indices(g_shrunk);
-        reset_edge_index(g_shrunk);
+        //reset_edge_index(g_shrunk);
         BFSVisitorData shrunken_vis_data(&g_shrunk, x);
 
         //vis_data.reset(&g_shrunk);
@@ -345,17 +345,18 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
         for( tie(vit, vjt) = vertices(g_shrunk); vit != vjt; ++vit ){
                 if( *vit == x ) continue; // the new x isn't in visdata, std::map::find() will fail
                 if( !vis_data_orig.verts.contains(*vit) ) continue; // *vit may be in a different connected component
-                table[*vit] = vis_data_orig.verts.find(*vit)->second.level <= l[0];
+                uint level = vis_data_orig.verts.find(*vit)->second.level;
+                table[*vit] = level <= l[0];
                 //cout << "vertex " << vmap_shrunk.vert2uint[*vit] << " at level " << vis_data_orig.verts.find(*vit)->second.level << " is " << (table[*vit] ? "TRUE" : "FALSE") << '\n';
         }
 
         //reset_vertex_indices(g_shrunk);
-        reset_edge_index(g_shrunk);
+        //reset_edge_index(g_shrunk);
         EmbedStruct em(&g_shrunk);
         assert(em.test_planar());
 
         ScanVisitor svis(&table, &g_shrunk, x, l[0]);
-        svis.scan_nonsubtree_edges(*vertices(g_shrunk).first, g_shrunk, em.em, vis_data_orig);
+        svis.scan_nonsubtree_edges_clockwise(*vertices(g_shrunk).first, g_shrunk, em.em, vis_data_orig);
         svis.finish();
 
         vertex_t x_gone = Graph::null_vertex();
@@ -369,9 +370,13 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
                 cout << "deleting all vertices x has replaced\n";
                 for( vertex_t& v : replaced_verts ) {cout << "killing " << v << '\n'; kill_vertex(v, g_shrunk); }// delete all vertices x has replaced
 
+                assert(vertex_exists(x, g_shrunk));
+
                 uint n2 = num_vertices(g_shrunk);
                 cout << "shrunken size: " << n2 << '\n';
         }
+
+        cout << "x: " << prop_map[x] << '\n';
 
 	return new_bfs_and_make_max_planar(g_orig, g_shrunk, vis_data_orig, x_gone, x, l); // step 7
 }

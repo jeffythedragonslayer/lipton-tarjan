@@ -38,12 +38,11 @@ bool Partition::verify_sizes_lemma3(vector<uint> const& L, uint l1, uint l2) con
 	uint c_verts = c.size();
 	uint n  = a_verts + b_verts + c_verts;
 
-	int maxc = (int)L[l1] - (int)L[l2] - std::max<int>(0, 2*((int)l2-(int)l1-1));
-	assert(maxc >= 0);
+	uint maxc = L[l1] + L[l2] + std::max<int>(0, 2*((int)l2-(int)l1-1));
 
 	return a_verts <= 2*n/3 && 
 		   b_verts <= 2*n/3 && 
-		   c_verts <= (uint)maxc;
+		   c_verts <= maxc;
 }
 
 bool Partition::verify_edges(GraphCR g) const
@@ -73,11 +72,10 @@ bool Partition::verify_sizes() const
 	uint c_verts = c.size();
 	uint n  = a_verts + b_verts + c_verts;
 
-	return (a_verts <= 2*n/3) && 
-		(b_verts <= 2*n/3) && 
-		(c_verts <= 2*sqrt(2)*sqrt(n));
-}
-
+	return a_verts <= 2*n/3 && 
+		   b_verts <= 2*n/3 && 
+		   c_verts <= 2*sqrt(2)*sqrt(n);
+} 
 
 void Partition::print() const
 {

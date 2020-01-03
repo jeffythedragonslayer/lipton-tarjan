@@ -254,6 +254,7 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
                     lemma3_exceeds23(g_orig, vis_data_orig, l1, l2, cycle);
         }
 
-	//assert(p.verify_sizes_lemma3(L, l1, l2));
+        assert(p.verify_edges(g_orig));
+	assert(p.verify_sizes_lemma3(L, l1, l2));
         return p;
 }

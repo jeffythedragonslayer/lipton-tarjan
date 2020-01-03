@@ -173,9 +173,14 @@ Partition lemma3_l1greaterequall2(GraphCR g_shrink2, BFSVisitorData const& vis_d
         return p;
 }
 
-Partition lemma3_lessequal23(Partition const& p, set<vertex_t>& deleted_part)
+Partition lemma3_lessequal23(set<vertex_t> const& first_part, set<vertex_t> const& middle_part, set<vertex_t> const& last_part,  set<vertex_t>& deleted_part)
 {
         cout << "middle partition has cost less than or equal to 2/3\n";
+
+        Partition p;
+        p.a = first_part;
+        p.b = middle_part;
+        p.c = last_part;
 
         set<vertex_t> const* costly_part;
         set<vertex_t> const* other1;
@@ -208,45 +213,48 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l[3], uint r, BFSVi
         uint n = num_vertices(g_orig); 
         cout << "n: " << n << '\n';
 
+        Partition p;
         if( l[1] >= l[2] ){
-                Partition p = lemma3_l1greaterequall2(g_orig, vis_data_orig, l, r);
-                assert(p.verify_sizes_lemma3(L, l));
-                return p;
-        }
+                p = lemma3_l1greaterequall2(g_orig, vis_data_orig, l, r);
+        } else {
+                cout << "l1 is less than l2\n";
 
-	Partition p;
-	cout << "l1 is less than l2\n";
+                set<vertex_t> first_part, middle_part, last_part, deleted_part;
+                VertIter vei, vend;
+                for( tie(vei, vend) = vertices(g_orig); vei != vend; ++vei ){ 
+                        vertex_t v = *vei;
+                        if( !vis_data_orig.verts.contains(v) ){
+                                cout << "lemmas.cpp: ignoring bad vertex: " << v << '\n';
+                                continue; 
+                        }
 
-        set<vertex_t> deleted_part;
-        VertIter vei, vend;
-        for( tie(vei, vend) = vertices(g_orig); vei != vend; ++vei ){ 
-                vertex_t v = *vei;
-                if( !vis_data_orig.verts.contains(v) ){
-                        cout << "lemmas.cpp: ignoring bad vertex : " << v << '\n';
-                        continue; 
+                        uint level = vis_data_orig.verts.find(v)->second.level;
+
+                        cout << "level of " << v << ": " << level << ", ";
+                        fflush(stdout);
+                        if( level == l[1] || level == l[2] ){     cout << v << " is deleted\n";                 deleted_part.insert(v); continue;}
+                        if( level <  l[1] ){                      cout << v << " belongs to first part (A)\n";  first_part.insert(v);   continue;}
+                        if( level >= l[1]+1 && level <= l[2]-1 ){ cout << v << " belongs to middle part (B)\n"; middle_part.insert(v);  continue;}
+                        if( level >  l[2]   ){                    cout << v << " belongs to last part (C)\n";   last_part.insert(v);    continue;}
+                        assert(0);
                 }
 
-                //cout << "level of " << v << ": " << vis_data_orig.verts.find(v)->second.level << ", ";
-                fflush(stdout);
-                if( vis_data_orig.verts.find(v)->second.level == l[1] || vis_data_orig.verts.find(v)->second.level == l[2] ){     cout << v << " is deleted\n";                 deleted_part.insert(v); continue;}
-                if( vis_data_orig.verts.find(v)->second.level <  l[1] ){                                             cout << v << " belongs to first part (A)\n";  p.a.insert(v);          continue;}
-                if( vis_data_orig.verts.find(v)->second.level >= l[1]+1 && vis_data_orig.verts.find(v)->second.level <= l[2]-1 ){ cout << v << " belongs to middle part (B)\n"; p.b.insert(v);          continue;}
-                if( vis_data_orig.verts.find(v)->second.level >  l[2]   ){                                           cout << v << " belongs to last part (C)\n";   p.c.insert(v);          continue;}
-                assert(0);
+
+                uint ptotal = first_part.size() + middle_part.size() + last_part.size() + deleted_part.size();
+                cout << "ptotal: " << ptotal << '\n';
+                assert(ptotal == n);
+
+                //the only part which can have cost > 2/3 is the middle part (B)
+                cout << "first part size: " << first_part.size() << '\n';
+                cout << "middle part size: " << middle_part.size() << '\n';
+                cout << "third part size: " << last_part.size() << '\n';
+                //p.print();
+
+                p = middle_part.size() <= 2*n/3                  ? 
+                        lemma3_lessequal23(first_part, middle_part, last_part, deleted_part) :
+                        lemma3_exceeds23(g_orig, vis_data_orig, l, cycle); 
         }
 
-        uint ptotal = p.total_num_verts() + deleted_part.size();
-        cout << "ptotal: " << ptotal << '\n';
-        assert(ptotal == n);
-
-        //the only part which can have cost > 2/3 is the middle part (B)
-        cout << "Partition A size: " << p.a.size() << '\n';
-        cout << "Partition B size: " << p.b.size() << '\n';
-        cout << "Partition C size: " << p.c.size() << '\n';
-	p.print();
-
 	assert(p.verify_sizes_lemma3(L, l));
-        return p.b.size() <= 2*n/3                  ? 
-                lemma3_lessequal23(p, deleted_part) :
-                lemma3_exceeds23(g_orig, vis_data_orig, l, cycle);
+        return p;
 }

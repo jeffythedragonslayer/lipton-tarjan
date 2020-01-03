@@ -36,7 +36,7 @@ using namespace boost;
 //
 // Use the cycle found in Step 9 and the levels found in Step 4 (l1_and_k) to construct a satisfactory vertex partition as described in the proof of Lemma 3
 // Extend this partition from the connected component chosen in Step 2 to the entire graph as described in the proof of Theorem 4.
-Partition construct_vertex_partition(GraphCR g_orig, uint l[3], BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_shrunken, vector<vertex_t> const& cycle)
+Partition construct_vertex_partition(GraphCR g_orig, vector<uint> const& L, uint l[3], BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_shrunken, vector<vertex_t> const& cycle)
 {
         uint n_orig = num_vertices(g_orig);
         cout << "n_orig: " << n_orig << '\n';
@@ -52,7 +52,7 @@ Partition construct_vertex_partition(GraphCR g_orig, uint l[3], BFSVisitorData c
         uint r = vis_data_orig.num_levels;
         cout << "r max distance: " << r << '\n';
 
-        return lemma3(g_orig, l, r, vis_data_orig, vis_data_shrunken, cycle);
+        return lemma3(g_orig, L, l, r, vis_data_orig, vis_data_shrunken, cycle);
 }
 
 // Step 9: Improve Separator
@@ -71,7 +71,7 @@ Partition construct_vertex_partition(GraphCR g_orig, uint l[3], BFSVisitorData c
 //      Let (vi+1, wi+1) be the edge among (vi, y) and (y, wi) whose cycle has more cost inside it.
 // 	Repeat Step 9 until finding a cycle whose inside has cost not exceeding 2/3.
 Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge_t completer_candidate_edge, BFSVisitorData const& vis_data_orig,
-                                BFSVisitorData const& vis_data_shrunken, vector<vertex_t> cycle, EmbedStruct const& em, bool cost_swapped, uint l[3])
+                                BFSVisitorData const& vis_data_shrunken, vector<vertex_t> cycle, EmbedStruct const& em, bool cost_swapped, vector<uint> const& L, uint l[3])
 {
         cout << "---------------------------- 9 - Improve Separator -----------\n";
         print_graph(g_shrunk);
@@ -191,7 +191,7 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
         //assert(vis_data_orig.assert_data());
         //assert(vis_data_shrunken.assert_data());
 
-	return construct_vertex_partition(g_orig, l, vis_data_orig, vis_data_shrunken, cycle); // step 10
+	return construct_vertex_partition(g_orig, L, l, vis_data_orig, vis_data_shrunken, cycle); // step 10
 }
 
 
@@ -204,7 +204,7 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
 // If (v, w) is a tree edge with v on the cycle and w not on the cycle, the cost associated with (v,w) is the descendant cost of w if v is the parent of w,
 // and the cost of all vertices minus the descendant cost of v if w is the parent of v.
 // Determine which side of the cycle has greater cost and call it the "inside"
-Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_shrunken, uint l[3])
+Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_shrunken, vector<uint> const& L, uint l[3])
 {
         //assert(vis_data_orig.assert_data()); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
         //assert(vis_data_shrunken.assert_data()); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
@@ -223,7 +223,7 @@ Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vi
                 cc.outside = n; // force Step 9 to exit without going through any iterations
                 bool cost_swapped = false;
                 EmbedStruct em(&g_shrunk);
-                return improve_separator(g_orig, g_shrunk, cc, completer_candidate_edge, vis_data_orig, vis_data_shrunken, cycle, em, cost_swapped, l); // step 9 
+                return improve_separator(g_orig, g_shrunk, cc, completer_candidate_edge, vis_data_orig, vis_data_shrunken, cycle, em, cost_swapped, L, l); // step 9 
         }
         vertex_t v1 = source(completer_candidate_edge, g_shrunk);
         vertex_t w1 = target(completer_candidate_edge, g_shrunk); 
@@ -246,7 +246,7 @@ Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vi
         cout << "total inside cost:  " << cc.inside  << '\n'; 
         cout << "total outside cost: " << cc.outside << '\n';
 
-	return improve_separator(g_orig, g_shrunk, cc, completer_candidate_edge, vis_data_orig, vis_data_shrunken, cycle, em, cost_swapped, l); // step 9
+	return improve_separator(g_orig, g_shrunk, cc, completer_candidate_edge, vis_data_orig, vis_data_shrunken, cycle, em, cost_swapped, L, l); // step 9
 }
 
 // Step 7: new_bfs_and_make_max_planar
@@ -256,7 +256,7 @@ Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vi
 // (This can be done by modifying the breadth-first spanning tree constructed in Step 3 bfs_and_levels.)
 // Record, for each vertex v, the parent of v in the tree, and the total cost of all descendants of v includiing v itself.
 // Make all faces of the new graph into triangles by scanning the boundary of each face and adding (nontree) edges as necessary.
-Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vis_data_orig, vertex_t x, uint l[3])
+Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vis_data_orig, vertex_t x, vector<uint> const& L, uint l[3])
 {
         cout  << "-------------------- 7 - New BFS and Make Max Planar -----\n";
         cout << "g_orig:\n";
@@ -303,7 +303,7 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
 
         print_graph(g_shrunk);
 
-	return locate_cycle(g_orig, g_shrunk, vis_data_orig, shrunken_vis_data, l);  // step 8
+	return locate_cycle(g_orig, g_shrunk, vis_data_orig, shrunken_vis_data, L, l);  // step 8
 }
 
 // Step 6: Shrinktree
@@ -352,7 +352,7 @@ vector<vertex_t> shrinktree_deletel2andabove(Graph& g, uint l[3], BFSVisitorData
         return replaced_verts;
 }
 
-Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_copy, uint l[3])
+Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_copy, vector<uint> const& L, uint l[3])
 {
         Graph& g_shrunk = g_copy;
         cout << "---------------------------- 6 - Shrinktree -------------\n";
@@ -433,7 +433,7 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
         cout << "x prop_map: " << prop_map[x] << '\n';
         cout << "x : " << x << '\n';
 
-	return new_bfs_and_make_max_planar(g_orig, g_shrunk, vis_data_orig, x, l); // step 7
+	return new_bfs_and_make_max_planar(g_orig, g_shrunk, vis_data_orig, x, L, l); // step 7
 }
 
 // Step 5: find_more_levels
@@ -471,7 +471,7 @@ Partition find_more_levels(GraphCR g_orig, Graph& g_copy, uint k, uint l[3], vec
         }
         //cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
 
-	return shrinktree(g_orig, g_copy, vis_data_orig, vis_data_copy, l); // step 6
+	return shrinktree(g_orig, g_copy, vis_data_orig, vis_data_copy, L, l); // step 6
 }
 
 // Step 4: l1_and_k

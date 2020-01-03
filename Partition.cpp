@@ -27,6 +27,21 @@ void Partition::get_most_costly_part(set<vertex_t> const** most_costly,
 	assert(0);
 }
 
+bool Partition::verify_sizes_lemma3(vector<uint> const& L, uint l[3]) const
+{
+	// verify that neither a nor b is bigger than two thirds of the total and c is no bigger than L(l1) + L(l2) + max{0, 2(l2-l1-1)}
+	cout << "verifying partition sizes\n";
+	uint a_verts = a.size();
+	uint b_verts = b.size();
+	uint c_verts = c.size();
+	uint n  = a_verts + b_verts + c_verts;
+
+	return (a_verts <= 2*n/3) && 
+		(b_verts <= 2*n/3) && 
+		(c_verts <= 2*sqrt(2)*sqrt(n));
+
+}
+
 bool Partition::verify_sizes() const
 {
 	// verify that neither a nor b is bigger than two thirds of the total and c is no bigger than 2*sqrt(2)*sqrt(n)

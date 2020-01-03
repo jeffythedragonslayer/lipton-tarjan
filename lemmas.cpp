@@ -84,7 +84,7 @@ Partition lemma2_c2r1(GraphCR g_orig, uint r, vector<vertex_t> const& cycle)
 }
 
 // called when the middle part exceeds 2/3
-Partition lemma3_exceeds23(GraphCR g_orig, BFSVisitorData const& vis_data_orig, uint l[3], vector<vertex_t> const& cycle)
+Partition lemma3_exceeds23(GraphCR g_orig, BFSVisitorData const& vis_data_orig, uint l1, uint l2, vector<vertex_t> const& cycle)
 {
         Graph g_shrink2(g_orig);
         copy_graph(g_orig, g_shrink2);
@@ -98,7 +98,7 @@ Partition lemma3_exceeds23(GraphCR g_orig, BFSVisitorData const& vis_data_orig, 
         for( VertIter next = vit; vit != vjt; vit = next ){
                 ++next;
                 assert(vis_data_orig.verts.contains(*vit));
-                if( vis_data_orig.verts.find(*vit)->second.level >= l[2] ){
+                if( vis_data_orig.verts.find(*vit)->second.level >= l2 ){
                         //cout << "killing vertex " << vmap_shrunk.vert2uint[*vit] << " of level l2 or above: " << vis_data_orig.verts.find(*vit)->second.level << " >= " << l[2] << '\n';
                         kill_vertex(*vit, g_shrink2);
                 }
@@ -115,7 +115,7 @@ Partition lemma3_exceeds23(GraphCR g_orig, BFSVisitorData const& vis_data_orig, 
         } 
 
         //The new graph has a spanning tree radius of l2 - l1 -1 whose root corresponds to vertices on levels l1 and below in the original graph
-        uint r = l[2] - l[1] - 1;
+        uint r = l2 - l1 - 1;
         //Apply Lemma 2 to the new graph, A* B* C*
         Partition star_p = lemma2_c2r1(g_shrink2, r, cycle);
         vertex_t star_root;
@@ -130,8 +130,8 @@ Partition lemma3_exceeds23(GraphCR g_orig, BFSVisitorData const& vis_data_orig, 
         for( VertIter next = vit; vit != vjt; vit = next ){
                 ++next;
                 assert(vis_data_orig.verts.contains(*vit));
-                if( vis_data_orig.verts.find(*vit)->second.level == l[2] ||
-                        vis_data_orig.verts.find(*vit)->second.level == l[1] ){
+                if( vis_data_orig.verts.find(*vit)->second.level == l2 ||
+                        vis_data_orig.verts.find(*vit)->second.level == l1 ){
                                 p.c.insert(*vit);
                 }
         } 
@@ -152,7 +152,7 @@ Partition lemma3_exceeds23(GraphCR g_orig, BFSVisitorData const& vis_data_orig, 
         Futhermore, C contains no more than L[l1] + L[l2] + 2(l2 - l1 - 1) */
 }
 
-Partition lemma3_l1greaterequall2(GraphCR g_shrink2, BFSVisitorData const& vis_data_orig, uint l[3], uint r)
+Partition lemma3_l1greaterequall2(GraphCR g_shrink2, BFSVisitorData const& vis_data_orig, uint l1, uint r)
 {
         //cout << "l1 is greater than or equal to l2\n"; 
 
@@ -162,9 +162,9 @@ Partition lemma3_l1greaterequall2(GraphCR g_shrink2, BFSVisitorData const& vis_d
                 vertex_t v = *vei;
                 assert(vis_data_orig.verts.contains(v));
                 //cout << "level of " << ii << ": " << vis_data_orig.verts.find(v)->second.level << "  ";
-                if( vis_data_orig.verts.find(v)->second.level <  l[1] )                                       { cout << " belongs to first part\n";  p.a.insert(v); continue; }
-                if( vis_data_orig.verts.find(v)->second.level >= l[1]+1 && vis_data_orig.verts.find(v)->second.level <= r ){ cout << " belongs to middle part\n"; p.b.insert(v); continue; }
-                if( vis_data_orig.verts.find(v)->second.level == l[1] )                                       { cout << " belongs to last part\n";   p.c.insert(v); continue; }
+                if( vis_data_orig.verts.find(v)->second.level <  l1 )                                       { cout << " belongs to first part\n";  p.a.insert(v); continue; }
+                if( vis_data_orig.verts.find(v)->second.level >= l1+1 && vis_data_orig.verts.find(v)->second.level <= r ){ cout << " belongs to middle part\n"; p.b.insert(v); continue; }
+                if( vis_data_orig.verts.find(v)->second.level == l1 )                                       { cout << " belongs to last part\n";   p.c.insert(v); continue; }
                 assert(0);
         } 
         /*cout << "A = all verts on levels 0    thru l1-1\n";
@@ -173,9 +173,9 @@ Partition lemma3_l1greaterequall2(GraphCR g_shrink2, BFSVisitorData const& vis_d
         return p;
 }
 
-Partition lemma3_lessequal23(set<vertex_t> const& first_part, set<vertex_t> const& middle_part, set<vertex_t> const& last_part,  set<vertex_t>& deleted_part)
+Partition lemma3_lessequal23(set<vertex_t> const& first_part, set<vertex_t> const& middle_part, set<vertex_t> const& last_part, set<vertex_t>& deleted_part)
 {
-        cout << "middle partition has cost less than or equal to 2/3\n";
+        cout << "middle partition has cost <= 2/3\n";
 
         Partition p;
         p.a = first_part;
@@ -205,7 +205,7 @@ Suppose that the vertices of G are partitioned into levels according to their di
 If r is the maximum distance of any vertex from v, let r+1 be an additional level containing no vertices.
 Given any two levels l1 and l2 such that levels 0 through l1-1 have total cost not exceeding 2/3 and levels l2+1 through r+1 have total cost not exceeding 2/3,
 it is possible to find a partition A, B, C of the vertices of G such that no edge joins a vertex in A with a vertex in B, neither A nor B has total cost exceeding 2/3, and C contains no more than L(l1)+L(l2)+max{0,2(l2-l1-1)} vertices. */
-Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l[3], uint r, BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_shrunken, vector<vertex_t> const& cycle)
+Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r, BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_shrunken, vector<vertex_t> const& cycle)
 {
         assert(vis_data_shrunken.assert_data());
         assert(vis_data_orig.assert_data()); 
@@ -214,8 +214,8 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l[3], uint r, BFSVi
         cout << "n: " << n << '\n';
 
         Partition p;
-        if( l[1] >= l[2] ){
-                p = lemma3_l1greaterequall2(g_orig, vis_data_orig, l, r);
+        if( l1 >= l2 ){
+                p = lemma3_l1greaterequall2(g_orig, vis_data_orig, l1, r);
         } else {
                 cout << "l1 is less than l2\n";
 
@@ -232,13 +232,12 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l[3], uint r, BFSVi
 
                         cout << "level of " << v << ": " << level << ", ";
                         fflush(stdout);
-                        if( level == l[1] || level == l[2] ){     cout << v << " is deleted\n";                 deleted_part.insert(v); continue;}
-                        if( level <  l[1] ){                      cout << v << " belongs to first part (A)\n";  first_part.insert(v);   continue;}
-                        if( level >= l[1]+1 && level <= l[2]-1 ){ cout << v << " belongs to middle part (B)\n"; middle_part.insert(v);  continue;}
-                        if( level >  l[2]   ){                    cout << v << " belongs to last part (C)\n";   last_part.insert(v);    continue;}
+                        if( level == l1 || level == l2 ){     cout << v << " is deleted\n";                 deleted_part.insert(v); continue;}
+                        if( level <  l1 ){                      cout << v << " belongs to first part (A)\n";  first_part.insert(v);   continue;}
+                        if( level >= l1+1 && level <= l2-1 ){ cout << v << " belongs to middle part (B)\n"; middle_part.insert(v);  continue;}
+                        if( level >  l2   ){                    cout << v << " belongs to last part (C)\n";   last_part.insert(v);    continue;}
                         assert(0);
                 }
-
 
                 uint ptotal = first_part.size() + middle_part.size() + last_part.size() + deleted_part.size();
                 cout << "ptotal: " << ptotal << '\n';
@@ -250,11 +249,11 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l[3], uint r, BFSVi
                 cout << "third part size: " << last_part.size() << '\n';
                 //p.print();
 
-                p = middle_part.size() <= 2*n/3                  ? 
-                        lemma3_lessequal23(first_part, middle_part, last_part, deleted_part) :
-                        lemma3_exceeds23(g_orig, vis_data_orig, l, cycle); 
+                p = middle_part.size() <= 2*n/3                                          ?
+                    lemma3_lessequal23(first_part, middle_part, last_part, deleted_part) :
+                    lemma3_exceeds23(g_orig, vis_data_orig, l1, l2, cycle);
         }
 
-	assert(p.verify_sizes_lemma3(L, l));
+	//assert(p.verify_sizes_lemma3(L, l1, l2));
         return p;
 }

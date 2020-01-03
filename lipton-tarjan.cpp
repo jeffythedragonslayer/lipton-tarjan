@@ -52,7 +52,7 @@ Partition construct_vertex_partition(GraphCR g_orig, vector<uint> const& L, uint
         uint r = vis_data_orig.num_levels;
         cout << "r max distance: " << r << '\n';
 
-        return lemma3(g_orig, L, l, r, vis_data_orig, vis_data_shrunken, cycle);
+        return lemma3(g_orig, L, l[1], l[2], r, vis_data_orig, vis_data_shrunken, cycle);
 }
 
 // Step 9: Improve Separator

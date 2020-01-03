@@ -1,5 +1,6 @@
 #include "Partition.h"
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
 void Partition::get_most_costly_part(set<vertex_t> const** most_costly,
@@ -27,7 +28,7 @@ void Partition::get_most_costly_part(set<vertex_t> const** most_costly,
 	assert(0);
 }
 
-bool Partition::verify_sizes_lemma3(vector<uint> const& L, uint l[3]) const
+bool Partition::verify_sizes_lemma3(vector<uint> const& L, uint l1, uint l2) const
 {
 	// verify that neither a nor b is bigger than two thirds of the total and c is no bigger than L(l1) + L(l2) + max{0, 2(l2-l1-1)}
 	cout << "verifying partition sizes\n";
@@ -36,10 +37,12 @@ bool Partition::verify_sizes_lemma3(vector<uint> const& L, uint l[3]) const
 	uint c_verts = c.size();
 	uint n  = a_verts + b_verts + c_verts;
 
-	return (a_verts <= 2*n/3) && 
-		(b_verts <= 2*n/3) && 
-		(c_verts <= 2*sqrt(2)*sqrt(n));
+	int maxc = (int)L[l1] - (int)L[l2] - std::max<int>(0, 2*((int)l2-(int)l1-1));
+	assert(maxc >= 0);
 
+	return a_verts <= 2*n/3 && 
+		   b_verts <= 2*n/3 && 
+		   c_verts <= (uint)maxc;
 }
 
 bool Partition::verify_sizes() const

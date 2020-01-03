@@ -178,8 +178,9 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
         //cout << "found cycle with inside cost " << cc.inside << " which is less than 2/3\n";
         //print_cycle(cycle);
 
-        assert(vis_data_orig.assert_data());
-        assert(vis_data_shrunken.assert_data());
+        //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
+        //assert(vis_data_orig.assert_data());
+        //assert(vis_data_shrunken.assert_data());
 
 	return construct_vertex_partition(g_orig, l, vis_data_orig, vis_data_shrunken, cycle); // step 10
 }
@@ -196,8 +197,8 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
 // Determine which side of the cycle has greater cost and call it the "inside"
 Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_shrunken, uint l[3])
 {
-        assert(vis_data_orig.assert_data());
-        assert(vis_data_shrunken.assert_data());
+        //assert(vis_data_orig.assert_data()); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
+        //assert(vis_data_shrunken.assert_data()); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
 
         uint n = num_vertices(g_orig);
         //cout  << "----------------------- 8 - Locate Cycle -----------------\n"; 
@@ -358,11 +359,11 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
         vis_data_addx.verts[x].descendant_cost = -1;
 
         assert(vertex_exists(x, g_shrunk));
-        assert(assert_verts(g_copy, vis_data_addx));
+        //assert(assert_verts(g_copy, vis_data_addx)); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
         vector<vertex_t> replaced_verts = shrinktree_deletel2andabove(g_shrunk, l, vis_data_addx, x);
 
         assert(vertex_exists(x, g_shrunk));
-        assert(assert_verts(g_copy, vis_data_addx));
+        //assert(assert_verts(g_copy, vis_data_addx)); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
         auto prop_map = get(vertex_index, g_shrunk);
         //prop_map[x] = X_VERT_UINT;
 
@@ -378,14 +379,14 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
         }
 
         assert(vertex_exists(x, g_shrunk)); 
-        assert(assert_verts(g_copy, vis_data_addx)); 
+        //assert(assert_verts(g_copy, vis_data_addx)); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
 
         //reset_vertex_indices(g_shrunk);
         //reset_edge_index(g_shrunk);
         EmbedStruct em(&g_shrunk);
         assert(em.test_planar());
 
-        assert(assert_verts(g_copy, vis_data_addx));
+        //assert(assert_verts(g_copy, vis_data_addx)); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
 
         VertIter vei, vend;
         for( tie(vei, vend) = vertices(g_orig); vei != vend; ++vei ){ 
@@ -433,7 +434,7 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
 // Find the lowest level l2 >= l1 + 1 such that L(l2) + 2(l2-l1-1) <= 2*sqrt(n-k)
 Partition find_more_levels(GraphCR g_orig, Graph& g_copy, uint k, uint l[3], vector<uint> const& L, BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_copy)
 {
-        assert(assert_verts(g_copy, vis_data_copy));
+        //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
 
         //cout  << "---------------------------- 5 - Find More Levels -------\n";
         //print_graph(g_copy);
@@ -472,7 +473,7 @@ Partition find_more_levels(GraphCR g_orig, Graph& g_copy, uint k, uint l[3], vec
 // Let k be the number of vertices in levels 0 through l1
 Partition l1_and_k(GraphCR g_orig, Graph& g_copy, vector<uint> const& L, BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_copy)
 {
-        assert(assert_verts(g_copy, vis_data_copy));
+        //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
 
         cout  << "---------------------------- 4 - l1 and k  ------------\n";
         uint k = L[0]; 
@@ -505,8 +506,9 @@ Partition bfs_and_levels(GraphCR g_orig, Graph& g_copy)
         BFSVisitorData vis_data_orig(&g_orig, *vertices(g_orig).first);
         breadth_first_search(g_orig, vis_data_orig.root, boost::visitor(BFSVisitor(vis_data_orig)));
 
-        assert(assert_verts(g_orig, vis_data_orig));
-        assert(assert_verts(g_copy, vis_data_copy));
+        // disabled because they don't support multiple connected components
+        //assert(assert_verts(g_orig, vis_data_orig));
+        //assert(assert_verts(g_copy, vis_data_copy));
 
         vector<uint> L(vis_data_copy.num_levels + 1, 0);
 	cout << "L levels: " << L.size() << '\n';

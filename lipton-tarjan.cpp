@@ -39,18 +39,18 @@ using namespace boost;
 Partition construct_vertex_partition(GraphCR g_orig, uint l[3], BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_shrunken, vector<vertex_t> const& cycle)
 {
         uint n_orig = num_vertices(g_orig);
-        //cout << "n_orig: " << n_orig << '\n';
+        cout << "n_orig: " << n_orig << '\n';
 
-        //cout  << "\n------------ 10  - Construct Vertex Partition --------------\n";
-        //cout << "g_orig:\n";
-        //print_graph(g_orig);
+        cout  << "\n------------ 10  - Construct Vertex Partition --------------\n";
+        cout << "g_orig:\n";
+        print_graph(g_orig);
 	//print_graph_special(g_orig, vmap);
-        /*cout << "l0: " << l[0] << '\n';
+        cout << "l0: " << l[0] << '\n';
         cout << "l1: " << l[1] << '\n';
-        cout << "l2: " << l[2] << '\n';*/
+        cout << "l2: " << l[2] << '\n';
 
         uint r = vis_data_orig.num_levels;
-        //cout << "r max distance: " << r << '\n';
+        cout << "r max distance: " << r << '\n';
 
         return lemma3_cllmax(g_orig, l, r, vis_data_orig, vis_data_shrunken, cycle);
 }
@@ -73,54 +73,57 @@ Partition construct_vertex_partition(GraphCR g_orig, uint l[3], BFSVisitorData c
 Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge_t completer_candidate_edge, BFSVisitorData const& vis_data_orig,
                                 BFSVisitorData const& vis_data_shrunken, vector<vertex_t> cycle, EmbedStruct const& em, bool cost_swapped, uint l[3])
 {
-        //cout << "---------------------------- 9 - Improve Separator -----------\n";
-        //print_graph(g_shrunk);
+        cout << "---------------------------- 9 - Improve Separator -----------\n";
+        print_graph(g_shrunk);
         //print_edges(g_shrunk, vmap_shrunk);
 
-        /*cout << "cycle: ";
-        for( uint i = 0; i < cycle.size(); ++i ) cout << vmap_shrunk.vert2uint[cycle[i]] << ' ';
-        cout << '\n';*/
+        auto prop_map = get(vertex_index, g_shrunk); // writing to this property map has side effects in the graph
+
+
+        cout << "cycle: ";
+        for( uint i = 0; i < cycle.size(); ++i ) cout << prop_map[cycle[i]] << ' ';
+        cout << '\n';
 
         uint n_orig = num_vertices(g_orig);
         uint n = num_vertices(g_shrunk);
-        //cout << "n_orig: " << n_orig << ", n: " << n << '\n';
+        cout << "n_orig: " << n_orig << ", n: " << n << '\n';
 
         while( cc.inside > 2.*n/3 ){
-                /*cout << "nontree completer candidate edge: " << to_string(completer_candidate_edge, vmap_shrunk, g_shrunk) << '\n';
+                cout << "nontree completer candidate edge: " << to_string(completer_candidate_edge, g_shrunk) << '\n';
                 cout << "cost inside: " << cc.inside  << '\n';
                 cout << "cost outide: " << cc.outside << '\n';
-                cout << "looking for a better cycle\n";*/
+                cout << "looking for a better cycle\n";
 
 		// Let (vi, wi) be the nontree edge whose cycle is the current candidate to complete the separator
                 vertex_t vi = source(completer_candidate_edge, g_shrunk);
                 vertex_t wi = target(completer_candidate_edge, g_shrunk); 
                 assert(!vis_data_shrunken.is_tree_edge(completer_candidate_edge));
-                //cout << "   vi: " << vmap_shrunk.vert2uint[vi] << '\n';
-                //cout << "   wi: " << vmap_shrunk.vert2uint[wi] << '\n';
+                cout << "   vi: " << prop_map[vi] << '\n';
+                cout << "   wi: " << prop_map[wi] << '\n';
 
                 set<vertex_t> neighbors_of_v = get_neighbors(vi, g_shrunk);
                 set<vertex_t> neighbors_of_w = get_neighbors(wi, g_shrunk); 
                 pair<vertex_t, vertex_t> neighbors_vw = get_intersection(neighbors_of_v, neighbors_of_w);
-                //cout << "   neighbors_vw_begin : " << vmap_shrunk.vert2uint[neighbors_vw.first] << '\n';
-                //cout << "   neighbors_vw_rbegin: " << vmap_shrunk.vert2uint[neighbors_vw.second] << '\n';
+                cout << "   neighbors_vw_begin : " << prop_map[neighbors_vw.first] << '\n';
+                cout << "   neighbors_vw_rbegin: " << prop_map[neighbors_vw.second] << '\n';
 
 		// Locate the triangle (vi, y, wi) which has (vi, wi) as a boundary edge and lies inside the (vi, wi) cycle.  
 		// one of the two vertices in the set neighbors_vw is y.  Maybe it's .begin(), so we use is_edge_inside_outside_or_on_cycle to test if it is.
                 pair<edge_t, bool> maybe_y = edge(vi, neighbors_vw.first, g_shrunk);
                 assert(maybe_y.second); // I'm assuming the bool means that the edge_t exists?  Boost Graph docs don't say
-                //cout << "maybe_y: " << to_string(maybe_y.first, vmap_shrunk, g_shrunk) << '\n';
+                cout << "maybe_y: " << to_string(maybe_y.first, g_shrunk) << '\n';
 
                 vertex_t common_vert_on_cycle = find(STLALL(cycle), neighbors_vw.first) == cycle.end() ?
                                                 neighbors_vw.second :
                                                 neighbors_vw.first;
-                //cout << "common vert on cycle: " << vmap_shrunk.vert2uint[common_vert_on_cycle] << '\n';
+                cout << "common vert on cycle: " << prop_map[common_vert_on_cycle] << '\n';
                 assert(find(STLALL(cycle), common_vert_on_cycle) != cycle.end());
 
                 InsideOutOn insideout = is_edge_inside_outside_or_on_cycle(maybe_y.first, common_vert_on_cycle, cycle, g_shrunk, em.em);
-		assert(insideout != ON);
+		//assert(insideout != ON);
                 vertex_t y = (insideout == INSIDE) ? neighbors_vw.first : neighbors_vw.second; // We now have the (vi, y, wi) triangle
 
-                //cout << "   y: " << vmap_shrunk.vert2uint[y] << '\n';
+                cout << "   y: " << prop_map[y] << '\n';
                 pair<edge_t, bool> viy_e = edge(vi, y, g_shrunk); assert(viy_e.second); edge_t viy = viy_e.first;
                 pair<edge_t, bool> ywi_e = edge(y, wi, g_shrunk); assert(ywi_e.second); edge_t ywi = ywi_e.first; 
                 edge_t next_edge;
@@ -128,7 +131,7 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
 		// if either (vi, y) or (y, wi) is a tree edge, 
                 if ( vis_data_shrunken.is_tree_edge(viy) || vis_data_shrunken.is_tree_edge(ywi) ){
 			// determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.
-                        //cout << "   at least one tree edge\n";
+                        cout << "   at least one tree edge\n";
                         next_edge = vis_data_shrunken.is_tree_edge(viy) ? ywi : viy;
                         assert(!vis_data_shrunken.is_tree_edge(next_edge));
 
@@ -142,20 +145,26 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
                         if( cost_swapped ) swap(cc.outside, cc.inside);
                 } else {
                         // Determine the tree path from y to the (vi, wi) cycle by following parents of y.
-                        //cout << "   neither are tree edges\n";
+                        cout << "   neither are tree edges\n";
                         vector<vertex_t> y_parents = ancestors(y, vis_data_shrunken);
+
+                        for( vertex_t vp : y_parents ){
+                                cout << "y parent: " << prop_map[vp] << '\n';
+                        }
+
                         uint i = 0;
                         while( !on_cycle(y_parents[i++], cycle, g_shrunk) );
 
                         // Let z be the vertex on the (vi, wi) cycle reached during the search.
-                        vertex_t z = y_parents[i++];
-                        //cout << "    z: " << vmap_shrunk.vert2uint[z] << '\n';
+                        vertex_t z = y_parents.at(--i);
+                        assert(on_cycle(z, cycle, g_shrunk));
+                        cout << "    z: " << prop_map[z] << '\n';
                         y_parents.erase(y_parents.begin()+i, y_parents.end());
                         assert(y_parents.size() == i);
 
                         // Compute the total cost af all vertices except z on this tree path.
                         uint path_cost = y_parents.size() - 1;
-                        //cout << "    y-to-z-minus-z cost: " << path_cost << '\n';
+                        cout << "    y-to-z-minus-z cost: " << path_cost << '\n';
 
                         // Scan the tree edges inside the (y, wi) cycle, alternately scanning an edge in one cycle and an edge in the other cycle.
                         // Stop scanning when all edges inside one of the cycles have been scanned.  Compute the cost inside this cycle by summing the associated costs of all scanned edges.
@@ -175,8 +184,8 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
                 } 
                 completer_candidate_edge = next_edge;
         }
-        //cout << "found cycle with inside cost " << cc.inside << " which is less than 2/3\n";
-        //print_cycle(cycle);
+        cout << "found cycle with inside cost " << cc.inside << " which is less than 2/3\n";
+        print_cycle(cycle, g_shrunk);
 
         //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
         //assert(vis_data_orig.assert_data());
@@ -218,12 +227,12 @@ Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vi
         }
         vertex_t v1 = source(completer_candidate_edge, g_shrunk);
         vertex_t w1 = target(completer_candidate_edge, g_shrunk); 
-        //cout << "ancestors v1...\n";
+        cout << "ancestors v1...\n";
         vector<vertex_t> parents_v   = ancestors(v1, vis_data_shrunken);
-        //cout << "ancestors v2...\n";
+        cout << "ancestors v2...\n";
         vector<vertex_t> parents_w   = ancestors(w1, vis_data_shrunken); 
         vertex_t common_ancestor    = get_common_ancestor(parents_v, parents_w);
-        //cout << "common ancestor: " << common_ancestor << '\n'; 
+        cout << "common ancestor: " << common_ancestor << '\n'; 
         vector<vertex_t> cycle = get_cycle(v1, w1, common_ancestor, vis_data_shrunken);
 
         EmbedStruct em(&g_shrunk);
@@ -232,10 +241,10 @@ Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vi
         if( cc.outside > cc.inside ){
                 swap(cc.outside, cc.inside);
                 cost_swapped = true;
-                //cout << "!!!!!! cost swapped !!!!!!!!\n";
+                cout << "!!!!!! cost swapped !!!!!!!!\n";
         } else cost_swapped = false;
-        //cout << "total inside cost:  " << cc.inside  << '\n'; 
-        //cout << "total outside cost: " << cc.outside << '\n';
+        cout << "total inside cost:  " << cc.inside  << '\n'; 
+        cout << "total outside cost: " << cc.outside << '\n';
 
 	return improve_separator(g_orig, g_shrunk, cc, completer_candidate_edge, vis_data_orig, vis_data_shrunken, cycle, em, cost_swapped, l); // step 9
 }

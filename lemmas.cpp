@@ -175,14 +175,14 @@ Partition lemma3_l1greaterequall2(GraphCR g_shrink2, BFSVisitorData const& vis_d
 
 Partition lemma3_lessequal23(Partition const& p, set<vertex_t>& deleted_part)
 {
-        //cout << "middle partition has cost less than or equal to 2/3\n";
+        cout << "middle partition has cost less than or equal to 2/3\n";
 
         set<vertex_t> const* costly_part;
         set<vertex_t> const* other1;
         set<vertex_t> const* other2;
         p.get_most_costly_part(&costly_part, &other1, &other2);
 
-        //p.print(vmap_shrunk);
+        p.print();
         cout <<   "A = most costly part of the 3 : "; for( auto& a : *costly_part ) cout << a << ' ';
         cout << "\nB = remaining 2 parts         : "; for( auto& b : *other1      ) cout << b << ' '; for( auto& b : *other2 ) cout << b << ' '; 
         cout << "\nC = deleted verts on l1 and l2: "; for( auto& v : deleted_part ) cout << v << ' '; cout << '\n';
@@ -236,10 +236,10 @@ Partition lemma3_cllmax(GraphCR g_orig, uint l[3], uint r, BFSVisitorData const&
         assert(ptotal == n);
 
         //the only part which can have cost > 2/3 is the middle part (B)
-        /*cout << "Partition A size: " << p.a.size() << '\n';
+        cout << "Partition A size: " << p.a.size() << '\n';
         cout << "Partition B size: " << p.b.size() << '\n';
-        cout << "Partition C size: " << p.c.size() << '\n';*/
-	//p.print(vmap_shrunk);
+        cout << "Partition C size: " << p.c.size() << '\n';
+	p.print();
 
         assert(p.a.size() <= 2*n/3);
         assert(p.c.size() <= 2*n/3);

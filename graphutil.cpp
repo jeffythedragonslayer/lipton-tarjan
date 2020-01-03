@@ -93,7 +93,8 @@ e may be anywhere on the graph.
 common_vert_on_cycle should be a tree vertex that both of e's incident vertices share as an ancestor */
 InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t e, vertex_t common_vert_on_cycle, vector<vertex_t> const& cycle, Graph const& g, Embedding const& em)
 {
-        //cout << "------------------ is edge inside outside or on cycle -----------------\n";
+        cout << "------------------ is edge inside outside or on cycle -----------------\n";
+        cout << "is edge inside outside or on cycle? " << to_string(e, g) << '\n';
 	//cout << "edge: " << vmap.vert2uint[source(e, g)] << ' ' << vmap.vert2uint[target(e, g)] << '\n';
         //cout << "cycle: ";
         //for( uint i = 0; i < cycle.size(); ++i ) cout << vmap.vert2uint[cycle[i]] << ' ';
@@ -102,7 +103,7 @@ InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t e, vertex_t common_vert_on
         auto src = source(e, g);
         auto tar = target(e, g);
         if( on_cycle(e, cycle, g) ){
-		//cout << "edge is on cycle\n";
+		cout << "edge is on cycle\n";
 		return ON;
 	}
         //cout << "      testing if edge " << vmap.vert2uint[src] << ", " << vmap.vert2uint[tar] << " is inside or outside the cycle\n";

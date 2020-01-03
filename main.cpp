@@ -54,6 +54,8 @@ int main(int argc, char* argv[])
 			cout << "Finished!\n";
 
                         p.print();
+
+			assert(p.verify_sizes());
 			//p.print(vmap2);
 
 			cout << "finished num verts: " << num_verts_finished << '\n';

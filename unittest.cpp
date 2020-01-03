@@ -57,7 +57,6 @@ void check_partition_is_legal(string graphfile)
 
 	cout << "Checking graph " << graphfile << "...\n";
 
-
 	Graph g = load_graph(graphfile);
 	init_vert_propmap(g);
 
@@ -67,19 +66,13 @@ void check_partition_is_legal(string graphfile)
 
 	Partition p = lipton_tarjan(g);
 
-	// verify that neither a nor b is bigger than two thirds of the total and c is no bigger than 2*sqrt(2)*sqrt(n)
-	cout << "verifying partition sizes\n";
-	uint a_verts = p.a.size();
-	uint b_verts = p.b.size();
-	uint c_verts = p.c.size();
-	uint total  = a_verts + b_verts + c_verts;
+	assert(p.verify_sizes());
+
+	uint total = p.total_num_verts();
+
 	cout << "n = " << n << '\n';
 	cout << "total = " << total << '\n';
 	assert(n == total);
-
-	BOOST_CHECK(a_verts <= 2*n/3);
-	BOOST_CHECK(b_verts <= 2*n/3);
-	BOOST_CHECK(c_verts <= 2*sqrt(2)*sqrt(n));
 
 	// verify that no edge joins a vertex in partition A with a vertex in partition B
 	EdgeIter ei, ei_end;

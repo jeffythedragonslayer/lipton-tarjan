@@ -8,6 +8,7 @@ struct Partition
 
 		uint total_num_verts() const;
 
+		bool verify_sizes() const;
 		void print() const;
 		void get_most_costly_part(std::set<vertex_t> const** most_costly,
 									std::set<vertex_t> const** other1,

@@ -217,7 +217,7 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
         if( l1 >= l2 ){
                 p = lemma3_l1greaterequall2(g_orig, vis_data_orig, l1, r);
         } else {
-                cout << "l1 is less than l2\n";
+                cout << "l1 < l2\n";
 
                 set<vertex_t> first_part, middle_part, last_part, deleted_part;
                 VertIter vei, vend;
@@ -233,9 +233,9 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
                         cout << "level of " << v << ": " << level << ", ";
                         fflush(stdout);
                         if( level == l1 || level == l2 ){     cout << v << " is deleted\n";                 deleted_part.insert(v); continue;}
-                        if( level <  l1 ){                      cout << v << " belongs to first part (A)\n";  first_part.insert(v);   continue;}
+                        if( level <  l1 ){                    cout << v << " belongs to first part (A)\n";  first_part.insert(v);   continue;}
                         if( level >= l1+1 && level <= l2-1 ){ cout << v << " belongs to middle part (B)\n"; middle_part.insert(v);  continue;}
-                        if( level >  l2   ){                    cout << v << " belongs to last part (C)\n";   last_part.insert(v);    continue;}
+                        if( level >  l2   ){                  cout << v << " belongs to last part (C)\n";   last_part.insert(v);    continue;}
                         assert(0);
                 }
 

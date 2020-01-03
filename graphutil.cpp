@@ -19,6 +19,19 @@ int levi_civita(uint i, uint j, uint k)
         return -1;
 } 
 
+void init_vert_propmap(Graph& g)
+{
+	auto prop_map = get(vertex_index, g); // writing to this property map has side effects in the graph
+	VertIter vi, vend;
+	uint i = 0;
+	for( tie(vi, vend) = vertices(g); vi != vend; ++vi ){
+		prop_map[*vi] = i;
+		cout << "prop map " << *vi << " == " << i << '\n';
+		++i;
+	} 
+}
+
+
 vertex_t get_common_ancestor(vector<vertex_t> const& ancestors_v, vector<vertex_t> const& ancestors_w)
 {
         for( uint i = 0; i < ancestors_v.size(); ++i ){

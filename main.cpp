@@ -29,14 +29,7 @@ int main(int argc, char* argv[])
                 Graph g = load_graph(f);
 
 #ifdef GRAPH_TYPE_LIST
-                auto prop_map = get(vertex_index, g); // writing to this property map has side effects in the graph
-                VertIter vi, vend;
-                uint i = 0;
-                for( tie(vi, vend) = vertices(g); vi != vend; ++vi ){
-                        prop_map[*vi] = i;
-			cout << "prop map " << *vi << " == " << i << '\n';
-                        ++i;
-                }
+                init_vert_propmap(g);
 #endif
 
                 uint n = num_vertices(g);
@@ -56,6 +49,7 @@ int main(int argc, char* argv[])
                         p.print();
 
 			assert(p.verify_sizes());
+                        assert(p.verify_edges(g));
 			//p.print(vmap2);
 
 			cout << "finished num verts: " << num_verts_finished << '\n';

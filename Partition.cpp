@@ -1,4 +1,5 @@
 #include "Partition.h"
+#include "typedefs.h"
 #include <iostream>
 #include <algorithm>
 using namespace std;
@@ -43,6 +44,24 @@ bool Partition::verify_sizes_lemma3(vector<uint> const& L, uint l1, uint l2) con
 	return a_verts <= 2*n/3 && 
 		   b_verts <= 2*n/3 && 
 		   c_verts <= (uint)maxc;
+}
+
+bool Partition::verify_edges(GraphCR g) const
+{
+	// verify that no edge joins a vertex in partition A with a vertex in partition B
+	EdgeIter ei, ei_end;
+	for (tie(ei, ei_end) = edges(g); ei != ei_end; ++ei){
+		auto v1 = source(*ei, g);
+		auto v2 = target(*ei, g);
+
+		if( find(STLALL(a), v1) != a.end()){ // if v1 is in a
+			if( find(STLALL(b), v2) != b.end() ) return false;// v2 should not be in b
+		} else if( find(STLALL(b), v1) != b.end() ){ // if v1 is in b
+			if( find(STLALL(a), v2) != a.end() ) return false; // v2 should not be in a
+		}
+	}
+
+	return true;
 }
 
 bool Partition::verify_sizes() const

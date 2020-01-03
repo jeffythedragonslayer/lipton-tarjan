@@ -12,18 +12,6 @@
 using namespace std;
 using namespace boost;
 
-void init_vert_propmap(Graph& g)
-{
-	auto prop_map = get(vertex_index, g); // writing to this property map has side effects in the graph
-	VertIter vi, vend;
-	uint i = 0;
-	for( tie(vi, vend) = vertices(g); vi != vend; ++vi ){
-		prop_map[*vi] = i;
-		cout << "prop map " << *vi << " == " << i << '\n';
-		++i;
-	} 
-}
-
 void check_graph_is_nonplanar(string graphfile)
 { 
 	cout << "loading graph\n";
@@ -66,7 +54,6 @@ void check_partition_is_legal(string graphfile)
 
 	Partition p = lipton_tarjan(g);
 
-	assert(p.verify_sizes());
 
 	uint total = p.total_num_verts();
 
@@ -74,18 +61,8 @@ void check_partition_is_legal(string graphfile)
 	cout << "total = " << total << '\n';
 	assert(n == total);
 
-	// verify that no edge joins a vertex in partition A with a vertex in partition B
-	EdgeIter ei, ei_end;
-	for (tie(ei, ei_end) = edges(g); ei != ei_end; ++ei){
-		auto v1 = source(*ei, g);
-		auto v2 = target(*ei, g);
-
-		if( find(STLALL(p.a), v1) != p.a.end()){ // if v1 is in a
-			BOOST_CHECK(find(STLALL(p.b), v2) == p.b.end()); // v2 should not be in b
-		} else if( find(STLALL(p.b), v1) != p.b.end() ){ // if v1 is in b
-			BOOST_CHECK(find(STLALL(p.a), v2) == p.a.end()); // v2 should not be in a
-		}
-	}
+	assert(p.verify_sizes());
+	assert(p.verify_edges(g));
 }
 
 BOOST_AUTO_TEST_CASE( kuratowski )

@@ -54,4 +54,5 @@ void contract_vertices(vertex_t b, vertex_t a, Graph&);
 
 bool vertex_exists(vertex_t x, Graph const&);
 bool edge_exists(edge_t e, Graph const& g);
-bool assert_verts(GraphCR, BFSVisitorData const&);
+bool assert_verts(GraphCR, BFSVisitorData const&); 
+void init_vert_propmap(Graph& g);

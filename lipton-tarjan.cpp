@@ -153,7 +153,7 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
                         }
 
                         uint i = 0;
-                        while( !on_cycle(y_parents[i++], cycle, g_shrunk) );
+                        while( !on_cycle(y_parents[i], cycle, g_shrunk) ) ++i;
 
                         // Let z be the vertex on the (vi, wi) cycle reached during the search.
                         vertex_t z = y_parents.at(--i);

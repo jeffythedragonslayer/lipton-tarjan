@@ -103,12 +103,12 @@ BOOST_AUTO_TEST_CASE( fourfingered_test )
 
 BOOST_AUTO_TEST_CASE( notk_test )
 {
-	check_partition_is_legal("graphs/notk", true);
+	check_partition_is_legal("graphs/notk");
 }
 
 BOOST_AUTO_TEST_CASE( rand_test )
 {
-	check_partition_is_legal("graphs/rand", true);
+	check_partition_is_legal("graphs/rand");
 }
 
 BOOST_AUTO_TEST_CASE( rand2_test )
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE( rand2_test )
 
 BOOST_AUTO_TEST_CASE( rand3_test )
 {
-	check_partition_is_legal("graphs/rand3", true);
+	check_partition_is_legal("graphs/rand3");
 }
 
 BOOST_AUTO_TEST_CASE( box3_test )

@@ -91,13 +91,13 @@ set<vertex_t> get_neighbors(vertex_t v, Graph const& g)
 }
 
 // get set intersection of a and b
-pair<vertex_t, vertex_t> get_intersection(set<vertex_t> const& a, set<vertex_t> const& b)
+set<vertex_t> get_intersection(set<vertex_t> const& a, set<vertex_t> const& b)
 {
         set<vertex_t> c;
         set_intersection(STLALL(a), STLALL(b), inserter(c, c.begin())); 
         //for( auto& i : c ) cout << "      set intersection: " << vmap.vert2uint[i] << '\n'; 
         assert(c.size() == 2);
-        return make_pair(*c.begin(), *c.rbegin());
+        return c;
 } 
 
 /* Given an edge e and a cycle of vertices, determine whether e is in inside, outside, or on the cycle.

@@ -103,28 +103,28 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
 
                 set<vertex_t> neighbors_of_v = get_neighbors(vi, g_shrunk);
                 set<vertex_t> neighbors_of_w = get_neighbors(wi, g_shrunk); 
-                pair<vertex_t, vertex_t> neighbors_vw = get_intersection(neighbors_of_v, neighbors_of_w);
-                cout << "   neighbors_vw_begin : " << prop_map[neighbors_vw.first] << '\n';
-                cout << "   neighbors_vw_rbegin: " << prop_map[neighbors_vw.second] << '\n';
+                set<vertex_t> neighbors_vw = get_intersection(neighbors_of_v, neighbors_of_w);
+                cout << "   neighbors_vw_begin : " << prop_map[*neighbors_vw.begin()] << '\n';
+                cout << "   neighbors_vw_rbegin: " << prop_map[*neighbors_vw.rbegin()] << '\n';
 
 		// Locate the triangle (vi, y, wi) which has (vi, wi) as a boundary edge and lies inside the (vi, wi) cycle.  
 		// one of the two vertices in the set neighbors_vw is y.  Maybe it's .begin(), so we use is_edge_inside_outside_or_on_cycle to test if it is.
-                pair<edge_t, bool> maybe_y = edge(vi, neighbors_vw.first, g_shrunk);
+                pair<edge_t, bool> maybe_y = edge(vi, *neighbors_vw.begin(), g_shrunk);
                 assert(maybe_y.second); // I'm assuming the bool means that the edge_t exists?  Boost Graph docs don't say
                 cout << "maybe_y: " << to_string(maybe_y.first, g_shrunk) << '\n';
 
                 cout << "cycle:\n";
                 print_cycle(cycle, g_shrunk);
 
-                vertex_t common_vert_on_cycle = find(STLALL(cycle), neighbors_vw.first) == cycle.end() ?
-                                                neighbors_vw.second :
-                                                neighbors_vw.first;
+                vertex_t common_vert_on_cycle = find(STLALL(cycle), *neighbors_vw.begin()) == cycle.end() ?
+                                                *neighbors_vw.rbegin() :
+                                                *neighbors_vw.begin() ;
                 cout << "common vert on cycle: " << prop_map[common_vert_on_cycle] << '\n';
                 assert(find(STLALL(cycle), common_vert_on_cycle) != cycle.end());
 
                 InsideOutOn insideout = is_edge_inside_outside_or_on_cycle(maybe_y.first, common_vert_on_cycle, cycle, g_shrunk, em.em);
 		assert(insideout != ON);
-                vertex_t y = (insideout == INSIDE) ? neighbors_vw.first : neighbors_vw.second; // We now have the (vi, y, wi) triangle
+                vertex_t y = (insideout == INSIDE) ? *neighbors_vw.begin() : *neighbors_vw.rbegin(); // We now have the (vi, y, wi) triangle
 
                 cout << "   y: " << prop_map[y] << '\n';
                 pair<edge_t, bool> viy_e = edge(vi, y, g_shrunk); assert(viy_e.second); edge_t viy = viy_e.first;

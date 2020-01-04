@@ -81,10 +81,10 @@ BOOST_AUTO_TEST_CASE( empty_test )
 		check_partition_is_legal("graphs/star");
 }*/
 
-/*BOOST_AUTO_TEST_CASE( box2_test )
+BOOST_AUTO_TEST_CASE( box2_test )
 {
 	check_partition_is_legal("graphs/box2");
-}*/
+}
 
 /*BOOST_AUTO_TEST_CASE( huge_test )
 {
@@ -109,14 +109,14 @@ BOOST_AUTO_TEST_CASE( fourfingered_test )
 BOOST_AUTO_TEST_CASE( rand_test )
 {
 	check_partition_is_legal("graphs/rand", true);
-}
+}*/
 
 BOOST_AUTO_TEST_CASE( rand2_test )
 {
-	check_partition_is_legal("graphs/rand2", true);
+	check_partition_is_legal("graphs/rand2");
 }
 
-BOOST_AUTO_TEST_CASE( rand3_test )
+/*BOOST_AUTO_TEST_CASE( rand3_test )
 {
 	check_partition_is_legal("graphs/rand3", true);
 }*/

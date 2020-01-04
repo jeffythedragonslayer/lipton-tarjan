@@ -153,10 +153,16 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
                         }
 
                         uint i = 0;
-                        while( !on_cycle(y_parents[i], cycle, g_shrunk) ) ++i;
+                        while( !on_cycle(y_parents.at(i), cycle, g_shrunk) ){
+                                cout << "yparents[" << i << "]: " << y_parents[i] << " propmap: " << prop_map[y_parents[i]] << '\n';
+                                ++i;
+                        }
+                        cout << "yparents[" << i << "]: " << y_parents.at(i) << " propmap: " << prop_map[y_parents[i]] << '\n';
 
                         // Let z be the vertex on the (vi, wi) cycle reached during the search.
-                        vertex_t z = y_parents.at(--i);
+			cout << "i: " << i << '\n';
+                        vertex_t z = y_parents.at(i);
+			cout << "z: " << prop_map[z] << '\n';
                         assert(on_cycle(z, cycle, g_shrunk));
                         cout << "    z: " << prop_map[z] << '\n';
                         y_parents.erase(y_parents.begin()+i, y_parents.end());

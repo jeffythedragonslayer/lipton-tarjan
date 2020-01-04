@@ -55,6 +55,31 @@ Partition construct_vertex_partition(GraphCR g_orig, vector<uint> const& L, uint
         return lemma3(g_orig, L, l[1], l[2], r, vis_data_orig, vis_data_shrunken, cycle);
 }
 
+
+// Locate the triangle (vi, y, wi) which has (vi, wi) as a boundary edge and lies inside the (vi, wi) cycle.  
+// one of the two vertices in the set neighbors_vw is y.  Maybe it's .begin(), so we use is_edge_inside_outside_or_on_cycle to test if it is.j
+vertex_t findy(vertex_t vi, set<vertex_t> const& neighbors_vw, vector<vertex_t> const& cycle, GraphCR g_shrunk, EmbedStruct const& em,  decltype(get(vertex_index, const_cast<Graph&>(g_shrunk))) prop_map)
+{
+	pair<edge_t, bool> maybe_y = edge(vi, *neighbors_vw.begin(), g_shrunk);
+	assert(maybe_y.second); // I'm assuming the bool means that the edge_t exists?  Boost Graph docs don't say
+	cout << "maybe_y: " << to_string(maybe_y.first, g_shrunk) << '\n';
+
+	cout << "cycle:\n";
+	print_cycle(cycle, g_shrunk);
+
+	vertex_t common_vert_on_cycle = find(STLALL(cycle), *neighbors_vw.begin()) == cycle.end() ?
+					*neighbors_vw.rbegin() :
+					*neighbors_vw.begin() ;
+	cout << "common vert on cycle: " << prop_map[common_vert_on_cycle] << '\n';
+	assert(find(STLALL(cycle), common_vert_on_cycle) != cycle.end());
+
+	InsideOutOn insideout = is_edge_inside_outside_or_on_cycle(maybe_y.first, common_vert_on_cycle, cycle, g_shrunk, em.em);
+	assert(insideout != ON);
+	vertex_t y = (insideout == INSIDE) ? *neighbors_vw.begin() : *neighbors_vw.rbegin();
+	// We now have the (vi, y, wi) triangle
+	return y;
+}
+
 // Step 9: Improve Separator
 // Time:   O(n)
 //
@@ -71,14 +96,13 @@ Partition construct_vertex_partition(GraphCR g_orig, vector<uint> const& L, uint
 //      Let (vi+1, wi+1) be the edge among (vi, y) and (y, wi) whose cycle has more cost inside it.
 // 	Repeat Step 9 until finding a cycle whose inside has cost not exceeding 2/3.
 Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge_t completer_candidate_edge, BFSVisitorData const& vis_data_orig,
-                                BFSVisitorData const& vis_data_shrunken, vector<vertex_t> cycle, EmbedStruct const& em, bool cost_swapped, vector<uint> const& L, uint l[3])
+                            BFSVisitorData const& vis_data_shrunken, vector<vertex_t> cycle, EmbedStruct const& em, bool cost_swapped, vector<uint> const& L, uint l[3])
 {
         cout << "---------------------------- 9 - Improve Separator -----------\n";
         print_graph(g_shrunk);
         //print_edges(g_shrunk, vmap_shrunk);
 
         auto prop_map = get(vertex_index, g_shrunk); // writing to this property map has side effects in the graph
-
 
         cout << "cycle: ";
         for( uint i = 0; i < cycle.size(); ++i ) cout << prop_map[cycle[i]] << ' ';
@@ -104,27 +128,13 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
                 set<vertex_t> neighbors_of_v = get_neighbors(vi, g_shrunk);
                 set<vertex_t> neighbors_of_w = get_neighbors(wi, g_shrunk); 
                 set<vertex_t> neighbors_vw = get_intersection(neighbors_of_v, neighbors_of_w);
+                for( auto& ne : neighbors_vw ){ 
+                        cout << "neighbor: " << ne << " prop_map: " << prop_map[ne] << '\n';
+                }
                 cout << "   neighbors_vw_begin : " << prop_map[*neighbors_vw.begin()] << '\n';
                 cout << "   neighbors_vw_rbegin: " << prop_map[*neighbors_vw.rbegin()] << '\n';
 
-		// Locate the triangle (vi, y, wi) which has (vi, wi) as a boundary edge and lies inside the (vi, wi) cycle.  
-		// one of the two vertices in the set neighbors_vw is y.  Maybe it's .begin(), so we use is_edge_inside_outside_or_on_cycle to test if it is.
-                pair<edge_t, bool> maybe_y = edge(vi, *neighbors_vw.begin(), g_shrunk);
-                assert(maybe_y.second); // I'm assuming the bool means that the edge_t exists?  Boost Graph docs don't say
-                cout << "maybe_y: " << to_string(maybe_y.first, g_shrunk) << '\n';
-
-                cout << "cycle:\n";
-                print_cycle(cycle, g_shrunk);
-
-                vertex_t common_vert_on_cycle = find(STLALL(cycle), *neighbors_vw.begin()) == cycle.end() ?
-                                                *neighbors_vw.rbegin() :
-                                                *neighbors_vw.begin() ;
-                cout << "common vert on cycle: " << prop_map[common_vert_on_cycle] << '\n';
-                assert(find(STLALL(cycle), common_vert_on_cycle) != cycle.end());
-
-                InsideOutOn insideout = is_edge_inside_outside_or_on_cycle(maybe_y.first, common_vert_on_cycle, cycle, g_shrunk, em.em);
-		assert(insideout != ON);
-                vertex_t y = (insideout == INSIDE) ? *neighbors_vw.begin() : *neighbors_vw.rbegin(); // We now have the (vi, y, wi) triangle
+		vertex_t y = findy(vi, neighbors_vw, cycle, g_shrunk, em, prop_map);
 
                 cout << "   y: " << prop_map[y] << '\n';
                 pair<edge_t, bool> viy_e = edge(vi, y, g_shrunk); assert(viy_e.second); edge_t viy = viy_e.first;

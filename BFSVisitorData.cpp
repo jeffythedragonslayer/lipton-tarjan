@@ -71,12 +71,14 @@ void BFSVisitorData::print_parents() const {for( auto& v : verts ) cout << "pare
 // make sure all verts appear in the graph
 bool BFSVisitorData::assert_data() const
 {
+        auto prop_map = get(boost::vertex_index, *g); // writing to this property map has side effects in the graph
+
         VertIter vei, vend;
         for( tie(vei, vend) = vertices(*g); vei != vend; ++vei ){ 
                 vertex_t v = *vei;
                 if( !this->verts.contains(v) ){
-                        cout << "found bad vertex : " << v << '\n';
-						return false;
+                        cout << "found bad vertex : " << v << " prop_map: " << prop_map[v] << '\n';
+			return false;
                 }
         }
 		return true;

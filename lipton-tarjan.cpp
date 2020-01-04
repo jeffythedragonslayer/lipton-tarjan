@@ -57,10 +57,19 @@ Partition construct_vertex_partition(GraphCR g_orig, vector<uint> const& L, uint
 
 
 // Locate the triangle (vi, y, wi) which has (vi, wi) as a boundary edge and lies inside the (vi, wi) cycle.  
-// one of the two vertices in the set neighbors_vw is y.  Maybe it's .begin(), so we use is_edge_inside_outside_or_on_cycle to test if it is.j
+// one of the vertices in the set neighbors_vw is y.  Maybe it's .begin(), so we use is_edge_inside_outside_or_on_cycle to test if it is.j
 vertex_t findy(vertex_t vi, set<vertex_t> const& neighbors_vw, vector<vertex_t> const& cycle, GraphCR g_shrunk, EmbedStruct const& em,  decltype(get(vertex_index, const_cast<Graph&>(g_shrunk))) prop_map)
 {
-	pair<edge_t, bool> maybe_y = edge(vi, *neighbors_vw.begin(), g_shrunk);
+	for( vertex_t y_candidate : neighbors_vw ){
+                pair<edge_t, bool> vi_cy = edge(vi, y_candidate, g_shrunk);
+                assert(vi_cy.second);
+                edge_t e = vi_cy.first;
+                InsideOutOn insideout = is_edge_inside_outside_or_on_cycle(e, vi, cycle, g_shrunk, em.em);
+                if( INSIDE == insideout ){
+                        return y_candidate;
+                }
+	}
+	/*pair<edge_t, bool> maybe_y = edge(vi, *neighbors_vw.begin(), g_shrunk);
 	assert(maybe_y.second); // I'm assuming the bool means that the edge_t exists?  Boost Graph docs don't say
 	cout << "maybe_y: " << to_string(maybe_y.first, g_shrunk) << '\n';
 
@@ -75,9 +84,9 @@ vertex_t findy(vertex_t vi, set<vertex_t> const& neighbors_vw, vector<vertex_t> 
 
 	InsideOutOn insideout = is_edge_inside_outside_or_on_cycle(maybe_y.first, common_vert_on_cycle, cycle, g_shrunk, em.em);
 	assert(insideout != ON);
-	vertex_t y = (insideout == INSIDE) ? *neighbors_vw.begin() : *neighbors_vw.rbegin();
+	vertex_t y = (insideout == INSIDE) ? *neighbors_vw.begin() : *neighbors_vw.rbegin();*/
 	// We now have the (vi, y, wi) triangle
-	return y;
+        assert(0);
 }
 
 // Step 9: Improve Separator

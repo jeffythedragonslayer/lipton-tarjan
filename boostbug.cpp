@@ -14,10 +14,13 @@ int main()
 {
         Graph g;
         vertex_t x;
+        vertex_t y;
 
         add_vertex(x, g);
+        add_vertex(y, g);
 
         add_edge(x, x, g); // uncomment this line for workaround
+        add_edge(y, y, g); // uncomment this line for workaround
 
         BFSVisitor v;
         breadth_first_search(g, x, boost::visitor(v));

@@ -285,17 +285,10 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
         cout << "g_shrunk:\n";
         print_graph(g_shrunk);
 
-        // workaround for https://github.com/boostorg/graph/issues/195 
-        VertIter vit, vjt;
-        tie(vit, vjt) = vertices(g_shrunk);
-        for( VertIter next = vit; vit != vjt; ++vit){
-                if( 0 == in_degree(*vit, g_shrunk) + out_degree(*vit, g_shrunk) ){
-                        add_edge(*vit, *vit, g_shrunk);
-                }
-        }
+        boost_bfs_bug_workaround(g_shrunk);
 
         cout << "g_shrunk with workaround:\n";
-        print_graph(g_shrunk);
+        print_graph_addresses(g_shrunk);
 
         assert(vertex_exists(shrunken_vis_data.root, g_shrunk));
 
@@ -326,7 +319,7 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
 // If it is false, change it to true, construct an edge(x,w) and delete edge(v,w).
 // The result of this step is a planar representation of the shrunken graph to which Lemma 2 is to be applied.
 
-//const uint X_VERT_UINT = 999999;
+const int X_VERT_INT = -1;
 
 vector<vertex_t> shrinktree_deletel2andabove(Graph& g, uint l[3], BFSVisitorData const& vis_data_copy, vertex_t x)
 {
@@ -361,6 +354,10 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
         Graph& g_shrunk = g_copy;
         cout << "---------------------------- 6 - Shrinktree -------------\n";
         print_graph(g_copy);
+
+        cout << "g_shrunk:\n";
+        print_graph(g_shrunk);
+
         cout << "n: " << num_vertices(g_shrunk) << '\n';
 
         // delete all vertices on level l2 and above
@@ -378,7 +375,10 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
         assert(vertex_exists(x, g_shrunk));
         //assert(assert_verts(g_copy, vis_data_addx)); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
         auto prop_map = get(vertex_index, g_shrunk);
-        //prop_map[x] = X_VERT_UINT;
+        prop_map[x] = X_VERT_INT;
+
+        cout << "g_shrunk:\n";
+        print_graph(g_shrunk);
 
         //vmap_shrunk.uint2vert[vmap_shrunk.vert2uint[x] = X_VERT_UINT] = x; 
         map<vertex_t, bool> table; // x will not be in this table
@@ -394,11 +394,14 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
         assert(vertex_exists(x, g_shrunk)); 
         //assert(assert_verts(g_copy, vis_data_addx)); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
 
-        cout << "g_shrunk:\n";
-        print_graph(g_shrunk);
-
         //reset_vertex_indices(g_shrunk);
         //reset_edge_index(g_shrunk);
+
+        cout << "reset g_shrunk:\n";
+        print_graph_addresses(g_shrunk);
+
+        boost_bfs_bug_workaround(g_shrunk);
+
         EmbedStruct em(&g_shrunk);
         assert(em.test_planar());
 
@@ -416,6 +419,9 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
         ScanVisitor svis(&table, &g_shrunk, x, l[0]);
         svis.scan_nonsubtree_edges_clockwise(*vertices(g_shrunk).first, g_shrunk, em.em, vis_data_addx);
         svis.finish();
+
+        cout << "g_shrunk:\n";
+        print_graph(g_shrunk);
 
         assert(vertex_exists(x, g_shrunk));
 

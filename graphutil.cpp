@@ -228,7 +228,7 @@ void make_max_planar(Graph& g)
 
         reset_edge_index(g);
         assert(em.test_planar());
-}
+} 
 
 void reset_vertex_indices(Graph& g)
 {
@@ -238,15 +238,6 @@ void reset_vertex_indices(Graph& g)
 		put(vertex_index, g, *vi, i); 
 	}
 }
-
-/*void reset_vertex_indices(Graph& g)
-{
-        VertIter vi, vend;
-        uint i = 0;
-        for( tie(vi, vend) = vertices(g); vi != vend; ++vi, ++i ){
-		put(vertex_index, g, *vi, i); 
-	}
-}*/
 
 EdgeIndex reset_edge_index(Graph const& g)
 {
@@ -347,4 +338,16 @@ bool assert_verts(GraphCR g, BFSVisitorData const& vis_data)
                 }
         } 
         return true;
+}
+
+void boost_bfs_bug_workaround(Graph& g)
+{
+        // workaround for https://github.com/boostorg/graph/issues/195 
+        VertIter vit, vjt;
+        tie(vit, vjt) = vertices(g);
+        for( VertIter next = vit; vit != vjt; ++vit){
+                if( 0 == in_degree(*vit, g) + out_degree(*vit, g) ){
+                        add_edge(*vit, *vit, g);
+                }
+        } 
 }

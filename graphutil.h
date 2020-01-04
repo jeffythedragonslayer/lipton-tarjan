@@ -56,3 +56,5 @@ bool vertex_exists(vertex_t x, Graph const&);
 bool edge_exists(edge_t e, Graph const& g);
 bool assert_verts(GraphCR, BFSVisitorData const&); 
 void init_vert_propmap(Graph& g);
+
+void boost_bfs_bug_workaround(Graph& g);

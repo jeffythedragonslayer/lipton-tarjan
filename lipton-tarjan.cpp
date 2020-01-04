@@ -326,7 +326,7 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
 // If it is false, change it to true, construct an edge(x,w) and delete edge(v,w).
 // The result of this step is a planar representation of the shrunken graph to which Lemma 2 is to be applied.
 
-//const uint X_VERT_UINT = 999999;
+const uint X_VERT_UINT = 9999;
 
 vector<vertex_t> shrinktree_deletel2andabove(Graph& g, uint l[3], BFSVisitorData const& vis_data_copy, vertex_t x)
 {
@@ -370,14 +370,12 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
         vis_data_addx.verts[x].level = 0;
         vis_data_addx.verts[x].parent = Graph::null_vertex();
         vis_data_addx.verts[x].descendant_cost = -1;
-
         assert(vertex_exists(x, g_shrunk));
         //assert(assert_verts(g_copy, vis_data_addx)); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
         vector<vertex_t> replaced_verts = shrinktree_deletel2andabove(g_shrunk, l, vis_data_addx, x);
 
         assert(vertex_exists(x, g_shrunk));
         //assert(assert_verts(g_copy, vis_data_addx)); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
-        auto prop_map = get(vertex_index, g_shrunk);
         //prop_map[x] = X_VERT_UINT;
 
         //vmap_shrunk.uint2vert[vmap_shrunk.vert2uint[x] = X_VERT_UINT] = x; 
@@ -399,8 +397,8 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
 
         //reset_vertex_indices(g_shrunk);
         //reset_edge_index(g_shrunk);
-        EmbedStruct em(&g_shrunk);
-        assert(em.test_planar());
+        EmbedStruct em = ctor_workaround(&g_shrunk);
+        assert(test_planar_workaround(em.em, &g_shrunk));
 
         //assert(assert_verts(g_copy, vis_data_addx)); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
 
@@ -429,14 +427,20 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
                 x = Graph::null_vertex();
                 cout << "x_gone: " << x_gone << '\n';
         } else {*/
-        cout << "deleting all vertices x has replaced\n";
-        for( vertex_t& v : replaced_verts ) {cout << "killing " << v << '\n'; kill_vertex(v, g_shrunk); }// delete all vertices x has replaced
+        
+        cout << "deleting all vertices x has replaced\n"; for( vertex_t& v : replaced_verts ) {cout << "killing " << v << '\n'; kill_vertex(v, g_shrunk); }// delete all vertices x has replaced
+
+        reset_vertex_indices(g_shrunk);
 
         assert(vertex_exists(x, g_shrunk));
+
+        cout << "g_shrunk:\n";
+        print_graph(g_shrunk);
 
         uint n2 = num_vertices(g_shrunk);
         cout << "shrunken size: " << n2 << '\n';
 
+        auto prop_map = get(vertex_index, g_shrunk);
         cout << "x prop_map: " << prop_map[x] << '\n';
         cout << "x : " << x << '\n';
 

@@ -326,7 +326,7 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
 // If it is false, change it to true, construct an edge(x,w) and delete edge(v,w).
 // The result of this step is a planar representation of the shrunken graph to which Lemma 2 is to be applied.
 
-const uint X_VERT_UINT = 9999;
+//const uint X_VERT_UINT = 9999;
 
 vector<vertex_t> shrinktree_deletel2andabove(Graph& g, uint l[3], BFSVisitorData const& vis_data_copy, vertex_t x)
 {
@@ -394,6 +394,7 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
 
         cout << "g_shrunk:\n";
         print_graph(g_shrunk);
+        reset_vertex_indices(g_shrunk);
 
         //reset_vertex_indices(g_shrunk);
         //reset_edge_index(g_shrunk);
@@ -417,17 +418,6 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
 
         assert(vertex_exists(x, g_shrunk));
 
-        //vertex_t x_gone = Graph::null_vertex();
-        /*if( !degree(x, g_shrunk) ){
-                cout << "no edges to x found, deleting x\n";
-                kill_vertex(x, g_shrunk);
-                vis_data_addx.verts.erase(x);
-                vis_data_addx.root = vis_data_copy.root;
-                x_gone = x;
-                x = Graph::null_vertex();
-                cout << "x_gone: " << x_gone << '\n';
-        } else {*/
-        
         cout << "deleting all vertices x has replaced\n"; for( vertex_t& v : replaced_verts ) {cout << "killing " << v << '\n'; kill_vertex(v, g_shrunk); }// delete all vertices x has replaced
 
         reset_vertex_indices(g_shrunk);

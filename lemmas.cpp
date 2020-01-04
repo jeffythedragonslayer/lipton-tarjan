@@ -213,6 +213,8 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
         uint n = num_vertices(g_orig); 
         cout << "n: " << n << '\n';
 
+        auto prop_map = get(vertex_index, g_orig); // writing to this property map has side effects in the graph
+
         Partition p;
         if( l1 >= l2 ){
                 p = lemma3_l1greaterequall2(g_orig, vis_data_orig, l1, r);
@@ -224,13 +226,13 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
                 for( tie(vei, vend) = vertices(g_orig); vei != vend; ++vei ){ 
                         vertex_t v = *vei;
                         if( !vis_data_orig.verts.contains(v) ){
-                                cout << "lemmas.cpp: ignoring bad vertex: " << v << '\n';
+                                cout << "lemmas.cpp: ignoring bad vertex: " << v << " prop_map: " << prop_map[v] << '\n';
                                 continue; 
                         }
 
                         uint level = vis_data_orig.verts.find(v)->second.level;
 
-                        cout << "level of " << v << ": " << level << ", ";
+                        cout << "level of " << v << " prop_map " << prop_map[v] << " is : " << level << ", ";
                         fflush(stdout);
                         if( level == l1 || level == l2 ){     cout << v << " is deleted\n";                 deleted_part.insert(v); continue;}
                         if( level <  l1 ){                    cout << v << " belongs to first part (A)\n";  first_part.insert(v);   continue;}

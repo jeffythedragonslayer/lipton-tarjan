@@ -113,6 +113,9 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
                 assert(maybe_y.second); // I'm assuming the bool means that the edge_t exists?  Boost Graph docs don't say
                 cout << "maybe_y: " << to_string(maybe_y.first, g_shrunk) << '\n';
 
+                cout << "cycle:\n";
+                print_cycle(cycle, g_shrunk);
+
                 vertex_t common_vert_on_cycle = find(STLALL(cycle), neighbors_vw.first) == cycle.end() ?
                                                 neighbors_vw.second :
                                                 neighbors_vw.first;
@@ -120,7 +123,7 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
                 assert(find(STLALL(cycle), common_vert_on_cycle) != cycle.end());
 
                 InsideOutOn insideout = is_edge_inside_outside_or_on_cycle(maybe_y.first, common_vert_on_cycle, cycle, g_shrunk, em.em);
-		//assert(insideout != ON);
+		assert(insideout != ON);
                 vertex_t y = (insideout == INSIDE) ? neighbors_vw.first : neighbors_vw.second; // We now have the (vi, y, wi) triangle
 
                 cout << "   y: " << prop_map[y] << '\n';

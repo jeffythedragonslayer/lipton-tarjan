@@ -109,15 +109,7 @@ BOOST_AUTO_TEST_CASE( notk_test )
 BOOST_AUTO_TEST_CASE( rand_test )
 {
 	check_partition_is_legal("graphs/rand");
-}
-
-BOOST_AUTO_TEST_CASE( rand2_test )
-{
 	check_partition_is_legal("graphs/rand2");
-}
-
-BOOST_AUTO_TEST_CASE( rand3_test )
-{
 	check_partition_is_legal("graphs/rand3");
 }
 

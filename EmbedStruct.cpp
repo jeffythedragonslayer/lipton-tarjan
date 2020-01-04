@@ -15,7 +15,11 @@ EmbedStruct::EmbedStruct(Graph const* g) : g(g), storage(num_vertices(*g)), em(s
 		}
 } 
 
-bool EmbedStruct::test_planar() const {return boyer_myrvold_planarity_test(boyer_myrvold_params::graph = *g, boyer_myrvold_params::embedding = em);}
+bool EmbedStruct::test_planar() const
+{
+	// boyer_myrvold_planarity_test sometimes crashes when given strange graphs 
+	return boyer_myrvold_planarity_test(boyer_myrvold_params::graph = *g, boyer_myrvold_params::embedding = em);
+}
 
 void EmbedStruct::print() const
 {

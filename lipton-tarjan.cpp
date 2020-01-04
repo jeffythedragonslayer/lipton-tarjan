@@ -210,7 +210,7 @@ Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vi
         //assert(vis_data_shrunken.assert_data()); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
 
         uint n = num_vertices(g_orig);
-        //cout  << "----------------------- 8 - Locate Cycle -----------------\n"; 
+        cout  << "----------------------- 8 - Locate Cycle -----------------\n"; 
         //print_graph(g_shrunk);
         edge_t completer_candidate_edge;
         
@@ -282,6 +282,7 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
 
         auto bvs = boost::visitor(visit);
 
+        cout << "g_shrunk:\n";
         print_graph(g_shrunk);
 
         // workaround for https://github.com/boostorg/graph/issues/195 
@@ -292,6 +293,9 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
                         add_edge(*vit, *vit, g_shrunk);
                 }
         }
+
+        cout << "g_shrunk with workaround:\n";
+        print_graph(g_shrunk);
 
         assert(vertex_exists(shrunken_vis_data.root, g_shrunk));
 
@@ -390,6 +394,9 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
         assert(vertex_exists(x, g_shrunk)); 
         //assert(assert_verts(g_copy, vis_data_addx)); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
 
+        cout << "g_shrunk:\n";
+        print_graph(g_shrunk);
+
         //reset_vertex_indices(g_shrunk);
         //reset_edge_index(g_shrunk);
         EmbedStruct em(&g_shrunk);
@@ -445,7 +452,7 @@ Partition find_more_levels(GraphCR g_orig, Graph& g_copy, uint k, uint l[3], vec
 {
         //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
 
-        //cout  << "---------------------------- 5 - Find More Levels -------\n";
+        cout  << "---------------------------- 5 - Find More Levels -------\n";
         //print_graph(g_copy);
         float sq  = 2 * sqrt(k); 
         float snk = 2 * sqrt(num_vertices(g_copy) - k); 
@@ -454,13 +461,13 @@ Partition find_more_levels(GraphCR g_orig, Graph& g_copy, uint k, uint l[3], vec
         cout << "L size: " << L.size() << '\n';
 
         l[0] = l[1];
-        //cout << "l[0]:   " << l[0] << '\n';
+        cout << "l[0]:   " << l[0] << '\n';
         while( l[0] < L.size() ){
                 float val = L.at(l[0]) + 2*(l[1] - l[0]);
                 if( val <= sq ) break;
                 --l[0];
         }
-        //cout << "l0: " << l[0] << "     highest level <= l1\n";
+        cout << "l0: " << l[0] << "     highest level <= l1\n";
 
         l[2] = l[1] + 1;
         cout << "l[2]" << l[2] << '\n';
@@ -469,7 +476,7 @@ Partition find_more_levels(GraphCR g_orig, Graph& g_copy, uint k, uint l[3], vec
                 if( val <= snk ) break;
                 ++l[2];
         }
-        //cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
+        cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
 
 	return shrinktree(g_orig, g_copy, vis_data_orig, vis_data_copy, L, l); // step 6
 }

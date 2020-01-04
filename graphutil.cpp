@@ -228,7 +228,16 @@ void make_max_planar(Graph& g)
 
         reset_edge_index(g);
         assert(em.test_planar());
-} 
+}
+
+void reset_vertex_indices(Graph& g)
+{
+        VertIter vi, vend;
+        uint i = 0;
+        for( tie(vi, vend) = vertices(g); vi != vend; ++vi, ++i ){
+		put(vertex_index, g, *vi, i); 
+	}
+}
 
 /*void reset_vertex_indices(Graph& g)
 {
@@ -242,14 +251,15 @@ void make_max_planar(Graph& g)
 EdgeIndex reset_edge_index(Graph const& g)
 {
         EdgeIndex edgedesc_to_uint; 
-        EdgesSizeType num_edges = 0;
+        EdgesSizeType edge_num = 0;
         EdgeIter ei, ei_end;
         for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei ){
-	       	edgedesc_to_uint[*ei] = num_edges++;
+	       	edgedesc_to_uint[*ei] = edge_num++;
 	}
         return edgedesc_to_uint;
 } 
 
+// replace a and b with a single vertex that has edges to all of their neighbors
 void contract_vertices(vertex_t b, vertex_t a, Graph& g)
 {
         auto be = adjacent_vertices(b, g);

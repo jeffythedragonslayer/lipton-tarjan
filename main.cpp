@@ -48,8 +48,8 @@ int main(int argc, char* argv[])
 
                         p.print();
 
-			assert(p.verify_sizes());
                         assert(p.verify_edges(g));
+			assert(p.verify_sizes());
 			//p.print(vmap2);
 
 			cout << "finished num verts: " << num_verts_finished << '\n';

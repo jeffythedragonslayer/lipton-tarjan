@@ -1,4 +1,6 @@
 #include "theorem4.h"
+#include "lemmas.h"
+#include "BFSVisitor.h"
 #include <boost/graph/copy.hpp>
 #include <boost/graph/graph_concepts.hpp>
 #include <boost/graph/is_straight_line_drawing.hpp>
@@ -23,21 +25,40 @@ uint lowest_i(uint n, uint num_components, vector<uint> const& num_verts_per_com
         return -1;
 }
 
+// L[l] = # of vertices on level l
 Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r)
 {
+        uint n = num_vertices(g);
         cout << "g:\n";
         print_graph(g);
         vertex_t v;
+
+        uint l0 = l[0];
+        uint l1 = l[1];
+        uint l2 = l[2];
         // Partition the vertices into levels according to their distance from some vertex v.
-        // L[l] = # of vertices on level l
         //uint r;
         /*If r is the maximum distance of any vertex from v, define additional levels -1 and r+1 containing no vertices*/
         //uint l[3];// l1 = the level such that the sum of costs in levels 0 thru l1-1 < 1/2, but the sum of costs in levels 0 thru l1 is >= 1/2
         //(If no such l1 exists, the total cost of all vertices < 1/2, and B = C = {} and return true) */
-        uint k;// = # of vertices on levels 0 thru l1.
+        uint k = 0;// = # of vertices on levels 0 thru l1.
+        for( uint i = 0; i <= l1; ++i ) k += L[i];
+
         /*Find a level l0 such that l0 <= l1 and |L[l0]| + 2(l1-l0) <= 2sqrt(k)
-        Find a level l2 such that l1+1 <= l2 and |L[l2] + 2(l2-l1-1) <= 2sqrt(n-k)
-        If 2 such levels exist, then by Lemma 3 the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex in A with a vertex in B,
+        Find a level l2 such that l1+1 <= l2 and |L[l2] + 2(l2-l1-1) <= 2sqrt(n-k) */
+        assert(l0 <= l1);
+        assert(l1+1 <= l2);
+        assert(L[l0] + 2*(l1-l0) <= 2*sqrt(k));
+        assert(L[l2] + 2*(l2-l1-1) <= 2*sqrt(n-k));
+
+        BFSVisitorData bfs(&g, *vertices(g).first);
+        breadth_first_search(g, bfs.root, boost::visitor(BFSVisitor(bfs)));
+        cout << "bfsroot: " << bfs.root << '\n';
+
+        vector<vertex_t> cycle;
+        Partition p = lemma3(g, L, l1, l2, r, bfs, bfs, cycle);
+
+        /*If 2 such levels exist, then by Lemma 3 the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex in A with a vertex in B,
         neither A or C has cost > 2/3, and C contains no more than 2(sqrt(k) + sqrt(n-k)) vertices.
         But 2(sqrt(k) + sqrt(n-k) <= 2(sqrt(n/2) + sqrt(n/2)) = 2sqrt(2)sqrt(n)
         Thus the theorem holds if suitable levels l0 and l2 exist
@@ -45,7 +66,6 @@ Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r
                 Since L[0] = 1, this means 1 >= 2sqrt(k) - 2l1 and l1 + 1/2 >= sqrt(k).  Thus l1 = floor(l1 + 1/2) > 
                 Contradiction*/
 
-        Partition p;
         return p; 
 }
 

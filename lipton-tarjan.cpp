@@ -63,7 +63,7 @@ Partition construct_vertex_partition(GraphCR g_orig, vector<uint> const& L, uint
 
                 if( biggest_comp_p.verify_sizes(g_orig) && biggest_comp_p.verify_edges(g_orig) ) return biggest_comp_p;
 
-                return theorem4_connected(g_orig, L, l, r);
+                return theorem4_connected(g_orig, L, r);
         }
 
         //associative_property_map<vertex_map> const& vertid_to_component, vector<uint> const& num_verts_per_component)
@@ -82,7 +82,7 @@ Partition construct_vertex_partition(GraphCR g_orig, vector<uint> const& L, uint
 
 
 // Locate the triangle (vi, y, wi) which has (vi, wi) as a boundary edge and lies inside the (vi, wi) cycle.  
-// one of the vertices in the set neighbors_vw is y.  Maybe it's .begin(), so we use is_edge_inside_outside_or_on_cycle to test if it is.j
+// one of the vertices in the set neighbors_vw is y.  Maybe it's .begin(), so we use is_edge_inside_outside_or_on_cycle to test if it is.
 vertex_t findy(vertex_t vi, set<vertex_t> const& neighbors_vw, vector<vertex_t> const& cycle, GraphCR g_shrunk, EmbedStruct const& em,  decltype(get(vertex_index, const_cast<Graph&>(g_shrunk))) prop_map)
 {
 	for( vertex_t y_candidate : neighbors_vw ){
@@ -165,8 +165,6 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
                 for( auto& ne : neighbors_vw ){ 
                         cout << "neighbor: " << ne << " prop_map: " << prop_map[ne] << '\n';
                 }
-                cout << "   neighbors_vw_begin : " << prop_map[*neighbors_vw.begin()] << '\n';
-                cout << "   neighbors_vw_rbegin: " << prop_map[*neighbors_vw.rbegin()] << '\n';
 
 		vertex_t y = findy(vi, neighbors_vw, cycle, g_shrunk, em, prop_map);
 
@@ -261,9 +259,12 @@ Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vi
 {
         //assert(vis_data_orig.assert_data()); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
         //assert(vis_data_shrunken.assert_data()); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
+        auto prop_map = get(vertex_index, g_shrunk);
 
-        uint n = num_vertices(g_orig);
+        uint n = num_vertices(g_shrunk);
         cout  << "----------------------- 8 - Locate Cycle -----------------\n"; 
+
+        cout << "root: " << vis_data_shrunken.root << " propmap " << prop_map[vis_data_shrunken.root] << '\n';
         //print_graph(g_shrunk);
         edge_t completer_candidate_edge;
         
@@ -280,6 +281,8 @@ Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vi
         }
         vertex_t v1 = source(completer_candidate_edge, g_shrunk);
         vertex_t w1 = target(completer_candidate_edge, g_shrunk); 
+        cout << "v1: " << v1 << " prop_map" << prop_map[v1] << '\n';
+        cout << "w1: " << w1 << " prop_map" << prop_map[w1] << '\n';
         cout << "ancestors v1...\n";
         vector<vertex_t> parents_v   = ancestors(v1, vis_data_shrunken);
         cout << "ancestors v2...\n";
@@ -561,10 +564,12 @@ Partition l1_and_k(GraphCR g_orig, Graph& g_copy, vector<uint> const& L, BFSVisi
 //
 // Find a breadth-first spanning tree of the most costly component.
 // Compute the level of each vertex and the number of vertices L(l) in each level l.
-Partition bfs_and_levels(GraphCR g_orig, Graph& g_copy)
+Partition bfs_and_levels(GraphCR g_orig, Graph& g_copy, vertex_t root)
 {
         cout << "---------------------------- 3 - BFS and Levels ------------\n";
-        BFSVisitorData vis_data_copy(&g_copy, *vertices(g_copy).first);
+        auto prop_map = get(vertex_index, g_copy); // writing to this property map has side effects in the graph
+        cout << "root: " << root << " propmap " << prop_map[root] << '\n';
+        BFSVisitorData vis_data_copy(&g_copy, root);
         breadth_first_search(g_copy, vis_data_copy.root, boost::visitor(BFSVisitor(vis_data_copy)));
         BFSVisitorData vis_data_orig(&g_orig, *vertices(g_orig).first);
         breadth_first_search(g_orig, vis_data_orig.root, boost::visitor(BFSVisitor(vis_data_orig)));
@@ -636,7 +641,17 @@ Partition find_connected_components(GraphCR g_orig, Graph& g_copy)
         }
         cout << "index of biggest component: " << biggest_component_index << '\n';
 
-	return bfs_and_levels(g_orig, g_copy); // step 3
+        // pick arbitary vertex in the biggest component to be the root
+        vertex_t root;
+        tie(vit, vjt) = vertices(g_copy);
+        for(uint i = 0; vit != vjt; ++vit, ++i ){ 
+                if( vertid_to_component[*vit] == biggest_component_index ){
+                        root = *vit;
+                        break;
+                }
+        }
+
+	return bfs_and_levels(g_orig, g_copy, root); // step 3
 }
 
 // Step 1: check_planarity

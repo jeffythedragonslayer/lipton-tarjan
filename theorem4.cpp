@@ -29,16 +29,48 @@ uint lowest_i(uint n, uint num_components, vector<uint> const& num_verts_per_com
 
 
 // L[l] = # of vertices on level l
-Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r)
+Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint r)
 {
         uint n = num_vertices(g);
         cout << "g:\n";
         print_graph(g);
         vertex_t v;
 
-        uint l0 = l[0];
-        uint l1 = l[1];
-        uint l2 = l[2];
+        uint k = L[0]; 
+        uint l[3];
+        //uint n = num_vertices(g);
+        l[1] = 0;
+        while( k <= n/2 ){
+                uint indx = ++l[1];
+                uint lsize = L.size();
+                if( indx >= lsize ) break;
+	       	k += L.at(indx);
+	}
+
+        cout << "k:  " << k    << "      # of verts in levels 0 thru l1\n";
+        cout << "l1: " << l[1] << "      total cost of levels 0 thru l1 barely exceeds 1/2\n";
+	assert(k <= n); 
+
+        float sq  = 2 * sqrt(k); 
+        float snk = 2 * sqrt(num_vertices(g) - k); 
+
+        l[0] = l[1];
+        cout << "l[0]:   " << l[0] << '\n';
+        while( l[0] < L.size() ){
+                float val = L.at(l[0]) + 2*(l[1] - l[0]);
+                if( val <= sq ) break;
+                --l[0];
+        }
+        cout << "l0: " << l[0] << "     highest level <= l1\n";
+
+        l[2] = l[1] + 1;
+        cout << "l[2]" << l[2] << '\n';
+        while( l[2] < L.size() ){
+                float val = L.at(l[2]) + 2*(l[2] - l[1] - 1);
+                if( val <= snk ) break;
+                ++l[2];
+        }
+
 
         assert(1 == L[0]);
         // Partition the vertices into levels according to their distance from some vertex v.
@@ -46,17 +78,17 @@ Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r
         /*If r is the maximum distance of any vertex from v, define additional levels -1 and r+1 containing no vertices*/
         //uint l[3];// l1 = the level such that the sum of costs in levels 0 thru l1-1 < 1/2, but the sum of costs in levels 0 thru l1 is >= 1/2
         //(If no such l1 exists, the total cost of all vertices < 1/2, and B = C = {} and return true) */
-        uint k = 0;// = # of vertices on levels 0 thru l1.
-        for( uint i = 0; i <= l1; ++i ) k += L[i];
+        //uint k = 0;// = # of vertices on levels 0 thru l1.
+        //for( uint i = 0; i <= l1; ++i ) k += L[i];
 
         /*Find a level l0 such that l0 <= l1 and |L[l0]| + 2(l1-l0) <= 2sqrt(k)
         Find a level l2 such that l1+1 <= l2 and |L[l2] + 2(l2-l1-1) <= 2sqrt(n-k) */
-        assert(l0 <= l1);
-        assert(l1+1 <= l2);
+        assert(l[0] <= l[1]);
+        assert(l[1]+1 <= l[2]);
         uint sqrtk = 2*sqrt(k);
         uint sqrtnk = 2*sqrt(n-k);
-        uint tmp0 = L[l0] + 2*(l1-l0);
-        uint tmp1 = L[l2] + 2*(l2-l1-1);
+        uint tmp0 = L[l[0]] + 2*(l[1]-l[0]);
+        uint tmp1 = L[l[2]] + 2*(l[2]-l[1]-1);
         assert(tmp0 <= sqrtk);
         assert(tmp1 <= sqrtnk);
 
@@ -65,11 +97,11 @@ Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r
         cout << "bfsroot: " << bfs.root << '\n';
 
         vector<vertex_t> cycle;
-        Partition p = lemma3(g, L, l1, l2, r, bfs, bfs, cycle);
+        Partition p = lemma3(g, L, l[1], l[2], r, bfs, bfs, cycle);
 
         uint climit = sqrtk - sqrtnk;
         assert(p.verify_edges(g));
-        assert(p.verify_sizes_lemma3(L, l1, l2));
+        assert(p.verify_sizes_lemma3(L, l[1], l[2]));
 
         /*If 2 such levels exist, then by Lemma 3 the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex in A with a vertex in B,
         neither A or C has cost > 2/3, and C contains no more than 2(sqrt(k) + sqrt(n-k)) vertices.
@@ -156,10 +188,9 @@ Partition theorem4_ccbigger23(GraphCR g_all, Partition const& biggest_comp_p)
 	       	++L[d.second.level];
 	}
 
-        uint l[3];
-        uint r;
+        uint r = vd.num_levels;
 
-        Partition star_p = theorem4_connected(g_comp, L, l, r);
+        Partition star_p = theorem4_connected(g_comp, L, r);
         // ????
 
         Partition p;
@@ -275,9 +306,9 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 	if( is_graph_connected ){
 		cout << "graph is connected\n";
                 vector<uint> L;
-                uint l[3];
                 uint r;
-                return theorem4_connected(g, L, l, r);
+                assert(0);
+                return theorem4_connected(g, L, r);
 	} else {
                 cout << "graph is disconnected with " << num_components << " components\n";
                 return theorem4_disconnected(g, n, num_components, vertid_to_component, num_verts_per_component, biggest_comp_p);

@@ -92,6 +92,7 @@ BOOST_AUTO_TEST_CASE( huge_test )
 	//check_partition_is_legal("graphs/huge");
 	//check_partition_is_legal("graphs/huge2");
 	check_partition_is_legal("graphs/huge3");
+	check_partition_is_legal("graphs/huge4");
 }
 
 BOOST_AUTO_TEST_CASE( in_test )

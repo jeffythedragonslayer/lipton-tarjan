@@ -44,14 +44,14 @@ vertex_t get_common_ancestor(vector<vertex_t> const& ancestors_v, vector<vertex_
 
 vector<vertex_t> ancestors(vertex_t v, BFSVisitorData const& vis)
 {
-        //cout << "first v: " << v << '\n';
-        //cout << "root: " << vis.root << '\n';
+        cout << "first v: " << v << '\n';
+        cout << "root: " << vis.root << '\n';
         vector<vertex_t> ans = {v};
         while( v != vis.root ){
                 auto v_it = vis.verts.find(v);
                 if( v_it == vis.verts.end() ) return ans; // root is in a different connected component
                 v = v_it->second.parent;
-                //cout << "pushing back v: " << v << '\n';
+                cout << "pushing back v: " << v << '\n';
                 ans.push_back(v);
         }
         return ans;

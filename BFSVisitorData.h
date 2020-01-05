@@ -7,7 +7,7 @@ struct BFSVisitorData
 	std::map<vertex_t, std::set<vertex_t>> children;
 	std::map<vertex_t, BFSVert>	       	   verts;
 	uint				       			   num_levels;
-	Graph const*				       		   g;
+	Graph const*				           g;
 	vertex_t			       			   root; 
 
 	BFSVisitorData(Graph const* g, vertex_t root);

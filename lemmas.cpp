@@ -209,8 +209,8 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
 {
         //assert(vis_data_shrunken.assert_data());
         //assert(vis_data_orig.assert_data()); 
-
-        uint n = num_vertices(g_orig); 
+        uint n = vis_data_orig.verts.size();
+        //uint n = num_vertices(g_orig); 
         cout << "n: " << n << '\n';
 
         auto prop_map = get(vertex_index, g_orig); // writing to this property map has side effects in the graph

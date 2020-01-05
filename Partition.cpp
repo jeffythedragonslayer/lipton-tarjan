@@ -63,9 +63,10 @@ bool Partition::verify_edges(GraphCR g) const
 	return true;
 }
 
-bool Partition::verify_sizes() const
+bool Partition::verify_sizes(GraphCR g) const
 {
 	// verify that neither a nor b is bigger than two thirds of the total and c is no bigger than 2*sqrt(2)*sqrt(n)
+	// also verify that partitions have the same total number of verts as the graph
 	cout << "verifying partition sizes\n";
 	uint a_verts = a.size();
 	uint b_verts = b.size();
@@ -74,7 +75,8 @@ bool Partition::verify_sizes() const
 
 	return a_verts <= 2*n/3 && 
 		   b_verts <= 2*n/3 && 
-		   c_verts <= 2*sqrt(2)*sqrt(n);
+		   c_verts <= 2*sqrt(2)*sqrt(n) &&
+		   n == num_vertices(g);
 } 
 
 void Partition::print() const

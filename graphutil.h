@@ -7,11 +7,11 @@
 int levi_civita(uint i, uint j, uint k);
 
 vertex_t			  get_common_ancestor(std::vector<vertex_t> const&, std::vector<vertex_t> const&); 
-std::vector<vertex_t>		  ancestors(vertex_t, BFSVisitorData const&);
-std::vector<vertex_t>		  get_cycle(vertex_t, vertex_t, vertex_t ancestor, BFSVisitorData const&);
-std::vector<vertex_t>		  get_cycle(vertex_t, vertex_t, BFSVisitorData const&); 
-std::set<vertex_t> 	          get_neighbors(vertex_t, Graph const&);
-std::set<vertex_t> 		  get_intersection(std::set<vertex_t> const&, std::set<vertex_t> const&);
+std::vector<vertex_t> ancestors(vertex_t, BFSVisitorData const&);
+std::vector<vertex_t> get_cycle(vertex_t, vertex_t, vertex_t ancestor, BFSVisitorData const&);
+std::vector<vertex_t> get_cycle(vertex_t, vertex_t, BFSVisitorData const&); 
+std::set<vertex_t> 	  get_neighbors(vertex_t, Graph const&);
+std::set<vertex_t> 	  get_intersection(std::set<vertex_t> const&, std::set<vertex_t> const&);
 
 enum InsideOutOn {INSIDE, OUTSIDE, ON};
 

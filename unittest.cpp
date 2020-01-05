@@ -61,7 +61,7 @@ void check_partition_is_legal(string graphfile)
 	cout << "total = " << total << '\n';
 	assert(n == total);
 
-	assert(p.verify_sizes());
+	assert(p.verify_sizes(g));
 	assert(p.verify_edges(g));
 }
 
@@ -123,10 +123,15 @@ BOOST_AUTO_TEST_CASE( notbb_test )
 	check_partition_is_legal("graphs/notbb");
 }
 
-BOOST_AUTO_TEST_CASE( lotslittle_test )
+BOOST_AUTO_TEST_CASE( components_test )
 {
 	check_partition_is_legal("graphs/lotslittle");
 }
+
+/*BOOST_AUTO_TEST_CASE( biglittle_test)
+{
+	check_partition_is_legal("graphs/biglittlecomp");
+}*/
 
 BOOST_AUTO_TEST_CASE( delaunay_test )
 {

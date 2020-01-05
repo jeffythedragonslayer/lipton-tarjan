@@ -9,7 +9,7 @@ struct Partition
 		uint total_num_verts() const;
 
 		bool verify_sizes_lemma3(std::vector<uint> const& L, uint l1, uint l2) const;
-		bool verify_sizes() const;
+		bool verify_sizes(GraphCR g) const;
 		bool verify_edges(GraphCR g) const;
 		void print() const;
 		void get_most_costly_part(std::set<vertex_t> const** most_costly,

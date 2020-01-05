@@ -38,8 +38,14 @@ using namespace boost;
 // Extend this partition from the connected component chosen in Step 2 to the entire graph as described in the proof of Theorem 4.
 Partition construct_vertex_partition(GraphCR g_orig, vector<uint> const& L, uint l[3], BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_shrunken, vector<vertex_t> const& cycle)
 {
-        uint n_orig = num_vertices(g_orig);
-        cout << "n_orig: " << n_orig << '\n';
+        vertex_map idx; 
+        associative_property_map<vertex_map> vertid_to_component(idx);
+        uint num_components = connected_components(g_orig, vertid_to_component);
+        //assert(1 == num_components);
+
+        uint n = num_vertices(g_orig);
+        uint n_biggest_comp = vis_data_orig.verts.size(); // if num_components > 1 then num_vertices(g_orig) will not be what we want
+        cout << "n_biggest: " << n_biggest_comp << '\n';
 
         cout  << "\n------------ 10  - Construct Vertex Partition --------------\n";
         cout << "g_orig:\n";
@@ -54,7 +60,14 @@ Partition construct_vertex_partition(GraphCR g_orig, vector<uint> const& L, uint
 
         Partition biggest_comp_p = lemma3(g_orig, L, l[1], l[2], r, vis_data_orig, vis_data_shrunken, cycle);
 
-        //Partition extended_p = theorem4_disconnected();
+        //associative_property_map<vertex_map> const& vertid_to_component, vector<uint> const& num_verts_per_component)
+        vector<uint> num_verts_per_component(num_components, 0);
+        VertIter vit, vjt;
+        for( tie(vit, vjt) = vertices(g_orig); vit != vjt; ++vit ){
+	       	++num_verts_per_component[vertid_to_component[*vit]];
+	}
+
+        Partition extended_p = theorem4_disconnected(g_orig, n, num_components, vertid_to_component, num_verts_per_component);
 
         return biggest_comp_p; // TODO replace this with extended_p
 }

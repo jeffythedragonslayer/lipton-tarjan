@@ -208,11 +208,29 @@ Given any two levels l1 and l2 such that levels 0 through l1-1 have total cost n
 it is possible to find a partition A, B, C of the vertices of G such that no edge joins a vertex in A with a vertex in B, neither A nor B has total cost exceeding 2/3, and C contains no more than L(l1)+L(l2)+max{0,2(l2-l1-1)} vertices. */
 Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r, BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_shrunken, vector<vertex_t> const& cycle)
 {
+        uint n = vis_data_orig.verts.size();
+        uint n_orig = num_vertices(g_orig); 
+        cout << "n: " << n << '\n';
+        cout << "n_orig: " << n_orig << '\n';
+
+        uint cost_0thrul1m1 = 0;
+        uint cost_l2p1thrur1 = 0;
+        for( uint i = 0; i < r; ++i ){ 
+                if( i < l1-1 ){
+                        cost_0thrul1m1 += L[i];
+                }
+                if( i >= l2+1 ){
+                        cost_l2p1thrur1 += L[i];
+                }
+        }
+        assert(cost_0thrul1m1 <= 2*n_orig/3);
+        assert(cost_l2p1thrur1 <= 2*n_orig/3);
+
         //assert(vis_data_shrunken.assert_data());
         //assert(vis_data_orig.assert_data()); 
-        uint n = vis_data_orig.verts.size();
-        //uint n = num_vertices(g_orig); 
-        cout << "n: " << n << '\n';
+        //assert(n == n_orig);
+
+        //uint total_cost = 0;
 
         auto prop_map = get(vertex_index, g_orig); // writing to this property map has side effects in the graph
 
@@ -247,19 +265,19 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
                 assert(ptotal == n);
 
                 //the only part which can have cost > 2/3 is the middle part (B)
-                assert(first_part.size() <= 2*n/3);
-                assert(last_part.size() <= 2*n/3);
+                assert(first_part.size() <= 2*n_orig/3);
+                assert(last_part.size() <= 2*n_orig/3);
                 cout << "first part size: " << first_part.size() << '\n';
                 cout << "middle part size: " << middle_part.size() << '\n';
                 cout << "third part size: " << last_part.size() << '\n';
                 //p.print();
 
-                p = middle_part.size() <= 2*n/3                                          ?
+                p = middle_part.size() <= 2*n_orig/3                                          ?
                     lemma3_lessequal23(first_part, middle_part, last_part, deleted_part, &g_orig) :
                     lemma3_exceeds23(g_orig, vis_data_orig, l1, l2, cycle);
         }
 
         assert(p.verify_edges(g_orig));
-	//assert(p.verify_sizes_lemma3(L, l1, l2));
+	assert(p.verify_sizes_lemma3(L, l1, l2));
         return p;
 }

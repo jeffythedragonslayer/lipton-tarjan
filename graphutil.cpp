@@ -39,7 +39,7 @@ vertex_t get_common_ancestor(vector<vertex_t> const& ancestors_v, vector<vertex_
 			if( ancestors_v[i] == ancestors_w[j] ) return ancestors_v[i];
 		}
 	}
-	assert(0);
+        return Graph::null_vertex();
 }
 
 vector<vertex_t> ancestors(vertex_t v, BFSVisitorData const& vis)
@@ -49,7 +49,7 @@ vector<vertex_t> ancestors(vertex_t v, BFSVisitorData const& vis)
         vector<vertex_t> ans = {v};
         while( v != vis.root ){
                 auto v_it = vis.verts.find(v);
-                assert(v_it != vis.verts.end());
+                if( v_it == vis.verts.end() ) return ans; // root is in a different connected component
                 v = v_it->second.parent;
                 //cout << "pushing back v: " << v << '\n';
                 ans.push_back(v);
@@ -61,8 +61,21 @@ vector<vertex_t> get_cycle(vertex_t v, vertex_t w, vertex_t ancestor, BFSVisitor
 {
         vector<vertex_t> cycle, tmp;
         vertex_t cur;
-        cur = v; while( cur != ancestor ){ cycle.push_back(cur); auto cur_it = vis_data.verts.find(cur); cur = cur_it->second.parent; } cycle.push_back(ancestor); 
-        cur = w; while( cur != ancestor ){ tmp  .push_back(cur); auto cur_it = vis_data.verts.find(cur); cur = cur_it->second.parent; }
+        cur = v;
+        while( cur != ancestor ){
+                cycle.push_back(cur);
+                auto cur_it = vis_data.verts.find(cur);
+                cur = cur_it->second.parent;
+        }
+        if( ancestor ) cycle.push_back(ancestor); 
+
+        cur = w;
+        while( cur != ancestor ){
+                tmp.push_back(cur);
+                auto cur_it = vis_data.verts.find(cur);
+                cur = cur_it->second.parent;
+        }
+
         reverse(STLALL(tmp));
         cycle.insert(cycle.end(), STLALL(tmp));
         return cycle;
@@ -199,14 +212,16 @@ CycleCost compute_cycle_cost(vector<vertex_t> const& cycle, Graph const& g, BFSV
         CycleCost cc;
         for( auto& v : cycle ){
                 cout << "   scanning cycle vert " << v << '\n';
-                for( auto e = out_edges(v, g); e.first != e.second; ++e.first ) if( vis_data.is_tree_edge(*e.first) && !on_cycle(*e.first, cycle, g) ){
-                        uint cost = vis_data.edge_cost(*e.first, cycle, g);
-                        //uint vert_id = vmap.vert2uint[v];
-                        //cout << "      scanning incident tree edge " << vert_id << "   cost: " << cost << '\n';
-                        auto insideout = is_edge_inside_outside_or_on_cycle(*e.first, v, cycle, g, em.em);
-                        assert(insideout != ON);
-                        bool is_inside = (insideout == INSIDE);
-                        (is_inside ? cc.inside : cc.outside) += cost;
+                for( auto e = out_edges(v, g); e.first != e.second; ++e.first ){
+                        if( vis_data.is_tree_edge(*e.first) && !on_cycle(*e.first, cycle, g) ){
+                                uint cost = vis_data.edge_cost(*e.first, cycle, g);
+                                //uint vert_id = vmap.vert2uint[v];
+                                //cout << "      scanning incident tree edge " << vert_id << "   cost: " << cost << '\n';
+                                auto insideout = is_edge_inside_outside_or_on_cycle(*e.first, v, cycle, g, em.em);
+                                assert(insideout != ON);
+                                bool is_inside = (insideout == INSIDE);
+                                (is_inside ? cc.inside : cc.outside) += cost;
+                        }
                 }
         }
         return cc;

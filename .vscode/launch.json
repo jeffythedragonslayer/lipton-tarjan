@@ -10,7 +10,7 @@
             "request": "launch",
             //"program": "${workspaceFolder}/unittest",
             "program": "${workspaceFolder}/lt",
-            "args": ["graphs/empty"],
+            "args": ["graphs/biglittlecomp"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

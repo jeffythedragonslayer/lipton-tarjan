@@ -151,7 +151,7 @@ Partition theorem4_disconnected(GraphCR g, uint n, uint num_components, associat
         return p;
 }
 
-/* Theorem 4: Let G be any n-vertex planar graph having nonnegative vertex costs summing to no more than one.
+/* Theorem 4: Let G be any (possibly disconnected) n-vertex planar graph having nonnegative vertex costs summing to no more than one.
 Then the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex
 in A with a vertex in B, neither A nor B has total cost exceeding 2/3, and C contains no more than
 2sqrt(2)sqrt(n) vertices :*/

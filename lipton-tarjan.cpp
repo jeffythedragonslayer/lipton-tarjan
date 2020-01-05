@@ -52,7 +52,11 @@ Partition construct_vertex_partition(GraphCR g_orig, vector<uint> const& L, uint
         uint r = vis_data_orig.num_levels;
         cout << "r max distance: " << r << '\n';
 
-        return lemma3(g_orig, L, l[1], l[2], r, vis_data_orig, vis_data_shrunken, cycle);
+        Partition biggest_comp_p = lemma3(g_orig, L, l[1], l[2], r, vis_data_orig, vis_data_shrunken, cycle);
+
+        //Partition extended_p = theorem4_disconnected();
+
+        return biggest_comp_p; // TODO replace this with extended_p
 }
 
 

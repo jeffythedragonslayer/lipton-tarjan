@@ -1,5 +1,11 @@
 #include "theorem4.h"
 #include <boost/graph/copy.hpp>
+#include <boost/graph/graph_concepts.hpp>
+#include <boost/graph/is_straight_line_drawing.hpp>
+#include <boost/graph/make_maximal_planar.hpp>
+#include <boost/graph/copy.hpp>
+#include <boost/bimap.hpp>
+#include <boost/config.hpp>
 #include <iostream>
 using namespace std;
 using namespace boost;
@@ -17,15 +23,16 @@ uint lowest_i(uint n, uint num_components, vector<uint> const& num_verts_per_com
         return -1;
 }
 
-Partition theorem4_connected(GraphCR g)
+Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r)
 {
+        cout << "g:\n";
+        print_graph(g);
         vertex_t v;
         // Partition the vertices into levels according to their distance from some vertex v.
-        vector<uint> L;
         // L[l] = # of vertices on level l
-        uint r;
+        //uint r;
         /*If r is the maximum distance of any vertex from v, define additional levels -1 and r+1 containing no vertices*/
-        uint l[3];// l1 = the level such that the sum of costs in levels 0 thru l1-1 < 1/2, but the sum of costs in levels 0 thru l1 is >= 1/2
+        //uint l[3];// l1 = the level such that the sum of costs in levels 0 thru l1-1 < 1/2, but the sum of costs in levels 0 thru l1 is >= 1/2
         //(If no such l1 exists, the total cost of all vertices < 1/2, and B = C = {} and return true) */
         uint k;// = # of vertices on levels 0 thru l1.
         /*Find a level l0 such that l0 <= l1 and |L[l0]| + 2(l1-l0) <= 2sqrt(k)
@@ -60,7 +67,11 @@ Partition theorem4_ccbigger23(GraphCR g, Partition const& biggest_comp_p)
         g_comp = g;
         // delete all verts not in the biggest connected component from g_comp
 
-        Partition star_p = theorem4_connected(g_comp);
+        vector<uint> L;
+        uint l[3];
+        uint r;
+
+        Partition star_p = theorem4_connected(g_comp, L, l, r);
         // ????
 
         set<vertex_t> const* costly_part;
@@ -178,7 +189,10 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 
 	if( is_graph_connected ){
 		cout << "graph is connected\n";
-                return theorem4_connected(g); 
+                vector<uint> L;
+                uint l[3];
+                uint r;
+                return theorem4_connected(g, L, l, r);
 	} else {
                 cout << "graph is disconnected with " << num_components << " components\n";
                 return theorem4_disconnected(g, n, num_components, vertid_to_component, num_verts_per_component, biggest_comp_p);

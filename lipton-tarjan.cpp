@@ -59,7 +59,12 @@ Partition construct_vertex_partition(GraphCR g_orig, vector<uint> const& L, uint
         cout << "r max distance: " << r << '\n';
 
         Partition biggest_comp_p = lemma3(g_orig, L, l[1], l[2], r, vis_data_orig, vis_data_shrunken, cycle);
-        if( 1 == num_components ) return biggest_comp_p;
+        if( 1 == num_components ){
+
+                if( biggest_comp_p.verify_sizes(g_orig) && biggest_comp_p.verify_edges(g_orig) ) return biggest_comp_p;
+
+                return theorem4_connected(g_orig, L, l, r);
+        }
 
         //associative_property_map<vertex_map> const& vertid_to_component, vector<uint> const& num_verts_per_component)
         vector<uint> num_verts_per_component(num_components, 0);

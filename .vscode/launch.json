@@ -10,7 +10,7 @@
             "request": "launch",
             //"program": "${workspaceFolder}/unittest",
             "program": "${workspaceFolder}/lt",
-            "args": ["graphs/notkk"],
+            "args": ["graphs/one"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

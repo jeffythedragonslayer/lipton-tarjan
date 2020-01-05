@@ -36,6 +36,7 @@ Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r
         print_graph(g);
         vertex_t v;
 
+        // l1 = the level such that the sum of costs in levels 0 thru l1-1 < 1/2, but the sum of costs in levels 0 thru l1 is >= 1/2
         uint total = 0;
         uint level = 0;
         while( total < n/2 ){ 
@@ -43,15 +44,12 @@ Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r
         }
 
         uint l1 = level;
-        //uint l0 = l[0];
-        //uint l1 = l[1];
-        //uint l2 = l[2];
 
         assert(1 == L[0]);
         // Partition the vertices into levels according to their distance from some vertex v.
         //uint r;
         /*If r is the maximum distance of any vertex from v, define additional levels -1 and r+1 containing no vertices*/
-        //uint l[3];// l1 = the level such that the sum of costs in levels 0 thru l1-1 < 1/2, but the sum of costs in levels 0 thru l1 is >= 1/2
+        //uint l[3];
         //(If no such l1 exists, the total cost of all vertices < 1/2, and B = C = {} and return true) */
         uint k = 0;// = # of vertices on levels 0 thru l1.
         for( uint i = 0; i <= l1; ++i ) k += L[i];
@@ -75,6 +73,8 @@ Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r
         cout << "bfsroot: " << bfs.root << '\n';
 
         vector<vertex_t> cycle;
+        --l1;
+        --l2;
         Partition p = lemma3(g, L, l1, l2, r, bfs, bfs, cycle);
 
         uint climit = sqrtk - sqrtnk;

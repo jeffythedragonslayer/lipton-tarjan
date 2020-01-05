@@ -31,13 +31,28 @@ void BFSVisitorData::reset(Graph* g)
 		root = Graph::null_vertex();
 }
 
+struct EdgeOops
+{
+};
+
+void BFSVisitorData::examine_edge(edge_t e)
+{
+	tree_edges.push_back(e);
+	throw EdgeOops();
+}
+
 bool BFSVisitorData::is_tree_edge(edge_t e) const
+{
+	return find(STLALL(tree_edges), e) != tree_edges.end();
+}
+
+bool BFSVisitorData::in_cc(edge_t e) const
 { 
 		vertex_t src = source(e, *g);
 		vertex_t tar = target(e, *g); 
 		auto src_it = this->verts.find(src);
 		auto tar_it = this->verts.find(tar);
-		//if (vmap) cout << "testing is tree edge: (" << vmap->vert2uint[src] << ", " << vmap->vert2uint[tar] << ")\n";
+		//if (vmap) cout << "testing is edge in cc (" << vmap->vert2uint[src] << ", " << vmap->vert2uint[tar] << ")\n";
 		if( src_it == verts.end() || tar_it == verts.end() ){
 				//cout << "edge has src or tar not appearing in BFSVisitorData verts: (" << vmap->vert2uint[src] << ", " << vmap->vert2uint[tar] << ")\n";
 				return false;

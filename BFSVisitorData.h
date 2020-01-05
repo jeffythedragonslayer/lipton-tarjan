@@ -1,11 +1,13 @@
 #pragma once
 #include "typedefs.h"
 #include "BFSVert.h"
+#include <vector>
 
 struct BFSVisitorData
 {
 	std::map<vertex_t, std::set<vertex_t>> children;
 	std::map<vertex_t, BFSVert>	       	   verts;
+	std::vector<edge_t>					   tree_edges;
 	uint				       			   num_levels;
 	Graph const*				           g;
 	vertex_t			       			   root; 
@@ -19,6 +21,8 @@ struct BFSVisitorData
 	void print_costs  () const;
 	void print_parents() const;
 	bool assert_data() const;
+	void examine_edge(edge_t e);
+	bool in_cc(edge_t e) const;
 };
 
 struct EdgeNotInVisitorData : std::exception

@@ -190,13 +190,15 @@ edge_t arbitrary_nontree_edge(Graph const& g, BFSVisitorData const& vis_data)
                         cout << "ignoring circular edge\n";
                         continue;
                         //kthrow FoundCircularNode(src);
-                } 
+                }
+
+                if( !vis_data.in_cc(*ei) ) continue;
 
                 try {
 
                         if( !vis_data.is_tree_edge(*ei) ){
                                 cout << "found nontree edge\n";
-                                cout << "total edges examined: " << num_edges << '\n';
+                                cout << "total edges looked at: " << (1+num_edges) << '\n';
                                 cout << "arbitrarily choosing nontree edge: " << to_string(*ei, g) << '\n';
                                 return *ei; 
                         } else cout << "is a tree edge\n";

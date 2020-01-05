@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 			uint num_verts_finished = p.total_num_verts();
 			cout << "Finished!\n";
 
-                        p.print();
+                        p.print(&g);
 
                         assert(p.verify_edges(g));
 			assert(p.verify_sizes(g));

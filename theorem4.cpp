@@ -36,9 +36,16 @@ Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r
         print_graph(g);
         vertex_t v;
 
-        uint l0 = l[0];
-        uint l1 = l[1];
-        uint l2 = l[2];
+        uint total = 0;
+        uint level = 0;
+        while( total < n/2 ){ 
+                total += L[level++];
+        }
+
+        uint l1 = level;
+        //uint l0 = l[0];
+        //uint l1 = l[1];
+        //uint l2 = l[2];
 
         assert(1 == L[0]);
         // Partition the vertices into levels according to their distance from some vertex v.
@@ -51,14 +58,17 @@ Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r
 
         /*Find a level l0 such that l0 <= l1 and |L[l0]| + 2(l1-l0) <= 2sqrt(k)
         Find a level l2 such that l1+1 <= l2 and |L[l2] + 2(l2-l1-1) <= 2sqrt(n-k) */
-        assert(l0 <= l1);
-        assert(l1+1 <= l2);
         uint sqrtk = 2*sqrt(k);
         uint sqrtnk = 2*sqrt(n-k);
-        uint tmp0 = L[l0] + 2*(l1-l0);
-        uint tmp1 = L[l2] + 2*(l2-l1-1);
-        assert(tmp0 <= sqrtk);
-        assert(tmp1 <= sqrtnk);
+
+        uint l0 = l1;
+        while( L[l0] + 2*(l1-l0) > sqrtk ) --l0;
+
+        uint l2 = l1+1;
+        while( L[l2] + 2*(l2-l1-1) > sqrtnk) ++l2;
+        
+        assert(l0 <= l1);
+        assert(l1+1 <= l2);
 
         BFSVisitorData bfs(&g, *vertices(g).first);
         breadth_first_search(g, bfs.root, boost::visitor(BFSVisitor(bfs)));
@@ -312,6 +322,7 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
                 vector<uint> L;
                 uint l[3];
                 uint r;
+                assert(0);
                 return theorem4_connected(g, L, l, r);
 	} else {
                 cout << "graph is disconnected with " << num_components << " components\n";

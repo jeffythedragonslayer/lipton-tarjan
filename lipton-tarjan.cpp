@@ -604,6 +604,7 @@ Partition bfs_and_levels(GraphCR g_orig, Graph& g_copy)
 // If some component has cost exceeding 2/3, go to Step 3.
 Partition find_connected_components(GraphCR g_orig, Graph& g_copy)
 {
+	uint n = num_vertices(g_copy);
         //cout << "---------------------------- 2 - Find Connected Components --------\n";
         vertex_map idx; 
         associative_property_map<vertex_map> vertid_to_component(idx);
@@ -636,8 +637,9 @@ Partition find_connected_components(GraphCR g_orig, Graph& g_copy)
 
         if( !bigger_than_two_thirds ){
 		cout << "exiting early through theorem 4 - no component has cost exceeding two thirds\n";
+		// connected graphs can never get here because they would have a single component with total cost > 2/3
                 Partition defp;
-                return theorem4(g_copy, vertid_to_component, num_verts_per_component, defp);
+		return theorem4_disconnected(g_copy, n, num_components, vertid_to_component, num_verts_per_component, defp);
         }
         cout << "index of biggest component: " << biggest_component_index << '\n';
 

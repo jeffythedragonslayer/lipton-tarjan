@@ -13,7 +13,7 @@ uint lowest_i(uint n, uint num_components, vector<uint> const& num_verts_per_com
                 if ( total_cost > n/3 ) return i;
         } 
 
-        return i;
+        return -1;
 }
 
 Partition theorem4_connected(GraphCR g)
@@ -67,31 +67,31 @@ Partition theorem4_disconnected(GraphCR g, uint n, uint num_components, associat
         if( !bigger_than_one_third ){ 
 
                 // If no connected component has total vertex cost > 1/3, let i be the minimum index such that the total cost of V1 U V2 U ... U Vi > 1/3
-                uint i = lowest_i(n, num_components, num_verts_per_component);
+                int i = lowest_i(n, num_components, num_verts_per_component); // -1 indicates no such index found
 
                 Partition p;
 
                 // populate partition A = V1 U V2 U ... U Vi 
-                for( uint j = 0; j < i; ++j ){
+                for( int j = 0; j <= i; ++j ){
                         vector<VertIter>& vec = vertex_sets[j];
-                        for (VertIter& v : vec) p.a.insert(*v);
+                        for( VertIter& v : vec ) p.a.insert(*v);
                 }
 
                 // populate partition B = Vi+1 U Vi+2 U ... U Vk
-                for( uint j = i; j < num_components; ++j ){
+                for( int j = i+1; j < (int)num_components; ++j ){
                         vector<VertIter>& vec = vertex_sets[j];
-                        for (VertIter& v : vec) p.b.insert(*v);
+                        for( VertIter& v : vec ) p.b.insert(*v);
                 }
 
                 // Since i is minimum and the cost of Vi <= 1/3, the cost of A <= 2/3. return true;
-                //cout << "not bigger than one third\n";
+                cout << "not bigger than one third\n";
                 return p;
         } else if( !bigger_than_two_thirds ){
                 // If some connected component (say Gi) has total vertex cost between 1/3 and 2/3,
                 Partition p; 
 
-                uint i = lowest_i(n, num_components, num_verts_per_component);
-                assert(num_verts_per_component[i] >= n/3 && num_verts_per_component[i] <= 2*n/3);
+                int i = lowest_i(n, num_components, num_verts_per_component);
+                assert(i >= 0 && num_verts_per_component[i] >= n/3 && num_verts_per_component[i] <= 2*n/3);
 
                 // populate partition A
                 cout << "!! populating partition A\n";
@@ -162,10 +162,10 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
 	bool is_graph_connected = (num_components == 1);
 
 	if( is_graph_connected ){
-		//cout << "graph is connected\n";
+		cout << "graph is connected\n";
                 return theorem4_connected(g); 
 	} else {
-                //cout << "graph is disconnected with " << num_components << " components\n";
+                cout << "graph is disconnected with " << num_components << " components\n";
                 return theorem4_disconnected(g, n, num_components, vertid_to_component, num_verts_per_component);
 	}
 }

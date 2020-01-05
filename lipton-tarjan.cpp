@@ -605,10 +605,10 @@ Partition find_connected_components(GraphCR g_orig, Graph& g_copy)
         }
 
         if( !bigger_than_two_thirds ){
-		//cout << "exiting early through theorem 4 - no component has cost exceeding two thirds\n";
+		cout << "exiting early through theorem 4 - no component has cost exceeding two thirds\n";
                 return theorem4(g_copy, vertid_to_component, num_verts_per_component);
         }
-        //cout << "index of biggest component: " << biggest_component_index << '\n';
+        cout << "index of biggest component: " << biggest_component_index << '\n';
 
 	return bfs_and_levels(g_orig, g_copy); // step 3
 }

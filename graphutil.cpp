@@ -193,7 +193,6 @@ edge_t arbitrary_nontree_edge(Graph const& g, BFSVisitorData const& vis_data)
                 }
 
                 if( !vis_data.in_cc(*ei) ) continue;
-
                 try {
 
                         if( !vis_data.is_tree_edge(*ei) ){

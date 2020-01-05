@@ -127,10 +127,10 @@ BOOST_AUTO_TEST_CASE( components_test )
 	check_partition_is_legal("graphs/lotslittle");
 }
 
-/*BOOST_AUTO_TEST_CASE( biglittle_test)
+BOOST_AUTO_TEST_CASE( biglittle_test)
 {
 	check_partition_is_legal("graphs/biglittlecomp");
-}*/
+}
 
 BOOST_AUTO_TEST_CASE( bigtiny_test)
 {

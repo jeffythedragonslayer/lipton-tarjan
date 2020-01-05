@@ -149,6 +149,8 @@ Partition theorem4_ccbigger23(GraphCR g_all, Partition const& biggest_comp_p)
         //assert(assert_verts(g_orig, vis_data_orig));
         //assert(assert_verts(g_copy, vis_data_copy));
 
+        uint n = num_vertices(g_comp);
+
         vector<uint> L(vd.num_levels + 1, 0);
 	cout << "L levels: " << L.size() << '\n';
         for( auto& d : vd.verts ){
@@ -156,8 +158,41 @@ Partition theorem4_ccbigger23(GraphCR g_all, Partition const& biggest_comp_p)
 	       	++L[d.second.level];
 	}
 
+        uint k = L[0]; 
         uint l[3];
-        uint r;
+        l[1] = 0;
+        while( k <= n/2 ){
+                uint indx = ++l[1];
+                uint lsize = L.size();
+                if( indx >= lsize ) break;
+	       	k += L.at(indx);
+	}
+
+        float sq  = 2 * sqrt(k); 
+        float snk = 2 * sqrt(num_vertices(g_comp) - k);
+        cout << "sq:     " << sq << '\n';
+        cout << "snk:    " << snk << '\n';
+        cout << "L size: " << L.size() << '\n';
+
+        l[0] = l[1];
+        cout << "l[0]:   " << l[0] << '\n';
+        while( l[0] < L.size() ){
+                float val = L.at(l[0]) + 2*(l[1] - l[0]);
+                if( val <= sq ) break;
+                --l[0];
+        }
+        cout << "l0: " << l[0] << "     highest level <= l1\n";
+
+        l[2] = l[1] + 1;
+        cout << "l[2]" << l[2] << '\n';
+        while( l[2] < L.size() ){
+                float val = L.at(l[2]) + 2*(l[2] - l[1] - 1);
+                if( val <= snk ) break;
+                ++l[2];
+        }
+        cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
+
+        uint r = vd.num_levels;
 
         Partition star_p = theorem4_connected(g_comp, L, l, r);
         // ????

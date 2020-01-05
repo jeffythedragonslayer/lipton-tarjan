@@ -1,5 +1,6 @@
 #include "theorem4.h"
 #include "strutil.h"
+#include "graphutil.h"
 #include "lemmas.h"
 #include "BFSVisitor.h"
 #include <boost/graph/copy.hpp>
@@ -124,15 +125,19 @@ Partition theorem4_ccbigger23(GraphCR g_all, Partition const& biggest_comp_p)
 
         }
 
+        cout << "gcomp:\n";
+        print_graph(g_comp);
+        print_graph_addresses(g_comp);
+
         uint nremove = toremove.size();
         cout << "nremove: " << nremove << '\n';
         for(auto& v : toremove ){
                 cout << "   nr: " << v << '\n'; 
-                remove_vertex(v, g_comp); 
+                kill_vertex(v, g_comp); 
         }
 
-        uint l[3];
-        uint r;
+        reset_vertex_indices(g_comp);
+
 
         cout << "gcomp:\n";
         print_graph(g_comp);
@@ -150,6 +155,9 @@ Partition theorem4_ccbigger23(GraphCR g_all, Partition const& biggest_comp_p)
                 cout << "level: " << d.second.level << '\n';
 	       	++L[d.second.level];
 	}
+
+        uint l[3];
+        uint r;
 
         Partition star_p = theorem4_connected(g_comp, L, l, r);
         // ????

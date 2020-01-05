@@ -71,12 +71,16 @@ bool Partition::verify_sizes(GraphCR g) const
 	uint a_verts = a.size();
 	uint b_verts = b.size();
 	uint c_verts = c.size();
-	uint n  = a_verts + b_verts + c_verts;
+	uint p_total  = a_verts + b_verts + c_verts;
+	uint n = num_vertices(g);
+	uint abbound = (2*n) / 3;
+	uint cbound = 2*sqrt(2)*sqrt(n);
+	if( n != p_total ) return false;
 
-	return a_verts <= 2*n/3 && 
-		   b_verts <= 2*n/3 && 
-		   c_verts <= 2*sqrt(2)*sqrt(n) &&
-		   n == num_vertices(g);
+	if( a_verts > abbound ) return false;
+	if( b_verts > abbound ) return false; 
+	if( c_verts > cbound ) return false;
+	return true;
 } 
 
 void Partition::print() const

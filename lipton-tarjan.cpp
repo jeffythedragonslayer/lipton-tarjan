@@ -59,6 +59,7 @@ Partition construct_vertex_partition(GraphCR g_orig, vector<uint> const& L, uint
         cout << "r max distance: " << r << '\n';
 
         Partition biggest_comp_p = lemma3(g_orig, L, l[1], l[2], r, vis_data_orig, vis_data_shrunken, cycle);
+        if( 1 == num_components ) return biggest_comp_p;
 
         //associative_property_map<vertex_map> const& vertid_to_component, vector<uint> const& num_verts_per_component)
         vector<uint> num_verts_per_component(num_components, 0);
@@ -67,9 +68,9 @@ Partition construct_vertex_partition(GraphCR g_orig, vector<uint> const& L, uint
 	       	++num_verts_per_component[vertid_to_component[*vit]];
 	}
 
-        Partition extended_p = theorem4_disconnected(g_orig, n, num_components, vertid_to_component, num_verts_per_component);
+        Partition extended_p = theorem4_disconnected(g_orig, n, num_components, vertid_to_component, num_verts_per_component, biggest_comp_p);
 
-        return biggest_comp_p; // TODO replace this with extended_p
+        return extended_p; // TODO replace this with extended_p
 }
 
 
@@ -623,7 +624,8 @@ Partition find_connected_components(GraphCR g_orig, Graph& g_copy)
 
         if( !bigger_than_two_thirds ){
 		cout << "exiting early through theorem 4 - no component has cost exceeding two thirds\n";
-                return theorem4(g_copy, vertid_to_component, num_verts_per_component);
+                Partition defp;
+                return theorem4(g_copy, vertid_to_component, num_verts_per_component, defp);
         }
         cout << "index of biggest component: " << biggest_component_index << '\n';
 

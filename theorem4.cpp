@@ -1,4 +1,5 @@
 #include "theorem4.h"
+#include <boost/graph/copy.hpp>
 #include <iostream>
 using namespace std;
 using namespace boost;
@@ -41,8 +42,45 @@ Partition theorem4_connected(GraphCR g)
         return p; 
 }
 
-Partition theorem4_disconnected(GraphCR g, uint n, uint num_components, associative_property_map<vertex_map> const& vertid_to_component, vector<uint> const& num_verts_per_component)
-{ 
+Partition theorem4_ccbigger23(GraphCR g, Partition const& biggest_comp_p)
+{
+        /*Finally, if some connected component (say Gi) has total vertex cost exceeding 2/3,
+        apply the above argument to Gi
+                Let A*, B*, C* be the resulting partition.
+                A = set among A* and B* with greater cost
+                C = C*
+                B = remanining vertices of G
+                Then A and B have cost <= 2/3, g
+                return true
+
+        In all cases the separator C is either empty or contained in only one connected component of G */
+
+        Graph g_comp; // connected component
+        copy_graph(g, g_comp);
+        g_comp = g;
+        // delete all verts not in the biggest connected component from g_comp
+
+        Partition star_p = theorem4_connected(g_comp);
+        // ????
+
+        set<vertex_t> const* costly_part;
+        set<vertex_t> const* other1;
+        set<vertex_t> const* other2;
+        star_p.get_most_costly_part(&costly_part, &other1, &other2);
+
+        Partition p;
+        p.a = *costly_part;
+        p.c = star_p.c;
+        p.b.insert(biggest_comp_p.a.begin(), biggest_comp_p.a.end());
+        p.b.insert(biggest_comp_p.b.begin(), biggest_comp_p.b.end());
+        p.b.insert(biggest_comp_p.c.begin(), biggest_comp_p.c.end());
+        // set p.b to remaining vertices of G
+        return p;
+
+}
+
+Partition theorem4_disconnected(GraphCR g, uint n, uint num_components, associative_property_map<vertex_map> const& vertid_to_component, vector<uint> const& num_verts_per_component, Partition const& biggest_comp_p)
+{
         vector<vector<VertIter>> vertex_sets; // set of vertex ids, indexed by component number (second vector should be set but compiler did not like call to .insert())
 
         vertex_sets.resize(num_components);
@@ -124,38 +162,15 @@ Partition theorem4_disconnected(GraphCR g, uint n, uint num_components, associat
                 return p;
         }
 
-        /*Finally, if some connected component (say Gi) has total vertex cost exceeding 2/3,
-        apply the above argument to Gi
-                Let A*, B*, C* be the resulting partition.
-                A = set among A* and B* with greater cost
-                C = C*
-                B = remanining vertices of G
-                Then A and B have cost <= 2/3, g
-                return true
-
-        In all cases the separator C is either empty or contained in only one connected component of G */
-
-        Graph g_comp; // connected component
-        Partition star_p = theorem4_connected(g_comp);
-        // ????
-
-        set<vertex_t> const* costly_part;
-        set<vertex_t> const* other1;
-        set<vertex_t> const* other2;
-        star_p.get_most_costly_part(&costly_part, &other1, &other2);
-
-        Partition p;
-        p.a = *costly_part;
-        p.c = star_p.c;
-        // set p.b to remaining vertices of G
-        return p;
+        return theorem4_ccbigger23(g, biggest_comp_p);
 }
+
 
 /* Theorem 4: Let G be any (possibly disconnected) n-vertex planar graph having nonnegative vertex costs summing to no more than one.
 Then the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex
 in A with a vertex in B, neither A nor B has total cost exceeding 2/3, and C contains no more than
 2sqrt(2)sqrt(n) vertices :*/
-Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid_to_component, vector<uint> const& num_verts_per_component)
+Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid_to_component, vector<uint> const& num_verts_per_component, Partition const& biggest_comp_p)
 {
 	uint n = num_vertices(g);
 	uint num_components = num_verts_per_component.size();
@@ -166,6 +181,6 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
                 return theorem4_connected(g); 
 	} else {
                 cout << "graph is disconnected with " << num_components << " components\n";
-                return theorem4_disconnected(g, n, num_components, vertid_to_component, num_verts_per_component);
+                return theorem4_disconnected(g, n, num_components, vertid_to_component, num_verts_per_component, biggest_comp_p);
 	}
 }

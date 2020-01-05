@@ -123,6 +123,11 @@ BOOST_AUTO_TEST_CASE( notbb_test )
 	check_partition_is_legal("graphs/notbb");
 }
 
+BOOST_AUTO_TEST_CASE( lotslittle_test )
+{
+	check_partition_is_legal("graphs/lotslittle");
+}
+
 BOOST_AUTO_TEST_CASE( delaunay_test )
 {
 	check_partition_is_legal("graphs/delaunay");

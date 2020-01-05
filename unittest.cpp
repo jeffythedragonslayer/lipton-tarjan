@@ -87,13 +87,16 @@ BOOST_AUTO_TEST_CASE( box_test )
 	check_partition_is_legal("graphs/box3");
 }
 
-/*BOOST_AUTO_TEST_CASE( huge_test )
+BOOST_AUTO_TEST_CASE( huge_test )
 {
-	check_partition_is_legal("graphs/huge");
-}*/
+	//check_partition_is_legal("graphs/huge");
+	//check_partition_is_legal("graphs/huge2");
+	check_partition_is_legal("graphs/huge3");
+}
 
-BOOST_AUTO_TEST_CASE( in3_test )
+BOOST_AUTO_TEST_CASE( in_test )
 {
+	check_partition_is_legal("graphs/in2");
 	check_partition_is_legal("graphs/in3");
 }
 
@@ -129,19 +132,24 @@ BOOST_AUTO_TEST_CASE( components_test )
 	check_partition_is_legal("graphs/biglittlecomp");
 }*/
 
+BOOST_AUTO_TEST_CASE( bigtiny_test)
+{
+	check_partition_is_legal("graphs/bigtiny");
+}
+
 BOOST_AUTO_TEST_CASE( delaunay_test )
 {
 	check_partition_is_legal("graphs/delaunay");
 }
 
-BOOST_AUTO_TEST_CASE( in2_test )
-{
-	check_partition_is_legal("graphs/in2");
-}
-
 BOOST_AUTO_TEST_CASE( insideout_test )
 {
 	check_partition_is_legal("graphs/insideout");
+}
+
+BOOST_AUTO_TEST_CASE( bfsfail_test )
+{
+	check_partition_is_legal("graphs/bfsfail");
 }
 
 BOOST_AUTO_TEST_CASE( square_test )

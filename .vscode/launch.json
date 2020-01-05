@@ -10,7 +10,7 @@
             "request": "launch",
             //"program": "${workspaceFolder}/unittest",
             "program": "${workspaceFolder}/lt",
-            "args": ["graphs/shrunkenstar"],
+            "args": ["graphs/star"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

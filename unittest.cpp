@@ -125,6 +125,7 @@ BOOST_AUTO_TEST_CASE( notbb_test )
 BOOST_AUTO_TEST_CASE( components_test )
 {
 	check_partition_is_legal("graphs/lotslittle");
+	check_partition_is_legal("graphs/components");
 }
 
 BOOST_AUTO_TEST_CASE( biglittle_test)

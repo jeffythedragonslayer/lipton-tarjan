@@ -162,16 +162,16 @@ Partition theorem4_ccbigger23(GraphCR g_all, Partition const& biggest_comp_p)
         Partition star_p = theorem4_connected(g_comp, L, l, r);
         // ????
 
-        set<vertex_t> const* costly_part;
-        set<vertex_t> const* other1;
-        set<vertex_t> const* other2;
-        star_p.get_most_costly_part(&costly_part, &other1, &other2);
-
         Partition p;
-        p.a = *costly_part;
         p.c = star_p.c;
-        // set p.b to remaining vertices of G
         p.b.insert(STLALL(toremove));
+        if( star_p.a.size() > star_p.b.size() ){
+                p.a = star_p.a; 
+                p.b.insert(STLALL(star_p.b));
+        } else {
+                p.a = star_p.b; 
+                p.b.insert(STLALL(star_p.a));
+        }
         return p; 
 }
 

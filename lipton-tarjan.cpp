@@ -59,6 +59,8 @@ Partition construct_vertex_partition(GraphCR g_orig, vector<uint> const& L, uint
         cout << "r max distance: " << r << '\n';
 
         Partition biggest_comp_p = lemma3(g_orig, L, l[1], l[2], r, vis_data_orig, vis_data_shrunken, cycle);
+        biggest_comp_p.verify_edges(g_orig);
+        biggest_comp_p.verify_sizes_lemma3(L, l[1], l[2]);
         if( 1 == num_components ){
 
                 if( biggest_comp_p.verify_sizes(g_orig) && biggest_comp_p.verify_edges(g_orig) ) return biggest_comp_p;
@@ -74,6 +76,9 @@ Partition construct_vertex_partition(GraphCR g_orig, vector<uint> const& L, uint
 	}
 
         // somehow the two Partitions need to be stiched together
+
+        cout << "biggest comp p:\n";
+        biggest_comp_p.print(&g_orig);
 
         Partition extended_p = theorem4_disconnected(g_orig, n, num_components, vertid_to_component, num_verts_per_component, biggest_comp_p);
 

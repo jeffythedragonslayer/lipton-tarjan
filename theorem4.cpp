@@ -127,8 +127,8 @@ Partition theorem4_ccbigger23(GraphCR g_all, Partition const& biggest_comp_p)
                 cout << "       with cv " << cv << " all_propmap" << g_all_prop_map[v] << '\n';
                 // if cv is not in biggest_comp_p,
                 if( !biggest_comp_p.a.contains(cv) && 
-                    !biggest_comp_p.a.contains(cv) && 
-                    !biggest_comp_p.a.contains(cv) ){ 
+                    !biggest_comp_p.b.contains(cv) && 
+                    !biggest_comp_p.c.contains(cv) ){ 
                         // delete v from g_comp
                             toremove.push_back(v);
                     }
@@ -202,7 +202,7 @@ Partition theorem4_ccbigger23(GraphCR g_all, Partition const& biggest_comp_p)
         }
         cout << "l2: " << l[2] << "     lowest  level >= l1 + 1\n";
 
-        uint r = vd.num_levels;
+        uint r = vd.num_levels - 1;
 
         Partition star_p = theorem4_connected(g_comp, L, l, r);
         // ????

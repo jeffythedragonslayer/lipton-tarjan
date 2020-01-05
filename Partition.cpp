@@ -1,5 +1,6 @@
 #include "Partition.h"
 #include "typedefs.h"
+#include <boost/graph/properties.hpp>
 #include <iostream>
 #include <algorithm>
 using namespace std;
@@ -83,15 +84,22 @@ bool Partition::verify_sizes(GraphCR g) const
 	return true;
 } 
 
-void Partition::print() const
+void Partition::print(Graph const* g) const
 {
 		cout << "Partition\n"; 
 		cout << "  size of A: " << a.size() << '\n';
 		cout << "  size of B: " << b.size() << '\n';
 		cout << "  size of C: " << c.size() << '\n'; 
-		cout << "  A = "; for( auto& v : a ) cout << v << ' '; cout << '\n';
-		cout << "  B = "; for( auto& v : b ) cout << v << ' '; cout << '\n'; 
-		cout << "  C = "; for( auto& v : c ) cout << v << ' '; cout << '\n';
+		if( g ){
+			auto prop_map = get(boost::vertex_index, *g); // writing to this property map has side effects in the graph
+			cout << "  A = "; for( auto& v : a ) cout << prop_map[v] << ' '; cout << '\n';
+			cout << "  B = "; for( auto& v : b ) cout << prop_map[v] << ' '; cout << '\n'; 
+			cout << "  C = "; for( auto& v : c ) cout << prop_map[v] << ' '; cout << '\n';
+		} else {
+			cout << "  A = "; for( auto& v : a ) cout << v << ' '; cout << '\n';
+			cout << "  B = "; for( auto& v : b ) cout << v << ' '; cout << '\n'; 
+			cout << "  C = "; for( auto& v : c ) cout << v << ' '; cout << '\n';
+		}
 }
 
 uint Partition::total_num_verts() const

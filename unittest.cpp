@@ -81,9 +81,10 @@ BOOST_AUTO_TEST_CASE( empty_test )
 		check_partition_is_legal("graphs/star");
 }*/
 
-BOOST_AUTO_TEST_CASE( box2_test )
+BOOST_AUTO_TEST_CASE( box_test )
 {
 	check_partition_is_legal("graphs/box2");
+	check_partition_is_legal("graphs/box3");
 }
 
 /*BOOST_AUTO_TEST_CASE( huge_test )
@@ -111,11 +112,6 @@ BOOST_AUTO_TEST_CASE( rand_test )
 	check_partition_is_legal("graphs/rand");
 	check_partition_is_legal("graphs/rand2");
 	check_partition_is_legal("graphs/rand3");
-}
-
-BOOST_AUTO_TEST_CASE( box3_test )
-{
-	check_partition_is_legal("graphs/box3");
 }
 
 BOOST_AUTO_TEST_CASE( notbb_test )

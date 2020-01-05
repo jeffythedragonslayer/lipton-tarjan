@@ -1,4 +1,5 @@
 #include "theorem4.h"
+#include "strutil.h"
 #include "lemmas.h"
 #include "BFSVisitor.h"
 #include <boost/graph/copy.hpp>
@@ -25,6 +26,7 @@ uint lowest_i(uint n, uint num_components, vector<uint> const& num_verts_per_com
         return -1;
 }
 
+
 // L[l] = # of vertices on level l
 Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r)
 {
@@ -36,6 +38,8 @@ Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r
         uint l0 = l[0];
         uint l1 = l[1];
         uint l2 = l[2];
+
+        assert(1 == L[0]);
         // Partition the vertices into levels according to their distance from some vertex v.
         //uint r;
         /*If r is the maximum distance of any vertex from v, define additional levels -1 and r+1 containing no vertices*/
@@ -48,8 +52,12 @@ Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r
         Find a level l2 such that l1+1 <= l2 and |L[l2] + 2(l2-l1-1) <= 2sqrt(n-k) */
         assert(l0 <= l1);
         assert(l1+1 <= l2);
-        assert(L[l0] + 2*(l1-l0) <= 2*sqrt(k));
-        assert(L[l2] + 2*(l2-l1-1) <= 2*sqrt(n-k));
+        uint sqrtk = 2*sqrt(k);
+        uint sqrtnk = 2*sqrt(n-k);
+        uint tmp0 = L[l0] + 2*(l1-l0);
+        uint tmp1 = L[l2] + 2*(l2-l1-1);
+        assert(tmp0 <= sqrtk);
+        assert(tmp1 <= sqrtnk);
 
         BFSVisitorData bfs(&g, *vertices(g).first);
         breadth_first_search(g, bfs.root, boost::visitor(BFSVisitor(bfs)));
@@ -57,6 +65,10 @@ Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r
 
         vector<vertex_t> cycle;
         Partition p = lemma3(g, L, l1, l2, r, bfs, bfs, cycle);
+
+        uint climit = sqrtk - sqrtnk;
+        assert(p.verify_edges(g));
+        assert(p.verify_sizes_lemma3(L, l1, l2));
 
         /*If 2 such levels exist, then by Lemma 3 the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex in A with a vertex in B,
         neither A or C has cost > 2/3, and C contains no more than 2(sqrt(k) + sqrt(n-k)) vertices.
@@ -69,27 +81,75 @@ Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r
         return p; 
 }
 
-Partition theorem4_ccbigger23(GraphCR g, Partition const& biggest_comp_p)
-{
-        /*Finally, if some connected component (say Gi) has total vertex cost exceeding 2/3,
-        apply the above argument to Gi
-                Let A*, B*, C* be the resulting partition.
-                A = set among A* and B* with greater cost
-                C = C*
-                B = remanining vertices of G
-                Then A and B have cost <= 2/3, g
-                return true
 
-        In all cases the separator C is either empty or contained in only one connected component of G */
+Partition theorem4_ccbigger23(GraphCR g_all, Partition const& biggest_comp_p)
+{ 
+        uint alln = num_vertices(g_all);
+        cout << "alln: " << alln << '\n';
 
         Graph g_comp; // connected component
-        copy_graph(g, g_comp);
-        g_comp = g;
-        // delete all verts not in the biggest connected component from g_comp
+        copy_graph(g_all, g_comp);
+        g_comp = g_all;
 
-        vector<uint> L;
+        auto g_all_prop_map = get(vertex_index, g_all);
+        auto g_comp_prop_map = get(vertex_index, g_comp);
+
+        auto vertid_to_vert_t = [&](uint id, decltype(get(vertex_index, g_all)) prop_map)
+        { 
+                VertIter vit, vjt;
+                tie(vit, vjt) = vertices(g_all); 
+                for( ; vit != vjt; ++vit ){
+                        if( prop_map[*vit] == id ) return *vit; 
+                } 
+                return Graph::null_vertex();
+        };
+
+        // for all vertices v in g_comp,
+        vector<vertex_t> toremove;
+        VertIter vit, vjt;
+        tie(vit, vjt) = vertices(g_comp); 
+        for( ; vit != vjt; ++vit ){
+                vertex_t v = *vit;
+                cout << "currently examining " << v << " comp_propmap" << g_comp_prop_map[v] << '\n';
+                // cv = lookup the corresponding vertex in g_all
+                vertex_t cv = vertid_to_vert_t(g_all_prop_map[v], g_all_prop_map);
+                cout << "       with cv " << cv << " all_propmap" << g_all_prop_map[v] << '\n';
+                // if cv is not in biggest_comp_p,
+                if( !biggest_comp_p.a.contains(cv) && 
+                    !biggest_comp_p.a.contains(cv) && 
+                    !biggest_comp_p.a.contains(cv) ){ 
+                        // delete v from g_comp
+                            toremove.push_back(v);
+                    }
+
+        }
+
+        uint nremove = toremove.size();
+        cout << "nremove: " << nremove << '\n';
+        for(auto& v : toremove ){
+                cout << "   nr: " << v << '\n'; 
+                remove_vertex(v, g_comp); 
+        }
+
         uint l[3];
         uint r;
+
+        cout << "gcomp:\n";
+        print_graph(g_comp);
+        print_graph_addresses(g_comp);
+        BFSVisitorData vd(&g_comp, *vertices(g_comp).first);
+        breadth_first_search(g_comp, vd.root, boost::visitor(BFSVisitor(vd)));
+
+        // disabled because they don't support multiple connected components
+        //assert(assert_verts(g_orig, vis_data_orig));
+        //assert(assert_verts(g_copy, vis_data_copy));
+
+        vector<uint> L(vd.num_levels + 1, 0);
+	cout << "L levels: " << L.size() << '\n';
+        for( auto& d : vd.verts ){
+                cout << "level: " << d.second.level << '\n';
+	       	++L[d.second.level];
+	}
 
         Partition star_p = theorem4_connected(g_comp, L, l, r);
         // ????
@@ -102,12 +162,9 @@ Partition theorem4_ccbigger23(GraphCR g, Partition const& biggest_comp_p)
         Partition p;
         p.a = *costly_part;
         p.c = star_p.c;
-        p.b.insert(biggest_comp_p.a.begin(), biggest_comp_p.a.end());
-        p.b.insert(biggest_comp_p.b.begin(), biggest_comp_p.b.end());
-        p.b.insert(biggest_comp_p.c.begin(), biggest_comp_p.c.end());
         // set p.b to remaining vertices of G
-        return p;
-
+        p.b.insert(STLALL(toremove));
+        return p; 
 }
 
 Partition theorem4_disconnected(GraphCR g, uint n, uint num_components, associative_property_map<vertex_map> const& vertid_to_component, vector<uint> const& num_verts_per_component, Partition const& biggest_comp_p)
@@ -187,7 +244,7 @@ Partition theorem4_disconnected(GraphCR g, uint n, uint num_components, associat
                 // partition C should be empty 
                 assert(p.c.empty());
 
-                p.print();
+                p.print(&g);
 
                 cout << "bigger than one third but less than two thirds\n";
                 return p;

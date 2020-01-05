@@ -90,7 +90,7 @@ Partition lemma3_exceeds23(GraphCR g_orig, BFSVisitorData const& vis_data_orig, 
         copy_graph(g_orig, g_shrink2);
         g_shrink2 = g_orig;
 
-        //cout << "middle partition has cost exceeding 2/3\n";
+        cout << "middle partition has cost exceeding 2/3\n";
 
         //delete all verts on level l2 and above 
         VertIter vit, vjt;
@@ -173,7 +173,7 @@ Partition lemma3_l1greaterequall2(GraphCR g_shrink2, BFSVisitorData const& vis_d
         return p;
 }
 
-Partition lemma3_lessequal23(set<vertex_t> const& first_part, set<vertex_t> const& middle_part, set<vertex_t> const& last_part, set<vertex_t>& deleted_part)
+Partition lemma3_lessequal23(set<vertex_t> const& first_part, set<vertex_t> const& middle_part, set<vertex_t> const& last_part, set<vertex_t>& deleted_part, Graph const* g)
 {
         cout << "middle partition has cost <= 2/3\n";
 
@@ -187,7 +187,7 @@ Partition lemma3_lessequal23(set<vertex_t> const& first_part, set<vertex_t> cons
         set<vertex_t> const* other2;
         p.get_most_costly_part(&costly_part, &other1, &other2);
 
-        p.print();
+        p.print(g);
         cout <<   "A = most costly part of the 3 : "; for( auto& a : *costly_part ) cout << a << ' ';
         cout << "\nB = remaining 2 parts         : "; for( auto& b : *other1      ) cout << b << ' '; for( auto& b : *other2 ) cout << b << ' '; 
         cout << "\nC = deleted verts on l1 and l2: "; for( auto& v : deleted_part ) cout << v << ' '; cout << '\n';
@@ -197,6 +197,7 @@ Partition lemma3_lessequal23(set<vertex_t> const& first_part, set<vertex_t> cons
         p2.c = deleted_part;
         p2.b = *other1;
         p2.b.insert(other2->begin(), other2->end());
+        p2.print(g);
         return p2; 
 }
 
@@ -252,7 +253,7 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
                 //p.print();
 
                 p = middle_part.size() <= 2*n/3                                          ?
-                    lemma3_lessequal23(first_part, middle_part, last_part, deleted_part) :
+                    lemma3_lessequal23(first_part, middle_part, last_part, deleted_part, &g_orig) :
                     lemma3_exceeds23(g_orig, vis_data_orig, l1, l2, cycle);
         }
 

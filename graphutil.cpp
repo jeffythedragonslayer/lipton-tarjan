@@ -57,8 +57,11 @@ vector<vertex_t> ancestors(vertex_t v, BFSVisitorData const& vis)
         return ans;
 }
 
+struct NoCommonAncestor {};
+
 vector<vertex_t> get_cycle(vertex_t v, vertex_t w, vertex_t ancestor, BFSVisitorData const& vis_data)
 {
+        if( !ancestor ) throw NoCommonAncestor();
         vector<vertex_t> cycle, tmp;
         vertex_t cur;
         cur = v;
@@ -67,7 +70,7 @@ vector<vertex_t> get_cycle(vertex_t v, vertex_t w, vertex_t ancestor, BFSVisitor
                 auto cur_it = vis_data.verts.find(cur);
                 cur = cur_it->second.parent;
         }
-        if( ancestor ) cycle.push_back(ancestor); 
+        cycle.push_back(ancestor); 
 
         cur = w;
         while( cur != ancestor ){

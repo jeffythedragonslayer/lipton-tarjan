@@ -73,6 +73,8 @@ Partition construct_vertex_partition(GraphCR g_orig, vector<uint> const& L, uint
 	       	++num_verts_per_component[vertid_to_component[*vit]];
 	}
 
+        // somehow the two Partitions need to be stiched together
+
         Partition extended_p = theorem4_disconnected(g_orig, n, num_components, vertid_to_component, num_verts_per_component, biggest_comp_p);
 
         return extended_p; // TODO replace this with extended_p

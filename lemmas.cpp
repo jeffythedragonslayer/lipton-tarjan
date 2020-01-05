@@ -223,8 +223,13 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
                         cost_l2p1thrur1 += L[i];
                 }
         }
-        assert(cost_0thrul1m1 <= 2*n_orig/3);
-        assert(cost_l2p1thrur1 <= 2*n_orig/3);
+        assert(cost_0thrul1m1 <= 2*n/3);
+        assert(cost_l2p1thrur1 <= 2*n/3);
+
+        if( n != n_orig ){
+                // more than one connected component, we need to recompute l1 and l2
+
+        }
 
         //assert(vis_data_shrunken.assert_data());
         //assert(vis_data_orig.assert_data()); 
@@ -265,14 +270,14 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
                 assert(ptotal == n);
 
                 //the only part which can have cost > 2/3 is the middle part (B)
-                assert(first_part.size() <= 2*n_orig/3);
-                assert(last_part.size() <= 2*n_orig/3);
+                assert(first_part.size() <= 2*n/3);
+                assert(last_part.size() <= 2*n/3);
                 cout << "first part size: " << first_part.size() << '\n';
                 cout << "middle part size: " << middle_part.size() << '\n';
                 cout << "third part size: " << last_part.size() << '\n';
                 //p.print();
 
-                p = middle_part.size() <= 2*n_orig/3                                          ?
+                p = middle_part.size() <= 2*n/3                                          ?
                     lemma3_lessequal23(first_part, middle_part, last_part, deleted_part, &g_orig) :
                     lemma3_exceeds23(g_orig, vis_data_orig, l1, l2, cycle);
         }

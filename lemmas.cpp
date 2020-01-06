@@ -161,10 +161,12 @@ Partition lemma3_l1greaterequall2(GraphCR g_shrink2, BFSVisitorData const& vis_d
         for( tie(vei, vend) = vertices(g_shrink2); vei != vend; ++vei ){ 
                 vertex_t v = *vei;
                 assert(vis_data_orig.verts.contains(v));
+                uint level = vis_data_orig.verts.find(v)->second.level;
+
                 //cout << "level of " << ii << ": " << vis_data_orig.verts.find(v)->second.level << "  ";
-                if( vis_data_orig.verts.find(v)->second.level <  l1 )                                       { cout << " belongs to first part\n";  p.a.insert(v); continue; }
-                if( vis_data_orig.verts.find(v)->second.level >= l1+1 && vis_data_orig.verts.find(v)->second.level <= r ){ cout << " belongs to middle part\n"; p.b.insert(v); continue; }
-                if( vis_data_orig.verts.find(v)->second.level == l1 )                                       { cout << " belongs to last part\n";   p.c.insert(v); continue; }
+                if( level <  l1 ){                 cout << " belongs to first part\n";  p.a.insert(v); continue; }
+                if( level >= l1+1 && level <= r ){ cout << " belongs to middle part\n"; p.b.insert(v); continue; }
+                if( level == l1 ){                 cout << " belongs to last part\n";   p.c.insert(v); continue; }
                 assert(0);
         } 
         /*cout << "A = all verts on levels 0    thru l1-1\n";
@@ -213,6 +215,24 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
         cout << "n: " << n << '\n';
         cout << "n_orig: " << n_orig << '\n';
 
+        if( n != n_orig ){
+                // more than one connected component, we need to recompute l1 and l2 
+
+                uint total = 0;
+                uint level = 0;
+                while( total < 2*n_orig/3 ){ 
+                        total += L[level++];
+                }
+
+                total = 0;
+                level = r+1;
+                while( total < 2*n_orig/3 ){ 
+                        total += L[--level];
+                }
+
+                l2 = level;
+        }
+
         uint cost_0thrul1m1 = 0;
         uint cost_l2p1thrur1 = 0;
         for( uint i = 0; i < r; ++i ){ 
@@ -223,13 +243,10 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
                         cost_l2p1thrur1 += L[i];
                 }
         }
-        assert(cost_0thrul1m1 <= 2*n/3);
-        assert(cost_l2p1thrur1 <= 2*n/3);
+        uint costlimit = 2*n/3;
+        assert(cost_0thrul1m1 <= costlimit);
+        assert(cost_l2p1thrur1 <= costlimit);
 
-        if( n != n_orig ){
-                // more than one connected component, we need to recompute l1 and l2
-
-        }
 
         //assert(vis_data_shrunken.assert_data());
         //assert(vis_data_orig.assert_data()); 

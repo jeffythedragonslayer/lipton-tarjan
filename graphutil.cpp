@@ -57,40 +57,13 @@ vector<vertex_t> ancestors(vertex_t v, BFSVisitorData const& vis)
         return ans;
 }
 
-struct NoCommonAncestor {};
-
-vector<vertex_t> get_cycle(vertex_t v, vertex_t w, vertex_t ancestor, BFSVisitorData const& vis_data)
-{
-        if( !ancestor ) throw NoCommonAncestor();
-        vector<vertex_t> cycle, tmp;
-        vertex_t cur;
-        cur = v;
-        while( cur != ancestor ){
-                cycle.push_back(cur);
-                auto cur_it = vis_data.verts.find(cur);
-                cur = cur_it->second.parent;
-        }
-        cycle.push_back(ancestor); 
-
-        cur = w;
-        while( cur != ancestor ){
-                tmp.push_back(cur);
-                auto cur_it = vis_data.verts.find(cur);
-                cur = cur_it->second.parent;
-        }
-
-        reverse(STLALL(tmp));
-        cycle.insert(cycle.end(), STLALL(tmp));
-        return cycle;
-}
-
 vector<vertex_t> get_cycle(vertex_t v, vertex_t w, BFSVisitorData const& vis_data)
 { 
         vector<vertex_t> parents_v = ancestors(v, vis_data);
         vector<vertex_t> parents_w = ancestors(w, vis_data); 
         vertex_t ancestor  = get_common_ancestor(parents_v, parents_w);
         //cout << "common ancestor: " << ancestor << '\n'; 
-        return get_cycle(v, w, ancestor, vis_data);
+        return vis_data.get_cycle(v, w, ancestor);
 }
 
 // return set of vertices neighboring v in graph g

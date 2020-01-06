@@ -23,6 +23,7 @@ struct BFSVisitorData
 	bool assert_data() const;
 	void examine_edge(edge_t e);
 	bool in_cc(edge_t e) const;
+	std::vector<vertex_t> get_cycle(vertex_t v, vertex_t w, vertex_t ancestor) const;
 };
 
 struct EdgeNotInVisitorData : std::exception

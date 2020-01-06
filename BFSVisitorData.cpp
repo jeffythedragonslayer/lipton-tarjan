@@ -98,3 +98,30 @@ bool BFSVisitorData::assert_data() const
         }
 		return true;
 }
+
+struct NoCommonAncestor {};
+
+vector<vertex_t> BFSVisitorData::get_cycle(vertex_t v, vertex_t w, vertex_t ancestor) const
+{
+        if( !ancestor ) throw NoCommonAncestor();
+        vector<vertex_t> cycle, tmp;
+        vertex_t cur;
+        cur = v;
+        while( cur != ancestor ){
+                cycle.push_back(cur);
+                auto cur_it = verts.find(cur);
+                cur = cur_it->second.parent;
+        }
+        cycle.push_back(ancestor); 
+
+        cur = w;
+        while( cur != ancestor ){
+                tmp.push_back(cur);
+                auto cur_it = verts.find(cur);
+                cur = cur_it->second.parent;
+        }
+
+        reverse(STLALL(tmp));
+        cycle.insert(cycle.end(), STLALL(tmp));
+        return cycle;
+}

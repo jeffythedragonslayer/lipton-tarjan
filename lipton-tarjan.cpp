@@ -291,7 +291,7 @@ Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vi
         vector<vertex_t> parents_w   = ancestors(w1, vis_data_shrunken); 
         vertex_t common_ancestor    = get_common_ancestor(parents_v, parents_w);
         cout << "common ancestor: " << common_ancestor << '\n'; 
-        vector<vertex_t> cycle = get_cycle(v1, w1, common_ancestor, vis_data_shrunken);
+        vector<vertex_t> cycle = vis_data_shrunken.get_cycle(v1, w1, common_ancestor);
 
         EmbedStruct em(&g_shrunk);
         CycleCost cc = compute_cycle_cost(cycle, g_shrunk, vis_data_shrunken, em); 

@@ -79,7 +79,7 @@ Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r
 
         uint climit = sqrtk - sqrtnk;
         assert(p.verify_edges(g));
-        //assert(p.verify_sizes_lemma3(L, l1, l2));
+        assert(p.verify_sizes_lemma3(L, l1, l2));
 
         /*If 2 such levels exist, then by Lemma 3 the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex in A with a vertex in B,
         neither A or C has cost > 2/3, and C contains no more than 2(sqrt(k) + sqrt(n-k)) vertices.

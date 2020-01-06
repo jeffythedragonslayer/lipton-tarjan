@@ -11,7 +11,7 @@ Suppose G has a spanning tree of radius r.
 Then the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex in A with a vertex in B, neither A nor B has total cost exceeding 2/3,
 and C contains no more than 2r+1 vertices, one the root of the tree */
 // r is spanning tree radius
-Partition lemma2_c2r1(GraphCR g_orig, uint r, vector<vertex_t> const& cycle)
+Partition lemma2_c2r1(GraphCR g_orig, uint r, vector<vertex_t> const& cycle, vertex_t root)
 {
         uint n = num_vertices(g_orig);
 
@@ -39,6 +39,9 @@ Partition lemma2_c2r1(GraphCR g_orig, uint r, vector<vertex_t> const& cycle)
 
         make_max_planar(g_shrink2);
 
+        uint cyclelengthlimit = find(STLALL(cycle), root) != cycle.end() ? 2*r+1 : 2*r-1;
+        assert(cycle.size() <= cyclelengthlimit);
+
 	/* Proof.  Assume no vertex has cost exceeding 1/3; otherwise the lemma is true.
 	Embed G in the plane.  Make each face a triangle by adding a suitable number of additional edges.
 	Any nontree edge (including each of the added edges) forms a simple cycle with some of the tree edges.
@@ -55,12 +58,8 @@ Partition lemma2_c2r1(GraphCR g_orig, uint r, vector<vertex_t> const& cycle)
 	The properties of (x, y) and (y, z) determine which of the following case applies.
 	Figure 4 illustrates the cases.
 
-
-	1) Both (x, y) and (y, z) lie on the cycle.  Then the face (x, y, z) is the cycle,
-	which is impossible since vertices lie inside the cycle.
-	2) One of (x, y) and (y, z) (say (x, y)) lies on the cycle.
-	Then (y, z) is a nontree edge defining a cycle which contains within it the same vertices as the original cycle but one less face.
-	This contradicts the choice of (x, z).
+	1) Both (x, y) and (y, z) lie on the cycle.  Then the face (x, y, z) is the cycle, which is impossible since vertices lie inside the cycle.
+	2) One of (x, y) and (y, z) (say (x, y)) lies on the cycle. Then (y, z) is a nontree edge defining a cycle which contains within it the same vertices as the original cycle but one less face. This contradicts the choice of (x, z).
 	3) Neither (x, y) nor (y, z) lies on the cycle.
 		a) Both (x, y) and (y, z) are tree edges.  This is impossible since the tree itself contains no cycles.
 		b) One of (x, y) and (y, z) (say x, y) is a tree edge.  Then (y, z) is a nontree edge defining a cycle which contains one less vertex (namely y) within it than the original cycle.
@@ -70,18 +69,16 @@ Partition lemma2_c2r1(GraphCR g_orig, uint r, vector<vertex_t> const& cycle)
 	The cost outside the (y, z) cycle is equal to the cost outside the (x, z) cycle plus the cost of y.
 	Since both the cost outside the (x, z) cycle and the cost of y are less than 1/3,
 	the cost outside the (y, z) cycle is less than 2/3, and (y, z) would have been chosen in place of (x, z).
-		c) Neither (x, y) nor (y, z) is a tree edge.
-		Then each of (x, y) and (y, z) defines a cycle,
-		and every vertex inside the (x, z) cycle is either inside the (x, y) cycle,
-		inside the (y, z) cycle, or on the boundary of both.
-		Of the (x, y) and (y, z) cycles, choose the one (say (x, y)) which has inside it
-		more total cost.
-		The (x, y) cycle has no more cost and strictly fewer faces inside it than the (x, z) cycle.
+		c) Neither (x, y) nor (y, z) is a tree edge. Then each of (x, y) and (y, z) defines a cycle, and every vertex inside the (x, z) cycle is either inside the (x, y) cycle, inside the (y, z) cycle, or on the boundary of both.
+		Of the (x, y) and (y, z) cycles, choose the one (say (x, y)) which has inside it more total cost. The (x, y) cycle has no more cost and strictly fewer faces inside it than the (x, z) cycle.
 		Thus if the cost inside the (x, y) cycle is greater than the cost outside, (x, y) would have been chosen in place of (x, z).
 	On the other hand, suppose the cost inside the (x, y) cycle is no greater than the cost outside.
 	Since the inside of the (x, z) cycle has cost exceeding 2/3, the (x, y) cycle and its inside together have cost exceeding 1/3, and the outside of the (x, y) cycle has cost less than 2/3.
 	Thus (x, y) would have been chosen in place of (x, z).
 	Thus all cases are impossible, and the (x, z) cycle satisfies the claim. */
+
+        p.verify_sizes_lemma2(r, root);
+
         return p;
 }
 
@@ -149,7 +146,7 @@ Partition lemma3_exceeds23(Graph& g_shrink2, BFSVisitorData const& vis_data_shru
         //The new graph has a spanning tree radius of l2 - l1 -1 whose root corresponds to vertices on levels l1 and below in the original graph
         uint r = l2 - l1 - 1;
         //Apply Lemma 2 to the new graph, A* B* C*
-        Partition star_p = lemma2_c2r1(g_shrink2, r, cycle);
+        Partition star_p = lemma2_c2r1(g_shrink2, r, cycle, vis_data_shrunken.root);
         vertex_t star_root;
 
         Partition p;
@@ -178,9 +175,10 @@ Partition lemma3_exceeds23(Graph& g_shrink2, BFSVisitorData const& vis_data_shru
 
                         }
         }
+
         return p; 
         /* By Lemma 2, A has total cost <= 2/3
-        But A U C* has total cost >= 1/3, so B also has total cost <= 2/3
+        But A and C* have total cost >= 1/3, so B also has total cost <= 2/3
         Futhermore, C contains no more than L[l1] + L[l2] + 2(l2 - l1 - 1) */
 }
 
@@ -337,6 +335,6 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
         }
 
         assert(p.verify_edges(g_orig));
-	//assert(p.verify_sizes_lemma3(L, l1, l2));
+	assert(p.verify_sizes_lemma3(L, l1, l2));
         return p;
 }

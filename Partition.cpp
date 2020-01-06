@@ -46,6 +46,20 @@ bool Partition::verify_sizes_lemma3(vector<uint> const& L, uint l1, uint l2) con
 		   c_verts <= maxc;
 }
 
+bool Partition::verify_sizes_lemma2(uint r, vertex_t root) const
+{
+	uint a_verts = a.size();
+	uint b_verts = b.size();
+	uint c_verts = c.size();
+	uint n = a_verts + b_verts + c_verts;
+
+	return a_verts <= 2*n/3 &&
+		   b_verts <= 2*n/3 &&
+		   c_verts <= 2*r+1 &&
+		   c.contains(root);
+
+}
+
 bool Partition::verify_edges(GraphCR g) const
 {
 	// verify that no edge joins a vertex in partition A with a vertex in partition B

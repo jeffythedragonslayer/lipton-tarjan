@@ -160,7 +160,10 @@ Partition lemma3_l1greaterequall2(GraphCR g_shrink2, BFSVisitorData const& vis_d
         VertIter vei, vend;
         for( tie(vei, vend) = vertices(g_shrink2); vei != vend; ++vei ){ 
                 vertex_t v = *vei;
-                assert(vis_data_orig.verts.contains(v));
+                if( ! vis_data_orig.verts.contains(v) ){
+			cout << "ignoring non bfs vertex: " << v << '\n';
+			continue;
+		}
                 uint level = vis_data_orig.verts.find(v)->second.level;
 
                 //cout << "level of " << ii << ": " << vis_data_orig.verts.find(v)->second.level << "  ";
@@ -227,7 +230,9 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
                 total = 0;
                 level = r+1;
                 while( total < 2*n_orig/3 ){ 
-                        total += L[--level];
+                        total += L[level];
+			if( 0 == level ) break;
+			--level;
                 }
 
                 l2 = level;
@@ -287,11 +292,11 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
                 assert(ptotal == n);
 
                 //the only part which can have cost > 2/3 is the middle part (B)
-                assert(first_part.size() <= 2*n/3);
-                assert(last_part.size() <= 2*n/3);
                 cout << "first part size: " << first_part.size() << '\n';
                 cout << "middle part size: " << middle_part.size() << '\n';
                 cout << "third part size: " << last_part.size() << '\n';
+                assert(first_part.size() <= 2*n/3);
+                assert(last_part.size() <= 2*n/3);
                 //p.print();
 
                 p = middle_part.size() <= 2*n/3                                          ?

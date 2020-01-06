@@ -65,7 +65,7 @@ Partition construct_vertex_partition(GraphCR g_orig, Graph& g_shrunk, vector<uin
 
                 if( biggest_comp_p.verify_sizes(g_orig) && biggest_comp_p.verify_edges(g_orig) ) return biggest_comp_p;
 
-                return theorem4_connected(g_orig, L, l, r, &g_shrunk);
+                return theorem4_connected(g_orig, L, l, r, &g_shrunk, &vis_data_shrunken);
         }
 
         //associative_property_map<vertex_map> const& vertid_to_component, vector<uint> const& num_verts_per_component)

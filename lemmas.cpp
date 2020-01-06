@@ -1,6 +1,8 @@
 #include "lemmas.h"
 #include "graphutil.h"
+#include "strutil.h"
 #include <boost/graph/copy.hpp>
+#include <boost/graph/graph_utility.hpp>
 using namespace std;
 using namespace boost;
 
@@ -86,6 +88,9 @@ Partition lemma2_c2r1(GraphCR g_orig, uint r, vector<vertex_t> const& cycle)
 // called when the middle part exceeds 2/3
 Partition lemma3_exceeds23(Graph& g_shrink2, BFSVisitorData const& vis_data_shrunken, uint l1, uint l2, vector<vertex_t> const& cycle)
 {
+        cout << "g_shrink2:\n";
+        print_graph(g_shrink2);
+        print_graph_addresses(g_shrink2);
         /*Graph g_shrink2(g_orig);
         copy_graph(g_orig, g_shrink2);
         g_shrink2 = g_orig;*/
@@ -332,6 +337,6 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
         }
 
         assert(p.verify_edges(g_orig));
-	assert(p.verify_sizes_lemma3(L, l1, l2));
+	//assert(p.verify_sizes_lemma3(L, l1, l2));
         return p;
 }

@@ -73,8 +73,8 @@ Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r
         cout << "bfsroot: " << bfs.root << '\n';
 
         vector<vertex_t> cycle;
-        //--l1;
-        //--l2;
+        l1 -= 2;
+        --l2;
         Partition p = lemma3(g, L, l1, l2, r, bfs, bfs, cycle);
 
         uint climit = sqrtk - sqrtnk;

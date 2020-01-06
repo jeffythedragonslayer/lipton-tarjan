@@ -97,7 +97,9 @@ Partition lemma3_exceeds23(GraphCR g_orig, BFSVisitorData const& vis_data_orig, 
         tie(vit, vjt) = vertices(g_shrink2); 
         for( VertIter next = vit; vit != vjt; vit = next ){
                 ++next;
-                assert(vis_data_orig.verts.contains(*vit));
+                if( !vis_data_orig.verts.contains(*vit) ){
+                        cout << "ignoring vertex: " << *vit << '\n';
+                }
                 if( vis_data_orig.verts.find(*vit)->second.level >= l2 ){
                         //cout << "killing vertex " << vmap_shrunk.vert2uint[*vit] << " of level l2 or above: " << vis_data_orig.verts.find(*vit)->second.level << " >= " << l[2] << '\n';
                         kill_vertex(*vit, g_shrink2);
@@ -241,7 +243,7 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
         uint cost_0thrul1m1 = 0;
         uint cost_l2p1thrur1 = 0;
         for( uint i = 0; i < r; ++i ){ 
-                if( i < l1-1 ){
+                if( i+1 < l1 ){
                         cost_0thrul1m1 += L[i];
                 }
                 if( i >= l2+1 ){

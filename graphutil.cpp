@@ -277,9 +277,14 @@ EdgeIndex reset_edge_index(Graph const& g)
         return edgedesc_to_uint;
 } 
 
+struct CantContractVertexWithSelf
+{ 
+};
+
 // replace a and b with a single vertex that has edges to all of their neighbors
 void contract_vertices(vertex_t b, vertex_t a, Graph& g)
 {
+        if( a == b ) throw CantContractVertexWithSelf();
         auto be = adjacent_vertices(b, g);
         for (auto beit = be.first; beit != be.second; ++beit) add_edge(a, *beit, g);
         remove_vertex(b, g);

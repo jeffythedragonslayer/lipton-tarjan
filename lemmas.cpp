@@ -223,13 +223,15 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
 
                 uint total = 0;
                 uint level = 0;
-                while( total < 2*n_orig/3 ){ 
+                while( total < 2*n/3 ){ 
                         total += L[level++];
                 }
 
+                l1 = level-1;
+
                 total = 0;
                 level = r+1;
-                while( total < 2*n_orig/3 ){ 
+                while( total < 2*n/3 ){ 
                         total += L[level];
 			if( 0 == level ) break;
 			--level;

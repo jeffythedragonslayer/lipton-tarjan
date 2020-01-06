@@ -282,12 +282,13 @@ struct CantContractVertexWithSelf
 };
 
 // replace a and b with a single vertex that has edges to all of their neighbors
-void contract_vertices(vertex_t b, vertex_t a, Graph& g)
+vertex_t contract_vertices(vertex_t a, vertex_t b, Graph& g)
 {
         if( a == b ) throw CantContractVertexWithSelf();
         auto be = adjacent_vertices(b, g);
-        for (auto beit = be.first; beit != be.second; ++beit) add_edge(a, *beit, g);
+        for( auto beit = be.first; beit != be.second; ++beit ) if( *beit != a ) add_edge(a, *beit, g);
         remove_vertex(b, g);
+        return a;
 }
 
 void kill_vertex(vertex_t v, Graph& g)

@@ -84,11 +84,11 @@ Partition lemma2_c2r1(GraphCR g_orig, uint r, vector<vertex_t> const& cycle)
 }
 
 // called when the middle part exceeds 2/3
-Partition lemma3_exceeds23(GraphCR g_orig, BFSVisitorData const& vis_data_orig, uint l1, uint l2, vector<vertex_t> const& cycle)
+Partition lemma3_exceeds23(Graph& g_shrink2, BFSVisitorData const& vis_data_shrunken, uint l1, uint l2, vector<vertex_t> const& cycle)
 {
-        Graph g_shrink2(g_orig);
+        /*Graph g_shrink2(g_orig);
         copy_graph(g_orig, g_shrink2);
-        g_shrink2 = g_orig;
+        g_shrink2 = g_orig;*/
 
         cout << "middle partition has cost exceeding 2/3\n";
 
@@ -97,24 +97,49 @@ Partition lemma3_exceeds23(GraphCR g_orig, BFSVisitorData const& vis_data_orig, 
         tie(vit, vjt) = vertices(g_shrink2); 
         for( VertIter next = vit; vit != vjt; vit = next ){
                 ++next;
-                if( !vis_data_orig.verts.contains(*vit) ){
+                if( !vis_data_shrunken.verts.contains(*vit) ){
                         cout << "ignoring vertex: " << *vit << '\n';
                 }
-                if( vis_data_orig.verts.find(*vit)->second.level >= l2 ){
+                if( vis_data_shrunken.verts.find(*vit)->second.level >= l2 ){
                         //cout << "killing vertex " << vmap_shrunk.vert2uint[*vit] << " of level l2 or above: " << vis_data_orig.verts.find(*vit)->second.level << " >= " << l[2] << '\n';
                         kill_vertex(*vit, g_shrink2);
                 }
         }
 
         //shrink all verts on levels l1 and below to a single vertex of cost zero
-        VertIter v_cost_zero;
-        tie(v_cost_zero, vjt) = vertices(g_shrink2);
-        vit = ++v_cost_zero;
 
-        while( vit != vjt ){
-                contract_vertices(*v_cost_zero, *vit, g_shrink2);
-                ++vit;
-        } 
+        // find a vertex to call cost zero
+        vertex_t costzero = Graph::null_vertex(); 
+        tie(vit, vjt) = vertices(g_shrink2); 
+        for( VertIter next = vit; vit != vjt; vit = next ){
+                ++next;
+                if( !vis_data_shrunken.verts.contains(*vit) ){
+                        cout << "ignoring vertex: " << *vit << '\n';
+                        continue;
+                }
+
+                uint level = vis_data_shrunken.verts.find(*vit)->second.level;
+                if( level <= l1 ){
+                        costzero = *vit;
+                        break;
+                }
+        }
+
+        assert(costzero != Graph::null_vertex());
+
+        // contract
+        tie(vit, vjt) = vertices(g_shrink2); 
+        for( VertIter next = vit; vit != vjt; vit = next ){
+                ++next;
+                if( !vis_data_shrunken.verts.contains(*vit) ){
+                        cout << "ignoring vertex: " << *vit << '\n';
+                }
+
+                uint level = vis_data_shrunken.verts.find(*vit)->second.level;
+                if( level <= l1 && *vit != costzero ){
+                        costzero = contract_vertices(costzero, *vit, g_shrink2);
+                }
+        }
 
         //The new graph has a spanning tree radius of l2 - l1 -1 whose root corresponds to vertices on levels l1 and below in the original graph
         uint r = l2 - l1 - 1;
@@ -131,9 +156,9 @@ Partition lemma3_exceeds23(GraphCR g_orig, BFSVisitorData const& vis_data_orig, 
         tie(vit, vjt) = vertices(g_shrink2); 
         for( VertIter next = vit; vit != vjt; vit = next ){
                 ++next;
-                assert(vis_data_orig.verts.contains(*vit));
-                if( vis_data_orig.verts.find(*vit)->second.level == l2 ||
-                        vis_data_orig.verts.find(*vit)->second.level == l1 ){
+                assert(vis_data_shrunken.verts.contains(*vit));
+                if( vis_data_shrunken.verts.find(*vit)->second.level == l2 ||
+                        vis_data_shrunken.verts.find(*vit)->second.level == l1 ){
                                 p.c.insert(*vit);
                 }
         } 
@@ -213,7 +238,7 @@ Suppose that the vertices of G are partitioned into levels according to their di
 If r is the maximum distance of any vertex from v, let r+1 be an additional level containing no vertices.
 Given any two levels l1 and l2 such that levels 0 through l1-1 have total cost not exceeding 2/3 and levels l2+1 through r+1 have total cost not exceeding 2/3,
 it is possible to find a partition A, B, C of the vertices of G such that no edge joins a vertex in A with a vertex in B, neither A nor B has total cost exceeding 2/3, and C contains no more than L(l1)+L(l2)+max{0,2(l2-l1-1)} vertices. */
-Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r, BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_shrunken, vector<vertex_t> const& cycle)
+Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r, BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_shrunken, vector<vertex_t> const& cycle, Graph* g_shrunk)
 {
         uint n = vis_data_orig.verts.size();
         uint n_orig = num_vertices(g_orig); 
@@ -303,7 +328,7 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
 
                 p = middle_part.size() <= 2*n/3                                          ?
                     lemma3_lessequal23(first_part, middle_part, last_part, deleted_part, &g_orig) :
-                    lemma3_exceeds23(g_orig, vis_data_orig, l1, l2, cycle);
+                    lemma3_exceeds23(*g_shrunk, vis_data_shrunken, l1, l2, cycle);
         }
 
         assert(p.verify_edges(g_orig));

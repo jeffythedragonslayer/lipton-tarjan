@@ -29,7 +29,7 @@ uint lowest_i(uint n, uint num_components, vector<uint> const& num_verts_per_com
 
 
 // L[l] = # of vertices on level l
-Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r)
+Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r, Graph* g_shrunk)
 {
         uint n = num_vertices(g);
         cout << "g:\n";
@@ -75,7 +75,7 @@ Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r
         vector<vertex_t> cycle;
         l1 -= 2;
         --l2;
-        Partition p = lemma3(g, L, l1, l2, r, bfs, bfs, cycle);
+        Partition p = lemma3(g, L, l1, l2, r, bfs, bfs, cycle, g_shrunk);
 
         uint climit = sqrtk - sqrtnk;
         assert(p.verify_edges(g));
@@ -204,7 +204,7 @@ Partition theorem4_ccbigger23(GraphCR g_all, Partition const& biggest_comp_p)
 
         uint r = vd.num_levels - 1;
 
-        Partition star_p = theorem4_connected(g_comp, L, l, r);
+        Partition star_p = theorem4_connected(g_comp, L, l, r, nullptr);
         // ????
 
         Partition p;
@@ -323,7 +323,7 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
                 uint l[3];
                 uint r;
                 assert(0);
-                return theorem4_connected(g, L, l, r);
+                return theorem4_connected(g, L, l, r, nullptr);
 	} else {
                 cout << "graph is disconnected with " << num_components << " components\n";
                 return theorem4_disconnected(g, n, num_components, vertid_to_component, num_verts_per_component, biggest_comp_p);

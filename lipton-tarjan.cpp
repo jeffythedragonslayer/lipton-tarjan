@@ -36,7 +36,7 @@ using namespace boost;
 //
 // Use the cycle found in Step 9 and the levels found in Step 4 (l1_and_k) to construct a satisfactory vertex partition as described in the proof of Lemma 3
 // Extend this partition from the connected component chosen in Step 2 to the entire graph as described in the proof of Theorem 4.
-Partition construct_vertex_partition(GraphCR g_orig, vector<uint> const& L, uint l[3], BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_shrunken, vector<vertex_t> const& cycle)
+Partition construct_vertex_partition(GraphCR g_orig, Graph& g_shrunk, vector<uint> const& L, uint l[3], BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_shrunken, vector<vertex_t> const& cycle)
 {
         vertex_map idx; 
         associative_property_map<vertex_map> vertid_to_component(idx);
@@ -58,14 +58,14 @@ Partition construct_vertex_partition(GraphCR g_orig, vector<uint> const& L, uint
         uint r = vis_data_orig.num_levels;
         cout << "r max distance: " << r << '\n';
 
-        Partition biggest_comp_p = lemma3(g_orig, L, l[1], l[2], r, vis_data_orig, vis_data_shrunken, cycle);
+        Partition biggest_comp_p = lemma3(g_orig, L, l[1], l[2], r, vis_data_orig, vis_data_shrunken, cycle, &g_shrunk);
         biggest_comp_p.verify_edges(g_orig);
         biggest_comp_p.verify_sizes_lemma3(L, l[1], l[2]);
         if( 1 == num_components ){
 
                 if( biggest_comp_p.verify_sizes(g_orig) && biggest_comp_p.verify_edges(g_orig) ) return biggest_comp_p;
 
-                return theorem4_connected(g_orig, L, l, r);
+                return theorem4_connected(g_orig, L, l, r, &g_shrunk);
         }
 
         //associative_property_map<vertex_map> const& vertid_to_component, vector<uint> const& num_verts_per_component)
@@ -249,7 +249,7 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
         //assert(vis_data_orig.assert_data());
         //assert(vis_data_shrunken.assert_data());
 
-	return construct_vertex_partition(g_orig, L, l, vis_data_orig, vis_data_shrunken, cycle); // step 10
+	return construct_vertex_partition(g_orig, g_shrunk, L, l, vis_data_orig, vis_data_shrunken, cycle); // step 10
 }
 
 

@@ -13,7 +13,7 @@ struct BFSVisitorData
 	vertex_t								root; 
 
 	BFSVisitorData(Graph const* g, vertex_t root);
-	BFSVisitorData(BFSVisitorData const&) = default;
+	explicit BFSVisitorData(BFSVisitorData const&) = default;
 	virtual ~BFSVisitorData() {};
 
 	void reset(Graph*); 

@@ -18,16 +18,23 @@ struct VertBuffer : boost::queue<vertex_t>
 
 };
 
+set<vertex_t> g_collected;
+
 struct CollectBFS : public BFSVisitorData
 {
-	CollectBFS(Graph const* g, vertex_t root) : BFSVisitorData(g, root) {};
+	CollectBFS(Graph const* g, vertex_t root) : BFSVisitorData(g, root) {cout << "ctor";};
+	CollectBFS(CollectBFS const& other) : CollectBFS(other.g, other.root) {};
 	virtual ~CollectBFS() {};
 
-	set<vertex_t> collected;
-	virtual void initialize_vertex(vertex_t v, GraphCR g) {};
+	//set<vertex_t> collected;
+	virtual void initialize_vertex(vertex_t v, GraphCR g) {
+
+
+	};
 	virtual void discover_vertex(vertex_t v, GraphCR g) {};
 	virtual void examine_vertex(vertex_t v, GraphCR g) {
-		collected.insert(v);
+		g_collected.insert(v);
+		cout << "collector size: " << g_collected.size() << '\n';
 		};
 	virtual void finish_vertex(vertex_t v, GraphCR g) {};
 	virtual void black_target(edge_t, GraphCR g) {};
@@ -44,14 +51,18 @@ Partition::Partition(vector<vertex_t> const& cycle, Graph& g, EmbedStruct const&
 {
 		auto indexmap = boost::get(boost::vertex_index, g);
 		auto colormap = boost::make_vector_property_map<boost::default_color_type>(indexmap); 
+		VertBuffer q;
 
 		// mark all verts as NOT VISITED
 		for( auto[vit, vjt] = vertices(g); vit != vjt; ++vit ){
 				colormap[*vit] = boost::default_color_type::white_color;
+				q.push(*vit);
 		} 
 
 		// mark all verts on the cycle as VISITED
-		for( vertex_t v : cycle ) colormap[v] = boost::default_color_type::black_color;
+		for( vertex_t v : cycle ){
+			colormap[v] = boost::default_color_type::black_color;
+		}
 
 		c = set<vertex_t>(STLALL(cycle));
 
@@ -62,19 +73,24 @@ Partition::Partition(vector<vertex_t> const& cycle, Graph& g, EmbedStruct const&
 		print_graph_addresses(g);
 
 		VertIter noncycle_vert = std::find_if(vit, vjt, [&](vertex_t x){return colormap[x] == boost::default_color_type::white_color;});
+		g_collected.clear();
 		CollectBFS collector(&g, *noncycle_vert);
 		BFSVisitor vis(collector);
 
-		VertBuffer q;
 		breadth_first_visit(g, collector.root, q, collector, colormap);
-		a = collector.collected;
+		a = /*collector.collected; */ g_collected;
+		for( auto  vit = cycle.begin(); vit != cycle.end(); ++vit ){ a.erase(*vit);}
+		g_collected.clear();
+		cout << "collector size: " << a.size() << '\n';
 
 		VertIter noncycleunvisited_vert = std::find_if(vit, vjt, [&](vertex_t x){return colormap[x] == boost::default_color_type::white_color;});
 		if( noncycleunvisited_vert != vjt ){
 			CollectBFS collector2(&g, *noncycleunvisited_vert);
 			breadth_first_visit(g, collector2.root, q, collector2, colormap);
-			b = collector2.collected;
+			b = /*collector2.collected;*/ g_collected;
 		}
+
+
 }
 
 void Partition::get_most_costly_part(set<vertex_t> const** most_costly,

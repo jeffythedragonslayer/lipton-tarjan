@@ -423,7 +423,7 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
 
         // delete all vertices on level l2 and above
         vertex_t x = add_vertex(g_shrunk);
-        BFSVisitorData vis_data_addx = vis_data_copy;
+        BFSVisitorData vis_data_addx(vis_data_copy);
         vis_data_addx.root = x;
         vis_data_addx.verts[x].level = 0;
         vis_data_addx.verts[x].parent = Graph::null_vertex();

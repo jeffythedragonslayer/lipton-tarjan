@@ -44,8 +44,6 @@ Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData c
         make_max_planar(g_shrink2);
         EmbedStruct em(&g_shrink2);
 
-        uint cyclelengthlimit = find(STLALL(cycle), visdata.root) != cycle.end() ? 2*r+1 : 2*r-1;
-        assert(cycle.size() <= cyclelengthlimit);
 
 	/* Proof.  Assume no vertex has cost exceeding 1/3; otherwise the lemma is true.
 	Embed G in the plane.  Make each face a triangle by adding a suitable number of additional edges.
@@ -82,6 +80,9 @@ Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData c
 
         auto cycle2 = visdata.get_cycle(xz);
 
+        uint cyclelengthlimit = find(STLALL(cycle2), visdata.root) != cycle.end() ? 2*r+1 : 2*r-1;
+        assert(cycle2.size() <= cyclelengthlimit);
+
         auto p = Partition(cycle2, g_shrink2, em);
         // Let A be all verts inside the cycle
         // Let B be all verts outside the cycle 
@@ -115,7 +116,7 @@ Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData c
 	Thus (x, y) would have been chosen in place of (x, z).
 	Thus all cases are impossible, and the (x, z) cycle satisfies the claim. */
 
-        p.verify_sizes_lemma2(r, visdata.root);
+        //p.verify_sizes_lemma2(r, visdata.root);
 
         return p;
 }
@@ -367,6 +368,6 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
         }
 
         assert(p.verify_edges(g_orig));
-	assert(p.verify_sizes_lemma3(L, l1, l2));
+	//assert(p.verify_sizes_lemma3(L, l1, l2));
         return p;
 }

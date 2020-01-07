@@ -49,6 +49,7 @@ struct CollectBFS : public BFSVisitorData
 // C = verts on cycle
 Partition::Partition(vector<vertex_t> const& cycle, Graph& g, EmbedStruct const& em)
 {
+
 		auto indexmap = boost::get(boost::vertex_index, g);
 		auto colormap = boost::make_vector_property_map<boost::default_color_type>(indexmap); 
 		VertBuffer q;

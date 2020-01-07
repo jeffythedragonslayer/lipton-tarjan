@@ -15,6 +15,7 @@ and C contains no more than 2r+1 vertices, one the root of the tree */
 // r is spanning tree radius
 Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData const& visdata_orig)
 {
+        
         cout << "lemma2 graph:\n";
         print_graph(g_orig);
         uint n = num_vertices(g_orig);
@@ -22,6 +23,9 @@ Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData c
         Graph g_shrink2;
         copy_graph(g_orig, g_shrink2);
         g_shrink2 = g_orig;
+
+        auto g_shrink2_prop_map = get(vertex_index, g_shrink2);
+        auto g_orig_prop_map = get(vertex_index, g_orig);
 
 	BFSVisitorData visdata(&g_shrink2, visdata_orig.root);
         breadth_first_search(g_shrink2, *vertices(g_shrink2).first, boost::visitor(BFSVisitor(visdata)));
@@ -84,6 +88,24 @@ Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData c
         assert(cycle2.size() <= cyclelengthlimit);
 
         auto p = Partition(cycle2, g_shrink2, em);
+
+        map<vertex_t, vertex_t> shrink2orig;
+
+        auto[vit, vjt] = vertices(g_shrink2);
+        for( ;vit != vjt; ++vit ){
+                uint i = g_shrink2_prop_map[*vit];
+                for( auto[vit2, vjt2] = vertices(g_orig); vit2 != vjt2; ++vit2 ){
+                        if( g_orig_prop_map[*vit2] == i ){
+                                shrink2orig[*vit] = *vit2;
+                        }
+
+                }
+        }
+
+        Partition porig;
+        for( vertex_t v : p.a ) porig.a.insert(shrink2orig[v]);
+        for( vertex_t v : p.b ) porig.b.insert(shrink2orig[v]);
+        for( vertex_t v : p.c ) porig.c.insert(shrink2orig[v]);
         // Let A be all verts inside the cycle
         // Let B be all verts outside the cycle 
         // Let C be all verts on the cycle
@@ -118,7 +140,7 @@ Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData c
 
         //p.verify_sizes_lemma2(r, visdata.root);
 
-        return p;
+        return porig;
 }
 
 // called when the middle part exceeds 2/3

@@ -189,6 +189,8 @@ Partition lemma3_exceeds23(Graph& g_shrink2, BFSVisitorData const& vis_data_shru
         }
 
         assert(costzero != Graph::null_vertex());
+        auto prop_map = get(vertex_index, g_shrink2);
+        cout << "costzero: " << costzero << " propmap: " << prop_map[costzero] << '\n';
 
         // contract
         tie(vit, vjt) = vertices(g_shrink2); 

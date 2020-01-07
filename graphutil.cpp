@@ -41,32 +41,6 @@ vertex_t get_common_ancestor(vector<vertex_t> const& ancestors_v, vector<vertex_
         return Graph::null_vertex();
 }
 
-#if 0
-vector<vertex_t> ancestors(vertex_t v, BFSVisitorData const& vis)
-{
-        //cout << "first v: " << v << '\n';
-        //cout << "root: " << vis.root << '\n';
-        vector<vertex_t> ans = {v};
-        while( v != vis.root ){
-                auto v_it = vis.verts.find(v);
-                if( v_it == vis.verts.end() ) return ans; // root is in a different connected component
-                v = v_it->second.parent;
-                //cout << "pushing back v: " << v << '\n';
-                ans.push_back(v);
-        }
-        return ans;
-}
-
-vector<vertex_t> get_cycle(vertex_t v, vertex_t w, BFSVisitorData const& vis_data)
-{ 
-        vector<vertex_t> parents_v = ancestors(v, vis_data);
-        vector<vertex_t> parents_w = ancestors(w, vis_data); 
-        vertex_t ancestor  = get_common_ancestor(parents_v, parents_w);
-        //cout << "common ancestor: " << ancestor << '\n'; 
-        return vis_data.get_cycle(v, w, ancestor);
-}
-#endif
-
 // return set of vertices neighboring v in graph g
 set<vertex_t> get_neighbors(vertex_t v, Graph const& g)
 { 
@@ -149,6 +123,7 @@ InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t e, vertex_t common_vert_on
 	       OUTSIDE;
 }
 
+
 // scan edges around all vertices of cycle and add up edge costs
 CycleCost compute_cycle_cost(vector<vertex_t> const& cycle, Graph const& g, BFSVisitorData const& vis_data, EmbedStruct const& em)
 {
@@ -171,7 +146,7 @@ CycleCost compute_cycle_cost(vector<vertex_t> const& cycle, Graph const& g, BFSV
 }
 
 // Make all faces of graph G into triangles by adding scanning the boundary and adding (nontree) edges as necessary
-void make_max_planar(Graph& g)
+EmbedStruct make_max_planar(Graph& g)
 { 
         EdgeIndex i = reset_edge_index(g);
         EmbedStruct em(&g);
@@ -185,6 +160,7 @@ void make_max_planar(Graph& g)
 
         reset_edge_index(g);
         assert(em.test_planar());
+        return em;
 }
 
 void reset_vertex_indices(Graph& g)
@@ -195,7 +171,6 @@ void reset_vertex_indices(Graph& g)
 		put(vertex_index, g, *vi, i); 
 	}
 }
-
 EdgeIndex reset_edge_index(Graph const& g)
 {
         EdgeIndex edgedesc_to_uint; 
@@ -288,4 +263,17 @@ bool edge_exists(edge_t e, Graph const& g)
                 if( *ei == e ) return true; 
         }
         return false; 
+}
+
+bool assert_verts(GraphCR g, BFSVisitorData const& vis_data)
+{
+        VertIter vei, vend;
+        for( tie(vei, vend) = vertices(g); vei != vend; ++vei ){ 
+                vertex_t v = *vei;
+                if( !vis_data.verts.contains(v) ){
+                        cout << "graphutils.cpp: ignoring bad vertex : " << v << '\n';
+                        return false;
+                }
+        } 
+        return true;
 }

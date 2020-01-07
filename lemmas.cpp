@@ -1,6 +1,8 @@
 #include "lemmas.h"
 #include "graphutil.h"
 #include "strutil.h"
+#include "Partition.h"
+#include "BFSVisitor.h"
 #include <boost/graph/copy.hpp>
 #include <boost/graph/graph_utility.hpp>
 using namespace std;
@@ -11,7 +13,7 @@ Suppose G has a spanning tree of radius r.
 Then the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex in A with a vertex in B, neither A nor B has total cost exceeding 2/3,
 and C contains no more than 2r+1 vertices, one the root of the tree */
 // r is spanning tree radius
-Partition lemma2_c2r1(GraphCR g_orig, uint r, vector<vertex_t> const& cycle, vertex_t root)
+Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData const& visdata_orig)
 {
         uint n = num_vertices(g_orig);
 
@@ -19,8 +21,11 @@ Partition lemma2_c2r1(GraphCR g_orig, uint r, vector<vertex_t> const& cycle, ver
         copy_graph(g_orig, g_shrink2);
         g_shrink2 = g_orig;
 
-	//uint r = 0; // spanning tree radius
 
+	BFSVisitorData visdata(&g_shrink2, visdata_orig.root);
+        breadth_first_search(g_shrink2, *vertices(g_shrink2).first, boost::visitor(BFSVisitor(visdata)));
+	uint r = visdata_orig.num_levels-1; // spanning tree radius
+	//assert(visdata.num_levels == visdata_orig.num_levels);
 	/* Let G be any planar graph with nonnegative vertex costs summing to no more than one.
 	Suppose G has a spanning tree of radius r.
 	Then the vertices of G can be partitioned into three sets A, B, C, such that no edge joins a vertex A with a vertex in B, neither A nor B has a total cost exceeding 2/3, and C contains no more than 2r+1 vertices, one the root of the tree. */
@@ -35,11 +40,10 @@ Partition lemma2_c2r1(GraphCR g_orig, uint r, vector<vertex_t> const& cycle, ver
                 return p; 
         }
 
-        Partition p;
-
         make_max_planar(g_shrink2);
+        EmbedStruct em(&g_shrink2);
 
-        uint cyclelengthlimit = find(STLALL(cycle), root) != cycle.end() ? 2*r+1 : 2*r-1;
+        uint cyclelengthlimit = find(STLALL(cycle), visdata.root) != cycle.end() ? 2*r+1 : 2*r-1;
         assert(cycle.size() <= cyclelengthlimit);
 
 	/* Proof.  Assume no vertex has cost exceeding 1/3; otherwise the lemma is true.
@@ -48,7 +52,38 @@ Partition lemma2_c2r1(GraphCR g_orig, uint r, vector<vertex_t> const& cycle, ver
 	This cycle is of length at most 2r+1 if it contains the root of the tree, at most 2r-1 otherwise.
 	The cycle divides the plane (and the graph) into two parts, the inside and the outside of the cycle.
 	We claim that at least one such cycle separates the graph so that neither the inside nor the outside contains vertices whose total cost exceeds 2/3.  This proves the lemma. */
+        
+        vector<edge_t> nontree_edges;
+        EdgeIter ei, ei_end;
+        for( boost::tie(ei, ei_end) = edges(g_shrink2); ei != ei_end; ++ei ){
+                if( !visdata.is_tree_edge(*ei) ) nontree_edges.push_back(*ei);
+        }
+
+        vector<CycleCost> ccs;
+        for( edge_t e : nontree_edges ){
+                vector<vertex_t> cycle = visdata.get_cycle(source(e, g_shrink2), target(e, g_shrink2));
+                CycleCost cc = compute_cycle_cost(cycle, g_shrink2, visdata, em);
+                ccs.push_back(cc);
+        }
+
+        uint mindiff = UINT_MAX;
+        uint min_index = UINT_MAX;
+        for( uint i = 0; i < nontree_edges.size(); ++i ){
+                uint costdiff = abs((int)ccs[i].inside - (int)ccs[i].outside);
+                if( costdiff < mindiff ){
+                        mindiff = costdiff;
+                        min_index = i;
+                }
+        }
 	
+        edge_t xz = nontree_edges[min_index];
+        cout << "xz: " << source(xz, g_shrink2) << ", " << target(xz, g_shrink2) << '\n';
+
+        Partition p;
+        // Let A be all verts inside the cycle
+        // Let B be all verts outside the cycle 
+        // Let C be all verts on the cycle
+
 	/*Proof of claim.
 	Let (x,z) be the nontree edge whose cycle minimizes the maximum cost either inside or outside the cycle.  Break ties by choosing the nontree edge whose cycle has the smallest number of faces on the same side as the maximum cost.  If ties remain, choose arbitrarily.
 
@@ -77,7 +112,7 @@ Partition lemma2_c2r1(GraphCR g_orig, uint r, vector<vertex_t> const& cycle, ver
 	Thus (x, y) would have been chosen in place of (x, z).
 	Thus all cases are impossible, and the (x, z) cycle satisfies the claim. */
 
-        p.verify_sizes_lemma2(r, root);
+        p.verify_sizes_lemma2(r, visdata.root);
 
         return p;
 }
@@ -145,8 +180,9 @@ Partition lemma3_exceeds23(Graph& g_shrink2, BFSVisitorData const& vis_data_shru
 
         //The new graph has a spanning tree radius of l2 - l1 -1 whose root corresponds to vertices on levels l1 and below in the original graph
         uint r = l2 - l1 - 1;
+	assert(r == vis_data_shrunken.num_levels-1);
         //Apply Lemma 2 to the new graph, A* B* C*
-        Partition star_p = lemma2_c2r1(g_shrink2, r, cycle, vis_data_shrunken.root);
+        Partition star_p = lemma2(g_shrink2, cycle, vis_data_shrunken);
         vertex_t star_root;
 
         Partition p;

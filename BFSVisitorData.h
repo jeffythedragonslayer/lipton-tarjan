@@ -6,11 +6,11 @@
 struct BFSVisitorData
 {
 	std::map<vertex_t, std::set<vertex_t>>	children;
-	std::map<vertex_t, BFSVert>		verts;
-	std::vector<edge_t>			tree_edges;
-	uint					num_levels;
-	Graph const*				g;
-	vertex_t				root; 
+	std::map<vertex_t, BFSVert>				verts;
+	std::vector<edge_t>						tree_edges;
+	uint									num_levels;
+	Graph const*							g;
+	vertex_t								root; 
 
 	BFSVisitorData(Graph const* g, vertex_t root);
 	BFSVisitorData(BFSVisitorData const&) = default;
@@ -33,10 +33,10 @@ struct BFSVisitorData
 
 struct EdgeNotInVisitorData : std::exception
 {
-		edge_t e;
-		Graph const* g;
+	edge_t e;
+	Graph const* g;
 
-		EdgeNotInVisitorData(edge_t e, Graph const* g) : e(e), g(g) {}
+	EdgeNotInVisitorData(edge_t e, Graph const* g) : e(e), g(g) {}
 };
 
 bool on_cycle(vertex_t, std::vector<vertex_t> const& cycle, Graph const&);
@@ -44,7 +44,7 @@ bool on_cycle(edge_t, std::vector<vertex_t> const& cycle, Graph const&);
 
 struct NoNontreeEdgeException
 {
-		NoNontreeEdgeException(uint num_edges) : num_edges(num_edges) {}
+	NoNontreeEdgeException(uint num_edges) : num_edges(num_edges) {}
 
-		uint num_edges;
+	uint num_edges;
 };

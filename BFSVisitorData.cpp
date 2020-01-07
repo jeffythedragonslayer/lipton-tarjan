@@ -1,5 +1,6 @@
 #include "BFSVisitorData.h"
 #include "lipton-tarjan.h"
+#include "strutil.h"
 #include <iostream>
 using namespace std;
 
@@ -124,4 +125,39 @@ vector<vertex_t> BFSVisitorData::get_cycle(vertex_t v, vertex_t w, vertex_t ance
         reverse(STLALL(tmp));
         cycle.insert(cycle.end(), STLALL(tmp));
         return cycle;
+}
+
+// returns the first nontree edge we fin
+edge_t BFSVisitorData::arbitrary_nontree_edge(Graph const& g)
+{
+	cout << "starting arbitrary_nontree_edge function\n";
+        EdgeIter ei, ei_end;
+	uint num_edges = 0;
+        for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei, ++num_edges ){
+                auto src = source(*ei, g);
+                auto tar = target(*ei, g);
+                assert(edge(src, tar, g).second); // edge exists
+				//cout << "candidate edge: " << vmap.vert2uint[src] << ' ' << vmap.vert2uint[tar] << '\n';
+                if( src == tar ){
+                        cout << "ignoring circular edge\n";
+                        continue;
+                        //kthrow FoundCircularNode(src);
+                }
+
+                if( !in_cc(*ei) ) continue;
+                try {
+
+                        if( !is_tree_edge(*ei) ){
+                                cout << "found nontree edge\n";
+                                cout << "total edges looked at: " << (1+num_edges) << '\n';
+                                cout << "arbitrarily choosing nontree edge: " << to_string(*ei, g) << '\n';
+                                return *ei; 
+                        } else cout << "is a tree edge\n";
+
+                } catch (EdgeNotInVisitorData& e){
+                        cout << "edge not in visitor data\n";
+                }
+		++num_edges;
+        }
+        throw NoNontreeEdgeException(num_edges); 
 }

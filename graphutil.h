@@ -16,13 +16,6 @@ enum InsideOutOn {INSIDE, OUTSIDE, ON};
 
 InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t, vertex_t common_vert, std::vector<vertex_t> const& cycle, Graph const&, Embedding const&);
 
-struct NoNontreeEdgeException
-{
-		NoNontreeEdgeException(uint num_edges) : num_edges(num_edges) {}
-
-		uint num_edges;
-};
-
 struct FoundCircularNode
 {
 		FoundCircularNode(const vertex_t& e) : e(e) {}

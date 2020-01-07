@@ -24,6 +24,7 @@ struct BFSVisitorData
 	void examine_edge(edge_t e);
 	bool in_cc(edge_t e) const;
 	std::vector<vertex_t> get_cycle(vertex_t v, vertex_t w, vertex_t ancestor) const;
+	edge_t arbitrary_nontree_edge(Graph const&);
 };
 
 struct EdgeNotInVisitorData : std::exception
@@ -36,3 +37,10 @@ struct EdgeNotInVisitorData : std::exception
 
 bool on_cycle(vertex_t, std::vector<vertex_t> const& cycle, Graph const&);
 bool on_cycle(edge_t, std::vector<vertex_t> const& cycle, Graph const&);
+
+struct NoNontreeEdgeException
+{
+		NoNontreeEdgeException(uint num_edges) : num_edges(num_edges) {}
+
+		uint num_edges;
+};

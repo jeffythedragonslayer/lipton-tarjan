@@ -34,13 +34,13 @@ Partition::Partition(vector<vertex_t> const& cycle, Graph& g, EmbedStruct const&
 		VertBuffer q;
 		//auto visitor = boost::visitor(BFSVisitor(visdata));
 		//put(vertex_color, g, *vit, boost::white_color);
-		auto colormap2 = get(vertex_index, g);
-		breadth_first_visit(g, visdata.root, q, bfs_visitor<null_visitor>(), colormap2);//)bfs_visitor<null_visitor>(), colormap); // replace this with breadth_first_visit
+		auto colormap2 = get(vertex_index, g); // replace this with vertex_color
+		breadth_first_visit(g, visdata.root, q, visdata, colormap2);
 		// collect all visited verts into A partition
 
 		// pick an arbitrary noncycle vert that is still unvisited and do a BFS, 
-		//breadth_first_search(g, visdata.root, boost::visitor(BFSVisitor(visdata))); // replace this with breadth_first_visit
-		// collectg all visited verts in B partition
+		breadth_first_visit(g, visdata.root, q, visdata, colormap2);
+		// collect all visited verts in B partition
 }
 
 void Partition::get_most_costly_part(set<vertex_t> const** most_costly,

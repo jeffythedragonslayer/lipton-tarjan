@@ -14,6 +14,7 @@ struct BFSVisitorData
 
 	BFSVisitorData(Graph const* g, vertex_t root);
 	BFSVisitorData(BFSVisitorData const&) = default;
+	virtual ~BFSVisitorData() {};
 
 	void reset(Graph*); 
 	bool is_tree_edge(edge_t) const; 
@@ -32,15 +33,15 @@ struct BFSVisitorData
 	std::vector<vertex_t> get_cycle(vertex_t, vertex_t) const;
 	std::vector<vertex_t> get_cycle(edge_t e) const;
 
-	void initialize_vertex(vertex_t v, GraphCR g) {};
-	void discover_vertex(vertex_t v, GraphCR g) {};
-	void examine_vertex(vertex_t v, GraphCR g) {};
-	void finish_vertex(vertex_t v, GraphCR g) {};
-	void black_target(edge_t, GraphCR g) {};
-	void gray_target(edge_t, GraphCR g) {};
-	void tree_target(edge_t, GraphCR g) {};
-	void tree_edge(edge_t, GraphCR g) {}; 
-	void non_tree_edge(edge_t, GraphCR g) {}; 
+	virtual void initialize_vertex	(vertex_t v, GraphCR g) {};
+	virtual void discover_vertex	(vertex_t v, GraphCR g) {};
+	virtual void examine_vertex		(vertex_t v, GraphCR g) {};
+	virtual void finish_vertex		(vertex_t v, GraphCR g) {};
+	virtual void black_target		(edge_t, GraphCR g) {};
+	virtual void gray_target		(edge_t, GraphCR g) {};
+	virtual void tree_target		(edge_t, GraphCR g) {};
+	virtual void tree_edge			(edge_t, GraphCR g) {};
+	virtual void non_tree_edge		(edge_t, GraphCR g) {}; 
 };
 
 struct EdgeNotInVisitorData : std::exception

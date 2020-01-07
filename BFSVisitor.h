@@ -23,6 +23,7 @@ struct BFSVisitor : boost::default_bfs_visitor
         BFSVisitor(BFSVisitorData& data) : data(data) {}
 
 
+
 	template<typename Edge> void tree_edge(Edge e, Graph const& g)
 	{
 		auto parent = source(e, g);

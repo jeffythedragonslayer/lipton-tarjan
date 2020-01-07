@@ -199,3 +199,12 @@ vector<vertex_t> BFSVisitorData::get_cycle(vertex_t v, vertex_t w) const
         //cout << "common ancestor: " << ancestor << '\n'; 
         return get_cycle(v, w, ancestor);
 }
+vector<vertex_t> BFSVisitorData::get_cycle(edge_t e) const
+{ 
+        vertex_t v = source(e, *g);
+        vertex_t w = target(e, *g);
+        vector<vertex_t> parents_v = ancestors(v);
+        vector<vertex_t> parents_w = ancestors(w); 
+        vertex_t ancestor  = get_common_ancestor(parents_v, parents_w);
+        return get_cycle(v, w, ancestor);
+}

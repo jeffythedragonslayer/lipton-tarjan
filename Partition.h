@@ -1,9 +1,13 @@
 #pragma once
 #include <vector>
+#include "EmbedStruct.h"
 #include "typedefs.h"
 
 struct Partition
 {
+		Partition() = default;
+		Partition(std::vector<vertex_t> const& cycle, Graph&, EmbedStruct const&);
+
 		std::set<vertex_t> a, b, c;
 
 		uint total_num_verts() const;

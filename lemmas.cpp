@@ -15,12 +15,13 @@ and C contains no more than 2r+1 vertices, one the root of the tree */
 // r is spanning tree radius
 Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData const& visdata_orig)
 {
+        cout << "lemma2 graph:\n";
+        print_graph(g_orig);
         uint n = num_vertices(g_orig);
 
         Graph g_shrink2;
         copy_graph(g_orig, g_shrink2);
         g_shrink2 = g_orig;
-
 
 	BFSVisitorData visdata(&g_shrink2, visdata_orig.root);
         breadth_first_search(g_shrink2, *vertices(g_shrink2).first, boost::visitor(BFSVisitor(visdata)));
@@ -54,8 +55,8 @@ Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData c
 	We claim that at least one such cycle separates the graph so that neither the inside nor the outside contains vertices whose total cost exceeds 2/3.  This proves the lemma. */
         
         vector<edge_t> nontree_edges;
-        EdgeIter ei, ei_end;
-        for( boost::tie(ei, ei_end) = edges(g_shrink2); ei != ei_end; ++ei ){
+        for( auto[ei, ei_end] = edges(g_shrink2); ei != ei_end; ++ei ){
+                if( source(*ei, g_shrink2) == target(*ei, g_shrink2) ) continue; // ignore workaround ciruclar nodes
                 if( !visdata.is_tree_edge(*ei) ) nontree_edges.push_back(*ei);
         }
 
@@ -79,7 +80,9 @@ Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData c
         edge_t xz = nontree_edges[min_index];
         cout << "xz: " << source(xz, g_shrink2) << ", " << target(xz, g_shrink2) << '\n';
 
-        Partition p;
+        auto cycle2 = visdata.get_cycle(xz);
+
+        auto p = Partition(cycle2, g_shrink2, em);
         // Let A be all verts inside the cycle
         // Let B be all verts outside the cycle 
         // Let C be all verts on the cycle
@@ -223,8 +226,7 @@ Partition lemma3_l1greaterequall2(GraphCR g_shrink2, BFSVisitorData const& vis_d
         //cout << "l1 is greater than or equal to l2\n"; 
 
         Partition p;
-        VertIter vei, vend;
-        for( tie(vei, vend) = vertices(g_shrink2); vei != vend; ++vei ){ 
+        for( auto[vei, vend] = vertices(g_shrink2); vei != vend; ++vei ){ 
                 vertex_t v = *vei;
                 if( ! vis_data_orig.verts.contains(v) ){
 			cout << "ignoring non bfs vertex: " << v << '\n';
@@ -289,9 +291,7 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
 
                 uint total = 0;
                 uint level = 0;
-                while( total < 2*n_orig/3 ){ 
-                        total += L[level++];
-                }
+                while( total < 2*n_orig/3 ) total += L[level++];
 
                 total = 0;
                 level = r+1;
@@ -307,12 +307,8 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
         uint cost_0thrul1m1 = 0;
         uint cost_l2p1thrur1 = 0;
         for( uint i = 0; i < r; ++i ){ 
-                if( i+1 < l1 ){
-                        cost_0thrul1m1 += L[i];
-                }
-                if( i >= l2+1 ){
-                        cost_l2p1thrur1 += L[i];
-                }
+                if( i+1 < l1 ) cost_0thrul1m1 += L[i];
+                if( i >= l2+1 ) cost_l2p1thrur1 += L[i];
         }
         uint costlimit = 2*n/3;
         assert(cost_0thrul1m1 <= costlimit);

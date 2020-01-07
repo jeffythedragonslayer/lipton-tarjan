@@ -1,9 +1,47 @@
 #include "Partition.h"
+#include "EmbedStruct.h"
 #include "typedefs.h"
+#include "BFSVisitorData.h"
+#include "BFSVisitor.h"
 #include <boost/graph/properties.hpp>
+#include <boost/lockfree/queue.hpp>
+#include <boost/graph/breadth_first_search.hpp>
 #include <iostream>
+#include <vector>
 #include <algorithm>
 using namespace std;
+using namespace boost;
+
+struct VertBuffer : boost::queue<vertex_t>
+{
+
+};
+
+Partition::Partition(vector<vertex_t> const& cycle, Graph& g, EmbedStruct const& em)
+{
+		vector<int> colormap(num_vertices(g), boost::white_color);
+		// mark all verts on the cycle as VISITED (white)
+		// mark all other verts as NOT VISITED
+		c = set<vertex_t>(STLALL(cycle));
+
+		auto[vit, vjt] = vertices(g);
+		auto l = [&](vertex_t x){return find(STLALL(cycle), x) != cycle.end();};
+
+		auto noncycle = std::find_if(vit, vjt, l);
+		BFSVisitorData visdata(&g, *noncycle);
+		BFSVisitor vis(visdata);
+
+		VertBuffer q;
+		//auto visitor = boost::visitor(BFSVisitor(visdata));
+		//put(vertex_color, g, *vit, boost::white_color);
+		auto colormap2 = get(vertex_index, g);
+		breadth_first_visit(g, visdata.root, q, bfs_visitor<null_visitor>(), colormap2);//)bfs_visitor<null_visitor>(), colormap); // replace this with breadth_first_visit
+		// collect all visited verts into A partition
+
+		// pick an arbitrary noncycle vert that is still unvisited and do a BFS, 
+		//breadth_first_search(g, visdata.root, boost::visitor(BFSVisitor(visdata))); // replace this with breadth_first_visit
+		// collectg all visited verts in B partition
+}
 
 void Partition::get_most_costly_part(set<vertex_t> const** most_costly,
 									set<vertex_t> const** other1,
@@ -32,32 +70,31 @@ void Partition::get_most_costly_part(set<vertex_t> const** most_costly,
 
 bool Partition::verify_sizes_lemma3(vector<uint> const& L, uint l1, uint l2) const
 {
-	// verify that neither a nor b is bigger than two thirds of the total and c is no bigger than L(l1) + L(l2) + max{0, 2(l2-l1-1)}
-	cout << "verifying partition sizes\n";
-	uint a_verts = a.size();
-	uint b_verts = b.size();
-	uint c_verts = c.size();
-	uint n  = a_verts + b_verts + c_verts;
+		// verify that neither a nor b is bigger than two thirds of the total and c is no bigger than L(l1) + L(l2) + max{0, 2(l2-l1-1)}
+		cout << "verifying partition sizes\n";
+		uint a_verts = a.size();
+		uint b_verts = b.size();
+		uint c_verts = c.size();
+		uint n  = a_verts + b_verts + c_verts;
 
-	uint maxc = L[l1] + L[l2] + std::max<int>(0, 2*((int)l2-(int)l1-1));
+		uint maxc = L[l1] + L[l2] + std::max<int>(0, 2*((int)l2-(int)l1-1));
 
-	return a_verts <= 2*n/3 && 
-		   b_verts <= 2*n/3 && 
-		   c_verts <= maxc;
+		return a_verts <= 2*n/3 && 
+			b_verts <= 2*n/3 && 
+			c_verts <= maxc;
 }
 
 bool Partition::verify_sizes_lemma2(uint r, vertex_t root) const
 {
-	uint a_verts = a.size();
-	uint b_verts = b.size();
-	uint c_verts = c.size();
-	uint n = a_verts + b_verts + c_verts;
+		uint a_verts = a.size();
+		uint b_verts = b.size();
+		uint c_verts = c.size();
+		uint n = a_verts + b_verts + c_verts;
 
-	return a_verts <= 2*n/3 &&
-		   b_verts <= 2*n/3 &&
-		   c_verts <= 2*r+1 &&
-		   c.contains(root);
-
+		return a_verts <= 2*n/3 &&
+			b_verts <= 2*n/3 &&
+			c_verts <= 2*r+1 &&
+			c.contains(root); 
 }
 
 bool Partition::verify_edges(GraphCR g) const
@@ -105,14 +142,14 @@ void Partition::print(Graph const* g) const
 		cout << "  size of B: " << b.size() << '\n';
 		cout << "  size of C: " << c.size() << '\n'; 
 		if( g ){
-			auto prop_map = get(boost::vertex_index, *g); // writing to this property map has side effects in the graph
-			cout << "  A = "; for( auto& v : a ) cout << prop_map[v] << ' '; cout << '\n';
-			cout << "  B = "; for( auto& v : b ) cout << prop_map[v] << ' '; cout << '\n'; 
-			cout << "  C = "; for( auto& v : c ) cout << prop_map[v] << ' '; cout << '\n';
+				auto prop_map = get(boost::vertex_index, *g); // writing to this property map has side effects in the graph
+				cout << "  A = "; for( auto& v : a ) cout << prop_map[v] << ' '; cout << '\n';
+				cout << "  B = "; for( auto& v : b ) cout << prop_map[v] << ' '; cout << '\n'; 
+				cout << "  C = "; for( auto& v : c ) cout << prop_map[v] << ' '; cout << '\n';
 		} else {
-			cout << "  A = "; for( auto& v : a ) cout << v << ' '; cout << '\n';
-			cout << "  B = "; for( auto& v : b ) cout << v << ' '; cout << '\n'; 
-			cout << "  C = "; for( auto& v : c ) cout << v << ' '; cout << '\n';
+				cout << "  A = "; for( auto& v : a ) cout << v << ' '; cout << '\n';
+				cout << "  B = "; for( auto& v : b ) cout << v << ' '; cout << '\n'; 
+				cout << "  C = "; for( auto& v : c ) cout << v << ' '; cout << '\n';
 		}
 }
 

@@ -192,13 +192,13 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
 					vis_data_shrunken.verts.find(y )->second.descendant_cost,
 					vis_data_shrunken.verts.find(wi)->second.descendant_cost,
 					cc.inside};
-                        vector<vertex_t> new_cycle = get_cycle(source(next_edge, g_shrunk), target(next_edge, g_shrunk), vis_data_shrunken);
+                        vector<vertex_t> new_cycle = vis_data_shrunken.get_cycle(source(next_edge, g_shrunk), target(next_edge, g_shrunk));
                         cc = compute_cycle_cost(new_cycle, g_shrunk, vis_data_shrunken, em); // !! CHEATED !!
                         if( cost_swapped ) swap(cc.outside, cc.inside);
                 } else {
                         // Determine the tree path from y to the (vi, wi) cycle by following parents of y.
                         cout << "   neither are tree edges\n";
-                        vector<vertex_t> y_parents = ancestors(y, vis_data_shrunken);
+                        vector<vertex_t> y_parents = vis_data_shrunken.ancestors(y);
 
                         for( vertex_t vp : y_parents ){
                                 cout << "y parent: " << prop_map[vp] << '\n';
@@ -227,8 +227,8 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
                         // Scan the tree edges inside the (y, wi) cycle, alternately scanning an edge in one cycle and an edge in the other cycle.
                         // Stop scanning when all edges inside one of the cycles have been scanned.  Compute the cost inside this cycle by summing the associated costs of all scanned edges.
                         // Use this cost, the cost inside the (vi, wi) cycle, and the cost on the tree path from y to z to compute the cost inside the other cycle.
-                        vector<vertex_t> cycle1 = get_cycle(vi, y, vis_data_shrunken);
-                        vector<vertex_t> cycle2 = get_cycle(y, wi, vis_data_shrunken);
+                        vector<vertex_t> cycle1 = vis_data_shrunken.get_cycle(vi, y);
+                        vector<vertex_t> cycle2 = vis_data_shrunken.get_cycle(y, wi);
                         CycleCost cost1 = compute_cycle_cost(cycle1, g_shrunk, vis_data_shrunken, em);
                         CycleCost cost2 = compute_cycle_cost(cycle2, g_shrunk, vis_data_shrunken, em);
                         if( cost_swapped ){
@@ -273,7 +273,7 @@ Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vi
         edge_t completer_candidate_edge;
         
         try {
-                completer_candidate_edge = arbitrary_nontree_edge(g_shrunk, vis_data_shrunken);
+                completer_candidate_edge = vis_data_shrunken.arbitrary_nontree_edge(g_shrunk);
         } catch (NoNontreeEdgeException const& e){
                 vector<vertex_t> cycle;
                 CycleCost cc;
@@ -286,9 +286,9 @@ Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vi
         vertex_t v1 = source(completer_candidate_edge, g_shrunk);
         vertex_t w1 = target(completer_candidate_edge, g_shrunk); 
         cout << "ancestors v1...\n";
-        vector<vertex_t> parents_v   = ancestors(v1, vis_data_shrunken);
+        vector<vertex_t> parents_v   = vis_data_shrunken.ancestors(v1);
         cout << "ancestors v2...\n";
-        vector<vertex_t> parents_w   = ancestors(w1, vis_data_shrunken); 
+        vector<vertex_t> parents_w   = vis_data_shrunken.ancestors(w1); 
         vertex_t common_ancestor    = get_common_ancestor(parents_v, parents_w);
         cout << "common ancestor: " << common_ancestor << '\n'; 
         vector<vertex_t> cycle = vis_data_shrunken.get_cycle(v1, w1, common_ancestor);

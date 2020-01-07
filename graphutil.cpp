@@ -31,7 +31,6 @@ void init_vert_propmap(Graph& g)
 	} 
 }
 
-
 vertex_t get_common_ancestor(vector<vertex_t> const& ancestors_v, vector<vertex_t> const& ancestors_w)
 {
         for( uint i = 0; i < ancestors_v.size(); ++i ){
@@ -42,6 +41,7 @@ vertex_t get_common_ancestor(vector<vertex_t> const& ancestors_v, vector<vertex_
         return Graph::null_vertex();
 }
 
+#if 0
 vector<vertex_t> ancestors(vertex_t v, BFSVisitorData const& vis)
 {
         //cout << "first v: " << v << '\n';
@@ -65,6 +65,7 @@ vector<vertex_t> get_cycle(vertex_t v, vertex_t w, BFSVisitorData const& vis_dat
         //cout << "common ancestor: " << ancestor << '\n'; 
         return vis_data.get_cycle(v, w, ancestor);
 }
+#endif
 
 // return set of vertices neighboring v in graph g
 set<vertex_t> get_neighbors(vertex_t v, Graph const& g)
@@ -148,41 +149,6 @@ InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t e, vertex_t common_vert_on
 	       OUTSIDE;
 }
 
-// returns the first nontree edge we find
-edge_t arbitrary_nontree_edge(Graph const& g, BFSVisitorData const& vis_data)
-{
-	cout << "starting arbitrary_nontree_edge function\n";
-        EdgeIter ei, ei_end;
-	uint num_edges = 0;
-        for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei, ++num_edges ){
-                auto src = source(*ei, g);
-                auto tar = target(*ei, g);
-                assert(edge(src, tar, g).second); // edge exists
-		//cout << "candidate edge: " << vmap.vert2uint[src] << ' ' << vmap.vert2uint[tar] << '\n';
-                if( src == tar ){
-                        cout << "ignoring circular edge\n";
-                        continue;
-                        //kthrow FoundCircularNode(src);
-                }
-
-                if( !vis_data.in_cc(*ei) ) continue;
-                try {
-
-                        if( !vis_data.is_tree_edge(*ei) ){
-                                cout << "found nontree edge\n";
-                                cout << "total edges looked at: " << (1+num_edges) << '\n';
-                                cout << "arbitrarily choosing nontree edge: " << to_string(*ei, g) << '\n';
-                                return *ei; 
-                        } else cout << "is a tree edge\n";
-
-                } catch (EdgeNotInVisitorData& e){
-                        cout << "edge not in visitor data\n";
-                }
-		++num_edges;
-        }
-        throw NoNontreeEdgeException(num_edges); 
-}
-
 // scan edges around all vertices of cycle and add up edge costs
 CycleCost compute_cycle_cost(vector<vertex_t> const& cycle, Graph const& g, BFSVisitorData const& vis_data, EmbedStruct const& em)
 {
@@ -229,15 +195,6 @@ void reset_vertex_indices(Graph& g)
 		put(vertex_index, g, *vi, i); 
 	}
 }
-
-/*void reset_vertex_indices(Graph& g)
-{
-        VertIter vi, vend;
-        uint i = 0;
-        for( tie(vi, vend) = vertices(g); vi != vend; ++vi, ++i ){
-		put(vertex_index, g, *vi, i); 
-	}
-}*/
 
 EdgeIndex reset_edge_index(Graph const& g)
 {
@@ -331,17 +288,4 @@ bool edge_exists(edge_t e, Graph const& g)
                 if( *ei == e ) return true; 
         }
         return false; 
-}
-
-bool assert_verts(GraphCR g, BFSVisitorData const& vis_data)
-{
-        VertIter vei, vend;
-        for( tie(vei, vend) = vertices(g); vei != vend; ++vei ){ 
-                vertex_t v = *vei;
-                if( !vis_data.verts.contains(v) ){
-                        cout << "graphutils.cpp: ignoring bad vertex : " << v << '\n';
-                        return false;
-                }
-        } 
-        return true;
 }

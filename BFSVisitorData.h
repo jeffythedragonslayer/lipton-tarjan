@@ -5,12 +5,12 @@
 
 struct BFSVisitorData
 {
-	std::map<vertex_t, std::set<vertex_t>> children;
-	std::map<vertex_t, BFSVert>	       	   verts;
-	std::vector<edge_t>					   tree_edges;
-	uint				       			   num_levels;
-	Graph const*				           g;
-	vertex_t			       			   root; 
+	std::map<vertex_t, std::set<vertex_t>>	children;
+	std::map<vertex_t, BFSVert>		verts;
+	std::vector<edge_t>			tree_edges;
+	uint					num_levels;
+	Graph const*				g;
+	vertex_t				root; 
 
 	BFSVisitorData(Graph const* g, vertex_t root);
 	BFSVisitorData(BFSVisitorData const&) = default;
@@ -24,7 +24,11 @@ struct BFSVisitorData
 	void examine_edge(edge_t e);
 	bool in_cc(edge_t e) const;
 	std::vector<vertex_t> get_cycle(vertex_t v, vertex_t w, vertex_t ancestor) const;
-	edge_t arbitrary_nontree_edge(Graph const&);
+	edge_t arbitrary_nontree_edge(Graph const&) const;
+	bool assert_verts(GraphCR g) const;
+
+	std::vector<vertex_t> ancestors(vertex_t) const;
+	std::vector<vertex_t> get_cycle(vertex_t, vertex_t) const;
 };
 
 struct EdgeNotInVisitorData : std::exception

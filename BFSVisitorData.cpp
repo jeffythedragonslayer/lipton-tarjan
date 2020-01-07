@@ -1,6 +1,7 @@
 #include "BFSVisitorData.h"
 #include "lipton-tarjan.h"
 #include "strutil.h"
+#include "graphutil.h"
 #include <iostream>
 using namespace std;
 
@@ -128,7 +129,7 @@ vector<vertex_t> BFSVisitorData::get_cycle(vertex_t v, vertex_t w, vertex_t ance
 }
 
 // returns the first nontree edge we fin
-edge_t BFSVisitorData::arbitrary_nontree_edge(Graph const& g)
+edge_t BFSVisitorData::arbitrary_nontree_edge(Graph const& g) const
 {
 	cout << "starting arbitrary_nontree_edge function\n";
         EdgeIter ei, ei_end;
@@ -160,4 +161,41 @@ edge_t BFSVisitorData::arbitrary_nontree_edge(Graph const& g)
 		++num_edges;
         }
         throw NoNontreeEdgeException(num_edges); 
+}
+
+bool BFSVisitorData::assert_verts(GraphCR g) const
+{
+        VertIter vei, vend;
+        for( tie(vei, vend) = vertices(g); vei != vend; ++vei ){ 
+                vertex_t v = *vei;
+                if( !verts.contains(v) ){
+                        cout << "graphutils.cpp: ignoring bad vertex : " << v << '\n';
+                        return false;
+                }
+        } 
+        return true;
+}
+
+vector<vertex_t> BFSVisitorData::ancestors(vertex_t v) const
+{
+        //cout << "first v: " << v << '\n';
+        //cout << "root: " << vis.root << '\n';
+        vector<vertex_t> ans = {v};
+        while( v != root ){
+                auto v_it = verts.find(v);
+                if( v_it == verts.end() ) return ans; // root is in a different connected component
+                v = v_it->second.parent;
+                //cout << "pushing back v: " << v << '\n';
+                ans.push_back(v);
+        }
+        return ans;
+}
+
+vector<vertex_t> BFSVisitorData::get_cycle(vertex_t v, vertex_t w) const
+{ 
+        vector<vertex_t> parents_v = ancestors(v);
+        vector<vertex_t> parents_w = ancestors(w); 
+        vertex_t ancestor  = get_common_ancestor(parents_v, parents_w);
+        //cout << "common ancestor: " << ancestor << '\n'; 
+        return get_cycle(v, w, ancestor);
 }

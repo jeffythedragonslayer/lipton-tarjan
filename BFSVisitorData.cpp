@@ -178,15 +178,10 @@ bool BFSVisitorData::assert_verts(GraphCR g) const
 
 vector<vertex_t> BFSVisitorData::ancestors(vertex_t v) const
 {
-        //cout << "first v: " << v << '\n';
-        //cout << "root: " << vis.root << '\n';
-        vector<vertex_t> ans = {v};
-        while( v != root ){
-                auto v_it = verts.find(v);
-                if( v_it == verts.end() ) return ans; // root is in a different connected component
-                v = v_it->second.parent;
-                //cout << "pushing back v: " << v << '\n';
+        vector<vertex_t> ans;
+        while( v ){
                 ans.push_back(v);
+                v = verts.find(v)->second.parent;
         }
         return ans;
 }

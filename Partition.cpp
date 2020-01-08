@@ -48,8 +48,7 @@ struct CollectBFS : public BFSVisitorData
 // B = verts outside cycle
 // C = verts on cycle
 Partition::Partition(vector<vertex_t> const& cycle, Graph& g, EmbedStruct const& em)
-{
-
+{ 
 		auto indexmap = boost::get(boost::vertex_index, g);
 		auto colormap = boost::make_vector_property_map<boost::default_color_type>(indexmap); 
 		VertBuffer q;
@@ -61,9 +60,7 @@ Partition::Partition(vector<vertex_t> const& cycle, Graph& g, EmbedStruct const&
 		} 
 
 		// mark all verts on the cycle as VISITED
-		for( vertex_t v : cycle ){
-			colormap[v] = boost::default_color_type::black_color;
-		}
+		for( vertex_t v : cycle ) colormap[v] = boost::default_color_type::black_color;
 
 		c = set<vertex_t>(STLALL(cycle));
 

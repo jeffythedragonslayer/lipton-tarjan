@@ -13,9 +13,8 @@ Suppose G has a spanning tree of radius r.
 Then the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex in A with a vertex in B, neither A nor B has total cost exceeding 2/3,
 and C contains no more than 2r+1 vertices, one the root of the tree */
 // r is spanning tree radius
-Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData const& visdata_orig)
-{
-        
+Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData const& visdata_orig, vertex_t costzero)
+{ 
         cout << "lemma2 graph:\n";
         print_graph(g_orig);
         uint n = num_vertices(g_orig);
@@ -210,7 +209,7 @@ Partition lemma3_exceeds23(Graph& g_shrink2, BFSVisitorData const& vis_data_shru
         uint r = l2 - l1 - 1;
 	assert(r == vis_data_shrunken.num_levels-1);
         //Apply Lemma 2 to the new graph, A* B* C*
-        Partition star_p = lemma2(g_shrink2, cycle, vis_data_shrunken);
+        Partition star_p = lemma2(g_shrink2, cycle, vis_data_shrunken, costzero);
         vertex_t star_root;
 
         Partition p;

@@ -75,7 +75,7 @@ Partition::Partition(vector<vertex_t> const& cycle, Graph& g, EmbedStruct const&
 		CollectBFS collector(&g, *noncycle_vert);
 		BFSVisitor vis(collector);
 
-		breadth_first_visit(g, collector.root, q, collector, colormap);
+		breadth_first_visit(g, collector.root, q, collector, colormap); // BUG this is collecting all the vertices in the graph and ignoring wall of black visited verts
 		a = /*collector.collected; */ g_collected;
 		for( auto  vit = cycle.begin(); vit != cycle.end(); ++vit ){ a.erase(*vit);}
 		g_collected.clear();

@@ -131,14 +131,16 @@ CycleCost compute_cycle_cost(vector<vertex_t> const& cycle, Graph const& g, BFSV
         for( auto& v : cycle ){
                 cout << "   scanning cycle vert " << v << '\n';
                 for( auto e = out_edges(v, g); e.first != e.second; ++e.first ){
-                        if( vis_data.is_tree_edge(*e.first) && !on_cycle(*e.first, cycle, g) ){
-                                uint cost = vis_data.edge_cost(*e.first, cycle, g);
-                                //uint vert_id = vmap.vert2uint[v];
-                                //cout << "      scanning incident tree edge " << vert_id << "   cost: " << cost << '\n';
-                                auto insideout = is_edge_inside_outside_or_on_cycle(*e.first, v, cycle, g, em.em);
-                                assert(insideout != ON);
-                                bool is_inside = (insideout == INSIDE);
-                                (is_inside ? cc.inside : cc.outside) += cost;
+                        if( vis_data.is_tree_edge(*e.first) ){
+                                if( !on_cycle(*e.first, cycle, g) ){
+                                        uint cost = vis_data.edge_cost(*e.first, cycle, g);
+                                        //uint vert_id = vmap.vert2uint[v];
+                                        //cout << "      scanning incident tree edge " << vert_id << "   cost: " << cost << '\n';
+                                        auto insideout = is_edge_inside_outside_or_on_cycle(*e.first, v, cycle, g, em.em);
+                                        assert(insideout != ON);
+                                        bool is_inside = (insideout == INSIDE);
+                                        (is_inside ? cc.inside : cc.outside) += cost;
+                                }
                         }
                 }
         }

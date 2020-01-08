@@ -17,6 +17,7 @@ Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData c
 { 
         cout << "lemma2 graph:\n";
         print_graph(g_orig);
+        print_graph_addresses(g_orig);
         uint n = num_vertices(g_orig);
 
         Graph g_shrink2;
@@ -26,9 +27,17 @@ Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData c
         auto g_shrink2_prop_map = get(vertex_index, g_shrink2);
         auto g_orig_prop_map = get(vertex_index, g_orig);
 
-	BFSVisitorData visdata(&g_shrink2, visdata_orig.root);
-        breadth_first_search(g_shrink2, *vertices(g_shrink2).first, boost::visitor(BFSVisitor(visdata)));
+        // find shrinkroot
+        vertex_t shrinkroot, costzero2;
+        for( auto[vit, vjt] = vertices(g_shrink2); vit != vjt; ++vit ){ 
+                if( g_shrink2_prop_map[*vit] == g_orig_prop_map[visdata_orig.root] ) shrinkroot = *vit;
+                if( g_shrink2_prop_map[*vit] == g_orig_prop_map[costzero] ) costzero2 = *vit; 
+        }
+
+	BFSVisitorData visdata(&g_shrink2, shrinkroot);
+        breadth_first_search(g_shrink2, visdata.root, boost::visitor(BFSVisitor(visdata)));
 	uint r = visdata_orig.num_levels-1; // spanning tree radius
+
 	//assert(visdata.num_levels == visdata_orig.num_levels);
 	/* Let G be any planar graph with nonnegative vertex costs summing to no more than one.
 	Suppose G has a spanning tree of radius r.
@@ -42,6 +51,13 @@ Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData c
                 p.a.insert(*vit);
                 if( ++vit != vjt ) p.b.insert(*vit);
                 return p; 
+        }
+        
+        // decrement descendent costs from costzero
+        vertex_t ansc = costzero2;
+        while( ansc ){
+                --visdata.verts[ansc].descendant_cost;
+                ansc = visdata.verts.find(ansc)->second.parent; 
         }
 
         make_max_planar(g_shrink2);
@@ -81,6 +97,8 @@ Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData c
         edge_t xz = nontree_edges[min_index];
         cout << "xz: " << source(xz, g_shrink2) << ", " << target(xz, g_shrink2) << '\n';
 
+        assert(ccs[min_index].inside <= 2*n/3);
+        assert(ccs[min_index].outside <= 2*n/3);
         auto cycle2 = visdata.get_cycle(xz);
 
         uint cyclelengthlimit = find(STLALL(cycle2), visdata.root) != cycle.end() ? 2*r+1 : 2*r-1;
@@ -102,12 +120,9 @@ Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData c
         }
 
         Partition porig;
-        for( vertex_t v : p.a ) porig.a.insert(shrink2orig[v]);
-        for( vertex_t v : p.b ) porig.b.insert(shrink2orig[v]);
-        for( vertex_t v : p.c ) porig.c.insert(shrink2orig[v]);
-        // Let A be all verts inside the cycle
-        // Let B be all verts outside the cycle 
-        // Let C be all verts on the cycle
+        for( vertex_t v : p.a ) porig.a.insert(shrink2orig[v]); // Let A be all verts inside the cycle
+        for( vertex_t v : p.b ) porig.b.insert(shrink2orig[v]); // Let B be all verts outside the cycle 
+        for( vertex_t v : p.c ) porig.c.insert(shrink2orig[v]); // Let C be all verts on the cycle
 
 	/*Proof of claim.
 	Let (x,z) be the nontree edge whose cycle minimizes the maximum cost either inside or outside the cycle.  Break ties by choosing the nontree edge whose cycle has the smallest number of faces on the same side as the maximum cost.  If ties remain, choose arbitrarily.
@@ -137,9 +152,29 @@ Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData c
 	Thus (x, y) would have been chosen in place of (x, z).
 	Thus all cases are impossible, and the (x, z) cycle satisfies the claim. */
 
-        //p.verify_sizes_lemma2(r, visdata.root);
+        p.verify_sizes_lemma2(r, visdata.root);
 
         return porig;
+}
+
+vertex_t choose_costzero(Graph& g, BFSVisitorData const& visdata, uint l1)
+{
+        vertex_t v = Graph::null_vertex(); 
+        auto[vit, vjt] = vertices(g); 
+        for( VertIter next = vit; vit != vjt; vit = next ){
+                ++next;
+                if( !visdata.verts.contains(*vit) ){
+                        cout << "ignoring vertex: " << *vit << '\n';
+                        continue;
+                }
+
+                uint level = visdata.verts.find(*vit)->second.level;
+                if( level <= l1 ){
+                        v = *vit;
+                        break;
+                }
+        }
+        return v; 
 }
 
 // called when the middle part exceeds 2/3
@@ -171,21 +206,7 @@ Partition lemma3_exceeds23(Graph& g_shrink2, BFSVisitorData const& vis_data_shru
         //shrink all verts on levels l1 and below to a single vertex of cost zero
 
         // find a vertex to call cost zero
-        vertex_t costzero = Graph::null_vertex(); 
-        tie(vit, vjt) = vertices(g_shrink2); 
-        for( VertIter next = vit; vit != vjt; vit = next ){
-                ++next;
-                if( !vis_data_shrunken.verts.contains(*vit) ){
-                        cout << "ignoring vertex: " << *vit << '\n';
-                        continue;
-                }
-
-                uint level = vis_data_shrunken.verts.find(*vit)->second.level;
-                if( level <= l1 ){
-                        costzero = *vit;
-                        break;
-                }
-        }
+        vertex_t costzero = choose_costzero(g_shrink2, vis_data_shrunken, l1);
 
         assert(costzero != Graph::null_vertex());
         auto prop_map = get(vertex_index, g_shrink2);
@@ -210,6 +231,7 @@ Partition lemma3_exceeds23(Graph& g_shrink2, BFSVisitorData const& vis_data_shru
 	assert(r == vis_data_shrunken.num_levels-1);
         //Apply Lemma 2 to the new graph, A* B* C*
         Partition star_p = lemma2(g_shrink2, cycle, vis_data_shrunken, costzero);
+        assert(star_p.verify_sizes_lemma2(r, vis_data_shrunken.root));
         vertex_t star_root;
 
         Partition p;
@@ -391,6 +413,6 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
         }
 
         assert(p.verify_edges(g_orig));
-	//assert(p.verify_sizes_lemma3(L, l1, l2));
+	assert(p.verify_sizes_lemma3(L, l1, l2));
         return p;
 }

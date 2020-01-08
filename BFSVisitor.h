@@ -22,12 +22,14 @@ struct BFSVisitor : boost::default_bfs_visitor
 
         BFSVisitor(BFSVisitorData& data) : data(data) {}
 
+		//void examine_edge(edge_t e, GraphCR g) {exit(0);};
 
 
 	template<typename Edge> void tree_edge(Edge e, Graph const& g)
 	{
 		auto parent = source(e, g);
 		auto child  = target(e, g);
+		data.tree_edges.push_back(e);
 		std::cout << "  tree edge " << parent << ", " << child << '\n';
 		data.verts[child].parent = parent;
 		data.verts[child].level  = data.verts[parent].level + 1;

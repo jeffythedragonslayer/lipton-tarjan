@@ -20,6 +20,7 @@ bool on_cycle(edge_t e, vector<vertex_t> const& cycle, Graph const& g)
 
 BFSVisitorData::BFSVisitorData(Graph const* g, vertex_t root) : g(g), num_levels(0), root(root)
 {
+        assert(vertex_exists(root, *g));
 	verts[root] = BFSVert();
 	children[root] = set<vertex_t>(); 
 }
@@ -200,6 +201,5 @@ vector<vertex_t> BFSVisitorData::get_cycle(edge_t e) const
         vertex_t w = target(e, *g);
         vector<vertex_t> parents_v = ancestors(v);
         vector<vertex_t> parents_w = ancestors(w); 
-        vertex_t ancestor  = get_common_ancestor(parents_v, parents_w);
-        return get_cycle(v, w, ancestor);
+        return get_cycle(v, w, get_common_ancestor(parents_v, parents_w));
 }

@@ -23,7 +23,7 @@ struct BFSVisitorData
 	void print_parents() const;
 	bool assert_data() const;
 	void examine_edge(edge_t e);
-	void examine_edge(edge_t e, GraphCR) {};
+	void examine_edge(edge_t e, GraphCR g) {};
 	bool in_cc(edge_t e) const;
 	std::vector<vertex_t> get_cycle(vertex_t v, vertex_t w, vertex_t ancestor) const;
 	edge_t arbitrary_nontree_edge(Graph const&) const;

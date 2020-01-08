@@ -27,11 +27,11 @@ BFSVisitorData::BFSVisitorData(Graph const* g, vertex_t root) : g(g), num_levels
 
 void BFSVisitorData::reset(Graph* g)
 {
-		children.clear();
-		verts   .clear();
-		num_levels = 0;
-		this->g = g;
-		root = Graph::null_vertex();
+        children.clear();
+        verts   .clear();
+        num_levels = 0;
+        this->g = g;
+        root = Graph::null_vertex();
 }
 
 struct EdgeOops

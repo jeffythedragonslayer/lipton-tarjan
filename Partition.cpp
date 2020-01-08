@@ -54,6 +54,10 @@ Partition::Partition(vector<vertex_t> const& cycle, Graph& g, EmbedStruct const&
 		uint n = num_vertices(g);
 		cout << "n: " << n << '\n';
 
+        auto prop_map = get(vertex_index, g);
+        for( vertex_t v : cycle ) cout << "cyclevert: " << v << " propmap: " << prop_map[v] << '\n';
+        fflush(stdout);
+
 		typedef std::map<vertex_t, boost::default_color_type> stdcolormap;
 		stdcolormap colormap;
 		VertBuffer q;
@@ -84,7 +88,7 @@ Partition::Partition(vector<vertex_t> const& cycle, Graph& g, EmbedStruct const&
 		CollectBFS collector(&g, *noncycle_vert);
 		BFSVisitor vis(collector);
 
-		breadth_first_visit(g, collector.root, q, collector, prop_colormap); // BUG this is collecting all the vertices in the graph and ignoring wall of black visited verts
+		breadth_first_visit(g, collector.root, q, collector, prop_colormap); // BUG this is collecting all the non cycle vertices in the graph and ignoring wall of black visited verts
 		a = /*collector.collected; */ g_collected;
 		for( auto  vit = cycle.begin(); vit != cycle.end(); ++vit ){ a.erase(*vit);}
 		g_collected.clear();

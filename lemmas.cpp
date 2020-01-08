@@ -20,6 +20,20 @@ Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData c
         print_graph_addresses(g_orig);
         uint n = num_vertices(g_orig);
 
+        auto prop_map = get(vertex_index, g_orig);
+        for( vertex_t v : cycle ) cout << "cyclevert: " << v << " propmap: " << prop_map[v] << '\n';
+        fflush(stdout);
+
+        // if g contains only two vertices then return trivially
+        if( n <= 2 ){ 
+                VertIter vit, vjt;
+                tie(vit, vjt) = vertices(g_orig); 
+                Partition p;
+                p.a.insert(*vit);
+                if( ++vit != vjt ) p.b.insert(*vit);
+                return p; 
+        }
+        
         Graph g_shrink2;
         copy_graph(g_orig, g_shrink2);
         g_shrink2 = g_orig;
@@ -43,16 +57,6 @@ Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData c
 	Suppose G has a spanning tree of radius r.
 	Then the vertices of G can be partitioned into three sets A, B, C, such that no edge joins a vertex A with a vertex in B, neither A nor B has a total cost exceeding 2/3, and C contains no more than 2r+1 vertices, one the root of the tree. */
 
-        // if g contains only two vertices then return trivially
-        if( n <= 2 ){ 
-                VertIter vit, vjt;
-                tie(vit, vjt) = vertices(g_shrink2); 
-                Partition p;
-                p.a.insert(*vit);
-                if( ++vit != vjt ) p.b.insert(*vit);
-                return p; 
-        }
-        
         // decrement descendent costs from costzero
         vertex_t ansc = costzero2;
         while( ansc ){

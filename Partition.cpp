@@ -60,7 +60,9 @@ Partition::Partition(vector<vertex_t> const& cycle, Graph& g, EmbedStruct const&
 		} 
 
 		// mark all verts on the cycle as VISITED
-		for( vertex_t v : cycle ) colormap[v] = boost::default_color_type::black_color;
+		for( vertex_t v : cycle ){
+			colormap[v] = boost::default_color_type::black_color;
+		}
 
 		c = set<vertex_t>(STLALL(cycle));
 

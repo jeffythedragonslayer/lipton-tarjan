@@ -34,7 +34,6 @@ int main(int argc, char* argv[])
 
                 uint n = num_vertices(g);
 
-
                 cout << "n: " << n << '\n';
                 uint e = num_edges(g);
 

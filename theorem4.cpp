@@ -98,9 +98,7 @@ Partition theorem4_ccbigger23(GraphCR g_all, Partition const& biggest_comp_p)
         uint alln = num_vertices(g_all);
         cout << "alln: " << alln << '\n';
 
-        Graph g_comp; // connected component
-        copy_graph(g_all, g_comp);
-        g_comp = g_all;
+        Graph g_comp(g_all); // connected component
 
         auto g_all_prop_map = get(vertex_index, g_all);
         auto g_comp_prop_map = get(vertex_index, g_comp);

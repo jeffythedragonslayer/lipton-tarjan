@@ -653,8 +653,6 @@ Partition find_connected_components(GraphCR g_orig, Graph& g_copy)
 Partition lipton_tarjan(GraphCR g_orig)
 {
 	Graph g_copy(g_orig);
-	copy_graph(g_orig, g_copy);
-	g_copy = g_orig;
 
 	cout << "@#$original g:\n";
 	print_graph(g_orig);

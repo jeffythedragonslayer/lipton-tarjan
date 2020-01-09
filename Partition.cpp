@@ -28,7 +28,6 @@ struct CollectBFS : public BFSVisitorData
 
 		//set<vertex_t> collected;
 		virtual void initialize_vertex(vertex_t v, GraphCR g) {};
-		//virtual void discover_vertex(vertex_t v, GraphCR g) {};
 		//virtual void examine_vertex(vertex_t v, GraphCR g) {};
 
 		virtual void discover_vertex(vertex_t v, GraphCR g)

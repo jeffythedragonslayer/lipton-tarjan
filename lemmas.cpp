@@ -21,8 +21,7 @@ Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData c
         uint n = num_vertices(g_orig);
 
         auto prop_map = get(vertex_index, g_orig);
-        for( vertex_t v : cycle ) cout << "cyclevert: " << v << " propmap: " << prop_map[v] << '\n';
-        fflush(stdout);
+        for( vertex_t v : cycle ) cout << "cyclevert: " << v << " propmap: " << prop_map[v] << endl;
 
         // if g contains only two vertices then return trivially
         if( n <= 2 ){ 
@@ -34,9 +33,7 @@ Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData c
                 return p; 
         }
         
-        Graph g_shrink2;
-        copy_graph(g_orig, g_shrink2);
-        g_shrink2 = g_orig;
+        Graph g_shrink2(g_orig);
 
         auto g_shrink2_prop_map = get(vertex_index, g_shrink2);
         auto g_orig_prop_map = get(vertex_index, g_orig);
@@ -187,9 +184,6 @@ Partition lemma3_exceeds23(Graph& g_shrink2, BFSVisitorData const& vis_data_shru
         cout << "g_shrink2:\n";
         print_graph(g_shrink2);
         print_graph_addresses(g_shrink2);
-        /*Graph g_shrink2(g_orig);
-        copy_graph(g_orig, g_shrink2);
-        g_shrink2 = g_orig;*/
 
         cout << "middle partition has cost exceeding 2/3\n";
 

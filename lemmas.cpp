@@ -201,7 +201,7 @@ Partition lemma3_exceeds23(Graph& g_shrink2, BFSVisitorData const& vis_data_shru
                 }
         }
 
-        //shrink all verts on levels l1 and below to a single vertex of cost zero
+        // shrink all verts on levels l1 and below to a single vertex of cost zero
 
         // find a vertex to call cost zero
         vertex_t costzero = choose_costzero(g_shrink2, vis_data_shrunken, l1);
@@ -224,10 +224,10 @@ Partition lemma3_exceeds23(Graph& g_shrink2, BFSVisitorData const& vis_data_shru
                 }
         }
 
-        //The new graph has a spanning tree radius of l2 - l1 -1 whose root corresponds to vertices on levels l1 and below in the original graph
+        // The new graph has a spanning tree radius of l2 - l1 -1 whose root corresponds to vertices on levels l1 and below in the original graph
         uint r = l2 - l1 - 1;
 	assert(r == vis_data_shrunken.num_levels-1);
-        //Apply Lemma 2 to the new graph, A* B* C*
+        // Apply Lemma 2 to the new graph.  Let A*, B*, C* be the resulting vertex partition
         Partition star_p = lemma2(g_shrink2, cycle, vis_data_shrunken, costzero);
         assert(star_p.verify_sizes_lemma2(r, vis_data_shrunken.root));
         vertex_t star_root;

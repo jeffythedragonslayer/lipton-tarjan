@@ -1,6 +1,6 @@
-CXX=clang++
+CXX=g++
 BOOST=-I/usr/local/boost
-CXXFLAGS=-g -ggdb -O0 -std=c++2a -c
+CXXFLAGS=-g -ggdb -O0 -std=c++2a -c -fconcepts
 OBJS := main.o lipton-tarjan.o theorem4.o lemmas.o strutil.o Partition.o BFSVisitorData.o EmbedStruct.o ScanVisitor.o graphutil.o
 .DEFAULT_GOAL = all
 

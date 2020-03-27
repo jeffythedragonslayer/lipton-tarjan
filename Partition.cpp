@@ -70,6 +70,8 @@ Partition::Partition(vector<vertex_t> const& cycle, Graph& g, EmbedStruct const&
 
 		assert(2 == num_components-cycle.size()); // each vertex on the cycle is now its own component, leaving only A and B left
 
+		set<int> unique_comps;
+
         //cout << "# of connected components: " << num_components << '\n';
         for( tie(vit, vjt) = vertices(g); vit != vjt; ++vit ){
 				if( find(STLALL(cycle), *vit) != cycle.end() ){
@@ -78,6 +80,7 @@ Partition::Partition(vector<vertex_t> const& cycle, Graph& g, EmbedStruct const&
 				}
 
 				int comp = vertid_to_component[*vit];
+				unique_comps.insert(comp);
 				cout << "comp#: " << comp << '\n';
 				if( 1 == comp ){
 						b.insert(*vit);
@@ -85,7 +88,7 @@ Partition::Partition(vector<vertex_t> const& cycle, Graph& g, EmbedStruct const&
 						a.insert(*vit);
 				}
 		} 
-
+		assert(2 == unique_comps.size());
 }
 
 void Partition::get_most_costly_part(set<vertex_t> const** most_costly,

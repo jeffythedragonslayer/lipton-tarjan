@@ -21,7 +21,7 @@ uint lowest_i(uint n, uint num_components, vector<uint> const& num_verts_per_com
         uint i = 0;
         for( ; i < num_components; ++i ){
                 total_cost += num_verts_per_component[i];
-                if ( total_cost > n/3 ) return i;
+                if ( total_cost*3 > n ) return i;
         } 
 
         return -1;
@@ -272,23 +272,22 @@ Partition theorem4_disconnected(GraphCR g, uint n, uint num_components, associat
 
                 // populate partition A
                 cout << "!! populating partition A\n";
-                vector<VertIter>& vset = vertex_sets[i];
-                cout << "vecsize: " << vset.size() << '\n';
-                for( VertIter& v : vset ){
-                        cout << "v: " << *v << endl;
-                        p.a.insert(*v); 
+                for( uint j = 0; j <= i; ++j ){
+                        for( uint v = 0; v < vertex_sets[j].size(); ++v ){
+                                p.a.insert(*vertex_sets[j][v]);
+                        }
+
                 }
                 cout << '\n';
 
                 // populate partition B, should be everything except what's in partition A
                 cout << "!! populating partition B\n";
-                for( uint j = 0; j < num_components; ++j ){
-                        if( i != j ){
-                                vector<VertIter>& vset = vertex_sets[j];
-                                for( VertIter& v : vset ){
-                                        p.b.insert(*v);
-                                        cout << "v: " << *v << endl;
-                                }
+                for( uint j = i+1; j < num_components; ++j ){
+
+                        vector<VertIter>& vset = vertex_sets[j];
+                        for( VertIter& v : vset ){
+                                p.b.insert(*v);
+                                cout << "v: " << *v << endl;
                         }
                 }
 
@@ -303,7 +302,6 @@ Partition theorem4_disconnected(GraphCR g, uint n, uint num_components, associat
 
         return theorem4_ccbigger23(g, biggest_comp_p);
 }
-
 
 /* Theorem 4: Let G be any (possibly disconnected) n-vertex planar graph having nonnegative vertex costs summing to no more than one.
 Then the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex

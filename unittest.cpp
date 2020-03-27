@@ -186,4 +186,5 @@ BOOST_AUTO_TEST_CASE( circular_node )
 BOOST_AUTO_TEST_CASE( disconnected_test )
 {
 	check_partition_is_legal("graphs/disconnected");
+	check_partition_is_legal("graphs/skip");
 }

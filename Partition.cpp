@@ -6,7 +6,9 @@
 #include "BFSVisitor.h"
 #include <boost/graph/properties.hpp>
 #include <boost/lockfree/queue.hpp>
+#include <boost/config.hpp>
 #include <boost/graph/breadth_first_search.hpp>
+#include <boost/graph/connected_components.hpp>
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -27,16 +29,17 @@ struct CollectBFS : public BFSVisitorData
 		virtual ~CollectBFS() {};
 
 		//set<vertex_t> collected;
-		virtual void initialize_vertex(vertex_t v, GraphCR g) {};
-		//virtual void examine_vertex(vertex_t v, GraphCR g) {};
+		virtual void initialize_vertex(vertex_t v, GraphCR g) {cout << "init vertex" << v << '\n';};
+		virtual void examine_vertex(vertex_t v, GraphCR g) {cout << "examine vertex" << v << '\n';};
 
 		virtual void discover_vertex(vertex_t v, GraphCR g)
 		{
+				cout << "discovering vertex: " << v << '\n';
 				g_collected.insert(v);
 				cout << "collector size: " << g_collected.size() << '\n';
 		};
 
-		virtual void finish_vertex(vertex_t v, GraphCR g) {};
+		virtual void finish_vertex(vertex_t v, GraphCR g) {cout << "finish vertex: " << v << '\n';};
 		virtual void black_target(edge_t, GraphCR g) {cout << "BLACK TARGET\n";};
 		virtual void gray_target(edge_t, GraphCR g) {cout << "GRAY TARGET\n";};
 		virtual void tree_target(edge_t, GraphCR g) {};
@@ -44,61 +47,45 @@ struct CollectBFS : public BFSVisitorData
 		virtual void non_tree_edge(edge_t, GraphCR g) {};
 };
 
-
 // A = verts inside cycle
 // B = verts outside cycle
 // C = verts on cycle
 Partition::Partition(vector<vertex_t> const& cycle, Graph& g, EmbedStruct const& em)
 { 
-		uint n = num_vertices(g);
-		cout << "n: " << n << '\n';
-
-        auto prop_map = get(vertex_index, g);
-        for( vertex_t v : cycle ) cout << "cyclevert: " << v << " propmap: " << prop_map[v] << '\n';
-        fflush(stdout);
-
-		typedef std::map<vertex_t, boost::default_color_type> stdcolormap;
-		stdcolormap colormap;
-		VertBuffer q;
-
-		// mark all verts as NOT VISITED
-		for( auto[vit, vjt] = vertices(g); vit != vjt; ++vit ){
-				colormap[*vit] = boost::default_color_type::white_color;
-				q.push(*vit);
-		} 
-
-		// mark all verts on the cycle as VISITED
-		for( vertex_t v : cycle ){
-				colormap[v] = boost::default_color_type::black_color;
-		}
-
-		boost::associative_property_map<stdcolormap> prop_colormap(colormap);
-
 		c = set<vertex_t>(STLALL(cycle));
 
-		auto[vit, vjt] = vertices(g);
+		for( auto v : c ) clear_vertex(v, g);
 
-		cout << "g:\n";
-		print_graph(g);
-		print_graph_addresses(g);
+		uint n = num_vertices(g);
 
-		VertIter noncycle_vert = std::find_if(vit, vjt, [&](vertex_t x){return colormap[x] == boost::default_color_type::white_color;});
-		g_collected.clear();
-		CollectBFS collector(&g, *noncycle_vert);
-		BFSVisitor vis(collector);
-
-		breadth_first_visit(g, collector.root, q, collector, prop_colormap); // BUG this is collecting all the non cycle vertices in the graph and ignoring wall of black visited verts
-		a = /*collector.collected; */ g_collected;
-		for( auto  vit = cycle.begin(); vit != cycle.end(); ++vit ){ a.erase(*vit);}
-		g_collected.clear();
-		cout << "collector size: " << a.size() << '\n';
-
-		VertIter noncycleunvisited_vert = std::find_if(vit, vjt, [&](vertex_t x){return colormap[x] == boost::default_color_type::white_color;});
-		if( noncycleunvisited_vert != vjt ){
-				CollectBFS collector2(&g, *noncycleunvisited_vert);
-				breadth_first_visit(g, collector2.root, q, collector2, prop_colormap);
-				b = /*collector2.collected;*/ g_collected;
+        vertex_map idx; 
+        associative_property_map<vertex_map> vertid_to_component(idx);
+        auto[vit, vjt] = vertices(g);
+        for( uint i = 0; vit != vjt; ++vit, ++i ){
+				cout << "checking vertex number: " << i << ' ' << *vit << '\n';
+				put(vertid_to_component, *vit, i);
 		}
+        uint num_components = connected_components(g, vertid_to_component);
+		cout << "num_components: " << num_components << '\n';
+
+		assert(2 == num_components-cycle.size()); // each vertex on the cycle is now its own component, leaving only A and B left
+
+        //cout << "# of connected components: " << num_components << '\n';
+        for( tie(vit, vjt) = vertices(g); vit != vjt; ++vit ){
+				if( find(STLALL(cycle), *vit) != cycle.end() ){
+					cout << "vert: " << *vit << " is in C\n";
+					continue; // *vit is part of C
+				}
+
+				int comp = vertid_to_component[*vit];
+				cout << "comp#: " << comp << '\n';
+				if( 1 == comp ){
+						b.insert(*vit);
+				} else {
+						a.insert(*vit);
+				}
+		} 
+
 }
 
 void Partition::get_most_costly_part(set<vertex_t> const** most_costly,

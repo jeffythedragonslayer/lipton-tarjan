@@ -76,10 +76,10 @@ BOOST_AUTO_TEST_CASE( empty_test )
 		check_partition_is_legal("graphs/empty");
 }
 
-/*BOOST_AUTO_TEST_CASE( star_test )
+BOOST_AUTO_TEST_CASE( star_test )
 {
 		check_partition_is_legal("graphs/star");
-}*/
+}
 
 BOOST_AUTO_TEST_CASE( box_test )
 {

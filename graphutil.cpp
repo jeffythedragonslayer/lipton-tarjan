@@ -25,7 +25,11 @@ void init_vert_propmap(Graph& g)
 	VertIter vi, vend;
 	uint i = 0;
 	for( tie(vi, vend) = vertices(g); vi != vend; ++vi ){
+#ifdef GRAPH_TYPE_VEC
+                abort();
+#else
 		prop_map[*vi] = i;
+#endif
 		cout << "prop map " << *vi << " == " << i << '\n';
 		++i;
 	} 

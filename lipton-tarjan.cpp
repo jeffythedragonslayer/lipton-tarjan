@@ -269,7 +269,7 @@ Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vi
 
         uint n = num_vertices(g_orig);
         cout  << "----------------------- 8 - Locate Cycle -----------------\n"; 
-        //print_graph(g_shrunk);
+        print_graph(g_shrunk);
         edge_t completer_candidate_edge;
         
         try {
@@ -465,7 +465,7 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
         for( tie(vei, vend) = vertices(g_orig); vei != vend; ++vei ){ 
                 vertex_t v = *vei;
                 if( !vis_data_orig.verts.contains(v) ){
-                        cout << "lipton-tarjan.cpp: ignoring bad vertex : " << v << '\n';
+                        cerr << "lipton-tarjan.cpp: ignoring bad vertex : " << v << '\n';
                         continue; 
                 }
         }

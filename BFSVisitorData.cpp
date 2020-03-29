@@ -129,17 +129,17 @@ vector<vertex_t> BFSVisitorData::get_cycle(vertex_t v, vertex_t w, vertex_t ance
         return cycle;
 }
 
-// returns the first nontree edge we fin
+// returns the first nontree edge we find
 edge_t BFSVisitorData::arbitrary_nontree_edge(Graph const& g) const
 {
-	cout << "starting arbitrary_nontree_edge function\n";
+	cout << "starting arbitrary_nontree_edge() \n";
         EdgeIter ei, ei_end;
 	uint num_edges = 0;
         for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei, ++num_edges ){
                 auto src = source(*ei, g);
                 auto tar = target(*ei, g);
                 assert(edge(src, tar, g).second); // edge exists
-				//cout << "candidate edge: " << vmap.vert2uint[src] << ' ' << vmap.vert2uint[tar] << '\n';
+                //cout << "candidate edge: " << vmap.vert2uint[src] << ' ' << vmap.vert2uint[tar] << '\n';
                 if( src == tar ){
                         cout << "ignoring circular edge\n";
                         continue;

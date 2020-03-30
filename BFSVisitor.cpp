@@ -1,5 +1,12 @@
+//=======================================================================
+// Copyright 2015 - 2020 Jeff Linahan
+//
+// Distributed under the Boost Software License, Version 1.0. (See
+// accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+//=======================================================================
 #include "BFSVisitor.h"
-uisng namespace std;
+using namespace std;
 
 vector<vertex_t> ancestors(vertex_t v) const
 {

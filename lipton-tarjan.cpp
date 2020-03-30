@@ -40,9 +40,9 @@ using namespace boost;
 // Step 10: construct_vertex_partition
 // Time:    O(n)
 //
-// Use the cycle found in Step 9 and the levels found in Step 4 (l1_and_k) to construct a satisfactory vertex partition as described in the proof of Lemma 3
+// Use the fundamental cycle found in Step 9 and the levels found in Step 4 (l1_and_k) to construct a satisfactory vertex partition as described in the proof of Lemma 3
 // Extend this partition from the connected component chosen in Step 2 to the entire graph as described in the proof of Theorem 4.
-Partition construct_vertex_partition(GraphCR g_orig, Graph& g_shrunk, vector<uint> const& L, uint l[3], BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_shrunken, vector<vertex_t> const& cycle)
+Partition construct_vertex_partition(GraphCR g_orig, Graph& g_shrunk, vector<uint> const& L, uint l[3], BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_shrunken, vector<vertex_t> const& fundamental_cycle)
 {
         vertex_map idx; 
         associative_property_map<vertex_map> vertid_to_component(idx);
@@ -64,7 +64,7 @@ Partition construct_vertex_partition(GraphCR g_orig, Graph& g_shrunk, vector<uin
         uint r = vis_data_orig.num_levels;
         cout << "r max distance: " << r << '\n';
 
-        Partition biggest_comp_p = lemma3(g_orig, L, l[1], l[2], r, vis_data_orig, vis_data_shrunken, cycle, &g_shrunk);
+        Partition biggest_comp_p = lemma3(g_orig, L, l[1], l[2], r, vis_data_orig, vis_data_shrunken, fundamental_cycle, &g_shrunk);
         biggest_comp_p.verify_edges(g_orig);
         biggest_comp_p.verify_sizes_lemma3(L, l[1], l[2]);
         if( 1 == num_components ){
@@ -248,7 +248,7 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
                 } 
                 completer_candidate_edge = next_edge;
         }
-        cout << "found cycle with inside cost " << cc.inside << " which is less than 2/3\n";
+        cout << "found fundamental cycle with inside cost " << cc.inside << " which is less than 2/3\n";
         print_cycle(cycle, g_shrunk);
 
         //BOOST_ASSERT(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components

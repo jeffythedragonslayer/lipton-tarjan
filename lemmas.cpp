@@ -186,7 +186,7 @@ vertex_t choose_costzero(Graph& g, BFSVisitorData const& visdata, uint l1)
 }
 
 // called when the middle part exceeds 2/3
-Partition lemma3_exceeds23(Graph& g_shrink2, BFSVisitorData const& vis_data_shrunken, uint l1, uint l2, vector<vertex_t> const& cycle)
+Partition lemma3_exceeds23(Graph& g_shrink2, BFSVisitorData const& vis_data_shrunken, uint l1, uint l2, vector<vertex_t> const& fundamental_cycle)
 {
         cout << "g_shrink2:\n";
         print_graph(g_shrink2);
@@ -235,7 +235,7 @@ Partition lemma3_exceeds23(Graph& g_shrink2, BFSVisitorData const& vis_data_shru
         uint r = l2 - l1 - 1;
 	BOOST_ASSERT(r == vis_data_shrunken.num_levels-1);
         // Apply Lemma 2 to the new graph.  Let A*, B*, C* be the resulting vertex partition
-        Partition star_p = lemma2(g_shrink2, cycle, vis_data_shrunken, costzero);
+        Partition star_p = lemma2(g_shrink2, fundamental_cycle, vis_data_shrunken, costzero);
         BOOST_ASSERT(star_p.verify_sizes_lemma2(r, vis_data_shrunken.root));
         vertex_t star_root;
 

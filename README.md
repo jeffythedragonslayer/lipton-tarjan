@@ -1,8 +1,6 @@
 # lipton-tarjan
 Implementation of the Lipton-Tarjan Planar Separator Theorem
 
-You will need to install graphviz to visualize the graphs
-
 A graph file is just a list of edges
 
 lt [graphfilename]
@@ -33,6 +31,7 @@ unittest
 	
 Installation
 
+	You will need to install graphviz to visualize the graphs
 	Install boost in /usr/local/ and create a symbolic link to the directory,
 	
 	ln -s boost_1_72_0 boost

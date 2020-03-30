@@ -59,10 +59,10 @@ void check_partition_is_legal(string graphfile)
 
 	cout << "n = " << n << '\n';
 	cout << "total = " << total << '\n';
-	assert(n == total);
+	BOOST_ASSERT(n == total);
 
-	assert(p.verify_sizes(g));
-	assert(p.verify_edges(g));
+	BOOST_ASSERT(p.verify_sizes(g));
+	BOOST_ASSERT(p.verify_edges(g));
 }
 
 BOOST_AUTO_TEST_CASE( kuratowski )

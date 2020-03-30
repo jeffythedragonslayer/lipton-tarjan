@@ -49,7 +49,7 @@ Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData c
         breadth_first_search(g_shrink2, visdata.root, boost::visitor(BFSVisitor(visdata)));
 	uint r = visdata_orig.num_levels-1; // spanning tree radius
 
-	//assert(visdata.num_levels == visdata_orig.num_levels);
+	//BOOST_ASSERT(visdata.num_levels == visdata_orig.num_levels);
 	/* Let G be any planar graph with nonnegative vertex costs summing to no more than one.
 	Suppose G has a spanning tree of radius r.
 	Then the vertices of G can be partitioned into three sets A, B, C, such that no edge joins a vertex A with a vertex in B, neither A nor B has a total cost exceeding 2/3, and C contains no more than 2r+1 vertices, one the root of the tree. */
@@ -98,12 +98,12 @@ Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData c
         edge_t xz = nontree_edges[min_index];
         cout << "xz: " << source(xz, g_shrink2) << ", " << target(xz, g_shrink2) << '\n';
 
-        assert(ccs[min_index].inside <= 2*n/3);
-        assert(ccs[min_index].outside <= 2*n/3);
+        BOOST_ASSERT(ccs[min_index].inside <= 2*n/3);
+        BOOST_ASSERT(ccs[min_index].outside <= 2*n/3);
         auto cycle2 = visdata.get_cycle(xz);
 
         uint cyclelengthlimit = find(STLALL(cycle2), visdata.root) != cycle.end() ? 2*r+1 : 2*r-1;
-        assert(cycle2.size() <= cyclelengthlimit);
+        BOOST_ASSERT(cycle2.size() <= cyclelengthlimit);
 
         auto p = Partition(cycle2, g_shrink2, em);
 
@@ -206,7 +206,7 @@ Partition lemma3_exceeds23(Graph& g_shrink2, BFSVisitorData const& vis_data_shru
         // find a vertex to call cost zero
         vertex_t costzero = choose_costzero(g_shrink2, vis_data_shrunken, l1);
 
-        assert(costzero != Graph::null_vertex());
+        BOOST_ASSERT(costzero != Graph::null_vertex());
         auto prop_map = get(vertex_index, g_shrink2);
         cout << "costzero: " << costzero << " propmap: " << prop_map[costzero] << '\n';
 
@@ -226,10 +226,10 @@ Partition lemma3_exceeds23(Graph& g_shrink2, BFSVisitorData const& vis_data_shru
 
         // The new graph has a spanning tree radius of l2 - l1 -1 whose root corresponds to vertices on levels l1 and below in the original graph
         uint r = l2 - l1 - 1;
-	assert(r == vis_data_shrunken.num_levels-1);
+	BOOST_ASSERT(r == vis_data_shrunken.num_levels-1);
         // Apply Lemma 2 to the new graph.  Let A*, B*, C* be the resulting vertex partition
         Partition star_p = lemma2(g_shrink2, cycle, vis_data_shrunken, costzero);
-        assert(star_p.verify_sizes_lemma2(r, vis_data_shrunken.root));
+        BOOST_ASSERT(star_p.verify_sizes_lemma2(r, vis_data_shrunken.root));
         vertex_t star_root;
 
         Partition p;
@@ -241,7 +241,7 @@ Partition lemma3_exceeds23(Graph& g_shrink2, BFSVisitorData const& vis_data_shru
         tie(vit, vjt) = vertices(g_shrink2); 
         for( VertIter next = vit; vit != vjt; vit = next ){
                 ++next;
-                assert(vis_data_shrunken.verts.contains(*vit));
+                BOOST_ASSERT(vis_data_shrunken.verts.contains(*vit));
                 if( vis_data_shrunken.verts.find(*vit)->second.level == l2 ||
                         vis_data_shrunken.verts.find(*vit)->second.level == l1 ){
                                 p.c.insert(*vit);
@@ -282,7 +282,7 @@ Partition lemma3_l1greaterequall2(GraphCR g_shrink2, BFSVisitorData const& vis_d
                 if( level <  l1 ){                 cout << " belongs to first part\n";  p.a.insert(v); continue; }
                 if( level >= l1+1 && level <= r ){ cout << " belongs to middle part\n"; p.b.insert(v); continue; }
                 if( level == l1 ){                 cout << " belongs to last part\n";   p.c.insert(v); continue; }
-                assert(0);
+                BOOST_ASSERT(0);
         } 
         /*cout << "A = all verts on levels 0    thru l1-1\n";
         cout << "B = all verts on levels l1+1 thru r\n";
@@ -355,13 +355,13 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
                 if( i >= l2+1 ) cost_l2p1thrur1 += L[i];
         }
         uint costlimit = 2*n/3;
-        assert(cost_0thrul1m1 <= costlimit);
-        assert(cost_l2p1thrur1 <= costlimit);
+        BOOST_ASSERT(cost_0thrul1m1 <= costlimit);
+        BOOST_ASSERT(cost_l2p1thrur1 <= costlimit);
 
 
-        //assert(vis_data_shrunken.assert_data());
-        //assert(vis_data_orig.assert_data()); 
-        //assert(n == n_orig);
+        //BOOST_ASSERT(vis_data_shrunken.assert_data());
+        //BOOST_ASSERT(vis_data_orig.assert_data()); 
+        //BOOST_ASSERT(n == n_orig);
 
         //uint total_cost = 0;
 
@@ -390,19 +390,19 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
                         if( level <  l1 ){                    cout << v << " belongs to first part (A)\n";  first_part.insert(v);   continue;}
                         if( level >= l1+1 && level <= l2-1 ){ cout << v << " belongs to middle part (B)\n"; middle_part.insert(v);  continue;}
                         if( level >  l2   ){                  cout << v << " belongs to last part (C)\n";   last_part.insert(v);    continue;}
-                        assert(0);
+                        BOOST_ASSERT(0);
                 }
 
                 uint ptotal = first_part.size() + middle_part.size() + last_part.size() + deleted_part.size();
                 cout << "ptotal: " << ptotal << '\n';
-                assert(ptotal == n);
+                BOOST_ASSERT(ptotal == n);
 
                 //the only part which can have cost > 2/3 is the middle part (B)
                 cout << "first part size: " << first_part.size() << '\n';
                 cout << "middle part size: " << middle_part.size() << '\n';
                 cout << "third part size: " << last_part.size() << '\n';
-                assert(first_part.size() <= 2*n/3);
-                assert(last_part.size() <= 2*n/3);
+                BOOST_ASSERT(first_part.size() <= 2*n/3);
+                BOOST_ASSERT(last_part.size() <= 2*n/3);
                 //p.print();
 
                 p = middle_part.size() <= 2*n/3                                          ?
@@ -410,7 +410,7 @@ Partition lemma3(GraphCR g_orig, vector<uint> const& L, uint l1, uint l2, uint r
                     lemma3_exceeds23(*g_shrunk, vis_data_shrunken, l1, l2, cycle);
         }
 
-        assert(p.verify_edges(g_orig));
-	assert(p.verify_sizes_lemma3(L, l1, l2));
+        BOOST_ASSERT(p.verify_edges(g_orig));
+	BOOST_ASSERT(p.verify_sizes_lemma3(L, l1, l2));
         return p;
 }

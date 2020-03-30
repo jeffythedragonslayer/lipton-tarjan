@@ -20,7 +20,7 @@ bool on_cycle(edge_t e, vector<vertex_t> const& cycle, Graph const& g)
 
 BFSVisitorData::BFSVisitorData(Graph const* g, vertex_t root) : g(g), num_levels(0), root(root)
 {
-        assert(vertex_exists(root, *g));
+        BOOST_ASSERT(vertex_exists(root, *g));
 	verts[root] = BFSVert();
 	children[root] = set<vertex_t>(); 
 }
@@ -65,20 +65,20 @@ bool BFSVisitorData::in_cc(edge_t e) const
 
 uint BFSVisitorData::edge_cost(edge_t e, vector<vertex_t> const& cycle, Graph const& g) const
 {
-		assert(is_tree_edge(e));
+		BOOST_ASSERT(is_tree_edge(e));
 
 		auto v = source(e, g); 
 		auto w = target(e, g); 
-		auto v_it = verts.find(v); assert(v_it != verts.end());
-		auto w_it = verts.find(w); assert(w_it != verts.end());
+		auto v_it = verts.find(v); BOOST_ASSERT(v_it != verts.end());
+		auto w_it = verts.find(w); BOOST_ASSERT(w_it != verts.end());
 		if( !on_cycle(v, cycle, g) ) swap(v, w);
 
-		assert( on_cycle(v, cycle, g));
-		assert(!on_cycle(w, cycle, g));
+		BOOST_ASSERT( on_cycle(v, cycle, g));
+		BOOST_ASSERT(!on_cycle(w, cycle, g));
 
 		uint total = num_vertices(g);
 
-		assert(w_it->second.parent == v || v_it->second.parent == w);
+		BOOST_ASSERT(w_it->second.parent == v || v_it->second.parent == w);
 		return w_it->second.parent == v ? w_it->second.descendant_cost : total - v_it->second.descendant_cost;
 } 
 
@@ -138,7 +138,7 @@ edge_t BFSVisitorData::arbitrary_nontree_edge(Graph const& g) const
         for( tie(ei, ei_end) = edges(g); ei != ei_end; ++ei, ++num_edges ){
                 auto src = source(*ei, g);
                 auto tar = target(*ei, g);
-                assert(edge(src, tar, g).second); // edge exists
+                BOOST_ASSERT(edge(src, tar, g).second); // edge exists
                 //cout << "candidate edge: " << vmap.vert2uint[src] << ' ' << vmap.vert2uint[tar] << '\n';
                 if( src == tar ){
                         cout << "ignoring circular edge\n";

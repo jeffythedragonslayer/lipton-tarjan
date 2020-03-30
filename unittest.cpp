@@ -34,7 +34,7 @@ void check_graph_is_nonplanar(string graphfile)
 	print_graph(g);
 
 	try {
-		Partition p = lipton_tarjan(g);
+		Partition p = lipton_tarjan_separator(g);
 		BOOST_CHECK(false);
 	} catch (NotPlanarException e){
 		BOOST_CHECK(true);
@@ -59,7 +59,7 @@ void check_partition_is_legal(string graphfile)
 	print_graph(g);
 	uint n = num_vertices(g);
 
-	Partition p = lipton_tarjan(g);
+	Partition p = lipton_tarjan_separator(g);
 
 
 	uint total = p.total_num_verts();

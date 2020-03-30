@@ -15,6 +15,6 @@
 #include <vector>
 #define STLALL(x) (x).begin(), (x).end()
 
-Partition lipton_tarjan(Graph const& g_orig);
+Partition lipton_tarjan_separator(Graph const& g_orig);
 
 struct NotPlanarException {}; 

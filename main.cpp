@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
                 print_graph(g);
 
 		try { 
-			Partition p = lipton_tarjan(g);
+			Partition p = lipton_tarjan_separator(g);
 			uint num_verts_finished = p.total_num_verts();
 			cout << "Finished!\n";
 

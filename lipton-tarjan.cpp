@@ -656,7 +656,7 @@ Partition find_connected_components(GraphCR g_orig, Graph& g_copy)
 // Time:   big-theta(n)
 //
 // Find a planar embedding of G and construct a representation for it of the kind described above.
-Partition lipton_tarjan(GraphCR g_orig)
+Partition lipton_tarjan_separator(GraphCR g_orig)
 {
 	Graph g_copy(g_orig);
 

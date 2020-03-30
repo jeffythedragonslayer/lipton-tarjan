@@ -13,7 +13,7 @@
 
 int levi_civita(uint i, uint j, uint k);
 
-vertex_t			  get_common_ancestor(std::vector<vertex_t> const&, std::vector<vertex_t> const&); 
+vertex_t		  get_common_ancestor(std::vector<vertex_t> const&, std::vector<vertex_t> const&); 
 std::set<vertex_t> 	  get_neighbors(vertex_t, Graph const&);
 std::set<vertex_t> 	  get_intersection(std::set<vertex_t> const&, std::set<vertex_t> const&);
 
@@ -21,17 +21,17 @@ enum InsideOutOn {INSIDE, OUTSIDE, ON};
 
 InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t, vertex_t common_vert, std::vector<vertex_t> const& cycle, Graph const&, Embedding const&);
 
-struct FoundCircularNode
+struct FoundSelfLoop
 {
-		FoundCircularNode(const vertex_t& e) : e(e) {}
+	FoundSelfLoop(const vertex_t& e) : e(e) {}
 
-		vertex_t e; 
+	vertex_t e; 
 };
 
 struct CycleCost
 {
         uint inside = 0;
-		uint outside = 0;
+	uint outside = 0;
 };
 
 CycleCost compute_cycle_cost(std::vector<vertex_t> const& cycle, Graph const&, BFSVisitorData const&, EmbedStruct const&);

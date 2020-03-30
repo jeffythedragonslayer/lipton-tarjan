@@ -64,7 +64,7 @@ void ScanVisitor::scan_nonsubtree_edges_clockwise(vertex_t current_node, Graph c
 				auto tar = target(e, g);
 				if( src == tar ){
 					cout << "ignoring circular node\n";
-					continue;//throw FoundCircularNode(src);
+					continue;//throw FoundSelfLoop(src);
 				}
 
 				cout << "checking edge: " << src << ", " << tar << "\n";

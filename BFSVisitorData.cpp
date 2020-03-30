@@ -150,7 +150,7 @@ edge_t BFSVisitorData::arbitrary_nontree_edge(Graph const& g) const
                 if( src == tar ){
                         cout << "ignoring circular edge\n";
                         continue;
-                        //kthrow FoundCircularNode(src);
+                        //kthrow FoundSelfLoop(src);
                 }
 
                 if( !in_cc(*ei) ) continue;

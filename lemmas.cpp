@@ -109,7 +109,7 @@ Partition lemma2(GraphCR g_orig, vector<vertex_t> const& cycle, BFSVisitorData c
         BOOST_ASSERT(ccs[min_index].outside <= 2*n/3);
         auto cycle2 = visdata.get_cycle(xz);
 
-        uint cyclelengthlimit = find(STLALL(cycle2), visdata.root) != cycle.end() ? 2*r+1 : 2*r-1;
+        uint cyclelengthlimit = find(STLALL(cycle2), visdata.root) != cycle2.end() ? 2*r+1 : 2*r-1;
         BOOST_ASSERT(cycle2.size() <= cyclelengthlimit);
 
         auto p = Partition(cycle2, g_shrink2, em);

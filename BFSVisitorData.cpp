@@ -51,16 +51,14 @@ bool BFSVisitorData::is_tree_edge(edge_t e) const
 
 bool BFSVisitorData::in_cc(edge_t e) const
 { 
-		vertex_t src = source(e, *g);
-		vertex_t tar = target(e, *g); 
-		auto src_it = this->verts.find(src);
-		auto tar_it = this->verts.find(tar);
-		//if (vmap) cout << "testing is edge in cc (" << vmap->vert2uint[src] << ", " << vmap->vert2uint[tar] << ")\n";
-		if( src_it == verts.end() || tar_it == verts.end() ){
-				//cout << "edge has src or tar not appearing in BFSVisitorData verts: (" << vmap->vert2uint[src] << ", " << vmap->vert2uint[tar] << ")\n";
-				return false;
-		}
-		return src_it->second.parent == tar || tar_it->second.parent == src; // tree edges will have a parent-child relationship among their source and target but we're not sure which is which
+	vertex_t src = source(e, *g);
+	vertex_t tar = target(e, *g); 
+	auto src_it = this->verts.find(src);
+	auto tar_it = this->verts.find(tar);
+	if( src_it == verts.end() || tar_it == verts.end() ){
+		return false;
+	}
+	return src_it->second.parent == tar || tar_it->second.parent == src; // tree edges will have a parent-child relationship among their source and target but we're not sure which is which
 }
 
 uint BFSVisitorData::edge_cost(edge_t e, vector<vertex_t> const& cycle, Graph const& g) const
@@ -139,7 +137,6 @@ edge_t BFSVisitorData::arbitrary_nontree_edge(Graph const& g) const
                 auto src = source(*ei, g);
                 auto tar = target(*ei, g);
                 assert(edge(src, tar, g).second); // edge exists
-				//cout << "candidate edge: " << vmap.vert2uint[src] << ' ' << vmap.vert2uint[tar] << '\n';
                 if( src == tar ){
                         cout << "ignoring circular edge\n";
                         continue;

@@ -33,7 +33,7 @@ Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r
 {
         uint n = num_vertices(g);
         cout << "g:\n";
-        print_graph(g);
+        //print_graph(g);
         vertex_t v;
 
         // l1 = the level such that the sum of costs in levels 0 thru l1-1 < 1/2, but the sum of costs in levels 0 thru l1 is >= 1/2
@@ -134,8 +134,8 @@ Partition theorem4_ccbigger23(GraphCR g_all, Partition const& biggest_comp_p)
         }
 
         cout << "gcomp:\n";
-        print_graph(g_comp);
-        print_graph_addresses(g_comp);
+        //print_graph(g_comp);
+        //print_graph_addresses(g_comp);
 
         uint nremove = toremove.size();
         cout << "nremove: " << nremove << '\n';
@@ -148,8 +148,8 @@ Partition theorem4_ccbigger23(GraphCR g_all, Partition const& biggest_comp_p)
 
 
         cout << "gcomp:\n";
-        print_graph(g_comp);
-        print_graph_addresses(g_comp);
+        //print_graph(g_comp);
+        //print_graph_addresses(g_comp);
         BFSVisitorData vd(&g_comp, *vertices(g_comp).first);
         breadth_first_search(g_comp, vd.root, boost::visitor(BFSVisitor(vd)));
 
@@ -212,7 +212,7 @@ Partition theorem4_ccbigger23(GraphCR g_all, Partition const& biggest_comp_p)
                 p.a = star_p.a; 
                 p.b.insert(STLALL(star_p.b));
         } else {
-                p.a = star_p.b; 
+                p.a = star_p.b;
                 p.b.insert(STLALL(star_p.a));
         }
         return p; 

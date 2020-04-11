@@ -243,7 +243,6 @@ Graph load_graph(string const& fname)
 		++i;
 	}
 
-
         for( pair<uint, uint>& e : file_edges ){
                 auto src = uint_to_vert[e.first];
                 auto tar = uint_to_vert[e.second];

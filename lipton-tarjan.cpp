@@ -45,12 +45,11 @@ Partition construct_vertex_partition(GraphCR g_orig, Graph& g_shrunk, vector<uin
 
         uint n = num_vertices(g_orig);
         uint n_biggest_comp = vis_data_orig.verts.size(); // if num_components > 1 then num_vertices(g_orig) will not be what we want
-        cout << "n_biggest: " << n_biggest_comp << '\n';
+        //cout << "n_biggest: " << n_biggest_comp << '\n';
 
         cout  << "\n------------ 10  - Construct Vertex Partition --------------\n";
         cout << "g_orig:\n";
         print_graph(g_orig);
-	//print_graph_special(g_orig, vmap);
         cout << "l0: " << l[0] << '\n';
         cout << "l1: " << l[1] << '\n';
         cout << "l2: " << l[2] << '\n';
@@ -139,7 +138,6 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
 {
         cout << "---------------------------- 9 - Improve Separator -----------\n";
         print_graph(g_shrunk);
-        //print_edges(g_shrunk, vmap_shrunk);
 
         auto prop_map = get(vertex_index, g_shrunk); // writing to this property map has side effects in the graph
 
@@ -331,7 +329,6 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
         shrunken_vis_data.root = x;
         ++shrunken_vis_data.verts[shrunken_vis_data.root].descendant_cost;
 
-        //cout << "root: " << vmap_shrunk.vert2uint[shrunken_vis_data.root] << '\n'; 
         uint n = num_vertices(g_shrunk);
         cout << "n:    " << n << '\n'; 
         cout << "null vertex: " << Graph::null_vertex() << '\n';
@@ -403,11 +400,9 @@ vector<vertex_t> shrinktree_deletel2andabove(Graph& g, uint l[3], BFSVisitorData
                 uint level = vis_data_copy.verts.find(*vit)->second.level;
 
                 if( level >= l[2] ){
-                        //cout << "killing vertex " << vmap_shrunk.vert2uint[*vit] << " of level l2 " << vis_data_orig.verts.find(*vit)->second.level << " >= " << l[2] << '\n';
                         kill_vertex(*vit, g); 
                 }
                 if( level <= l[0] ){
-                        //cout << "going to replace vertex " << vmap_shrunk.vert2uint[*vit] << " of level l0 " << vis_data_orig.verts.find(*vit)->second.level << " <= " << l[0] << '\n';
                         replaced_verts.push_back(*vit);
                 }
         }
@@ -436,7 +431,6 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
         //assert(assert_verts(g_copy, vis_data_addx)); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
         //prop_map[x] = X_VERT_UINT;
 
-        //vmap_shrunk.uint2vert[vmap_shrunk.vert2uint[x] = X_VERT_UINT] = x; 
         map<vertex_t, bool> table; // x will not be in this table
 	VertIter vit, vjt;
         for( tie(vit, vjt) = vertices(g_shrunk); vit != vjt; ++vit ){
@@ -444,7 +438,6 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
                 if( !vis_data_addx.verts.contains(*vit) ) continue; // *vit may be in a different connected component
                 uint level = vis_data_addx.verts.find(*vit)->second.level;
                 table[*vit] = level <= l[0];
-                //cout << "vertex " << vmap_shrunk.vert2uint[*vit] << " at level " << vis_data_orig.verts.find(*vit)->second.level << " is " << (table[*vit] ? "TRUE" : "FALSE") << '\n';
         }
 
         assert(vertex_exists(x, g_shrunk)); 
@@ -654,23 +647,20 @@ Partition lipton_tarjan(GraphCR g_orig)
 {
 	Graph g_copy(g_orig);
 
-	cout << "@#$original g:\n";
+	//cout << "@#$original g:\n";
 	print_graph(g_orig);
-	cout << "@#$g_copy:\n";
-        //print_graph_special(g_copy, vmap_copy);
+	//cout << "@#$g_copy:\n";
 	//print_graph2(g_copy);
 
-        auto prop_map = get(vertex_index, g_copy);
+        /*auto prop_map = get(vertex_index, g_copy);
         VertIter vi, vend;
         for( tie(vi, vend) = vertices(g_copy); vi != vend; ++vi ){
                 cout << "vert#: " << prop_map[*vi] << '\n';
-        }
+        }*/
 
 	/*cout << "---------------------------- 0 - Printing Edges -------------------\n";
 	cout << "edges of g:\n";*/
-	//print_edges(g_orig, vmap);
 	//cout << "edges of g_copy:\n" << std::endl;
-	//print_edges(g_copy, vmap_copy);
 
         cout << "---------------------------- 1 - Check Planarity  ------------\n";
         EmbedStruct em(&g_copy);

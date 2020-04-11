@@ -24,7 +24,7 @@ void check_graph_is_nonplanar(string graphfile)
 	uint e = num_edges(g);
 
 	cout << "starting lipton tarjan...\n";
-	print_graph(g);
+	//print_graph(g);
 
 	try {
 		Partition p = lipton_tarjan(g);
@@ -49,7 +49,7 @@ void check_partition_is_legal(string graphfile)
 	init_vert_propmap(g);
 
 	cout << "starting lipton tarjan...\n";
-	print_graph(g);
+	//print_graph(g);
 	uint n = num_vertices(g);
 
 	Partition p = lipton_tarjan(g);

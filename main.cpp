@@ -1,3 +1,10 @@
+//=======================================================================
+// Copyright 2015 - 2020 Jeff Linahan
+//
+// Distributed under the Boost Software License, Version 1.0. (See
+// accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+//=======================================================================
 #include "lipton-tarjan.h"
 #include "typedefs.h"
 #include "strutil.h"
@@ -41,14 +48,14 @@ int main(int argc, char* argv[])
                 print_graph(g);
 
 		try { 
-			Partition p = lipton_tarjan(g);
+			Partition p = lipton_tarjan_separator(g);
 			uint num_verts_finished = p.total_num_verts();
 			cout << "Finished!\n";
 
                         p.print(&g);
 
-                        assert(p.verify_edges(g));
-			assert(p.verify_sizes(g));
+                        BOOST_ASSERT(p.verify_edges(g));
+			BOOST_ASSERT(p.verify_sizes(g));
 			//p.print(vmap2);
 
 			cout << "finished num verts: " << num_verts_finished << '\n';

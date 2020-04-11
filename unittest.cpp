@@ -1,3 +1,10 @@
+//=======================================================================
+// Copyright 2015 - 2020 Jeff Linahan
+//
+// Distributed under the Boost Software License, Version 1.0. (See
+// accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+//=======================================================================
 #define BOOST_TEST_MODULE LiptonTarjanTest
 #include "typedefs.h"
 #include "lipton-tarjan.h"
@@ -27,7 +34,7 @@ void check_graph_is_nonplanar(string graphfile)
 	//print_graph(g);
 
 	try {
-		Partition p = lipton_tarjan(g);
+		Partition p = lipton_tarjan_separator(g);
 		BOOST_CHECK(false);
 	} catch (NotPlanarException e){
 		BOOST_CHECK(true);
@@ -52,17 +59,17 @@ void check_partition_is_legal(string graphfile)
 	//print_graph(g);
 	uint n = num_vertices(g);
 
-	Partition p = lipton_tarjan(g);
+	Partition p = lipton_tarjan_separator(g);
 
 
 	uint total = p.total_num_verts();
 
 	cout << "n = " << n << '\n';
 	cout << "total = " << total << '\n';
-	assert(n == total);
+	BOOST_ASSERT(n == total);
 
-	assert(p.verify_sizes(g));
-	assert(p.verify_edges(g));
+	BOOST_ASSERT(p.verify_sizes(g));
+	BOOST_ASSERT(p.verify_edges(g));
 }
 
 BOOST_AUTO_TEST_CASE( kuratowski )
@@ -186,4 +193,5 @@ BOOST_AUTO_TEST_CASE( circular_node )
 BOOST_AUTO_TEST_CASE( disconnected_test )
 {
 	check_partition_is_legal("graphs/disconnected");
+	check_partition_is_legal("graphs/skip");
 }

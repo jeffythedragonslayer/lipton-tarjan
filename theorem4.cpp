@@ -1,3 +1,10 @@
+//=======================================================================
+// Copyright 2015 - 2020 Jeff Linahan
+//
+// Distributed under the Boost Software License, Version 1.0. (See
+// accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+//=======================================================================
 #include "theorem4.h"
 #include "strutil.h"
 #include "graphutil.h"
@@ -21,7 +28,7 @@ uint lowest_i(uint n, uint num_components, vector<uint> const& num_verts_per_com
         uint i = 0;
         for( ; i < num_components; ++i ){
                 total_cost += num_verts_per_component[i];
-                if ( total_cost > n/3 ) return i;
+                if ( total_cost*3 > n ) return i;
         } 
 
         return -1;
@@ -45,7 +52,7 @@ Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r
 
         uint l1 = level;
 
-        assert(1 == L[0]);
+        BOOST_ASSERT(1 == L[0]);
         // Partition the vertices into levels according to their distance from some vertex v.
         //uint r;
         /*If r is the maximum distance of any vertex from v, define additional levels -1 and r+1 containing no vertices*/
@@ -65,8 +72,8 @@ Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r
         uint l2 = l1+1;
         while( L[l2] + 2*(l2-l1-1) > sqrtnk) ++l2;
         
-        assert(l0 <= l1);
-        assert(l1+1 <= l2);
+        BOOST_ASSERT(l0 <= l1);
+        BOOST_ASSERT(l1+1 <= l2);
 
         BFSVisitorData bfs(&g, *vertices(g).first);
         breadth_first_search(g, bfs.root, boost::visitor(BFSVisitor(bfs)));
@@ -78,8 +85,8 @@ Partition theorem4_connected(GraphCR g, vector<uint> const& L, uint l[3], uint r
         Partition p = lemma3(g, L, l1, l2, r, bfs, *bfs2, cycle, g_shrunk);
 
         uint climit = sqrtk - sqrtnk;
-        assert(p.verify_edges(g));
-        //assert(p.verify_sizes_lemma3(L, l1, l2));
+        BOOST_ASSERT(p.verify_edges(g));
+        //BOOST_ASSERT(p.verify_sizes_lemma3(L, l1, l2));
 
         /*If 2 such levels exist, then by Lemma 3 the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex in A with a vertex in B,
         neither A or C has cost > 2/3, and C contains no more than 2(sqrt(k) + sqrt(n-k)) vertices.
@@ -154,8 +161,8 @@ Partition theorem4_ccbigger23(GraphCR g_all, Partition const& biggest_comp_p)
         breadth_first_search(g_comp, vd.root, boost::visitor(BFSVisitor(vd)));
 
         // disabled because they don't support multiple connected components
-        //assert(assert_verts(g_orig, vis_data_orig));
-        //assert(assert_verts(g_copy, vis_data_copy));
+        //BOOST_ASSERT(assert_verts(g_orig, vis_data_orig));
+        //BOOST_ASSERT(assert_verts(g_copy, vis_data_copy));
 
         uint n = num_vertices(g_comp);
 
@@ -268,32 +275,31 @@ Partition theorem4_disconnected(GraphCR g, uint n, uint num_components, associat
                 Partition p; 
 
                 int i = lowest_i(n, num_components, num_verts_per_component);
-                assert(i >= 0 && num_verts_per_component[i] >= n/3 && num_verts_per_component[i] <= 2*n/3);
+                BOOST_ASSERT(i >= 0 && num_verts_per_component[i] >= n/3 && num_verts_per_component[i] <= 2*n/3);
 
                 // populate partition A
                 cout << "!! populating partition A\n";
-                vector<VertIter>& vset = vertex_sets[i];
-                cout << "vecsize: " << vset.size() << '\n';
-                for( VertIter& v : vset ){
-                        cout << "v: " << *v << endl;
-                        p.a.insert(*v); 
+                for( uint j = 0; j <= i; ++j ){
+                        for( uint v = 0; v < vertex_sets[j].size(); ++v ){
+                                p.a.insert(*vertex_sets[j][v]);
+                        }
+
                 }
                 cout << '\n';
 
                 // populate partition B, should be everything except what's in partition A
                 cout << "!! populating partition B\n";
-                for( uint j = 0; j < num_components; ++j ){
-                        if( i != j ){
-                                vector<VertIter>& vset = vertex_sets[j];
-                                for( VertIter& v : vset ){
-                                        p.b.insert(*v);
-                                        cout << "v: " << *v << endl;
-                                }
+                for( uint j = i+1; j < num_components; ++j ){
+
+                        vector<VertIter>& vset = vertex_sets[j];
+                        for( VertIter& v : vset ){
+                                p.b.insert(*v);
+                                cout << "v: " << *v << endl;
                         }
                 }
 
                 // partition C should be empty 
-                assert(p.c.empty());
+                BOOST_ASSERT(p.c.empty());
 
                 p.print(&g);
 
@@ -303,7 +309,6 @@ Partition theorem4_disconnected(GraphCR g, uint n, uint num_components, associat
 
         return theorem4_ccbigger23(g, biggest_comp_p);
 }
-
 
 /* Theorem 4: Let G be any (possibly disconnected) n-vertex planar graph having nonnegative vertex costs summing to no more than one.
 Then the vertices of G can be partitioned into three sets A, B, C such that no edge joins a vertex
@@ -320,7 +325,7 @@ Partition theorem4(GraphCR g, associative_property_map<vertex_map> const& vertid
                 vector<uint> L;
                 uint l[3];
                 uint r;
-                assert(0);
+                BOOST_ASSERT(0);
                 return theorem4_connected(g, L, l, r, nullptr, nullptr);
 	} else {
                 cout << "graph is disconnected with " << num_components << " components\n";

@@ -1,3 +1,10 @@
+//=======================================================================
+// Copyright 2015 - 2020 Jeff Linahan
+//
+// Distributed under the Boost Software License, Version 1.0. (See
+// accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+//=======================================================================
 #include "Partition.h"
 #include "EmbedStruct.h"
 #include "typedefs.h"
@@ -68,7 +75,7 @@ Partition::Partition(vector<vertex_t> const& cycle, Graph& g, EmbedStruct const&
         uint num_components = connected_components(g, vertid_to_component);
 		cout << "num_components: " << num_components << '\n';
 
-		assert(2 == num_components-cycle.size()); // each vertex on the cycle is now its own component, leaving only A and B left
+		BOOST_ASSERT(2 == num_components-cycle.size()); // each vertex on the cycle is now its own component, leaving only A and B left
 
 		set<int> unique_comps;
 
@@ -88,7 +95,7 @@ Partition::Partition(vector<vertex_t> const& cycle, Graph& g, EmbedStruct const&
 						a.insert(*vit);
 				}
 		} 
-		assert(2 == unique_comps.size());
+		BOOST_ASSERT(2 == unique_comps.size());
 }
 
 void Partition::get_most_costly_part(set<vertex_t> const** most_costly,
@@ -113,7 +120,7 @@ void Partition::get_most_costly_part(set<vertex_t> const** most_costly,
 		*other2      = &b;
 		return;
 	}
-	assert(0);
+	BOOST_ASSERT(0);
 }
 
 bool Partition::verify_sizes_lemma3(vector<uint> const& L, uint l1, uint l2) const

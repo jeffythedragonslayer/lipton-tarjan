@@ -1,3 +1,10 @@
+//=======================================================================
+// Copyright 2015 - 2020 Jeff Linahan
+//
+// Distributed under the Boost Software License, Version 1.0. (See
+// accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+//=======================================================================
 #include "lipton-tarjan.h"
 #include "theorem4.h"
 #include "lemmas.h"
@@ -27,21 +34,20 @@
 #include <utility>
 #include <csignal>
 #include <iterator>
-#include <cassert>
 using namespace std;
 using namespace boost; 
 
 // Step 10: construct_vertex_partition
 // Time:    O(n)
 //
-// Use the cycle found in Step 9 and the levels found in Step 4 (l1_and_k) to construct a satisfactory vertex partition as described in the proof of Lemma 3
+// Use the fundamental cycle found in Step 9 and the levels found in Step 4 (l1_and_k) to construct a satisfactory vertex partition as described in the proof of Lemma 3
 // Extend this partition from the connected component chosen in Step 2 to the entire graph as described in the proof of Theorem 4.
-Partition construct_vertex_partition(GraphCR g_orig, Graph& g_shrunk, vector<uint> const& L, uint l[3], BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_shrunken, vector<vertex_t> const& cycle)
+Partition construct_vertex_partition(GraphCR g_orig, Graph& g_shrunk, vector<uint> const& L, uint l[3], BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_shrunken, vector<vertex_t> const& fundamental_cycle)
 {
         vertex_map idx; 
         associative_property_map<vertex_map> vertid_to_component(idx);
         uint num_components = connected_components(g_orig, vertid_to_component);
-        //assert(1 == num_components);
+        //BOOST_ASSERT(1 == num_components);
 
         uint n = num_vertices(g_orig);
         uint n_biggest_comp = vis_data_orig.verts.size(); // if num_components > 1 then num_vertices(g_orig) will not be what we want
@@ -57,7 +63,7 @@ Partition construct_vertex_partition(GraphCR g_orig, Graph& g_shrunk, vector<uin
         uint r = vis_data_orig.num_levels;
         cout << "r max distance: " << r << '\n';
 
-        Partition biggest_comp_p = lemma3(g_orig, L, l[1], l[2], r, vis_data_orig, vis_data_shrunken, cycle, &g_shrunk);
+        Partition biggest_comp_p = lemma3(g_orig, L, l[1], l[2], r, vis_data_orig, vis_data_shrunken, fundamental_cycle, &g_shrunk);
         biggest_comp_p.verify_edges(g_orig);
         biggest_comp_p.verify_sizes_lemma3(L, l[1], l[2]);
         if( 1 == num_components ){
@@ -91,7 +97,7 @@ vertex_t findy(vertex_t vi, set<vertex_t> const& neighbors_vw, vector<vertex_t> 
 {
 	for( vertex_t y_candidate : neighbors_vw ){
                 pair<edge_t, bool> vi_cy = edge(vi, y_candidate, g_shrunk);
-                assert(vi_cy.second);
+                BOOST_ASSERT(vi_cy.second);
                 edge_t e = vi_cy.first;
                 InsideOutOn insideout = is_edge_inside_outside_or_on_cycle(e, vi, cycle, g_shrunk, em.em);
                 if( INSIDE == insideout ){
@@ -99,7 +105,7 @@ vertex_t findy(vertex_t vi, set<vertex_t> const& neighbors_vw, vector<vertex_t> 
                 }
 	}
 	/*pair<edge_t, bool> maybe_y = edge(vi, *neighbors_vw.begin(), g_shrunk);
-	assert(maybe_y.second); // I'm assuming the bool means that the edge_t exists?  Boost Graph docs don't say
+	BOOST_ASSERT(maybe_y.second); // I'm assuming the bool means that the edge_t exists?  Boost Graph docs don't say
 	cout << "maybe_y: " << to_string(maybe_y.first, g_shrunk) << '\n';
 
 	cout << "cycle:\n";
@@ -109,13 +115,13 @@ vertex_t findy(vertex_t vi, set<vertex_t> const& neighbors_vw, vector<vertex_t> 
 					*neighbors_vw.rbegin() :
 					*neighbors_vw.begin() ;
 	cout << "common vert on cycle: " << prop_map[common_vert_on_cycle] << '\n';
-	assert(find(STLALL(cycle), common_vert_on_cycle) != cycle.end());
+	BOOST_ASSERT(find(STLALL(cycle), common_vert_on_cycle) != cycle.end());
 
 	InsideOutOn insideout = is_edge_inside_outside_or_on_cycle(maybe_y.first, common_vert_on_cycle, cycle, g_shrunk, em.em);
-	assert(insideout != ON);
+	BOOST_ASSERT(insideout != ON);
 	vertex_t y = (insideout == INSIDE) ? *neighbors_vw.begin() : *neighbors_vw.rbegin();*/
 	// We now have the (vi, y, wi) triangle
-        assert(0);
+        BOOST_ASSERT(0);
 }
 
 // Step 9: Improve Separator
@@ -158,7 +164,7 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
 		// Let (vi, wi) be the nontree edge whose cycle is the current candidate to complete the separator
                 vertex_t vi = source(completer_candidate_edge, g_shrunk);
                 vertex_t wi = target(completer_candidate_edge, g_shrunk); 
-                assert(!vis_data_shrunken.is_tree_edge(completer_candidate_edge));
+                BOOST_ASSERT(!vis_data_shrunken.is_tree_edge(completer_candidate_edge));
                 cout << "   vi: " << prop_map[vi] << '\n';
                 cout << "   wi: " << prop_map[wi] << '\n';
 
@@ -174,8 +180,8 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
 		vertex_t y = findy(vi, neighbors_vw, cycle, g_shrunk, em, prop_map);
 
                 cout << "   y: " << prop_map[y] << '\n';
-                pair<edge_t, bool> viy_e = edge(vi, y, g_shrunk); assert(viy_e.second); edge_t viy = viy_e.first;
-                pair<edge_t, bool> ywi_e = edge(y, wi, g_shrunk); assert(ywi_e.second); edge_t ywi = ywi_e.first; 
+                pair<edge_t, bool> viy_e = edge(vi, y, g_shrunk); BOOST_ASSERT(viy_e.second); edge_t viy = viy_e.first;
+                pair<edge_t, bool> ywi_e = edge(y, wi, g_shrunk); BOOST_ASSERT(ywi_e.second); edge_t ywi = ywi_e.first; 
                 edge_t next_edge;
 
 		// if either (vi, y) or (y, wi) is a tree edge, 
@@ -183,7 +189,7 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
 			// determine the tree path from y to the (vi, wi) cycle by following parent pointers from y.
                         cout << "   at least one tree edge\n";
                         next_edge = vis_data_shrunken.is_tree_edge(viy) ? ywi : viy;
-                        assert(!vis_data_shrunken.is_tree_edge(next_edge));
+                        BOOST_ASSERT(!vis_data_shrunken.is_tree_edge(next_edge));
 
                         // Compute the cost inside the (vi+1 wi+1) cycle from the cost inside the (vi, wi) cycle and the cost of vi, y, and wi.  See Fig 4.
                         uint cost[4] = {vis_data_shrunken.verts.find(vi)->second.descendant_cost,
@@ -213,10 +219,10 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
 			cout << "i: " << i << '\n';
                         vertex_t z = y_parents.at(i);
 			cout << "z: " << prop_map[z] << '\n';
-                        assert(on_cycle(z, cycle, g_shrunk));
+                        BOOST_ASSERT(on_cycle(z, cycle, g_shrunk));
                         cout << "    z: " << prop_map[z] << '\n';
                         y_parents.erase(y_parents.begin()+i, y_parents.end());
-                        assert(y_parents.size() == i);
+                        BOOST_ASSERT(y_parents.size() == i);
 
                         // Compute the total cost af all vertices except z on this tree path.
                         uint path_cost = y_parents.size() - 1;
@@ -240,12 +246,12 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
                 } 
                 completer_candidate_edge = next_edge;
         }
-        cout << "found cycle with inside cost " << cc.inside << " which is less than 2/3\n";
+        cout << "found fundamental cycle with inside cost " << cc.inside << " which is less than 2/3\n";
         print_cycle(cycle, g_shrunk);
 
-        //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
-        //assert(vis_data_orig.assert_data());
-        //assert(vis_data_shrunken.assert_data());
+        //BOOST_ASSERT(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
+        //BOOST_ASSERT(vis_data_orig.assert_data());
+        //BOOST_ASSERT(vis_data_shrunken.assert_data());
 
 	return construct_vertex_partition(g_orig, g_shrunk, L, l, vis_data_orig, vis_data_shrunken, cycle); // step 10
 }
@@ -262,12 +268,12 @@ Partition improve_separator(GraphCR g_orig, Graph& g_shrunk, CycleCost& cc, edge
 // Determine which side of the cycle has greater cost and call it the "inside"
 Partition locate_cycle(GraphCR g_orig, Graph& g_shrunk, BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_shrunken, vector<uint> const& L, uint l[3])
 {
-        //assert(vis_data_orig.assert_data()); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
-        //assert(vis_data_shrunken.assert_data()); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
+        //BOOST_ASSERT(vis_data_orig.assert_data()); //BOOST_ASSERT(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
+        //BOOST_ASSERT(vis_data_shrunken.assert_data()); //BOOST_ASSERT(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
 
         uint n = num_vertices(g_orig);
         cout  << "----------------------- 8 - Locate Cycle -----------------\n"; 
-        //print_graph(g_shrunk);
+        print_graph(g_shrunk);
         edge_t completer_candidate_edge;
         
         try {
@@ -352,7 +358,7 @@ Partition new_bfs_and_make_max_planar(GraphCR g_orig, Graph& g_shrunk, BFSVisito
         cout << "g_shrunk with workaround:\n";
         print_graph(g_shrunk);
 
-        assert(vertex_exists(shrunken_vis_data.root, g_shrunk));
+        BOOST_ASSERT(vertex_exists(shrunken_vis_data.root, g_shrunk));
 
         breadth_first_search(g_shrunk, shrunken_vis_data.root, bvs);
 
@@ -423,12 +429,12 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
         vis_data_addx.verts[x].level = 0;
         vis_data_addx.verts[x].parent = Graph::null_vertex();
         vis_data_addx.verts[x].descendant_cost = -1;
-        assert(vertex_exists(x, g_shrunk));
-        //assert(assert_verts(g_copy, vis_data_addx)); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
+        BOOST_ASSERT(vertex_exists(x, g_shrunk));
+        //BOOST_ASSERT(assert_verts(g_copy, vis_data_addx)); //BOOST_ASSERT(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
         vector<vertex_t> replaced_verts = shrinktree_deletel2andabove(g_shrunk, l, vis_data_addx, x);
 
-        assert(vertex_exists(x, g_shrunk));
-        //assert(assert_verts(g_copy, vis_data_addx)); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
+        BOOST_ASSERT(vertex_exists(x, g_shrunk));
+        //BOOST_ASSERT(assert_verts(g_copy, vis_data_addx)); //BOOST_ASSERT(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
         //prop_map[x] = X_VERT_UINT;
 
         map<vertex_t, bool> table; // x will not be in this table
@@ -440,8 +446,8 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
                 table[*vit] = level <= l[0];
         }
 
-        assert(vertex_exists(x, g_shrunk)); 
-        //assert(assert_verts(g_copy, vis_data_addx)); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
+        BOOST_ASSERT(vertex_exists(x, g_shrunk)); 
+        //BOOST_ASSERT(assert_verts(g_copy, vis_data_addx)); //BOOST_ASSERT(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
 
         cout << "g_shrunk:\n";
         print_graph(g_shrunk);
@@ -450,15 +456,15 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
         //reset_vertex_indices(g_shrunk);
         //reset_edge_index(g_shrunk);
         EmbedStruct em = ctor_workaround(&g_shrunk);
-        assert(test_planar_workaround(em.em, &g_shrunk));
+        BOOST_ASSERT(test_planar_workaround(em.em, &g_shrunk));
 
-        //assert(assert_verts(g_copy, vis_data_addx)); //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
+        //BOOST_ASSERT(assert_verts(g_copy, vis_data_addx)); //BOOST_ASSERT(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
 
         VertIter vei, vend;
         for( tie(vei, vend) = vertices(g_orig); vei != vend; ++vei ){ 
                 vertex_t v = *vei;
                 if( !vis_data_orig.verts.contains(v) ){
-                        cout << "lipton-tarjan.cpp: ignoring bad vertex : " << v << '\n';
+                        cerr << "lipton-tarjan.cpp: ignoring bad vertex : " << v << '\n';
                         continue; 
                 }
         }
@@ -467,13 +473,13 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
         svis.scan_nonsubtree_edges_clockwise(*vertices(g_shrunk).first, g_shrunk, em.em, vis_data_addx);
         svis.finish();
 
-        assert(vertex_exists(x, g_shrunk));
+        BOOST_ASSERT(vertex_exists(x, g_shrunk));
 
         cout << "deleting all vertices x has replaced\n"; for( vertex_t& v : replaced_verts ) {cout << "killing " << v << '\n'; kill_vertex(v, g_shrunk); }// delete all vertices x has replaced
 
         reset_vertex_indices(g_shrunk);
 
-        assert(vertex_exists(x, g_shrunk));
+        BOOST_ASSERT(vertex_exists(x, g_shrunk));
 
         cout << "g_shrunk:\n";
         print_graph(g_shrunk);
@@ -495,7 +501,7 @@ Partition shrinktree(GraphCR g_orig, Graph& g_copy, BFSVisitorData const& vis_da
 // Find the lowest level l2 >= l1 + 1 such that L(l2) + 2(l2-l1-1) <= 2*sqrt(n-k)
 Partition find_more_levels(GraphCR g_orig, Graph& g_copy, uint k, uint l[3], vector<uint> const& L, BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_copy)
 {
-        //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
+        //BOOST_ASSERT(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
 
         cout  << "---------------------------- 5 - Find More Levels -------\n";
         //print_graph(g_copy);
@@ -534,7 +540,7 @@ Partition find_more_levels(GraphCR g_orig, Graph& g_copy, uint k, uint l[3], vec
 // Let k be the number of vertices in levels 0 through l1
 Partition l1_and_k(GraphCR g_orig, Graph& g_copy, vector<uint> const& L, BFSVisitorData const& vis_data_orig, BFSVisitorData const& vis_data_copy)
 {
-        //assert(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
+        //BOOST_ASSERT(assert_verts(g_copy, vis_data_copy)); // disabled because it doesn't support connected components
 
         cout  << "---------------------------- 4 - l1 and k  ------------\n";
         uint k = L[0]; 
@@ -550,7 +556,7 @@ Partition l1_and_k(GraphCR g_orig, Graph& g_copy, vector<uint> const& L, BFSVisi
 
         cout << "k:  " << k    << "      # of verts in levels 0 thru l1\n";
         cout << "l1: " << l[1] << "      total cost of levels 0 thru l1 barely exceeds 1/2\n";
-	assert(k <= n); 
+	BOOST_ASSERT(k <= n); 
 	return find_more_levels(g_orig, g_copy, k, l, L, vis_data_orig, vis_data_copy); // step 5
 }
 
@@ -568,8 +574,8 @@ Partition bfs_and_levels(GraphCR g_orig, Graph& g_copy)
         breadth_first_search(g_orig, vis_data_orig.root, boost::visitor(BFSVisitor(vis_data_orig)));
 
         // disabled because they don't support multiple connected components
-        //assert(assert_verts(g_orig, vis_data_orig));
-        //assert(assert_verts(g_copy, vis_data_copy));
+        //BOOST_ASSERT(assert_verts(g_orig, vis_data_orig));
+        //BOOST_ASSERT(assert_verts(g_copy, vis_data_copy));
 
         vector<uint> L(vis_data_copy.num_levels + 1, 0);
 	cout << "L levels: " << L.size() << '\n';
@@ -643,7 +649,7 @@ Partition find_connected_components(GraphCR g_orig, Graph& g_copy)
 // Time:   big-theta(n)
 //
 // Find a planar embedding of G and construct a representation for it of the kind described above.
-Partition lipton_tarjan(GraphCR g_orig)
+Partition lipton_tarjan_separator(GraphCR g_orig)
 {
 	Graph g_copy(g_orig);
 

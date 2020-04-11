@@ -1,3 +1,10 @@
+//=======================================================================
+// Copyright 2015 - 2020 Jeff Linahan
+//
+// Distributed under the Boost Software License, Version 1.0. (See
+// accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+//=======================================================================
 #include "graphutil.h"
 #include "BFSVisitorData.h"
 #include "strutil.h"
@@ -89,8 +96,8 @@ InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t e, vertex_t common_vert_on
         //cout << "      testing if edge " << vmap.vert2uint[src] << ", " << vmap.vert2uint[tar] << " is inside or outside the cycle\n";
         //cout << "      common_vert_on_cycle:    " << vmap.vert2uint[common_vert_on_cycle]   << '\n';
         auto it = find(STLALL(cycle), common_vert_on_cycle);
-        if( it == cycle.end() ){ cout << "      common_vert_on_cycle needs to appear in cycle\n"; assert(0); }
-        assert(*it == common_vert_on_cycle);
+        if( it == cycle.end() ){ cout << "      common_vert_on_cycle needs to appear in cycle\n"; BOOST_ASSERT(0); }
+        BOOST_ASSERT(*it == common_vert_on_cycle);
         auto before_common = it   == cycle.begin() ?  cycle.end  ()-1   : it-1;
         auto after_common        = it+1 == cycle.end  () ?  cycle.begin()     : it+1; 
         auto other_end_of_common = source(e, g) == common_vert_on_cycle ? target(e, g) : source(e, g); 
@@ -108,7 +115,7 @@ InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t e, vertex_t common_vert_on
                 auto src = source(edge, g);
                 auto tar = target(edge, g);
                 if( src != common_vert_on_cycle ) swap(src, tar);
-                assert(src == common_vert_on_cycle);
+                BOOST_ASSERT(src == common_vert_on_cycle);
 
                 //cout << "    tar: " << vmap.vert2uint[tar] << '\n';
 
@@ -120,7 +127,7 @@ InsideOutOn is_edge_inside_outside_or_on_cycle(edge_t e, vertex_t common_vert_on
                 if( tar == *before_common      ) permu.push_back(2);
                 if( tar == *after_common       ) permu.push_back(3);
         } 
-        assert(permu.size() == 3);
+        BOOST_ASSERT(permu.size() == 3);
 
 	return levi_civita(permu[0], permu[1], permu[2]) == 1 ?
 	       INSIDE					      :
@@ -141,7 +148,7 @@ CycleCost compute_cycle_cost(vector<vertex_t> const& cycle, Graph const& g, BFSV
                                         //uint vert_id = vmap.vert2uint[v];
                                         //cout << "      scanning incident tree edge " << vert_id << "   cost: " << cost << '\n';
                                         auto insideout = is_edge_inside_outside_or_on_cycle(*e.first, v, cycle, g, em.em);
-                                        assert(insideout != ON);
+                                        BOOST_ASSERT(insideout != ON);
                                         bool is_inside = (insideout == INSIDE);
                                         (is_inside ? cc.inside : cc.outside) += cost;
                                 }
@@ -156,16 +163,16 @@ EmbedStruct make_max_planar(Graph& g)
 { 
         EdgeIndex i = reset_edge_index(g);
         EmbedStruct em(&g);
-        assert(em.test_planar());
+        BOOST_ASSERT(em.test_planar());
         make_biconnected_planar(g, em.em, i);
 
         reset_edge_index(g);
-        assert(em.test_planar());
+        BOOST_ASSERT(em.test_planar());
 
         make_maximal_planar(g, em.em);
 
         reset_edge_index(g);
-        assert(em.test_planar());
+        BOOST_ASSERT(em.test_planar());
         return em;
 }
 

@@ -1,3 +1,10 @@
+//=======================================================================
+// Copyright 2015 - 2020 Jeff Linahan
+//
+// Distributed under the Boost Software License, Version 1.0. (See
+// accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+//=======================================================================
 #include "ScanVisitor.h"
 #include "graphutil.h"
 #include <iostream>
@@ -11,12 +18,12 @@ void ScanVisitor::found_edge(vertex_t current_node, edge_t e)
 		auto v = source(e, *g);
 		auto w = target(e, *g);
 		cout << "foundedge " << v << ", " << w << endl;
-		assert(edge_exists(e, *g)); // edge exists
+		BOOST_ASSERT(edge_exists(e, *g)); // edge exists
 		if( current_node != v ) swap(v, w);
-		assert(current_node == v);
+		BOOST_ASSERT(current_node == v);
 		if ( !(*table)[w] ){
 				(*table)[w] = true;
-				assert(x != w); 
+				BOOST_ASSERT(x != w); 
 				cout << "   !!!!!!!going to add " << x << ", " << w;
 				edges_to_add.insert(make_pair(x, w));
 		}
@@ -31,7 +38,7 @@ void ScanVisitor::finish()
 		cout << "edges to add size: " << edges_to_add.size() << '\n';
 		cout << "adding: ";
 		for( auto& p : edges_to_add    ){
-				assert(p.first != p.second);
+				BOOST_ASSERT(p.first != p.second);
 				cout << '(' << p.first << ", " << p.second << ")   ";
 				add_edge(p.first, p.second, *g);
 		}
@@ -48,7 +55,7 @@ void ScanVisitor::finish()
 void ScanVisitor::scan_nonsubtree_edges_clockwise(vertex_t current_node, Graph const& g, Embedding const& embedding, BFSVisitorData const& bfs)
 {
 		auto v_it = bfs.verts.find(current_node);
-		assert(v_it != bfs.verts.end());
+		BOOST_ASSERT(v_it != bfs.verts.end());
 		if( v_it->second.level > l0 ) return;
 
 		auto em = embedding[current_node];
@@ -57,7 +64,7 @@ void ScanVisitor::scan_nonsubtree_edges_clockwise(vertex_t current_node, Graph c
 				auto tar = target(e, g);
 				if( src == tar ){
 					cout << "ignoring circular node\n";
-					continue;//throw FoundCircularNode(src);
+					continue;//throw FoundSelfLoop(src);
 				}
 
 				cout << "checking edge: " << src << ", " << tar << "\n";
@@ -76,7 +83,7 @@ void ScanVisitor::scan_nonsubtree_edges_clockwise(vertex_t current_node, Graph c
 						continue;
 				}
 				if( src != current_node ) swap(src, tar);
-				assert(src == current_node); 
+				BOOST_ASSERT(src == current_node); 
 				auto tar_it = bfs.verts.find(tar);
 				if( tar_it->second.level > l0 ) found_edge(current_node, e);
 		}

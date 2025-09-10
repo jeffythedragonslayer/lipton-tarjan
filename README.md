@@ -24,7 +24,7 @@ straightline [graphfilename]
 	Create a straight line drawing of a graph in graphviz format
 	Visualize this by piping the output into plot.sh
 
-	For exapmle, to visualize graphs/in,
+	For example, to visualize graphs/in,
 
 	straightline graphs/in | plot.sh
 
